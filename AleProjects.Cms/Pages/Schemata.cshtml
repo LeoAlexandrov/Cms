@@ -1,0 +1,180 @@
+﻿@page "{id:int?}"
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.SchemataModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+}
+
+<q-dialog v-model="unsavedSchemaConfirm" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["UnsavedChanges"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["UnsavedChangesText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="confirmDiscard()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" @@click="confirmStay()"></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="newSchemaProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["NewSchema"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model="newSchema.description"
+				label="@Localizer["Description"]"
+				ref="NewSchemaDescription"
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]']">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="createSchema()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="errorSchemaDisplay">
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["ErrorInXsd"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			<q-input v-model="errorSchemaContent"
+				outlined 
+				readonly 
+				type="textarea" 
+				class="multiline-monospace"
+				style="max-height:400px">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Close"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteSchemaConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteSchema"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteSchemaText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteSchema()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+
+<div class="splitter-container">
+	<q-splitter class="full-height-splitter" v-model="splitter" :limits="[15,40]">
+		<template v-slot:before>
+			<div class="q-py-md" :style="{'max-height': pageHeight}">
+				<q-list>
+					<div v-for="(s,idx) in schemata">
+						<q-item clickable v-ripple :active="s.id==selectedSchema" @@click="onSchemaSelected(s.id)">
+							<q-item-section>
+								<q-item-label>{{ s.description }}</q-item-label>
+								<q-item-label caption lines="1">{{ s.namespace }}</q-item-label>
+								<q-item-label caption lines="1">{{ (new Date(s.modifiedAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</q-item-label>
+							</q-item-section>
+						</q-item>
+						<q-separator spaced></q-separator>
+					</div>
+				</q-list>
+			</div>
+		</template>
+
+		<template v-slot:after>
+			<div class="q-pa-md q-gutter-md" :style="{'max-height': pageHeight }" v-if="selectedSchema>0">
+				<h5>@Localizer["Schema"]</h5>
+
+				<q-input dense outlined
+					v-model="editedSchema.description"
+					label="@Localizer["Description"]"
+					ref="Description"
+					@@update:model-value="hasChanged=true"
+					:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]']">
+				</q-input>
+
+				<code-editor v-model="editedSchema.data"
+					line-nums
+					:languages="[['xml', 'XML']]" @* ['csharp', 'C#' ],['markdown', 'Markdown' ],,['javascript','JS'],['html', 'HTML' ] *@
+					theme="vs"
+					tab-spaces="4"
+					font-size="14px"
+					width="calc(100%-16px)"
+					:height="(parseFloat(pageHeight)-250)+'px'"
+					style="tab-size:4; border: 1px solid gainsboro;"
+					border-radius="4px"
+					@@update:model-value="hasChanged=true">
+				</code-editor>
+
+				<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateSchema()"></q-btn>
+				<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardSchema()"></q-btn>
+
+			</div>
+		</template>
+	</q-splitter>
+</div>
+
+
+@section Css
+{
+	<link rel="stylesheet" href="~/css/code-editor/themes.css" />
+@* 	<link rel="stylesheet" href="~/css/code-editor/themes-base16.css" />*@
+	<link rel="stylesheet" href="~/css/code-editor/simple-code-editor.css" />
+}
+
+@section Commands
+{
+	<q-btn flat round icon="add" @@click="startNewSchema()">
+		<q-tooltip>@Localizer["Add"]</q-tooltip>
+	</q-btn>
+
+	<q-btn flat round icon="delete" :disabled="selectedSchema<=0" @@click="startDeleteSchema()">
+		<q-tooltip>@Localizer["DeleteSchema"]</q-tooltip>
+	</q-btn>
+}
+
+@section Scripts
+{
+	<script id="schema_id" type="application/json">@Json.Serialize(Model.SchemaId)</script>
+	<script src="~/js/code-editor/highlight.min.js"></script>
+	<script src="~/js/code-editor/simple-code-editor.js"></script>
+	<script src="~/js/schemata.js"></script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}})
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+		app.mount('#q-app')
+	</script>
+}

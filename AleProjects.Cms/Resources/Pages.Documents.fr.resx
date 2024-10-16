@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Add" xml:space="preserve">
+    <value>Ajouter</value>
+  </data>
+  <data name="AddAttribute" xml:space="preserve">
+    <value>Ajouter un attribut</value>
+  </data>
+  <data name="AddFragment" xml:space="preserve">
+    <value>Ajouter un fragment</value>
+  </data>
+  <data name="AssociatedClaims" xml:space="preserve">
+    <value>Réclamations associées</value>
+  </data>
+  <data name="AttributeEnabledLabel" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="AttributeKey" xml:space="preserve">
+    <value>Clé d'attribut</value>
+  </data>
+  <data name="AttributeKeyAlreadyExists" xml:space="preserve">
+    <value>La clé d'attribut existe déjà</value>
+  </data>
+  <data name="Attributes" xml:space="preserve">
+    <value>Attributs supplémentaires</value>
+  </data>
+  <data name="AttributeValue" xml:space="preserve">
+    <value>Valeur d'attribut</value>
+  </data>
+  <data name="Author" xml:space="preserve">
+    <value>Auteur</value>
+  </data>
+  <data name="ChangeAttribute" xml:space="preserve">
+    <value>Changer l'attribut</value>
+  </data>
+  <data name="ChangeParent" xml:space="preserve">
+    <value>Changer de parent</value>
+  </data>
+  <data name="Content" xml:space="preserve">
+    <value>Contenu décomposé</value>
+  </data>
+  <data name="CoverImageNotFound" xml:space="preserve">
+    <value>Image de couverture non trouvée</value>
+  </data>
+  <data name="CoverPicture" xml:space="preserve">
+    <value>Image de couverture</value>
+  </data>
+  <data name="CreateCopy" xml:space="preserve">
+    <value>Créer une copie</value>
+  </data>
+  <data name="CreatedAt" xml:space="preserve">
+    <value>Créé à</value>
+  </data>
+  <data name="DeleteAttribute" xml:space="preserve">
+    <value>Supprimer l'attribut</value>
+  </data>
+  <data name="DeleteAttributeText" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cet attribut ?</value>
+  </data>
+  <data name="DeleteDocument" xml:space="preserve">
+    <value>Supprimer le document</value>
+  </data>
+  <data name="DeleteDocumentText" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce document?</value>
+  </data>
+  <data name="DeleteFragment" xml:space="preserve">
+    <value>Supprimer le fragment</value>
+  </data>
+  <data name="DeleteFragmentElement" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="DeleteFragmentElementText" xml:space="preserve">
+    <value>Êtes-vous sûr de bien vouloir supprimer cet élément?</value>
+  </data>
+  <data name="DeleteFragmentText" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer ce fragment?</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="FragmentDocument" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="FragmentEnabledLabel" xml:space="preserve">
+    <value>Activé</value>
+  </data>
+  <data name="FragmentName" xml:space="preserve">
+    <value>Nom du fragment</value>
+  </data>
+  <data name="FragmentShared" xml:space="preserve">
+    <value>Partagé</value>
+  </data>
+  <data name="FragmentSharedLabel" xml:space="preserve">
+    <value>Fragment partagé</value>
+  </data>
+  <data name="FragmentTemplate" xml:space="preserve">
+    <value>Nouveau</value>
+  </data>
+  <data name="FragmentTemplateLabel" xml:space="preserve">
+    <value>Basé sur</value>
+  </data>
+  <data name="Hint_ChangeDocument" xml:space="preserve">
+    <value>Changer de document</value>
+  </data>
+  <data name="Hint_ChangeParent" xml:space="preserve">
+    <value>Changer de parent</value>
+  </data>
+  <data name="Hint_CopyLink" xml:space="preserve">
+    <value>Copier le lien dans le presse-papier</value>
+  </data>
+  <data name="Hint_DeleteFragment" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="Hint_EditFragment" xml:space="preserve">
+    <value>Modifier</value>
+  </data>
+  <data name="Hint_InsertChildFragment" xml:space="preserve">
+    <value>Insérer dans</value>
+  </data>
+  <data name="Hint_MoveLower" xml:space="preserve">
+    <value>Décaler vers le bas</value>
+  </data>
+  <data name="Hint_MoveUpper" xml:space="preserve">
+    <value>Décaler vers le haut</value>
+  </data>
+  <data name="Hint_OpenInNew" xml:space="preserve">
+    <value>Ouvrir dans une nouvelle fenêtre</value>
+  </data>
+  <data name="Icon" xml:space="preserve">
+    <value>Icône</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LockDocument" xml:space="preserve">
+    <value>Verrouiller le document</value>
+  </data>
+  <data name="LockDocumentText" xml:space="preserve">
+    <value>Verrouiller le document pour les utilisateurs ayant moins de privilèges que le vôtre?</value>
+  </data>
+  <data name="ModifiedAt" xml:space="preserve">
+    <value>Modifié à</value>
+  </data>
+  <data name="NewAttribute" xml:space="preserve">
+    <value>Nouvel attribut</value>
+  </data>
+  <data name="NewChildDocument" xml:space="preserve">
+    <value>Nouveau document enfant</value>
+  </data>
+  <data name="NewDocument" xml:space="preserve">
+    <value>Nouveau document</value>
+  </data>
+  <data name="NewRootDocument" xml:space="preserve">
+    <value>Nouveau document racine</value>
+  </data>
+  <data name="OpenFullSize" xml:space="preserve">
+    <value>Ouvrir en taille réelle</value>
+  </data>
+  <data name="ParentId" xml:space="preserve">
+    <value>Id des parents</value>
+  </data>
+  <data name="ParentIsNotValid" xml:space="preserve">
+    <value>Le document portant cet Id est introuvable ou ne peut pas être défini comme parent</value>
+  </data>
+  <data name="ParentNotPublished" xml:space="preserve">
+    <value>Le document parent n´est pas publié</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Chemin</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Properties" xml:space="preserve">
+    <value>Propriétés</value>
+  </data>
+  <data name="Published" xml:space="preserve">
+    <value>Publié</value>
+  </data>
+  <data name="Slug" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="SlugAlreadyExists" xml:space="preserve">
+    <value>Le nom existe déjà</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Résumé</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Titre</value>
+  </data>
+  <data name="UnlockDocument" xml:space="preserve">
+    <value>Déverrouiller le document</value>
+  </data>
+  <data name="UnlockDocumentText" xml:space="preserve">
+    <value>Déverrouiller le document et laisser n'importe qui le gérer?</value>
+  </data>
+  <data name="UnsavedChanges" xml:space="preserve">
+    <value>Modifications non enregistrées</value>
+  </data>
+  <data name="UnsavedChangesText" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir annuler les modifications et continuer?</value>
+  </data>
+</root>

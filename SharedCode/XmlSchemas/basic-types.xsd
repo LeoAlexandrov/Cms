@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://aleprojects.com/h-cms/basic.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://aleprojects.com/h-cms/basic.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:simpleType name="alignment">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Alignment</xs:documentation>
+			<xs:documentation xml:lang="fr">Alignement</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="none"/>
+			<xs:enumeration value="vertical-start"/>
+			<xs:enumeration value="vertical-center"/>
+			<xs:enumeration value="vertical-end"/>
+			<xs:enumeration value="vertical-self-start"/>
+			<xs:enumeration value="vertical-self-center"/>
+			<xs:enumeration value="vertical-self-end"/>
+			<xs:enumeration value="horizontal-start"/>
+			<xs:enumeration value="horizontal-center"/>
+			<xs:enumeration value="horizontal-end"/>
+			<xs:enumeration value="horizontal-around"/>
+			<xs:enumeration value="horizontal-between"/>
+			<xs:enumeration value="horizontal-evenly"/>
+			<xs:enumeration value="other"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="standard-color">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Standard color</xs:documentation>
+			<xs:documentation xml:lang="fr">Couleur standard</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="accent"/>
+			<xs:enumeration value="primary"/>
+			<xs:enumeration value="secondary"/>
+			<xs:enumeration value="text"/>
+			<xs:enumeration value="secondary_text"/>
+			<xs:enumeration value="error"/>
+			<xs:enumeration value="warning"/>
+			<xs:enumeration value="success"/>
+			<xs:enumeration value="disabled"/>
+			<xs:enumeration value="transparent"/>
+			<xs:enumeration value="light"/>
+			<xs:enumeration value="dark"/>
+			<xs:enumeration value="important"/>
+			<xs:enumeration value="any"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<xs:complexType name="link">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Link</xs:documentation>
+			<xs:documentation xml:lang="fr">Lien</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="uri" type="xs:anyURI">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">URL</xs:documentation>
+					<xs:documentation xml:lang="fr">URL</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Link title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre du lien</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="altText" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Alt text</xs:documentation>
+					<xs:documentation xml:lang="fr">Texte alternatif</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Link icon</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône de lien</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="target">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Target</xs:documentation>
+					<xs:documentation xml:lang="fr">Cible</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="new_window"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:simpleType name="code-lang">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Language</xs:documentation>
+			<xs:documentation xml:lang="fr">Langue</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="Json"/>
+			<xs:enumeration value="Yaml"/>
+			<xs:enumeration value="Xml"/>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+
+</xs:schema>

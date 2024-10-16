@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+<!DOCTYPE html>
+<html lang="@SharedLocalizer["Language"]">
+
+<head>
+	<meta charset="utf-8" />
+	<title>@SharedLocalizer["AppTitle"]</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+	<link rel="icon" href="~/images/app-fav-icon.webp" type="image/webp" />
+	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
+
+	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+	<link href="https://cdn.jsdelivr.net/npm/quasar@2.16.6/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="~/css/styles.css">
+	@RenderSection("Css", required: false)
+
+	<script src="~/js/application.js"></script>
+	<script src="~/js/localization/@(SharedLocalizer["Language"]).js"></script>
+	<script src="~/js/localization.js"></script>
+</head>
+
+<body class="body-progress">
+	<div id="q-app">
+
+		<q-layout view="hHh lpR fFf">
+
+			<q-header elevated class="bg-primary text-white">
+				<q-toolbar>
+					<q-toolbar-title>@SharedLocalizer["Welcome"]</q-toolbar-title>
+				</q-toolbar>
+			</q-header>
+
+			<q-page-container>
+				<q-page padding>
+					@RenderBody()
+				</q-page>
+			</q-page-container>
+
+			<q-footer elevated class="bg-grey-8 text-white">
+				<div style="margin:4px">(c) aleprojects.com</div>
+			</q-footer>
+
+		</q-layout>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quasar@2.12.2/dist/quasar.umd.prod.js"></script>
+	@RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,214 @@
+﻿@page "{link?}"
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.MediaModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+}
+
+<q-dialog v-model="entryProps">
+	<q-card style="min-width: 500px">
+		<q-card-section>
+			<div class="text-h6">@Localizer["Properties"]</div>
+		</q-card-section>
+
+		<q-card-section horizontal>
+
+			<q-card-section class="col-4">
+				<q-img :src="`/api/v1/media/preview?link=${opened.link}`"
+					class="media-preview-img cursor-pointer"
+					loading="eager"
+					@@click="openImage(opened.link)">
+					<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+				</q-img>
+			</q-card-section>
+
+			<q-card-section class="col-8 q-pt-none">
+				<q-input v-model="opened.url"
+					label="@Localizer["Url"]"
+					readonly
+					ref="OpenedEntryUrl">
+
+					<template v-slot:after>
+						<q-btn round flat size="sm" icon="content_copy" @@click="copyToClipboard(opened.url)">
+							<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+						</q-btn>
+					</template>
+				</q-input>
+
+				<q-input v-model="opened.hrefLink"
+					label="@Localizer["Link"]"
+					readonly
+					ref="OpenedEntryHrefLink">
+
+					<template v-slot:after>
+						<q-btn round flat size="sm" icon="content_copy" @@click="copyToClipboard(opened.hrefLink)">
+							<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+						</q-btn>
+					</template>
+				</q-input>
+
+				<q-input v-model="opened.name"
+					label="@Localizer["FileName"]"
+					readonly
+					ref="OpenedEntryName">
+				</q-input>
+
+				<table class="text-caption text-grey q-pt-lg">
+					<tr v-if="opened.width+opened.height>0"><td>@Localizer["ImageSize"]</td><td>: {{ opened.width + ' x ' + opened.height }} px</td></tr>
+					<tr><td>@Localizer["MimeType"]</td><td>: {{ opened.mimeType }}</td></tr>
+					<tr><td>@Localizer["FileSize"]</td><td>: {{ opened.size }} @Localizer["Bytes"]</td></tr>
+				</table>
+
+			</q-card-section>
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Close"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="upload" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section>
+			<div class="text-h6">@Localizer["Upload"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-mb-lg">
+			<form id="upload_form">
+				<q-file v-model="selectedForUpload"
+					name="file"
+					label="@Localizer["PickOneFile"]"
+					:hint="uploadHint()"
+					multiple
+					clearable
+					use-chips
+					max-file-size="@Model.MaxUploadSize"
+					@(Model.UploadOnlySafeContent ? Html.Raw("accept=\"image/*, video/*\"") : "")
+					@(Model.UploadOnlySafeContent ? Html.Raw(string.Format(":rules=\"[val => validateFileName(val) || '{0}']\"", Localizer["UnsafeName"].Value)) : "")
+					@@rejected="onUploadRejected">
+				</q-file>
+			</form>
+			<div class="row items-center q-mt-md" v-if="fileExists">
+				<q-icon name="warning" class="q-mr-sm" color="warning" size="sm"></q-icon><span class="text-caption">@Localizer["FileExists"]</span>
+			</div>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="!selectedForUpload" @@click="uploadFile()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteEntriesConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteEntries"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteEntriesText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteEntries()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="newFolderProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["CreateFolder"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model="newFolderName"
+				 autofocus
+				 label="@Localizer["FolderName"]"
+				 ref="NewFolder">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="!newFolderName" @@click="createFolder()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+
+
+<div :style="{'max-height': pageHeight, 'overflow': 'auto'}">
+
+	<q-breadcrumbs class="q-ma-md" gutter="sm" style="font-size: 1.3rem">
+		<q-breadcrumbs-el v-for="(p, idx) in path" >
+			<span class="cursor-pointer" v-if="p.link!=null" @@click="readFolder(p.link,true)">{{ p.label }}</span>
+			<span v-else>{{ p.label }}</span>
+		</q-breadcrumbs-el>
+	</q-breadcrumbs>
+
+	<div class="row q-pa-sm">
+		<div class="q-ma-xs q-pa-sm shadow-2" v-for="(e,idx) in mediaEntries">
+			<q-img v-if="e.isFolder"
+				no-spinner
+				src="/images/open-folder_128x128.png"
+				class="media-preview-img  cursor-pointer"
+				@@click="onEntryClicked(e)">
+			</q-img>
+			<q-img v-else
+				:src="'/api/v1/media/preview?link='+e.link"
+				loading="lazy"
+				class="media-preview-img cursor-pointer"
+				@@click="onEntryClicked(e)">
+			</q-img>
+			<div class="q-mt-sm media-preview-label">
+				<q-checkbox v-model="selected" :val="e.link" size="xs" :label="e.name" dense><q-tooltip>{{ e.name }}</q-tooltip></q-checkbox>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section Commands
+{
+	<q-btn flat round icon="upload" @@click="startUpload()">
+		<q-tooltip>@Localizer["Upload"]</q-tooltip>
+	</q-btn>
+	<q-btn flat round icon="create_new_folder" @@click="startCreateFolder()">
+		<q-tooltip>@Localizer["CreateFolder"]</q-tooltip>
+	</q-btn>
+	<q-btn flat round icon="delete" :disabled="selected.length==0" @@click="startDelete()">
+		<q-tooltip>@Localizer["Delete"]</q-tooltip>
+	</q-btn>
+}
+
+@section StatusLine
+{
+	<span>{{ statusLine }} </span>
+}
+
+@section Scripts
+{
+	<script id="folder_link" type="application/json">@Json.Serialize(Model.Link)</script>
+	<script id="upload_params" type="application/json">@Json.Serialize(Model.UploadParams)</script>
+	<script src="~/js/media.js"></script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}})
+		app.mount('#q-app')
+	</script>
+}

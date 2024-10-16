@@ -1,0 +1,801 @@
+﻿@page "{id:int?}"
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.DocumentsModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+}
+
+<q-dialog v-model="unsavedDocConfirm" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["UnsavedChanges"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["UnsavedChangesText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="confirmDiscard()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" @@click="confirmStay()"></q-btn>
+	</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="newDocumentProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["NewDocument"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			<div class="text-caption text-grey-7">@Localizer["ParentId"] : {{ newDocument.parent }}</div>
+
+			<q-input v-model="newDocument.slug"
+				autofocus
+				label="@Localizer["Slug"]"
+				ref="NewDocumentSlug"
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidNewDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
+			</q-input>
+
+			<q-input
+				v-model="newDocument.title"
+				label="@Localizer["Title"]"
+				ref="NewDocumentTitle"
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="createDoc()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="newParentProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["ChangeParent"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model.number="newParent"
+				autofocus
+				label="@Localizer["ParentId"]"
+				type="number"
+				ref="NewParent"
+				:rules="[val => /^[0-9]+$/.test(val) || '@ErrorsLocalizer["Validation_Int"]', val => !invalidParents.includes(val) || '@Localizer["ParentIsNotValid"]' ]">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="changeParent()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteDocumentConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteDocument"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteDocumentText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteDoc()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="lockDocumentConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["LockDocument"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["LockDocumentText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="lockDoc(true)"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="unlockDocumentConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["UnlockDocument"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["UnlockDocumentText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="lockDoc(false)"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="newFragmentProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["AddFragment"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			<div class="text-caption text-grey-7">@Localizer["ParentId"] : {{ newFragment.parent }}</div>
+
+			<q-input v-model="newFragment.name"
+				autofocus
+				label="@Localizer["Name"]"
+				ref="NewFragmentName"
+				:disable="newFragment.stuffSelected=='shared'"
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
+			</q-input>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			<q-radio v-model="newFragment.stuffSelected" val="new" label="@Localizer["FragmentTemplate"]" />
+			<q-radio v-model="newFragment.stuffSelected" val="shared" label="@Localizer["FragmentShared"]" />
+		</q-card-section>
+
+		<q-card-section class="q-pt-none" v-if="newFragment.stuffSelected=='new'">
+			<q-select v-model="newFragment.templateSelected" :options="fragmentStuff.templates" label="@Localizer["FragmentTemplateLabel"]">
+				<template v-slot:option="scope">
+					<q-item v-bind="scope.itemProps">
+						<q-item-section>
+							<q-item-label>{{ scope.opt.label }}</q-item-label>
+							<q-item-label caption>{{ scope.opt.ns }}</q-item-label>
+						</q-item-section>
+					</q-item>
+				</template>
+			</q-select>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none" v-else>
+			<q-select v-model="newFragment.sharedFragmentSelected" :options="fragmentStuff.shared" label="@Localizer["FragmentSharedLabel"]">
+				<template v-slot:option="scope">
+					<q-item v-bind="scope.itemProps">
+						<q-item-section>
+							<q-item-label>{{ scope.opt.label }}</q-item-label>
+							<q-item-label caption>{{ scope.opt.ns }}</q-item-label>
+						</q-item-section>
+					</q-item>
+				</template>
+			</q-select>
+		</q-card-section>
+
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="(newFragment.stuffSelected=='new' && newFragment.templateSelected==null) || (newFragment.stuffSelected=='shared' && newFragment.sharedFragmentSelected==null)" @@click="createFragment()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteFragmentConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteFragment"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteFragmentText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteFragment()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="fragmentProps" full-height no-backdrop-dismiss>
+	<q-layout view="hHh lpR fFf" class="content-dialog" container>
+		<q-header class="bg-grey-1 text-dark">
+			<q-toolbar>
+				<q-toolbar-title>{{ fragment.properties.name }}</q-toolbar-title>
+				<q-btn flat v-close-popup round dense icon="close"></q-btn>
+			</q-toolbar>
+			<q-tabs class="text-secondary" align="left" v-model="fragmentPropsTab">
+				<q-tab name="content" label="Content"></q-tab>
+				<q-tab name="properties" label="Properties"></q-tab>
+			</q-tabs>
+		</q-header>
+
+		<q-footer class="bg-grey-1 text-dark">
+			<q-card-actions align="right">
+				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="saveFragment()"></q-btn>
+				<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+			</q-card-actions>
+		</q-footer>
+
+		<q-page-container class="bg-white text-dark">
+			<q-page>
+				<q-tab-panels v-model="fragmentPropsTab" animated>
+
+					<q-tab-panel name="content">
+						<div v-for="(f,idx) in fragment.decomposition" :key="idx" :style="{'margin-left': (f.level > 0 ? f.level-1 : 0) + 'em'}">
+							<q-separator size="2px" v-if="!f.isSimple && f.level==1"></q-separator>
+							<div class="text-subtitle1 q-mb-md" v-if="!f.isSimple && f.level==0">{{ f.annotation }}</div>
+							<div class="row q-my-md items-center" v-else-if="f.isAddable">
+								<q-btn color="secondary" icon="add" :label="f.annotation" @@click="addFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="q-my-sm row items-center content-dialog-title" v-else-if="!f.isSimple && f.level>0">
+								<span class="text-subtitle1">{{ f.annotation }}</span>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="row q-mb-lg items-center" v-else-if="f.xmlType=='token'">
+								<q-select dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :options="f.facetEnumeration"></q-select>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="q-mb-sm" v-else-if="f.xmlType=='string' && f.textFormat">
+								<div class="row items-center">
+									<span class="text-caption text-grey-7 q-mb-none">{{ f.annotation }}</span>
+									<q-space></q-space>
+									<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+									<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+								</div>
+								<q-editor v-model="f.value" min-height="16rem" paragraph-tag="p" :toolbar="htmlToolbar" v-if="f.textFormat=='html'"></q-editor>
+								<q-input outlined v-model="f.value" type="textarea" class="multiline-monospace" :rules="[val => validateFragment(val, f)]" v-else-if="f.textFormat=='multiline'"></q-input>
+								<code-editor v-model="f.value" v-else-if="f.textFormat=='markdown'"
+									line-nums
+									theme="vs"
+									:languages="[['markdown', 'Markdown']]"
+									tab-spaces="4"
+									font-size="14px"
+									width="100%"
+									height="450px"
+									style="tab-size:4; border: 1px solid gainsboro;"
+									border-radius="4px">
+								</code-editor>
+							</div>
+							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='string'">
+								<q-input dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='anyURI'">
+								<q-img v-if="f.value && f.isImage"
+									class="cursor-pointer q-mb-md"
+									:src="imageUrl(f.value)"
+									style="max-height: 160px; max-width: 160px"
+									@@click="openImage(f.value)">
+									<template v-slot:error>
+										<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["CoverImageNotFound"]</div>
+									</template>
+									<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+								</q-img>
+								<div class="flex-break" v-if="f.isImage"></div>
+								<q-input dense clearable outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+
+							</div>
+							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='integer' || f.xmlType=='int' || f.xmlType=='short' || f.xmlType=='byte'">
+								<q-input dense outlined v-model.number="f.value" type="number" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='decimal' || f.xmlType=='double' || f.xmlType=='float'">
+								<q-input dense outlined v-model.number="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='boolean'">
+								<q-checkbox v-model="f.value" :label="f.annotation"></q-checkbox>
+								<q-space></q-space>
+								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
+								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
+							</div>
+							<div class="text-subtitle2" v-else>{{ f.annotation }}</div>
+						</div>
+					</q-tab-panel>
+
+					<q-tab-panel name="properties">
+
+						<table class="q-mt-md q-mb-lg">
+							<tbody>
+								<tr>
+									<td><span class="text-caption text-grey-7">Id:</span></td>
+									<td>{{ fragment.properties.id }}</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["FragmentDocument"]:</span></td>
+									<td>{{ editedDoc.properties.id }}</td>
+									<td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
+											<q-tooltip>@Localizer["Hint_ChangeDocument"]</q-tooltip>
+										</q-btn>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<q-input dense outlined
+							v-model="fragment.properties.name"
+							label="@Localizer["FragmentName"]"
+							ref="FragmentName"
+							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
+						</q-input>
+
+						<q-checkbox v-model="fragment.enabled"
+							class="q-pb-lg"
+							label="@Localizer["FragmentEnabledLabel"]"
+							ref="FragmentEnabled">
+						</q-checkbox>
+
+						<div class="row">
+							<q-input dense outlined
+								v-model="fragment.properties.icon"
+								class="content-dialog-field-small"
+								label="@Localizer["Icon"]"
+								ref="FragmentIcon"
+								:rules="[val => !val || val.length <= 64 || '@ErrorsLocalizer["Validation_MaxLen64"]']">
+							</q-input>
+						</div>
+
+						<q-checkbox v-model="fragment.properties.shared"
+							label="@Localizer["FragmentSharedLabel"]"
+							:disable="fragment.lockShare"
+							ref="FragmentShared">
+						</q-checkbox>
+
+						<div class="q-mt-lg"><span class="text-caption text-grey-7">XML schema: </span>{{ fragment.properties.xmlSchema }}</div>
+					</q-tab-panel>
+
+				</q-tab-panels>
+			</q-page>
+		</q-page-container>
+	</q-layout>
+</q-dialog>
+
+<q-dialog v-model="deleteFragmentElementConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteFragmentElement"] '{{ nameOfFragmentElementToDelete }}'</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteFragmentElementText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteFragmentElement()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="attributeProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6" v-if="attribute.id">@Localizer["ChangeAttribute"]</div>
+			<div class="text-h6" v-else>@Localizer["NewAttribute"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model="attribute.key"
+				:autofocus="!attribute.id"
+				label="@Localizer["AttributeKey"]"
+				ref="AttributeKey"
+				:readonly="!!attribute.id"
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]', val => !invalidAttributeKeys.includes(val) || '@Localizer["AttributeKeyAlreadyExists"]' ]">
+
+				<template v-slot:after>
+					<q-btn round flat size="sm" icon="content_copy" v-if="!!attribute.id" @@click="copyToClipboard(attribute.key)">
+						<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+					</q-btn>
+				</template>
+
+			</q-input>
+
+			<div class="text-caption text-grey-7 q-mt-lg">@Localizer["AttributeValue"]</div>
+
+			<q-input v-model="attribute.value"
+				outlined
+				:autofocus="!!attribute.id"
+				type="textarea"
+				class="multiline-monospace"
+				ref="AttributeValue">
+			</q-input>
+
+			<q-checkbox v-model="attribute.enabled"
+				class="q-mt-lg"
+				label="@Localizer["AttributeEnabledLabel"]"
+				ref="AttributeEnabled">
+			</q-checkbox>
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" :disabled="!attribute.key" color="primary" v-if="attribute.id" @@click="changeAttribute()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["OK"]" :disabled="!attribute.key" color="primary" v-else @@click="createAttribute()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteAttributeConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteAttribute"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteAttributeText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteAttribute()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+
+<div class="splitter-container">
+	<q-splitter class="full-height-splitter" v-model="splitter" :limits="[15,40]">
+		<template v-slot:before>
+			<div class="q-pa-md" :style="{'max-height': pageHeight}">
+				<q-tree
+					ref="DocTree"
+					:nodes="docTree"
+					v-model:selected="selectedDoc"
+					no-transition
+					no-selection-unset
+					selected-color="primary"
+					node-key="id"
+					@@update:selected="onDocSelected" >
+
+					<template v-slot:default-header="prop">
+						<div class="row items-center no-wrap treenode-row">
+							<q-icon :name="prop.node.icon" :color="prop.node.iconColor" size="sm" class="q-mr-sm"></q-icon>
+							<div class="text-weight-regular">
+								{{ prop.node.label }}
+							</div>
+							<q-icon class="q-ml-sm" name="lock" color="primary" size="xs" v-if="prop.node.label2!=null">
+								<q-tooltip>{{ prop.node.label2 }}</q-tooltip>
+							</q-icon>
+							<div class="treenode-link">
+								<a :href="`/documents/${prop.node.id}`" target="_blank">
+									<q-icon name="open_in_new" color="blue-grey-3" size="xs">
+										<q-tooltip>@Localizer["Hint_OpenInNew"]</q-tooltip>
+									</q-icon>
+								</a>
+								<q-btn flat dense round color="blue-grey-3" icon="link" v-on:click.stop="copyToClipboard(`#(${prop.node.id})`)">
+									<q-tooltip>@Localizer["Hint_CopyLink"]</q-tooltip>
+								</q-btn>
+							</div>
+						</div>
+					</template>
+				</q-tree>
+			</div>
+		</template>
+
+		<template v-slot:after>
+			<div class="row" :style="{'max-height': pageHeight}">
+				<div class="col-sm-12 col-md-8 q-pa-md" style="border-right: 1px solid gainsboro" v-if="selectedDoc!=0">
+					<div class="q-gutter-md">
+
+						<h5>@Localizer["Properties"]</h5>
+
+						<table>
+							<tbody>
+								<tr>
+									<td><span class="text-caption text-grey-7">Id:</span></td>
+									<td>{{ editedDoc.properties.id }}</td>
+									<td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="content_copy" size="sm" @@click="copyToClipboard(editedDoc.properties.id)">
+											<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+										</q-btn>
+										<q-icon class="q-ml-sm" name="lock" color="primary" size="xs" v-if="editedDoc.properties.editorRoleRequired!=null">
+											<q-tooltip>{{ editedDoc.properties.editorRoleRequired }}</q-tooltip>
+										</q-icon>
+									</td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["ParentId"]:</span></td>
+									<td>{{ editedDoc.properties.parent }}</td>
+									<td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm" @@click="startChangeParent(false)">
+											<q-tooltip>@Localizer["Hint_ChangeParent"]</q-tooltip>
+										</q-btn>
+									</td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["Position"]:</span></td>
+									<td>{{ editedDoc.properties.position }}</td>
+									<td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_upward" size="sm" @@click="moveDoc(-1)">
+											<q-tooltip>@Localizer["Hint_MoveUpper"]</q-tooltip>
+										</q-btn>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_downward" size="sm" @@click="moveDoc(1)">
+											<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
+										</q-btn>
+									</td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["Path"]:</span></td>
+									<td colspan="2">{{ editedDoc.properties.path }}</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<div class="row">
+							<div class="col-sm-4 col-xs-12 q-pr-md">
+
+								<q-input dense outlined
+									v-model="editedDoc.properties.slug"
+									label="@Localizer["Slug"]"
+									ref="Slug"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
+								</q-input>
+
+							</div>
+							<div class="col-sm-8 col-xs-12 q-pl-md">
+
+								<q-input dense outlined
+									v-model="editedDoc.properties.title"
+									label="@Localizer["Title"]"
+									ref="Title"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
+								</q-input>
+
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-4 col-xs-12 q-pr-md">
+
+								<q-input dense outlined
+									v-model="editedDoc.properties.language" 
+									label="@Localizer["Language"]" 
+									ref="Language"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => !val || /^[a-z]{2}(-[A-Z]{2})?$/.test(val) || '@ErrorsLocalizer["Validation_Lang"]']">
+								</q-input>
+
+							</div>
+							<div class="col-sm-8 col-xs-12 q-pl-md">
+								
+								<q-input dense outlined
+									v-model="editedDoc.properties.icon" 
+									label="@Localizer["Icon"]" 
+									ref="Icon"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => !val || val.length <= 64 || '@ErrorsLocalizer["Validation_MaxLen64"]']">
+								</q-input>
+
+							</div>
+						</div>
+
+						<p class="text-caption text-grey-7 q-pt-sm">@Localizer["Summary"]</p>
+
+						<q-editor 
+							v-model="editedDoc.properties.summary" 
+							ref="Summary"
+							paragraph-tag="p"
+							min-height="12rem" 
+							@@update:model-value="hasChanged=true"
+							:toolbar="htmlToolbar">
+						</q-editor>
+						
+						<q-img v-if="editedDoc.properties.coverPicture"
+							class="cursor-pointer"
+							:src="imageUrl(editedDoc.properties.coverPicture)"
+							style="max-height: 192px; max-width: 192px"
+							@@click="openImage(editedDoc.properties.coverPicture)">
+							<template v-slot:error>
+								<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["CoverImageNotFound"]</div>
+							</template>
+							<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+						</q-img>
+
+						<q-input dense outlined
+							v-model="editedDoc.properties.coverPicture"
+							clearable
+							label="@Localizer["CoverPicture"]"
+							ref="Picture"
+							@@update:model-value="hasChanged=true">
+						</q-input>
+
+						<q-input dense outlined
+							v-model="editedDoc.properties.description" 
+							label="@Localizer["Description"]"
+							ref="Description"
+							@@update:model-value="hasChanged=true">
+						</q-input>
+
+						<q-input dense outlined
+							v-model="editedDoc.properties.associatedClaims"
+							label="@Localizer["AssociatedClaims"]"
+							ref="AssociatedClaims"
+							@@update:model-value="hasChanged=true">
+						 </q-input>
+
+						<q-checkbox 
+							v-model="editedDoc.properties.published"
+							class="q-pt-lg"
+							label="@Localizer["Published"]"
+							ref="Published"
+							@@update:model-value="hasChanged=true">
+						</q-checkbox>
+
+						<p class="text-caption text-negative" v-if="editedDoc.properties.published===invalidPublishedState">@Localizer["ParentNotPublished"]</p>
+
+						<table>
+							<tbody>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["Author"]: </span></td>
+									<td>{{ editedDoc.properties.author }}</td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["CreatedAt"]: </span></td>
+									<td>{{ (new Date(editedDoc.properties.createdAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["ModifiedAt"]: </span></td>
+									<td>{{ (new Date(editedDoc.properties.modifiedAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
+								</tr>
+							</tbody>
+						</table>
+
+						<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
+						<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+					</div>
+				</div>
+				<div class="col-sm-12 col-md-4 q-pa-md" v-if="selectedDoc!=0">
+					<div class="q-gutter-md">
+						<h5>@Localizer["Content"]</h5>
+
+						<q-tree ref="FragmentsTree"
+							:nodes="editedDoc.fragmentsTree"
+							v-model:selected="selectedFragment"
+							no-connectors
+							no-transition
+							no-selection-unset
+							selected-color="primary"
+							node-key="id">
+
+							<template v-slot:default-header="prop">
+								<div class="row items-center no-wrap treenode-row">
+									<q-icon :name="prop.node.icon" :color="prop.node.iconColor" size="md" class="q-mr-sm" @@click="getFragment(prop.node.id)"></q-icon>
+									<q-item clickable dense manual-focus class="q-px-none" @@click="getFragment(prop.node.id)">
+										<q-item-section class="text-weight-regular">{{ prop.node.label }} <span class="text-caption text-grey">{{ prop.node.label2 }}</span></q-item-section>
+									</q-item>
+									<div class="treenode-link">
+										<q-btn flat round color="secondary" size="sm" icon="playlist_add" v-if="prop.node.data=='container'" @@click="startNewFragment(prop.node.id)">
+											<q-tooltip>@Localizer["Hint_InsertChildFragment"]</q-tooltip>
+										</q-btn>
+										<q-btn flat round color="secondary" size="sm" icon="delete" @@click="startDeleteFragment(prop.node.id)">
+											<q-tooltip>@Localizer["Hint_DeleteFragment"]</q-tooltip>
+										</q-btn>
+										<q-btn flat round color="secondary" size="sm" icon="arrow_upward" @@click="moveFragment(prop.node.id, prop.node.parent, -1)">
+											<q-tooltip>@Localizer["Hint_MoveUpper"]</q-tooltip>
+										</q-btn>
+										<q-btn flat round color="secondary" size="sm" icon="arrow_downward" @@click="moveFragment(prop.node.id, prop.node.parent, 1)">
+											<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
+										</q-btn>
+									</div>
+								</div>
+							</template>
+						</q-tree>
+						<q-btn color="secondary" label="@Localizer["AddFragment"]" @@click="startNewFragment(0)"></q-btn>
+
+						<q-separator class="hcms-mt-32"></q-separator>
+
+						<h5 class="hcms-mt-32">@Localizer["Attributes"]</h5>
+						<div class="row">
+							<q-chip v-for="(a,idx) in editedDoc.attributes"
+								removable clickable
+								:color="a.enabled ? 'primary': 'grey'" 
+								text-color="white" 
+								@@click="startChangeAttribute(a)"
+								@@remove="startDeleteAttribute(a)">{{a.attributeKey}}</q-chip>
+						</div>
+						<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute()"></q-btn>
+
+					</div>
+				</div>
+			</div>
+			
+		</template>
+	</q-splitter>
+</div>
+
+@section Css
+{
+	<link rel="stylesheet" href="~/css/code-editor/themes.css" />
+	@* 	<link rel="stylesheet" href="~/css/code-editor/themes-base16.css" />*@
+	<link rel="stylesheet" href="~/css/code-editor/simple-code-editor.css" />
+}
+
+@section Commands
+{
+	<q-btn flat round icon="add">
+		<q-tooltip>@SharedLocalizer["Add"]</q-tooltip>
+		<q-menu>
+			<q-list style="min-width: 250px">
+				<q-item clickable v-close-popup @@click="startNewDoc(0, false)">
+					<q-item-section avatar><q-icon color="blue-grey" name="home" /></q-item-section>
+					<q-item-section class="text-weight-regular">@Localizer["NewRootDocument"]</q-item-section>
+				</q-item>
+				<q-item clickable v-close-popup v-if="selectedDoc!=0" @@click="startNewDoc(selectedDoc, false)">
+					<q-item-section avatar><q-icon color="blue-grey" name="article" /></q-item-section>
+					<q-item-section class="text-weight-regular">@Localizer["NewChildDocument"]</q-item-section>
+				</q-item>
+			</q-list>
+		</q-menu>
+	</q-btn>
+
+	<q-btn flat round icon="delete" :disabled="selectedDoc<=0" @@click="startDeleteDoc()">
+		<q-tooltip>@Localizer["DeleteDocument"]</q-tooltip>
+	</q-btn>
+
+	<q-btn flat round icon="content_copy" :disabled="editedDoc.properties.id<=0" @@click="copyDoc(false)">
+		<q-tooltip>@Localizer["CreateCopy"]</q-tooltip>
+	</q-btn>
+
+	<q-btn flat round icon="lock" v-if="editedDoc.properties.editorRoleRequired==null" :disabled="editedDoc.properties.id<=0" @@click="startLockDoc()">
+		<q-tooltip>@Localizer["LockDocument"]</q-tooltip>
+	</q-btn>
+
+	<q-btn flat round icon="lock_open" v-if="editedDoc.properties.editorRoleRequired!=null" @@click="startUnlockDoc()">
+		<q-tooltip>@Localizer["UnlockDocument"]</q-tooltip>
+	</q-btn>
+
+}
+
+@section Scripts
+{
+	<script id="doc_id" type="application/json">@Json.Serialize(Model.DocumentId)</script>
+	<script src="~/js/code-editor/highlight.min.js"></script>
+	<script src="~/js/code-editor/simple-code-editor.js"></script>
+	<script src="~/js/documents.js"></script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}})
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+		app.mount('#q-app')
+	</script>
+}

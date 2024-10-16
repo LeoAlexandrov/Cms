@@ -1,0 +1,91 @@
+﻿@page
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.AuthModel
+@{
+	Layout = "Shared/_AuthLayout.cshtml";
+}
+
+@section Scripts
+{
+	@if (!string.IsNullOrEmpty(Model.GoogleClientId))
+	{
+		<script src="https://accounts.google.com/gsi/client" async defer></script>
+	}
+
+	<script src="~/js/auth.js"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions)
+		app.use(Quasar)
+		app.mount('#q-app')
+	</script>
+}
+
+@if (!string.IsNullOrEmpty(Model.AuthError))
+{
+	<q-banner dense inline-actions class="text-white bg-red">
+		@Model.AuthError
+	</q-banner>
+}
+
+<div class="signin-container">
+
+	@if (!Model.PopupSuccess)
+	{
+		@if (!string.IsNullOrEmpty(Model.GoogleClientId))
+		{
+		<div id="g_id_onload"
+			data-client_id="@Model.GoogleClientId"
+			data-context="signin"
+			data-ux_mode="redirect"
+			data-login_uri="@Model.CurrentSite/api/v1/auth/google"
+			data-auto_prompt="false">
+		</div>
+		<div class="g_id_signin"
+			data-type="standard"
+			data-shape="rectangular"
+			data-theme="outline"
+			data-text="signin_with"
+			data-size="large"
+			data-logo_alignment="left"
+			data-width="400px">
+		</div>
+		}
+
+		@if (!string.IsNullOrEmpty(Model.MicrosoftClientId))
+		{
+		<div>
+			<q-btn outline
+				align="left"
+				icon="img:@Model.CurrentSite/images/microsoft.svg"
+				href="https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=@Model.MicrosoftClientId&scope=User.Read&&response_type=code&state=@Model.MicrosoftState&redirect_uri=@Model.CurrentSite/api/v1/auth/ms"
+				label="@Localizer["SignInWithMicrosoft"]"
+				class="q-mt-md full-width">
+			</q-btn>
+		</div>
+		}
+
+		@if (!string.IsNullOrEmpty(Model.GithubClientId))
+		{
+		<div>
+			<q-btn outline
+				align="left"
+				icon="img:@Model.CurrentSite/images/github.svg"
+				href="https://github.com/login/oauth/authorize?client_id=@Model.GithubClientId&scope=user&state=@Model.GithubState"
+				label="@Localizer["SignInWithGithub"]"
+				class="q-mt-md full-width">
+			</q-btn>
+		</div>
+		}
+	}
+	else
+	{
+		<div>
+			<span class="text-subtitle1">@Localizer["PopupSuccess"]</span>
+		</div>
+	}
+</div>

@@ -1,0 +1,215 @@
+﻿@page "{id:int?}"
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.UsersModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+}
+
+<q-dialog v-model="newUserProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["NewUser"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model="newUser.login"
+				autofocus
+				label="@Localizer["Login"]"
+				ref="NewUserLogin" 
+				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]', val => !invalidNewLogins.includes(val) || '@Localizer["LoginAlreadyExists"]']">
+			</q-input>
+
+			<q-select v-model="newUser.role"
+				bottom-slots
+				:options="roles"
+				label="@Localizer["Role"]"
+				@@update:model-value="onRoleChanged">
+
+				<template v-slot:append>
+					<q-icon round dense flat name="error" color="negative" v-if="errors.role"></q-icon>
+				</template>
+				<template v-slot:hint>
+					<span class="text-negative" v-if="errors.role">{{ errors.role }}</span>
+				</template>
+			</q-select>
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="!newUser.login" @@click="createUser()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="editedUserProps" no-backdrop-dismiss>
+	<q-card style="min-width: 500px">
+
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["User"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			<div class="text-caption text-grey-7">Id : {{ editedUser.id }}</div>
+
+			<q-input v-model="editedUser.login"
+				readonly
+				class="q-mb-md"
+				label="@Localizer["Login"]"
+				ref="UserLogin">
+			</q-input>
+
+			<q-select v-model="editedUser.role"
+				bottom-slots
+				:options="roles"
+				class="q-mb-sm"
+				label="@Localizer["Role"]"
+				@@update:model-value="onRoleChanged">
+
+				<template v-slot:append>
+					<q-icon round dense flat name="error" color="negative" v-if="errors.role"></q-icon>
+				</template>
+				<template v-slot:hint>
+					<p class="text-negative q-pb-md" v-if="errors.role">{{ errors.role }}</p>
+				</template>
+			</q-select>
+
+			<q-checkbox v-model="editedUser.isEnabled"
+				class="q-pb-md"
+				label="@Localizer["EnabledLabel"]"
+				ref="UserEnabled"
+				@@update:model-value="errors.isEnabled=null">
+			</q-checkbox>
+
+			<p class="text-caption text-negative" v-if="errors.isEnabled">@Localizer["InvalidUserState"]</p>
+
+			<q-input v-model="editedUser.name"
+				autofocus
+				label="@Localizer["Name"]"
+				ref="UserName"
+				:rules="[val => !val || val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]']">
+			</q-input>
+
+			<q-input v-model="editedUser.email"
+				label="@Localizer["EMail"]"
+				ref="UserEmail"
+				:rules="[val => !val || val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]']">
+			</q-input>
+
+			<q-input v-model="editedUser.locale"
+				label="@Localizer["Language"]"
+				ref="UserLocale"
+				:rules="[val => !val || /^[a-z]{2}(-[A-Z]{2})?$/.test(val) || '@ErrorsLocalizer["Validation_Lang"]']">
+			</q-input>
+
+			<q-input v-model="editedUser.apikey" v-if="editedUser.apikey"
+				readonly
+				class="q-mb-md"
+				label="@Localizer["ApiKey"]"
+				ref="UserApiKey">
+			</q-input>
+
+			<q-checkbox v-model="resetApiKey"
+				class="q-pb-md"
+				label="@Localizer["ResetApiKey"]"
+				ref="UserResetApiKey">
+			</q-checkbox>
+
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="updateUser()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteUserConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteUser"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteUserText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteUser()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+
+
+<div class="q-gutter-md q-pa-md" :style="{'max-height': pageHeight}">
+	<h5>@Localizer["Users"]</h5>
+
+	<q-list>
+		<q-separator></q-separator>
+
+		<div v-for="(u,idx) in users">
+
+			<q-item clickable v-ripple @@click="startUpdateUser(u.id)">
+				<q-item-section avatar>
+					<q-avatar>
+						<img :src="u.avatar ? u.avatar : '/images/default-user.webp'">
+						<q-badge color="red" floating v-if="!u.isEnabled"><q-icon name="block" color="white"/></q-badge>
+					</q-avatar>
+				</q-item-section>
+
+				<q-item-section>
+					<q-item-label lines="1">
+						{{ u.name ? u.name : u.login }} <q-badge outline align="middle" color="secondary" v-if="u.isDemo">@Localizer["Demo"]</q-badge>
+					</q-item-label>
+					<q-item-label caption lines="1">{{ u.login }}</q-item-label>
+					<q-item-label caption lines="1">{{ u.role }}</q-item-label>
+				</q-item-section>
+
+				<q-item-section side v-if="u.lastSignIn">
+					<q-item-label caption lines="1">@Localizer["LastSignin"]: {{ (new Date(u.lastSignIn)).toLocaleString("@SharedLocalizer["Locale"]") }}</q-item-label>
+				</q-item-section>
+
+				<q-item-section side>
+					<q-btn size="md" flat dense round icon="delete" v-on:click.stop="startDeleteUser(u.id)">
+						<q-tooltip>@Localizer["DeleteUser"]</q-tooltip>
+					</q-btn>
+				</q-item-section>
+			</q-item>
+
+			<q-separator></q-separator>
+		</div>
+	
+	</q-list>
+</div>
+
+@section Commands
+{
+	<q-btn flat round icon="add" @@click="startNewUser()">
+		<q-tooltip>@Localizer["Add"]</q-tooltip>
+	</q-btn>
+}
+
+@section Scripts
+{
+	<script id="user_id" type="application/json">@Json.Serialize(Model.UserId)</script>
+	<script src="~/js/users.js"></script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}})
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+		app.mount('#q-app')
+	</script>
+}

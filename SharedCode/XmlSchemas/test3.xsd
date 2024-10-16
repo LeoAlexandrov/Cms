@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://aleprojects.com/h-cms/test3.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://aleprojects.com/h-cms/test3.xsd"
+	xmlns:t="http://aleprojects.com/h-cms/test.xsd"
+	xmlns:b="http://aleprojects.com/h-cms/basic.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:complexType name="card3">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Card3</xs:documentation>
+			<xs:documentation xml:lang="fr">Carte3</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="card2" type="t:card2"/>
+			<xs:element name="cl" type="b:code-lang"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="card3" type="card3"/>
+
+</xs:schema>

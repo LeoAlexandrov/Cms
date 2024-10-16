@@ -1,0 +1,49 @@
+{
+	"ConnectionStrings": {
+		"CmsDbConnection": "data source=MSSQL;initial catalog=Cms;TrustServerCertificate=true;persist security info=True;user id=user;password=1234567890;App=EntityFramework"
+	},
+
+	"Auth": {
+
+		"SecurityKey": "1234567890abcdefghijklmnopgrstuv",
+		"JwtIssuer": "headlessCms",
+		"JwtAudience": "cms_api",
+
+		"DemoMode": false,
+		"DefaultDemoModeRole": "Guest",
+
+		"OrderedRoles": [ "Guest", "User", "Admin", "Developer" ],
+
+		"RoleClaimPolicies": {
+			"IsGuest": [ "Guest", "User", "Admin", "Developer" ],
+			"IsUser": [ "User", "Admin", "Developer" ],
+			"IsAdmin": [ "Admin", "Developer" ],
+			"IsDeveloper": [ "Developer" ],
+			"NoInputSanitizing": [ "Developer" ]
+		},
+
+		"Google": {
+			"ClientId": "123456789012-abcdefghijklmnopgrstuv1234567890.apps.googleusercontent.com",
+			"ClientSecret": ""
+		},
+
+		"Microsoft": {
+			"ClientId": "189ee6cd-56ab-490c-ada3-df680603bf7a",
+			"ClientSecret": "12346~abcdderfsa_oooooooo.12345678990978"
+		},
+
+		"Github": {
+			"ClientId": "6d4fa106ac1b05f5949f",
+			"ClientSecret": "1234567890abcdefghijklmnopqrstuvwxyz1234"
+		}
+	},
+
+	"Media": {
+		"StorageHost": "https://media.h-cms.net/",
+		"StoragePath": "/var/www/cms-media/",
+		"CacheFolder": ".cache",
+		"MaxUploadSize": 10485760,
+		"SafeNameRegex": "^[\\w-]+.\\w+$"
+	}
+
+}

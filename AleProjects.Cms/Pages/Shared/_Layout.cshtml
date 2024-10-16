@@ -1,0 +1,105 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+<!DOCTYPE html>
+<html lang="@SharedLocalizer["Language"]">
+
+<head>
+	<meta charset="utf-8" />
+	<title>@SharedLocalizer["AppTitle"]</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+	<link rel="icon" href="~/images/app-fav-icon.webp" type="image/webp" />
+	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
+
+	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
+	<link href="https://cdn.jsdelivr.net/npm/quasar@2.16.6/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="~/css/styles.css">
+	@RenderSection("Css", required: false)
+
+	<script src="~/js/application.js"></script>
+	<script src="~/js/localization/@(SharedLocalizer["Language"]).js"></script>
+	<script src="~/js/localization.js"></script>
+</head>
+
+<body class="body-progress">
+	<div id="q-app">
+
+		<q-layout view="hHh lpR fFf">
+
+			<q-header elevated class="bg-primary text-white">
+				<q-toolbar>
+					<q-btn flat @@click="drawer=!drawer" round dense icon="menu"></q-btn>
+					<q-toolbar-title>@SharedLocalizer["AppTitle"]</q-toolbar-title>
+					@RenderSection("Commands", required: false)
+				</q-toolbar>
+			</q-header>
+
+			<q-drawer v-model="drawer"
+				show-if-above
+				:width="200"
+				:breakpoint="1440"
+				bordered
+				:class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
+
+				<q-scroll-area class="drawer-menu-scroller">
+					<q-list>
+
+						<template v-for="(menuItem, index) in navmenu" :key="index">
+							<q-item active v-ripple v-if="menuItem.id == activeNavSection">
+								<q-item-section avatar><q-icon color="primary" :name="menuItem.icon" /></q-item-section>
+								<q-item-section class="text-weight-medium">{{ menuItem.label }}</q-item-section>
+							</q-item>
+							<q-item clickable :href="menuItem.url" v-ripple v-else>
+								<q-item-section avatar><q-icon color="blue-grey" :name="menuItem.icon" /></q-item-section>
+								<q-item-section class="text-weight-regular">{{ menuItem.label }}</q-item-section>
+							</q-item>
+						</template>
+
+						<q-separator></q-separator>
+						<q-item clickable v-ripple v-if="navmenu.length!=0" @@click="signout()">
+							<q-item-section avatar><q-icon color="blue-grey" name="logout" /></q-item-section>
+							<q-item-section class="text-weight-regular">@SharedLocalizer["Signout"]</q-item-section>
+						</q-item>
+
+					</q-list>
+				</q-scroll-area>
+
+				<div class="absolute-top drawer-header">
+					<div class="absolute-bottom bg-transparent q-ma-md">
+						<q-avatar size="64px" class="q-mb-sm">
+							<img :src="profile.avatar" no-spinner loading="eager">
+						</q-avatar>
+						<div class="text-weight-medium text-white">{{ profile.name }}</div>
+					</div>
+				</div>
+
+			</q-drawer>
+
+
+			<q-page-container>
+				<q-page id="top-page">
+					@RenderBody()
+				</q-page>
+			</q-page-container>
+
+			<q-footer elevated class="row bg-grey-8 text-white">
+				<div class="q-ma-sm">(c) aleprojects.com</div>
+				<q-space></q-space>
+				<div class="q-ma-sm">@RenderSection("StatusLine", required: false)</div>
+			</q-footer>
+
+		</q-layout>
+
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quasar@2.12.5/dist/quasar.umd.prod.js"></script>
+	@if (SharedLocalizer["Language"].Value != "en")
+	{
+		<script src="https://cdn.jsdelivr.net/npm/quasar@2.12.5/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
+	}
+	<script id="auth_endpoints" type="application/json">@Json.Serialize(new { signin = "/auth", signout = "/api/v1/auth/signout", refresh = "/api/v1/auth/refresh" })</script>
+	@RenderSection("Scripts", required: false)
+	@Html.AntiForgeryToken() 
+</body>
+</html>

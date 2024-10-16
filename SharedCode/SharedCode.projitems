@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a01ab9eb-2eda-4c9d-930a-344046acf8b5</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SharedCode</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Media.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Attributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Schemata.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Tree.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Users.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\AttributeResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\DocumentResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\AttributesManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\FragmentResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement\MediaManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement\MediaResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Rendering\RenderingService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement\SchemaManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement\SchemaResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement\UserResults.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement\UserManagementService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\JsonParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\RandomString.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Documents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\FragmentsManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\DocumentsManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Fragments.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Common\ModelErrors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Common\References.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\DynamicXml.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Rendering\FragmentViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\MediaStorageEntry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Schema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageFragment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\SignInHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\RoleClaimPolicies.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Data\CmsDbContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Reference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\TreeNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\FragmentLink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentPathNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\User.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Fragment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Document.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\XSElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchema\FragmentSchemaService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Media\MediaStorage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\basic-fragments.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\basic-types.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\default.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\test3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\test.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\test1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemas\test2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchema\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Application\Services\Common\" />
+  </ItemGroup>
+</Project>
