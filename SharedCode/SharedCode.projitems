@@ -14,30 +14,22 @@
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Schemata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Tree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Users.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\AttributeResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\DocumentResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\AttributesManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\FragmentResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement\MediaManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement\MediaResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Rendering\RenderingService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement\SchemaManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement\SchemaResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement\UserResults.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement\UserManagementService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\AttributesManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\JsonParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\RandomString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Documents.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\FragmentsManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ContentManagement\DocumentsManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentsManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\DocumentsManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Fragments.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Common\ModelErrors.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Common\References.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ReferencesHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\DynamicXml.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Rendering\FragmentViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\MediaStorageEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Schema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageUser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageDocument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageAttribute.cs" />
@@ -53,7 +45,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Fragment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Document.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\XSElement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchema\FragmentSchemaService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchemaService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Media\MediaStorage.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -80,9 +72,5 @@
     <None Include="$(MSBuildThisFileDirectory)XmlSchemas\test2.xsd">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchema\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Application\Services\Common\" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -27,12 +26,12 @@ namespace AleProjects.Cms.Application.Services
 			return new(attr);
 		}
 
-		public async Task<CreateAttributeResult> CreateAttribute(DtoCreateDocumentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentAttributeResult>> CreateAttribute(DtoCreateDocumentAttribute dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, dto.DocumentRef, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return CreateAttributeResult.AccessForbidden();
+				return Result<DtoDocumentAttributeResult>.Forbidden();
 
 			string key;
 			string value;
@@ -55,12 +54,11 @@ namespace AleProjects.Cms.Application.Services
 			Document doc = await dbContext.Documents.FindAsync(dto.DocumentRef);
 
 			if (doc == null)
-				return CreateAttributeResult.BadAttributeParameters(ModelErrors.Create("DocumentRef", "No document found"));
+				return Result<DtoDocumentAttributeResult>.BadParameters("DocumentRef", "No document found");
 
 
 			DocumentAttribute result = new()
 			{
-				//Id = id,
 				DocumentRef = dto.DocumentRef,
 				AttributeKey = key,
 				Value = value,
@@ -79,20 +77,20 @@ namespace AleProjects.Cms.Application.Services
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return CreateAttributeResult.AttributeConflict(ModelErrors.Create("AttributeKey", "Must be unique in this document"));
+					return Result<DtoDocumentAttributeResult>.Conflict("AttributeKey", "Must be unique in this document");
 
 				throw;
 			}
 
-			return CreateAttributeResult.Success(new(result));
+			return Result<DtoDocumentAttributeResult>.Success(new(result));
 		}
 
-		public async Task<UpdateAttributeResult> UpdateAttribute(int id, DtoUpdateDocumentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentAttributeResult>> UpdateAttribute(int id, DtoUpdateDocumentAttribute dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageAttribute");
 
 			if (!authResult.Succeeded)
-				return UpdateAttributeResult.AccessForbidden();
+				return Result<DtoDocumentAttributeResult>.Forbidden();
 
 			string value;
 
@@ -112,7 +110,7 @@ namespace AleProjects.Cms.Application.Services
 			var attr = await dbContext.DocumentAttributes.FindAsync(id);
 
 			if (attr == null)
-				return UpdateAttributeResult.AttributeNotFound();
+				return Result<DtoDocumentAttributeResult>.NotFound();
 
 			attr.Value = value;
 			attr.Enabled = dto.Enabled;
@@ -123,20 +121,20 @@ namespace AleProjects.Cms.Application.Services
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync();
-			return UpdateAttributeResult.Success(new(attr)); ;
+			return Result<DtoDocumentAttributeResult>.Success(new(attr)); ;
 		}
 
-		public async Task<DeleteAttributeResult> DeleteAttribute(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteAttribute(int id, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageAttribute");
 
 			if (!authResult.Succeeded)
-				return DeleteAttributeResult.AccessForbidden();
+				return Result<bool>.Forbidden();
 
 			var attr = await dbContext.DocumentAttributes.FindAsync(id);
 
 			if (attr == null)
-				return DeleteAttributeResult.AttributeNotFound();
+				return Result<bool>.NotFound();
 
 			Document doc = await dbContext.Documents.FindAsync(attr.DocumentRef);
 
@@ -147,7 +145,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return DeleteAttributeResult.Success();
+			return Result<bool>.Success(true);
 		}
 
 	}

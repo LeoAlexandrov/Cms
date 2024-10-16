@@ -43,17 +43,16 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<CreateSchemaResult> CreateSchema(DtoCreateSchema dto, ClaimsPrincipal user)
+		public async Task<Result<DtoSchemaResult>> CreateSchema(DtoCreateSchema dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
-				return CreateSchemaResult.AccessForbidden();
+				return Result<DtoSchemaResult>.Forbidden();
 
 			string ns = "http://h-cms.net/cms/new-schema.xsd";
 
 			string data = @"<?xml version=""1.0"" encoding=""utf-8""?>
-
 <xs:schema
 	targetNamespace=""http://h-cms.net/cms/new-schema.xsd""
 	elementFormDefault=""qualified""
@@ -75,20 +74,20 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return CreateSchemaResult.Success(new(schema));
+			return Result<DtoSchemaResult>.Success(new(schema));
 		}
 
-		public async Task<UpdateSchemaResult> UpdateSchema(int id, DtoUpdateSchema dto, FragmentSchemaService fss, ClaimsPrincipal user)
+		public async Task<Result<DtoSchemaResult>> UpdateSchema(int id, DtoUpdateSchema dto, FragmentSchemaService fss, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
-				return UpdateSchemaResult.AccessForbidden();
+				return Result<DtoSchemaResult>.Forbidden();
 
 			Schema schema = dbContext.Schemata.Find(id);
 
 			if (schema == null)
-				return UpdateSchemaResult.SchemaNotFound();
+				return Result<DtoSchemaResult>.NotFound();
 
 			schema.Description = dto.Description;
 			schema.Data = dto.Data;
@@ -109,35 +108,35 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (XmlSchemaException ex)
 			{
-				return UpdateSchemaResult.BadSchemaParameters(ModelErrors.Create("Data", [string.Format("{0} Line {1}, position {2}.", ex.Message, ex.LineNumber, ex.LinePosition)]));
+				return Result<DtoSchemaResult>.BadParameters("Data", [string.Format("{0} Line {1}, position {2}.", ex.Message, ex.LineNumber, ex.LinePosition)]);
 			}
 			catch (System.Xml.XmlException ex)
 			{
-				return UpdateSchemaResult.BadSchemaParameters(ModelErrors.Create("Data", [ex.Message]));
+				return Result<DtoSchemaResult>.BadParameters("Data", [ex.Message]);
 			}
 			catch (Exception ex)
 			{
-				return UpdateSchemaResult.BadSchemaParameters(ModelErrors.Create("Data", [ex.Message]));
+				return Result<DtoSchemaResult>.BadParameters("Data", [ex.Message]);
 			}
 
 			await dbContext.SaveChangesAsync();
 
 			fss.Reload(schemaSet, fragments);
 
-			return UpdateSchemaResult.Success(new(schema));
+			return Result<DtoSchemaResult>.Success(new(schema));
 		}
 
-		public async Task<DeleteSchemaResult> DeleteSchema(int id, FragmentSchemaService fss, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteSchema(int id, FragmentSchemaService fss, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
-				return DeleteSchemaResult.AccessForbidden();
+				return Result<bool>.Forbidden();
 
 			Schema schema = dbContext.Schemata.Find(id);
 
 			if (schema == null)
-				return DeleteSchemaResult.SchemaNotFound();
+				return Result<bool>.NotFound();
 
 			List<Schema> schemata = await dbContext.Schemata
 				.Where(s => s.Id != id)
@@ -152,7 +151,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				return DeleteSchemaResult.BadSchemaParameters(ModelErrors.Create("Id", [string.Format("This schema can't be deleted: {0}", ex.Message)]));
+				return Result<bool>.BadParameters("Id", [string.Format("This schema can't be deleted: {0}", ex.Message)]);
 			}
 
 			dbContext.Schemata.Remove(schema);
@@ -161,7 +160,7 @@ namespace AleProjects.Cms.Application.Services
 
 			fss.Reload(schemaSet, fragments);
 
-			return DeleteSchemaResult.Success();
+			return Result<bool>.Success(true);
 		}
 
 

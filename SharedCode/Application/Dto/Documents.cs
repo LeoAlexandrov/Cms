@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 
 using AleProjects.Cms.Domain.Entities;
-using AleProjects.Cms.Domain.ValueObjects;
 using MessagePack;
 
 

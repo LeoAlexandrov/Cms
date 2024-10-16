@@ -40,15 +40,15 @@ namespace AleProjects.Cms.Application.Services
 		}
 
 
-		public ReadMediaFolderResult Read(string link)
+		public Result<DtoMediaFolderReadResult> Read(string link)
 		{
 			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return ReadMediaFolderResult.BadFolderParameters(ModelErrors.Create("Link", "Invalid base64 format"));
+				return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid base64 format");
 
 			var entries = _mediaStorage.ReadDirectory(path);
 
 			if (entries == null)
-				return ReadMediaFolderResult.FolderNotFound();
+				return Result<DtoMediaFolderReadResult>.NotFound();
 
 			DtoMediaStoragePathElement[] breadcrumbs;
 
@@ -80,31 +80,36 @@ namespace AleProjects.Cms.Application.Services
 			if (!url.EndsWith('/'))
 				url += "/";
 
-			return ReadMediaFolderResult.Success(entries?.Select(e => new DtoMediaStorageEntry(e, url + e.RelativeName)), breadcrumbs);
+			return Result<DtoMediaFolderReadResult>.Success(
+				new()
+				{
+					Entries = entries?.Select(e => new DtoMediaStorageEntry(e, url + e.RelativeName)),
+					Path = breadcrumbs
+				});
 		}
 
-		public PhysicalMediaFileResult Get(string link)
+		public Result<DtoPhysicalMediaFileResult> Get(string link)
 		{
 			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return PhysicalMediaFileResult.BadFileParameters(ModelErrors.Create("Link", "Invalid base64 format"));
+				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64 format");
 
 			var entry = _mediaStorage.GetFile(path);
 
 			if (entry == null)
-				return PhysicalMediaFileResult.FileNotFound();
+				return Result<DtoPhysicalMediaFileResult>.NotFound();
 
-			return PhysicalMediaFileResult.Success(new(entry));
+			return Result<DtoPhysicalMediaFileResult>.Success(new(entry));
 		}
 
-		public async Task<MediaFilePropertiesResult> Properties(string link)
+		public async Task<Result<DtoMediaStorageEntry>> Properties(string link)
 		{
 			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return MediaFilePropertiesResult.BadFileParameters(ModelErrors.Create("Link", "Invalid base64 format"));
+				return Result<DtoMediaStorageEntry>.BadParameters("Link", "Invalid base64 format");
 
 			var entry = await _mediaStorage.Properties(path);
 
 			if (entry == null)
-				return MediaFilePropertiesResult.FileNotFound();
+				return Result<DtoMediaStorageEntry>.NotFound();
 
 			var url = _configuration.GetValue<string>("Media:StorageHost");
 
@@ -114,32 +119,32 @@ namespace AleProjects.Cms.Application.Services
 				url += "/" + path;
 
 
-			return MediaFilePropertiesResult.Success(new(entry, url));
+			return Result<DtoMediaStorageEntry>.Success(new(entry, url));
 		}
 
-		public async Task<PhysicalMediaFileResult> Preview(string link, int? size)
+		public async Task<Result<DtoPhysicalMediaFileResult>> Preview(string link, int? size)
 		{
 			if (!size.HasValue)
 				size = 128;
 
 			if (size <= 0)
-				return PhysicalMediaFileResult.BadFileParameters(ModelErrors.Create("Size", "Must be positive"));
+				return Result<DtoPhysicalMediaFileResult>.BadParameters("Size", "Must be positive");
 
 			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return PhysicalMediaFileResult.BadFileParameters(ModelErrors.Create("Link", "Invalid base64 format"));
+				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64 format");
 
 			var entry = await _mediaStorage.Preview(path, link, size.Value);
 
 			if (entry == null)
-				return PhysicalMediaFileResult.FileNotFound();
+				return Result<DtoPhysicalMediaFileResult>.NotFound();
 
-			return PhysicalMediaFileResult.Success(new(entry));
+			return Result<DtoPhysicalMediaFileResult>.Success(new(entry));
 		}
 
-		public async Task<UploadMediaFileResult> Save(Stream stream, string fileName, string destinationLink, ClaimsPrincipal user)
+		public async Task<Result<DtoMediaStorageEntry>> Save(Stream stream, string fileName, string destinationLink, ClaimsPrincipal user)
 		{
 			if (!ReferencesHelper.TryFromBase64(destinationLink, out string destination))
-				return UploadMediaFileResult.BadFileParameters(ModelErrors.Create("Destination", "Invalid base64 format"));
+				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64 format");
 
 			var authResult = await _authService.AuthorizeAsync(user, "UploadUnsafeContent");
 
@@ -149,29 +154,29 @@ namespace AleProjects.Cms.Application.Services
 				
 				if (!provider.TryGetContentType(fileName, out string contentType) ||
 					(!contentType.StartsWith("image/") && !contentType.StartsWith("video/")))
-					return UploadMediaFileResult.BadFileParameters(ModelErrors.Create(fileName, "Invalid file type"));
+					return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Invalid file type");
 
 				if (!Regex.IsMatch(fileName, SafeNameRegexString))
-					return UploadMediaFileResult.BadFileParameters(ModelErrors.Create(fileName, "Unsafe file name"));
+					return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Unsafe file name");
 			}
 
 			var entry = await _mediaStorage.Save(stream, fileName, destination);
 
 			if (entry == null)
-				return UploadMediaFileResult.BadFileParameters(ModelErrors.Create(fileName, "Failed to save file"));
+				return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Failed to save file");
 
 			var url = _configuration.GetValue<string>("Media:StorageHost");
 
 			if (!url.EndsWith('/'))
 				url += "/";
 
-			return UploadMediaFileResult.Success(new(entry, url + entry.RelativeName));
+			return Result<DtoMediaStorageEntry>.Success(new(entry, url + entry.RelativeName));
 		}
 
-		public async Task<DeleteMediaEntriesResult> Delete(string[] links)
+		public async Task<Result<string[]>> Delete(string[] links)
 		{
 			if (links == null || links.Length == 0)
-				return DeleteMediaEntriesResult.Success([]);
+				return Result<string[]>.Success([]);
 
 			string[] entries = new string[links.Length];
 
@@ -179,34 +184,34 @@ namespace AleProjects.Cms.Application.Services
 				if (ReferencesHelper.TryFromBase64(System.Web.HttpUtility.UrlDecode(links[i]), out string path))
 					entries[i] = path;
 				else
-					return DeleteMediaEntriesResult.BadFileParameters(ModelErrors.Create(links[i], "Invalid base64 format"));
+					return Result<string[]>.BadParameters(links[i], "Invalid base64 format");
 
 			var deleted = await _mediaStorage.Delete(entries);
 
-			for (int i = 0; i < deleted.Count; i++)
+			for (int i = 0; i < deleted.Length; i++)
 				deleted[i] = System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.UTF8.GetBytes(deleted[i])));
 
-			return DeleteMediaEntriesResult.Success(deleted);
+			return Result<string[]>.Success(deleted);
 		}
 
-		public async Task<CreateMediaFolderResult> CreateFolder(string name, string destination, ClaimsPrincipal user)
+		public async Task<Result<DtoMediaStorageEntry>> CreateFolder(string name, string destination, ClaimsPrincipal user)
 		{
 			string path;
 
 			if (!ReferencesHelper.TryFromBase64(System.Web.HttpUtility.UrlDecode(destination), out path))
-				return CreateMediaFolderResult.BadFolderParameters(ModelErrors.Create("Destination", "Invalid base64 format"));
+				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64 format");
 
 			var authResult = await _authService.AuthorizeAsync(user, "UploadUnsafeContent");
 
 			if (!authResult.Succeeded)
 			{
 				if (!Regex.IsMatch(name, "^[\\w-]+$"))
-					return CreateMediaFolderResult.BadFolderParameters(ModelErrors.Create("Name", "Unsafe folder name"));
+					return Result<DtoMediaStorageEntry>.BadParameters("Name", "Unsafe folder name");
 			}
 
 			var entry = _mediaStorage.CreateFolder(name, path);
 
-			return CreateMediaFolderResult.Success(new(entry, null));
+			return Result<DtoMediaStorageEntry>.Success(new(entry, null));
 		}
 	}
 }

@@ -40,16 +40,16 @@ namespace AleProjects.Cms.Web.Infrastructure.Auth
 
 			var ur = await _ums.GetByApiKey(token);
 
-			if (ur.NotFound || !ur.Result.IsEnabled)
+			if (ur.IsNotFound || !ur.Value.IsEnabled)
 				return AuthenticateResult.NoResult();
 
 			List<Claim> claims = [
-				new(ClaimTypes.Name, ur.Result.Name), 
-				new(ClaimTypes.Role, ur.Result.Role)
+				new(ClaimTypes.Name, ur.Value.Name),
+				new(ClaimTypes.Role, ur.Value.Role)
 			];
 
-			if (!string.IsNullOrEmpty(ur.Result.Locale))
-				claims.Add(new("locale", ur.Result.Locale));
+			if (!string.IsNullOrEmpty(ur.Value.Locale))
+				claims.Add(new("locale", ur.Value.Locale));
 
 			var identity = new ClaimsIdentity(claims, this.Scheme.Name);
 			var principal = new ClaimsPrincipal(identity);

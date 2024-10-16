@@ -36,13 +36,12 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _ums.GetById(id.Value, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpGet("roles")]
@@ -62,16 +61,13 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _ums.CreateUser(dto, this.HttpContext.User);
 
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			if (result.Conflict)
-				return Conflict(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				ResultType.Conflict => Conflict(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPut("{id:int}")]
@@ -84,16 +80,13 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _ums.UpdateUser(id, dto, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpDelete("{id:int}")]
@@ -103,18 +96,14 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _ums.DeleteUser(id, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
-
 
 	}
 }

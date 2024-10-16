@@ -442,12 +442,12 @@ namespace AleProjects.Cms.Application.Services
 			return new() { Shared = shared, Templates = templates };
 		}
 
-		public async ValueTask<GetFragmentResult> GetFragmentByLink(int id, string lang)
+		public async ValueTask<Result<DtoFullFragmentResult>> GetFragmentByLink(int id, string lang)
 		{
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 
 			if (link == null)
-				return GetFragmentResult.FragmentNotFound();
+				return Result<DtoFullFragmentResult>.NotFound();
 
 			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
 
@@ -535,15 +535,15 @@ namespace AleProjects.Cms.Application.Services
 			_schemaService.Traverse(fragment.XmlName, callback);
 			*/
 
-			return GetFragmentResult.Success(dto);
+			return Result<DtoFullFragmentResult>.Success(dto);
 		}
 
-		public async Task<CreateFragmentResult> CreateFragment(DtoCreateFragment dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFragmentChangeResult>> CreateFragment(DtoCreateFragment dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, dto.Document, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return CreateFragmentResult.AccessForbidden();
+				return Result<DtoFragmentChangeResult>.Forbidden();
 
 			string name;
 
@@ -564,7 +564,7 @@ namespace AleProjects.Cms.Application.Services
 			Document doc = await dbContext.Documents.FindAsync(dto.Document);
 
 			if (doc == null)
-				return CreateFragmentResult.BadDocumentParameters(ModelErrors.Create("Document", "No document found"));
+				return Result<DtoFragmentChangeResult>.BadParameters("Document", "No document found");
 
 			FragmentLink parent;
 			int position;
@@ -574,10 +574,10 @@ namespace AleProjects.Cms.Application.Services
 				parent = await dbContext.FragmentLinks.FindAsync(dto.Parent);
 
 				if (parent == null)
-					return CreateFragmentResult.BadDocumentParameters(ModelErrors.Create("Parent", "No parent fragment found"));
+					return Result<DtoFragmentChangeResult>.BadParameters("Parent", "No parent fragment found");
 
 				if (parent.DocumentRef != dto.Document)
-					return CreateFragmentResult.BadDocumentParameters(ModelErrors.Create("Document", "Invalid document specified"));
+					return Result<DtoFragmentChangeResult>.BadParameters("Document", "Invalid document specified");
 
 				position = await dbContext.FragmentLinks.CountAsync(d => d.ContainerRef == dto.Parent);
 			}
@@ -598,7 +598,7 @@ namespace AleProjects.Cms.Application.Services
 				sharedFragment = await dbContext.Fragments.FindAsync(long.Parse(dto.SharedFragment));
 
 				if (sharedFragment == null)
-					return CreateFragmentResult.BadDocumentParameters(ModelErrors.Create("SharedFragment", "No shared fragment found"));
+					return Result<DtoFragmentChangeResult>.BadParameters("SharedFragment", "No shared fragment found");
 
 				content = null;
 				xmlName = null;
@@ -640,11 +640,11 @@ namespace AleProjects.Cms.Application.Services
 					Enabled = true
 				};
 
-				fr = new() 
-				{ 
-					Name = name, 
-					Data = content, 
-					Icon = "web", 
+				fr = new()
+				{
+					Name = name,
+					Data = content,
+					Icon = "web",
 					XmlName = xmlName,
 					XmlSchema = dto.Schema,
 					DocumentLinks = [fl]
@@ -689,20 +689,27 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return CreateFragmentResult.Success(new(fr), new(fl), doc.Author, doc.ModifiedAt);
+			return Result<DtoFragmentChangeResult>.Success(
+				new DtoFragmentChangeResult()
+				{
+					Fragment = new(fr),
+					Link = new(fl),
+					Author = doc.Author,
+					ModifiedAt = doc.ModifiedAt
+				});
 		}
 
-		public async Task<UpdateFragmentResult> UpdateFragmentByLink(int id, DtoFullFragment dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFragmentChangeResult>> UpdateFragmentByLink(int id, DtoFullFragment dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageFragment");
 
 			if (!authResult.Succeeded)
-				return UpdateFragmentResult.AccessForbidden();
+				return Result<DtoFragmentChangeResult>.Forbidden();
 
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 
 			if (link == null)
-				return UpdateFragmentResult.FragmentNotFound();
+				return Result<DtoFragmentChangeResult>.NotFound();
 
 			
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
@@ -724,7 +731,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch
 			{
-				return UpdateFragmentResult.BadFragmentParameters(ModelErrors.Create("Decomposition", "Bad xml content"));
+				return Result<DtoFragmentChangeResult>.BadParameters("Decomposition", "Bad xml content");
 			}
 
 
@@ -752,7 +759,7 @@ namespace AleProjects.Cms.Application.Services
 					.CountAsync();
 
 				if (!dto.Properties.Shared && useCount > 0)
-					return UpdateFragmentResult.BadFragmentParameters(ModelErrors.Create("Shared", "Fragment can't be unshared"));
+					return Result<DtoFragmentChangeResult>.BadParameters("Shared", "Fragment can't be unshared");
 			}
 
 			bool sharedStateChanged = fragment.Shared != dto.Properties.Shared;
@@ -798,20 +805,28 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return UpdateFragmentResult.Success(new(fragment), new(link), sharedStateChanged, doc.Author, doc.ModifiedAt);
+			return Result<DtoFragmentChangeResult>.Success(
+				new DtoFragmentChangeResult()
+				{
+					Fragment = new(fragment), 
+					Link = new(link), 
+					SharedStateChanged = sharedStateChanged, 
+					Author = doc.Author,
+					ModifiedAt = doc.ModifiedAt
+				});
 		}
 
-		public async Task<DeleteFragmentResult> DeleteFragmentByLink(int id, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentChangeResult>> DeleteFragmentByLink(int id, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageFragment");
 
 			if (!authResult.Succeeded)
-				return DeleteFragmentResult.AccessForbidden();
+				return Result<DtoDocumentChangeResult>.Forbidden();
 
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 
 			if (link == null)
-				return DeleteFragmentResult.FragmentNotFound();
+				return Result<DtoDocumentChangeResult>.NotFound();
 
 			int containerRef = link.ContainerRef;
 			int docId = link.DocumentRef;
@@ -887,20 +902,25 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return DeleteFragmentResult.Success(doc.Author, doc.ModifiedAt);
+			return Result<DtoDocumentChangeResult>.Success(
+				new DtoDocumentChangeResult() 
+				{ 
+					Author = doc.Author, 
+					ModifiedAt = doc.ModifiedAt 
+				});
 		}
 
-		public async Task<MoveFragmentResult> MoveFragment(int id, int posIncrement, ClaimsPrincipal user)
+		public async Task<Result<DtoMoveFragmentResult>> MoveFragment(int id, int posIncrement, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageFragment");
 
 			if (!authResult.Succeeded)
-				return MoveFragmentResult.AccessForbidden();
+				return Result<DtoMoveFragmentResult>.Forbidden();
 
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 
 			if (link == null)
-				return MoveFragmentResult.FragmentNotFound();
+				return Result<DtoMoveFragmentResult>.NotFound();
 
 			int containerRef = link.ContainerRef;
 			int docId = link.DocumentRef;
@@ -941,7 +961,14 @@ namespace AleProjects.Cms.Application.Services
 				await dbContext.SaveChangesAsync();
 			}
 
-			return MoveFragmentResult.Success(newPosition, oldPosition, doc.Author, doc.ModifiedAt);
+			return Result<DtoMoveFragmentResult>.Success(
+				new DtoMoveFragmentResult()
+				{
+					NewPosition = newPosition,
+					OldPosition = oldPosition,
+					Author = doc.Author,
+					ModifiedAt = doc.ModifiedAt
+				});
 		}
 
 		public static IReadOnlyList<DtoFragmentElement> NewFragmentElementValue(string path, string lang, IDictionary<string, XSElement> index)

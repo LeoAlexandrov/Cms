@@ -30,13 +30,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = _mms.Read(link);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpGet]
@@ -45,13 +44,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = _mms.Get(link);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return PhysicalFile(result.Result.FullPath, result.Result.MimeType);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => PhysicalFile(result.Value.FullPath, result.Value.MimeType)
+			};
 		}
 
 		[HttpGet]
@@ -60,13 +58,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _mms.Properties(link);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpGet]
@@ -75,13 +72,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _mms.Preview(link, size);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return PhysicalFile(result.Result.FullPath, result.Result.MimeType);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => PhysicalFile(result.Value.FullPath, result.Value.MimeType)
+			};
 		}
 
 		[CsrAntiforgery]
@@ -115,8 +111,8 @@ namespace AleProjects.Cms.Web.Api
 
 						var result = await _mms.Save(section.Body, contentDisposition.FileName.Value, destination, this.User);
 
-						if (!result.BadParameters)
-							uploaded.Add(result.Result);
+						if (!result.IsBadParameters)
+							uploaded.Add(result.Value);
 					}
 					else if (contentDisposition.Name.Equals("destination"))
 					{
@@ -141,10 +137,10 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _mms.CreateFolder(dto.Name, dto.Destination, this.User);
 
-			if (result.BadParameters)
+			if (result.IsBadParameters)
 				return BadRequest(result.Errors);
 
-			return Ok(result.Result);
+			return Ok(result.Value);
 		}
 
 		[CsrAntiforgery]
@@ -160,10 +156,10 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _mms.Delete(dto.Links);
 
-			if (result.BadParameters)
+			if (result.IsBadParameters)
 				return BadRequest(result.Errors);
 
-			return Ok(result.Result);
+			return Ok(result.Value);
 		}
 
 	}

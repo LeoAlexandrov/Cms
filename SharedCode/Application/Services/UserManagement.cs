@@ -9,7 +9,7 @@ using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Auth;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using System.Collections.Generic;
 
 
 namespace AleProjects.Cms.Application.Services
@@ -54,29 +54,29 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<GetUserResult> GetById(int id, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> GetById(int id, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
-				return GetUserResult.AccessForbidden();
+				return Result<DtoUserResult>.Forbidden();
 
 			var u = await _dbContext.Users.FindAsync(id);
 
 			if (u == null)
-				return GetUserResult.UserNotFound();
+				return Result<DtoUserResult>.NotFound();
 
-			return GetUserResult.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
+			return Result<DtoUserResult>.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
 		}
 
-		public async Task<GetUserResult> GetByApiKey(string apikey)
+		public async Task<Result<DtoUserResult>> GetByApiKey(string apikey)
 		{
 			var u = await _dbContext.Users.FirstOrDefaultAsync(u => u.ApiKey == apikey);
 
 			if (u == null)
-				return GetUserResult.UserNotFound();
+				return Result<DtoUserResult>.NotFound();
 
-			return GetUserResult.Success(new(u, false));
+			return Result<DtoUserResult>.Success(new(u, false));
 		}
 
 		public string[] UserRoles(ClaimsPrincipal user)
@@ -87,19 +87,19 @@ namespace AleProjects.Cms.Application.Services
 			return idx >= 0 ? this._policies.Roles.Skip(idx).ToArray() : [];
 		}
 
-		public async Task<CreateUserResult> CreateUser(DtoCreateUser dto, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> CreateUser(DtoCreateUser dto, ClaimsPrincipal user)
 		{
 			if (user != null)
 			{
 				var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 				if (!authResult.Succeeded)
-					return CreateUserResult.AccessForbidden();
+					return Result<DtoUserResult>.Forbidden();
 
 				var roles = UserRoles(user);
 
 				if (!roles.Contains(dto.Role))
-					return CreateUserResult.BadUserParameters(ModelErrors.Create("Role", "Must be one of the followwing: " + string.Join(", ", roles)));
+					return Result<DtoUserResult>.BadParameters("Role", "Must be one of the followwing: " + string.Join(", ", roles));
 			}
 
 			User result = new()
@@ -113,52 +113,52 @@ namespace AleProjects.Cms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await _dbContext.SaveChangesAsync();
 			}
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return CreateUserResult.UserConflict(ModelErrors.Create("Login", "User with this login already exists"));
+					return Result<DtoUserResult>.Conflict("Login", "User with this login already exists");
 
 				throw;
 			}
 
 
-			return CreateUserResult.Success(new(result, false));
+			return Result<DtoUserResult>.Success(new(result, false));
 		}
 
-		public async Task<UpdateUserResult> UpdateUser(int id, DtoUpdateUser dto, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> UpdateUser(int id, DtoUpdateUser dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
-				return UpdateUserResult.AccessForbidden();
+				return Result<DtoUserResult>.Forbidden();
 
 			var result = await _dbContext.Users.FindAsync(id);
 
 			if (result == null)
-				return UpdateUserResult.UserNotFound();
+				return Result<DtoUserResult>.NotFound();
 
 			var roles = UserRoles(user);
 
 			if (!roles.Contains(dto.Role))
-				return UpdateUserResult.BadUserParameters(ModelErrors.Create("Role", "Must be one of the followwing: " + string.Join(", ", roles)));
+				return Result<DtoUserResult>.BadParameters("Role", "Must be one of the followwing: " + string.Join(", ", roles));
 
 			if (result.Role == _policies.Roles[0] && (result.Role != dto.Role || !dto.IsEnabled))
 			{
-				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await _dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
 
 				if (n < 2)
 				{
-					ModelErrors errors = [];
+					Dictionary<string, string[]> errors = [];
 
 					if (!dto.IsEnabled)
-						errors.Add("IsEnabled", "Can't be disabled.");
+						errors.Add("IsEnabled", ["Can't be disabled"]);
 
 					if (result.Role != dto.Role)
-						errors.Add("Role", "Can't be changed.");
+						errors.Add("Role", ["Can't be changed"]);
 
-					return UpdateUserResult.BadUserParameters(errors);
+					return Result<DtoUserResult>.BadParameters(errors);
 				}
 			}
 
@@ -175,36 +175,40 @@ namespace AleProjects.Cms.Application.Services
 			if (authResult.Succeeded)
 				result.IsDemo = false;
 
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
-			return UpdateUserResult.Success(new(result, false));
+			return Result<DtoUserResult>.Success(new(result, false));
 		}
 
-		public async Task<DeleteUserResult> DeleteUser(int id, ClaimsPrincipal user)
+		public async Task<Result<DtoDeleteUserResult>> DeleteUser(int id, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
-				return DeleteUserResult.AccessForbidden();
+				return Result<DtoDeleteUserResult>.Forbidden();
 
 			var u = await _dbContext.Users.FindAsync(id);
 
 			if (u == null)
-				return DeleteUserResult.UserNotFound();
+				return Result<DtoDeleteUserResult>.NotFound();
 
 			if (u.Role == _policies.Roles[0])
 			{
-				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await _dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
 
 				if (n < 2)
-					return DeleteUserResult.BadUserParameters(ModelErrors.Create("Id", "Can't be deleted"));
+					return Result<DtoDeleteUserResult>.BadParameters("Id", "Can't be deleted");
 			}
 
-			dbContext.Users.Remove(u);
+			_dbContext.Users.Remove(u);
 
-			await dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync();
 
-			return DeleteUserResult.Success(u.Login == user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+			return Result<DtoDeleteUserResult>.Success(
+				new()
+				{
+					Signout = u.Login == user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+				});
 		}
 
 	}

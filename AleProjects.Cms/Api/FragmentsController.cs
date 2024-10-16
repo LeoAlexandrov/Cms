@@ -48,10 +48,10 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _cms.GetFragmentByLink(id, _sharedLocalizer.GetString("Language"));
 
-			if (result.NotFound)
+			if (result.IsNotFound)
 				return NotFound();
 
-			return Ok(result.Result);
+			return Ok(result.Value);
 		}
 
 		[HttpPost]
@@ -64,13 +64,12 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.CreateFragment(dto, this.HttpContext.User);
 
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPut("{id:int}")]
@@ -83,16 +82,13 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.UpdateFragmentByLink(id, dto, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 
@@ -103,16 +99,13 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _cms.DeleteFragmentByLink(id, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (!result.Ok)
-				return BadRequest();
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.Success => Ok(result.Value),
+				_ =>  BadRequest()
+			};
 		}
 
 		[HttpPost("{id:int}/move")]
@@ -125,13 +118,12 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.MoveFragment(id, dto.Increment, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPost("reloadschema")]

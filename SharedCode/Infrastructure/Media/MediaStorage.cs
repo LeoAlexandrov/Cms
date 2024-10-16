@@ -423,7 +423,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<IList<string>> Delete(string[] entries)
+		public async Task<string[]> Delete(string[] entries)
 		{
 			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
 			string cacheFolder = _configuration.GetValue<string>("Media:CacheFolder", DEFAULT_CACHE_FOLDER);

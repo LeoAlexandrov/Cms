@@ -52,13 +52,12 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.CreateDocument(dto, this.HttpContext.User);
 
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			if (result.Conflict)
-				return Conflict(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.BadParameters => BadRequest(result.Errors),
+				ResultType.Conflict => Conflict(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPut("{id:int}")]
@@ -71,19 +70,14 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.UpdateDocument(id, dto, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			if (result.Conflict)
-				return Conflict(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				ResultType.Conflict => Conflict(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpDelete("{id:int}")]
@@ -93,13 +87,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _cms.DeleteDocument(id, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (!result.Ok)
-				return BadRequest();
-
-			return Ok();
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Success => Ok(),
+				_ => BadRequest()
+			};
 		}
 
 		[HttpPost("{id:int}/lock")]
@@ -112,16 +105,13 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.LockDocument(id, dto.LockState, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPost("{id:int}/parent")]
@@ -134,19 +124,14 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.SetParentDocument(id, dto.Parent, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			if (result.Conflict)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				ResultType.Conflict => Conflict(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPost("{id:int}/move")]
@@ -159,13 +144,12 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _cms.MoveDocument(id, dto.Increment, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpPost("{id:int}/copy")]
@@ -175,13 +159,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _cms.CopyDocument(id, this.HttpContext.User);
 
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 	}
 }

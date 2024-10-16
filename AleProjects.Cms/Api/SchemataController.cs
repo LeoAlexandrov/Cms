@@ -53,10 +53,10 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _sms.CreateSchema(dto, this.HttpContext.User);
 
-			if (result.BadParameters)
+			if (result.IsBadParameters)
 				return BadRequest(result.Errors);
 
-			return Ok(result.Result);
+			return Ok(result.Value);
 		}
 
 		[HttpPut("{id:int}")]
@@ -69,16 +69,13 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _sms.UpdateSchema(id, dto, fss, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok(result.Result);
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 		[HttpDelete("{id:int}")]
@@ -88,16 +85,13 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _sms.DeleteSchema(id, fss, this.HttpContext.User);
 
-			if (result.NotFound)
-				return NotFound();
-
-			if (result.Forbidden)
-				return Forbid();
-
-			if (result.BadParameters)
-				return BadRequest(result.Errors);
-
-			return Ok();
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
 		}
 
 	}

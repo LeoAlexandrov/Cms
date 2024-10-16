@@ -153,7 +153,7 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<CreateDocumentResult> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -188,7 +188,7 @@ namespace AleProjects.Cms.Application.Services
 					.FirstOrDefaultAsync(d => d.Id == dto.Parent);
 
 				if (parent == null)
-					return CreateDocumentResult.BadDocumentParameters(ModelErrors.Create("Parent", "No parent document found"));
+					return Result<DtoDocumentResult>.BadParameters("Parent", "No parent document found");
 
 				path = parent.Path + "/" + slug;
 				language = parent.Language;
@@ -236,20 +236,20 @@ namespace AleProjects.Cms.Application.Services
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return CreateDocumentResult.DocumentConflict(ModelErrors.Create("Slug", "Must be unique under parent document"));
+					return Result<DtoDocumentResult>.Conflict("Slug", "Must be unique under parent document");
 
 				throw;
 			}
 
-			return CreateDocumentResult.Success(new(result));
+			return Result<DtoDocumentResult>.Success(new(result));
 		}
 
-		public async Task<UpdateDocumentResult> UpdateDocument(int id, DtoUpdateDocument dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> UpdateDocument(int id, DtoUpdateDocument dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return UpdateDocumentResult.AccessForbidden();
+				return Result<DtoDocumentResult>.Forbidden();
 
 			string slug;
 			string title;
@@ -285,7 +285,7 @@ namespace AleProjects.Cms.Application.Services
 			var doc = await dbContext.Documents.FindAsync(id);
 
 			if (doc == null)
-				return UpdateDocumentResult.DocumentNotFound();
+				return Result<DtoDocumentResult>.NotFound();
 
 			bool slugChanged = doc.Slug != slug;
 			bool needsChildrenUpdate = slugChanged || (!dto.Published && doc.Published);
@@ -303,7 +303,7 @@ namespace AleProjects.Cms.Application.Services
 				authResult = await _authService.AuthorizeAsync(user, "IsDeveloper");
 
 				if (!authResult.Succeeded)
-					return UpdateDocumentResult.AccessForbidden();
+					return Result<DtoDocumentResult>.Forbidden();
 			}
 
 
@@ -313,7 +313,7 @@ namespace AleProjects.Cms.Application.Services
 					var parent = await dbContext.Documents.FindAsync(doc.Parent);
 
 					if (parent != null && !parent.Published)
-						return UpdateDocumentResult.BadDocumentParameters(ModelErrors.Create("Published", "Parent document is not published"));
+						return Result<DtoDocumentResult>.BadParameters("Published", "Parent document is not published");
 				}
 				else
 				{
@@ -388,25 +388,25 @@ namespace AleProjects.Cms.Application.Services
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return UpdateDocumentResult.DocumentConflict(ModelErrors.Create("Slug", "Must be unique under parent document"));
+					return Result<DtoDocumentResult>.Conflict("Slug", "Must be unique under parent document");
 
 				throw;
 			}
 
-			return UpdateDocumentResult.Success(new(doc)); ;
+			return Result<DtoDocumentResult>.Success(new(doc)); ;
 		}
 
-		public async Task<DeleteDocumentResult> DeleteDocument(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteDocument(int id, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return DeleteDocumentResult.AccessForbidden();
+				return Result<bool>.Forbidden();
 
 			var doc = await dbContext.Documents.FindAsync(id);
 
 			if (doc == null)
-				return DeleteDocumentResult.DocumentNotFound();
+				return Result<bool>.NotFound();
 
 			int position = doc.Position;
 			int parent = doc.Parent;
@@ -423,7 +423,7 @@ namespace AleProjects.Cms.Application.Services
 				authResult = await _authService.AuthorizeAsync(user, "IsDeveloper");
 
 				if (!authResult.Succeeded)
-					return DeleteDocumentResult.AccessForbidden();
+					return Result<bool>.Forbidden();
 			}
 
 			var fragmentsToRemove = await dbContext.Fragments
@@ -463,20 +463,20 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return DeleteDocumentResult.Success();
+			return Result<bool>.Success(true);
 		}
 
-		public async Task<UpdateDocumentResult> LockDocument(int id, bool lockState, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> LockDocument(int id, bool lockState, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return UpdateDocumentResult.AccessForbidden();
+				return Result<DtoDocumentResult>.Forbidden();
 
 			var doc = await dbContext.Documents.FindAsync(id);
 
 			if (doc == null)
-				return UpdateDocumentResult.DocumentNotFound();
+				return Result<DtoDocumentResult>.NotFound();
 
 			doc.EditorRoleRequired = lockState ? user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value : null;
 			doc.Author = user.Identity.Name;
@@ -484,23 +484,23 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return UpdateDocumentResult.Success(new(doc));
+			return Result<DtoDocumentResult>.Success(new(doc));
 		}
 
-		public async Task<UpdateDocumentResult> SetParentDocument(int id, int parentId, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> SetParentDocument(int id, int parentId, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return UpdateDocumentResult.AccessForbidden();
+				return Result<DtoDocumentResult>.Forbidden();
 
 			Document doc = await dbContext.Documents.FindAsync(id);
 
 			if (doc == null)
-				return UpdateDocumentResult.DocumentNotFound();
+				return Result<DtoDocumentResult>.NotFound();
 
 			if (parentId == doc.Parent)
-				return UpdateDocumentResult.Success(new(doc));
+				return Result<DtoDocumentResult>.Success(new(doc));
 
 
 			var children = await dbContext.Documents
@@ -515,7 +515,7 @@ namespace AleProjects.Cms.Application.Services
 				authResult = await _authService.AuthorizeAsync(user, "IsDeveloper");
 
 				if (!authResult.Succeeded)
-					return UpdateDocumentResult.AccessForbidden();
+					return Result<DtoDocumentResult>.Forbidden();
 			}
 
 
@@ -529,10 +529,10 @@ namespace AleProjects.Cms.Application.Services
 					.FirstOrDefaultAsync(d => d.Id == parentId);
 
 				if (newParent == null)
-					return UpdateDocumentResult.BadDocumentParameters(ModelErrors.Create("Parent", "Parent document not found"));
+					return Result<DtoDocumentResult>.BadParameters("Parent", "Parent document not found");
 
 				if (children.Any(d => d.Id == parentId))
-					return UpdateDocumentResult.BadDocumentParameters(ModelErrors.Create("Parent", "Parent is invalid"));
+					return Result<DtoDocumentResult>.BadParameters("Parent", "Parent is invalid");
 			}
 			else
 			{
@@ -663,26 +663,26 @@ namespace AleProjects.Cms.Application.Services
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return UpdateDocumentResult.DocumentConflict(ModelErrors.Create("Parent", "Slug must be unique under parent document"));
+					return Result<DtoDocumentResult>.Conflict("Parent", "Slug must be unique under parent document");
 
 				throw;
 			}
 
 
-			return UpdateDocumentResult.Success(new(doc));
+			return Result<DtoDocumentResult>.Success(new(doc));
 		}
 
-		public async Task<MoveDocumentResult> MoveDocument(int id, int posIncrement, ClaimsPrincipal user)
+		public async Task<Result<DtoMoveDocumentResult>> MoveDocument(int id, int posIncrement, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return MoveDocumentResult.AccessForbidden();
+				return Result<DtoMoveDocumentResult>.Forbidden();
 
 			var doc = await dbContext.Documents.FindAsync(id);
 
 			if (doc == null)
-				return MoveDocumentResult.DocumentNotFound();
+				return Result<DtoMoveDocumentResult>.NotFound();
 
 			int parent = doc.Parent;
 
@@ -719,15 +719,22 @@ namespace AleProjects.Cms.Application.Services
 				await dbContext.SaveChangesAsync();
 			}
 
-			return MoveDocumentResult.Success(newPosition, oldPosition, doc.Author, doc.ModifiedAt);
+			return Result<DtoMoveDocumentResult>.Success(
+				new DtoMoveDocumentResult() 
+				{ 
+					NewPosition = newPosition, 
+					OldPosition = oldPosition,
+					Author = doc.Author, 
+					ModifiedAt = doc.ModifiedAt 
+				});
 		}
 
-		public async Task<CreateDocumentResult> CopyDocument(int originId, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> CopyDocument(int originId, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, originId, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return CreateDocumentResult.AccessForbidden();
+				return Result<DtoDocumentResult>.Forbidden();
 
 			Document origin = await dbContext.Documents
 				.AsNoTracking()
@@ -736,7 +743,7 @@ namespace AleProjects.Cms.Application.Services
 				.FirstOrDefaultAsync(d => d.Id == originId);
 
 			if (origin == null)
-				return CreateDocumentResult.BadDocumentParameters(ModelErrors.Create("Origin", "Original document not found"));
+				return Result<DtoDocumentResult>.BadParameters("Origin", "Original document not found");
 
 			DateTimeOffset now = DateTimeOffset.UtcNow;
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent);
@@ -777,7 +784,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			return CreateDocumentResult.Success(new(result));
+			return Result<DtoDocumentResult>.Success(new(result));
 		}
 	}
 
