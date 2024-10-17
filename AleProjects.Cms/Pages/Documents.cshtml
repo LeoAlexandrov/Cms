@@ -744,8 +744,8 @@
 
 @section Css
 {
-	<link rel="stylesheet" href="~/css/code-editor/themes.css" />
-	<link rel="stylesheet" href="~/css/code-editor/simple-code-editor.css" />
+	<link rel="stylesheet" href="https://unpkg.com/simple-code-editor@2.0.9/themes/themes.css" />
+	<link rel="stylesheet" href="~/css/simple-code-editor.css" />
 }
 
 @section Commands
@@ -787,10 +787,10 @@
 @section Scripts
 {
 	<script id="doc_id" type="application/json">@Json.Serialize(Model.DocumentId)</script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
 	<script src="https://unpkg.com/@@highlightjs/cdn-assets@@11.8.0/highlight.min.js"></script>
 	<script src="~/js/code-editor/simple-code-editor.js"></script>
 	<script src="~/js/documents.js"></script>
-	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
 	<script>
 		const app = Vue.createApp(vueAppOptions);
 		app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}})
