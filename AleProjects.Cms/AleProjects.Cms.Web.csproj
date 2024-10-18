@@ -9,7 +9,7 @@
     <BaseIntermediateOutputPath>C:\VSBuild\Cms\obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-  <Import Project="..\SharedCode\SharedCode.projitems" Label="Shared" />
+  <Import Project="..\Core\Core.projitems" Label="Core" />
 
   <ItemGroup>
     <Compile Remove="obj\**" />

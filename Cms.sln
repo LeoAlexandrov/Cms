@@ -5,7 +5,7 @@ VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AleProjects.Cms.Web", "AleProjects.CMS\AleProjects.Cms.Web.csproj", "{A5FA5171-E350-48AC-9680-9F7EC032A182}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedCode", "SharedCode\SharedCode.shproj", "{A01AB9EB-2EDA-4C9D-930A-344046ACF8B5}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Core", "Core\Core.shproj", "{A01AB9EB-2EDA-4C9D-930A-344046ACF8B5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{FF8136C9-F76D-4856-869D-F4594FAB28CF}"
 EndProject
@@ -38,7 +38,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SharedCode\SharedCode.projitems*{27ce1b76-25a4-4ee3-93b2-f1b4856747ee}*SharedItemsImports = 5
-		SharedCode\SharedCode.projitems*{a01ab9eb-2eda-4c9d-930a-344046acf8b5}*SharedItemsImports = 13
 		SharedCode\SharedCode.projitems*{a5fa5171-e350-48ac-9680-9f7ec032a182}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

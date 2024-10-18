@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
-using System.Text.Json;
 
 
 
@@ -106,10 +105,7 @@ namespace AleProjects.Cms.Application.Services
 
 
 					}
-
-
 				}
-
 
 			return result;
 		}
@@ -118,8 +114,6 @@ namespace AleProjects.Cms.Application.Services
 		{
 			if (element == null)
 				return null;
-
-			//Console.WriteLine(element.Name + " = " + element.QualifiedName.Namespace + " / " + element.SchemaTypeName.Namespace);
 
 			XSElement e = new()
 			{
@@ -289,7 +283,7 @@ namespace AleProjects.Cms.Application.Services
 				return result;
 
 #if DEBUG
-			string[] files = Directory.GetFiles("../SharedCode/XmlSchemas", "*.xsd", SearchOption.TopDirectoryOnly);
+			string[] files = Directory.GetFiles("../Core/XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
 #else
 			string[] files = Directory.GetFiles("XmlSchemas", "*.xsd", SearchOption.TopDirectoryOnly);
 #endif
@@ -348,9 +342,6 @@ namespace AleProjects.Cms.Application.Services
 					if ((e = TraverseSchema(element, null)) != null)
 						elements.Add(e);
 
-			//string json = JsonSerializer.Serialize(elements, options: new JsonSerializerOptions() { WriteIndented = true });
-			//Console.WriteLine(json);
-
 			return (schemaSet, elements);
 		}
 
@@ -391,9 +382,6 @@ namespace AleProjects.Cms.Application.Services
 			SchemaSet = schemaSet;
 			Fragments = fragments;
 			Index = index;
-
-			//foreach (XmlSchema s in schemaSet.Schemas())
-			//	s.TargetNamespace;
 
 			return true;
 		}
