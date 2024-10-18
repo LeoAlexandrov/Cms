@@ -136,7 +136,7 @@
     <value>Clé d'attribut</value>
   </data>
   <data name="AttributeKeyAlreadyExists" xml:space="preserve">
-    <value>La clé d'attribut existe déjà</value>
+    <value>La clé d`attribut existe déjà</value>
   </data>
   <data name="Attributes" xml:space="preserve">
     <value>Attributs supplémentaires</value>
