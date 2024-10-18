@@ -161,7 +161,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
                 doc = docs.FirstOrDefault(d => string.Compare(d.Path, path, StringComparison.InvariantCultureIgnoreCase) == 0);
 
-                if (doc == default)
+                if (EqualityComparer<Entities.Document>.Default.Equals(doc, default))
                     return null;
 
                 Document parent = null;
