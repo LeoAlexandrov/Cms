@@ -165,7 +165,7 @@
 
 		imageUrl(link) {
 			if (/^#\('[a-zA-Z0-9+/%]+'\)$/i.test(link)) {
-				return `/api/v1/media/get?link=${link.slice(3, -2)}`;
+				return `/api/v1/media/entry?link=${link.slice(3, -2)}`;
 			}
 
 			return link;
@@ -1604,7 +1604,7 @@
 
 			if (link)
 				if (/^#\('[a-zA-Z0-9+/%]+'\)$/i.test(link)) {
-					return `/api/v1/media/get?link=${link.slice(3, -2)}`;
+					return `/api/v1/media/entry?link=${link.slice(3, -2)}`;
 				} else {
 					return link;
 				}

@@ -4,7 +4,7 @@ This project currently is under heavy development. It consists of two parts - st
 
 Decomposition of documents visual content into simple structured fragments is in the main focus of development. Once decomposition of some visual fragment (like card, hero section, accordion, grid with rows and cols, etc) is defined and described, CMS can display its html form and save entered values to the database. To describe the decomposition, xml schemata are used.
 
-For example, [card](https://getbootstrap.com/docs/5.3/components/card/) in simpliest case generally consists of title, image, text, and one or more "call-to-action". Its basic decomposition description will be:
+For example, the [card](https://getbootstrap.com/docs/5.3/components/card/) in simpliest case generally consists of title, image, text, and one or more "call-to-action". Its basic decomposition description will be:
 
 <details>
   <summary>Click to expand</summary>
@@ -89,11 +89,11 @@ Note: all this don't require project rebuild and redeploy.
 
 ## Prerequisites
 
-Below are the necessary steps to make in order to run it in Visual Studio 2022.
+Below are the necessary steps to take in order to run it in Visual Studio 2022.
 
 ### Database connection
 
-CMS uses MS SQL database. Provide the connection string in `settings.json`. 
+CMS uses MS SQL database. Provide the connection string in the `settings.json` file. 
 
 ### External authorization
 
@@ -112,10 +112,10 @@ Note2: Another OAuth app will be required for production.
 ### App configuration
 
 `appsettings.[Development].json` files link external settings file `settings.json`.  
-Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms/appsettings.Development.json#L10) to simply **settings.json** value to use file from the repository. Or copy linked files to some outer folder.
+Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms/appsettings.Development.json#L10) to **"settings.json"** value to use file from the repository. Or copy linked files to some outer folder.
 
 ## Demo
 
-Here [admin.h-cms.net](https://admin.h-cms.net) is the current demo version. But guest users have readonly access rights.
+Here [admin.h-cms.net](https://admin.h-cms.net) is the current demo version with guests access. But guest users have readonly access rights.
 
 _To be continued..._

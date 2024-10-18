@@ -166,6 +166,7 @@ namespace AleProjects.Cms.Application.Services
 			result.Name = dto.Name;
 			result.Email = dto.Email;
 			result.IsEnabled = dto.IsEnabled;
+			result.Locale = dto.Locale;
 
 			if (dto.ResetApiKey)
 				result.ApiKey = RandomString.Create(32);

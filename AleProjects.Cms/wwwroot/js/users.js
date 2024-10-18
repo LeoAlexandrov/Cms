@@ -169,6 +169,7 @@
 				name: this.editedUser.name,
 				email: this.editedUser.email,
 				isEnabled: this.editedUser.isEnabled,
+				locale: this.editedUser.locale,
 				resetApiKey: this.resetApiKey
 			};
 
