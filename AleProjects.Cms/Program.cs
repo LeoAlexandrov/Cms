@@ -14,6 +14,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 
 using AleProjects.Cms.Application.Services;
 using AleProjects.Cms.Infrastructure.Data;
@@ -106,12 +108,17 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				options.OutputFormatters.Add(new MessagePackOutputFormatter());
 			});
 
-	services.AddApiVersioning();
+	services
+		.AddApiVersioning()
+		.AddApiExplorer(options =>
+		 {
+			 options.GroupNameFormat = "'v'VVV";
+			 options.SubstituteApiVersionInUrl = true;
+		 });
 
 	services.AddRazorPages()
 		.AddViewLocalization()
 		.AddRazorRuntimeCompilation();
-
 }
 
 
