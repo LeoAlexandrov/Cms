@@ -81,6 +81,20 @@
 			</q-btn>
 		</div>
 		}
+
+		@if (!string.IsNullOrEmpty(Model.StackOverflowClientId))
+		{
+		<div>
+			<q-btn outline
+				align="left"
+				icon="img:@Model.CurrentSite/images/stack-overflow.svg"
+				href="https://stackoverflow.com/oauth/?client_id=@Model.StackOverflowClientId&state=@Model.StackOverflowState&redirect_uri=@Model.CurrentSite/api/v1/auth/stackoverflow"
+				label="@Localizer["SignInWithStackOverflow"]"
+				class="q-mt-md full-width">
+			</q-btn>
+		</div>
+		}
+
 	}
 	else
 	{

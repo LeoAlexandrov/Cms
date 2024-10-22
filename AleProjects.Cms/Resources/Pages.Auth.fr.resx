@@ -126,4 +126,7 @@
   <data name="SignInWithMicrosoft" xml:space="preserve">
     <value>Se connecter avec Microsoft</value>
   </data>
+  <data name="SignInWithStackOverflow" xml:space="preserve">
+    <value>Se connecter avec StackOverflow</value>
+  </data>
 </root>

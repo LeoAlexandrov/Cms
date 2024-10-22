@@ -44,6 +44,7 @@ namespace AleProjects.Cms.Web.Api
 
 			this.Response.Cookies.Delete("ms_auth_state");
 			this.Response.Cookies.Delete("github_auth_state");
+			this.Response.Cookies.Delete("stackoverflow_auth_state");
 
 			if (csrf != gPayload.G_Csrf_Token)
 				return Redirect("/auth?error=csrf_forgery");
@@ -72,6 +73,7 @@ namespace AleProjects.Cms.Web.Api
 
 			this.Response.Cookies.Delete("ms_auth_state");
 			this.Response.Cookies.Delete("github_auth_state");
+			this.Response.Cookies.Delete("stackoverflow_auth_state");
 
 			if (!string.IsNullOrEmpty(error))
 				return Redirect("/auth?error=" + System.Net.WebUtility.UrlEncode(error));
@@ -103,6 +105,7 @@ namespace AleProjects.Cms.Web.Api
 
 			this.Response.Cookies.Delete("ms_auth_state");
 			this.Response.Cookies.Delete("github_auth_state");
+			this.Response.Cookies.Delete("stackoverflow_auth_state");
 
 			if (!string.IsNullOrEmpty(error))
 				return Redirect("/auth?error=" + System.Net.WebUtility.UrlEncode(error));
@@ -111,6 +114,34 @@ namespace AleProjects.Cms.Web.Api
 				return Redirect("/auth?error=csrf_forgery");
 
 			var login = await _signInHandler.Github(code, this.Request.Headers.UserAgent.First().ToString());
+
+			switch (login.Status)
+			{
+				case LoginStatus.Forbidden:
+					return Redirect("/auth?error=forbidden");
+			}
+
+			SetAuthCookies(login.Jwt, login.Refresh, login.Locale);
+
+			return Redirect(popupAuth ? "/auth?success=true" : "/");
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> StackOverflow([FromQuery] string code, [FromQuery] string state)
+		{
+			var popupAuth = !string.IsNullOrEmpty(this.Request.Cookies["popup_auth"]);
+			var soState = this.Request.Cookies["stackoverflow_auth_state"];
+
+			this.Response.Cookies.Delete("ms_auth_state");
+			this.Response.Cookies.Delete("github_auth_state");
+			this.Response.Cookies.Delete("stackoverflow_auth_state");
+
+			if (state != soState)
+				return Redirect("/auth?error=csrf_forgery");
+
+			var login = await _signInHandler.Stackoverflow(code, 
+				string.Format("https://{0}/api/v1/auth/stackoverflow", this.Request.Host.Value),
+				this.Request.Headers.UserAgent.First().ToString());
 
 			switch (login.Status)
 			{

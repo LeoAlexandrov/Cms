@@ -93,6 +93,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		const string MS_USER = "https://graph.microsoft.com/beta/me/profile";
 		const string GITHUB_ACCESS_TOKEN = "https://github.com/login/oauth/access_token";
 		const string GITHUB_USER = "https://api.github.com/user";
+		const string STACKOVERFLOW_ACCESS_TOKEN = "https://stackoverflow.com/oauth/access_token/json";
+		const string STACKOVERFLOW_USER = "https://api.stackexchange.com//2.3/me?order=desc&sort=reputation&site=stackoverflow&access_token={0}&key={1}";
 
 		private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
@@ -163,6 +165,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			[JsonPropertyName("avatar_url")]
 			public string Avatar { get; set; }
 		}
+
+		class StackOverflowTokenResponse
+		{
+			[JsonPropertyName("access_token")]
+			public string AccessToken { get; set; }
+		}
+
 
 		#endregion
 
@@ -435,6 +444,90 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			return login;
 		}
+
+		public async Task<UserLogin> Stackoverflow(string code, string redurectUri, string userAgent)
+		{
+			HttpClient client = _httpClientFactory.CreateClient();
+
+			Dictionary<string, string> codeExchange = new()
+			{
+				{ "code" , code },
+				{ "client_id", _configuration.GetValue<string>("Auth:StackOverflow:ClientId") },
+				{ "client_secret", _configuration.GetValue<string>("Auth:StackOverflow:ClientSecret") },
+				{ "redirect_uri", redurectUri }
+			};
+
+			StackOverflowTokenResponse soTtoken;
+
+			using (HttpRequestMessage request = new() { Method = HttpMethod.Post, RequestUri = new Uri(STACKOVERFLOW_ACCESS_TOKEN), Content = new FormUrlEncodedContent(codeExchange) })
+			{
+				request.Headers.Add("User-Agent", userAgent);
+
+				using HttpResponseMessage response = await client.SendAsync(request);
+
+				response.EnsureSuccessStatusCode();
+
+				soTtoken = await response.Content.ReadFromJsonAsync<StackOverflowTokenResponse>();
+			}
+
+			JsonDoc soUser;
+			string key = _configuration.GetValue<string>("Auth:StackOverflow:Key");
+
+			using (HttpRequestMessage request = new() { Method = HttpMethod.Get, RequestUri = new Uri(string.Format(STACKOVERFLOW_USER, soTtoken.AccessToken, key)) })
+			{
+				request.Headers.Add("User-Agent", userAgent);
+
+				using HttpResponseMessage response = await client.SendAsync(request);
+
+				response.EnsureSuccessStatusCode();
+
+				string json = await response.Content.ReadAsStringAsync();
+				soUser = JsonDoc.Parse(json, new JsonDoc.ParsingSettings() { AllowComments = true, RecognizeDateTime = true });
+			}
+
+			if (soUser.Root is JsonDoc.JsonObject root)
+			{
+				string uid = root.GetValueOrDefault<string>("items", "0", "user_id");
+				bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+
+				var user = _dbContext.Users.FirstOrDefault(u => u.Login == uid);
+
+				if (user == null && demoMode)
+				{
+					string defaultDemoModeRole = _configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+
+					_dbContext.Users.Add(user = new() { Login = uid, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
+				}
+
+				if (user == null || !user.IsEnabled || (user.IsDemo && !demoMode))
+					return UserLogin.WithStatus(LoginStatus.Forbidden);
+
+				if (string.IsNullOrEmpty(user.Name))
+					user.Name = root.GetValueOrDefault<string>("items", "0", "display_name") ?? uid;
+
+				if (string.IsNullOrEmpty(user.Avatar))
+					user.Avatar = root.GetValueOrDefault<string>("items", "0", "profile_image");
+
+				if (string.IsNullOrEmpty(user.Role))
+					user.Role = "User";
+
+				user.LastSignIn = DateTimeOffset.UtcNow;
+
+				await _dbContext.SaveChangesAsync();
+
+				UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(user), RandomString.Create(32), user.Locale);
+				byte[] bLogin = MessagePackSerializer.Serialize(login);
+
+				_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+
+				return login;
+			}
+			else
+			{
+				return UserLogin.WithStatus(LoginStatus.InvalidPayload);
+			}
+		}
+
 
 		public async Task<UserLogin> Refresh(string refresh)
 		{

@@ -18,8 +18,11 @@ namespace AleProjects.Cms.Web.Pages
 		public string GoogleClientId { get; set; }
 		public string MicrosoftClientId { get; set; }
 		public string GithubClientId { get; set; }
+		public string StackOverflowClientId { get; set; }
+
 		public string MicrosoftState { get; set; }
 		public string GithubState { get; set; }
+		public string StackOverflowState { get; set; }
 		public string AuthError { get; set; }
 		public bool PopupSuccess { get; set; }
 
@@ -49,6 +52,7 @@ namespace AleProjects.Cms.Web.Pages
 			GoogleClientId = _configuration.GetValue<string>("Auth:Google:ClientId");
 			MicrosoftClientId = _configuration.GetValue<string>("Auth:Microsoft:ClientId");
 			GithubClientId = _configuration.GetValue<string>("Auth:Github:ClientId");
+			StackOverflowClientId = _configuration.GetValue<string>("Auth:StackOverflow:ClientId");
 
 			if (!string.IsNullOrEmpty(MicrosoftClientId))
 			{
@@ -60,6 +64,12 @@ namespace AleProjects.Cms.Web.Pages
 			{
 				GithubState =  RandomString.Create(32);
 				this.Response.Cookies.Append("github_auth_state", GithubState);
+			}
+
+			if (!string.IsNullOrEmpty(StackOverflowClientId))
+			{
+				StackOverflowState = RandomString.Create(32);
+				this.Response.Cookies.Append("stackoverflow_auth_state", StackOverflowState);
 			}
 
 		}
