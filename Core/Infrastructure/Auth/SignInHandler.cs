@@ -457,7 +457,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				{ "redirect_uri", redurectUri }
 			};
 
-			StackOverflowTokenResponse soTtoken;
+			StackOverflowTokenResponse soToken;
 
 			using (HttpRequestMessage request = new() { Method = HttpMethod.Post, RequestUri = new Uri(STACKOVERFLOW_ACCESS_TOKEN), Content = new FormUrlEncodedContent(codeExchange) })
 			{
@@ -467,13 +467,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				response.EnsureSuccessStatusCode();
 
-				soTtoken = await response.Content.ReadFromJsonAsync<StackOverflowTokenResponse>();
+				soToken = await response.Content.ReadFromJsonAsync<StackOverflowTokenResponse>();
 			}
 
 			JsonDoc soUser;
 			string key = _configuration.GetValue<string>("Auth:StackOverflow:Key");
 
-			using (HttpRequestMessage request = new() { Method = HttpMethod.Get, RequestUri = new Uri(string.Format(STACKOVERFLOW_USER, soTtoken.AccessToken, key)) })
+			using (HttpRequestMessage request = new() { Method = HttpMethod.Get, RequestUri = new Uri(string.Format(STACKOVERFLOW_USER, soToken.AccessToken, key)) })
 			{
 				request.Headers.Add("User-Agent", userAgent);
 

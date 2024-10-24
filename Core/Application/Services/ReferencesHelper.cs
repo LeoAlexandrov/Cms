@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using AleProjects.Base64;
 using AleProjects.Cms.Domain.Entities;
 
 
@@ -93,40 +94,6 @@ namespace AleProjects.Cms.Application.Services
 		private static partial Regex MediaLinkRegex();
 
 
-		public static string ToBase64(string text)
-		{
-			string result = Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
-
-			return System.Web.HttpUtility.UrlEncode(result);
-		}
-
-		public static bool TryFromBase64(string base64, out string value)
-		{
-			bool result;
-
-			if (string.IsNullOrEmpty(base64))
-			{
-				value = string.Empty;
-				result = true;
-			}
-			else
-			{
-				try
-				{
-					byte[] data = Convert.FromBase64String(base64);
-					value = Encoding.UTF8.GetString(data);
-					result = true;
-				}
-				catch
-				{
-					value = null;
-					result = false;
-				}
-			}
-
-			return result;
-		}
-
 		public static ExtractedRef[] Extract(string content)
 		{
 			if (string.IsNullOrEmpty(content))
@@ -144,7 +111,7 @@ namespace AleProjects.Cms.Application.Services
 			matches = re.Matches(content);
 
 			for (int i = 0; i < matches.Count; i++)
-				if (TryFromBase64(System.Web.HttpUtility.UrlDecode(matches[i].Value[3..^2]), out string path))
+				if (Base64Url.TryDecode(matches[i].Value[3..^2], out string path))
 					refs.Add(new(0, path));
 
 			if (refs.Count == 0)
@@ -184,7 +151,7 @@ namespace AleProjects.Cms.Application.Services
 					matches = re.Matches(content[i]);
 
 					for (int j = 0; j < matches.Count; j++)
-						if (TryFromBase64(System.Web.HttpUtility.UrlDecode(matches[j].Value[3..^2]), out string path))
+						if (Base64Url.TryDecode(matches[j].Value[3..^2], out string path))
 							refs.Add(new(0, path));
 				}
 

@@ -11,9 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 
+using AleProjects.Base64;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Infrastructure.Media;
-
 
 
 namespace AleProjects.Cms.Application.Services
@@ -42,8 +42,8 @@ namespace AleProjects.Cms.Application.Services
 
 		public Result<DtoMediaFolderReadResult> Read(string link)
 		{
-			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid base64 format");
+			if (!Base64Url.TryDecode(link, out string path))
+				return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid base64-url format");
 
 			var entries = _mediaStorage.ReadDirectory(path);
 
@@ -69,7 +69,7 @@ namespace AleProjects.Cms.Application.Services
 					breadcrumbs[i + 1] = new DtoMediaStoragePathElement()
 					{
 						Label = labels[i],
-						Link = i == n - 1 ? null : System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.UTF8.GetBytes(string.Join(Path.DirectorySeparatorChar, labels, 0, i + 1))))
+						Link = i == n - 1 ? null : Base64Url.Encode(string.Join(Path.DirectorySeparatorChar, labels, 0, i + 1))
 					};
 
 				}
@@ -90,8 +90,8 @@ namespace AleProjects.Cms.Application.Services
 
 		public Result<DtoPhysicalMediaFileResult> Get(string link)
 		{
-			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64 format");
+			if (!Base64Url.TryDecode(link, out string path))
+				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64-url format");
 
 			var entry = _mediaStorage.GetFile(path);
 
@@ -103,8 +103,8 @@ namespace AleProjects.Cms.Application.Services
 
 		public async Task<Result<DtoMediaStorageEntry>> Properties(string link)
 		{
-			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return Result<DtoMediaStorageEntry>.BadParameters("Link", "Invalid base64 format");
+			if (!Base64Url.TryDecode(link, out string path))
+				return Result<DtoMediaStorageEntry>.BadParameters("Link", "Invalid base64-url format");
 
 			var entry = await _mediaStorage.Properties(path);
 
@@ -130,8 +130,8 @@ namespace AleProjects.Cms.Application.Services
 			if (size <= 0)
 				return Result<DtoPhysicalMediaFileResult>.BadParameters("Size", "Must be positive");
 
-			if (!ReferencesHelper.TryFromBase64(link, out string path))
-				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64 format");
+			if (!Base64Url.TryDecode(link, out string path))
+				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64-url format");
 
 			var entry = await _mediaStorage.Preview(path, link, size.Value);
 
@@ -143,8 +143,8 @@ namespace AleProjects.Cms.Application.Services
 
 		public async Task<Result<DtoMediaStorageEntry>> Save(Stream stream, string fileName, string destinationLink, ClaimsPrincipal user)
 		{
-			if (!ReferencesHelper.TryFromBase64(destinationLink, out string destination))
-				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64 format");
+			if (!Base64Url.TryDecode(destinationLink, out string destination))
+				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64-url format");
 
 			var authResult = await _authService.AuthorizeAsync(user, "UploadUnsafeContent");
 
@@ -181,7 +181,7 @@ namespace AleProjects.Cms.Application.Services
 			string[] entries = new string[links.Length];
 
 			for (int i = 0; i < links.Length; i++)
-				if (ReferencesHelper.TryFromBase64(System.Web.HttpUtility.UrlDecode(links[i]), out string path))
+				if (Base64Url.TryDecode(links[i], out string path))
 					entries[i] = path;
 				else
 					return Result<string[]>.BadParameters(links[i], "Invalid base64 format");
@@ -189,7 +189,7 @@ namespace AleProjects.Cms.Application.Services
 			var deleted = await _mediaStorage.Delete(entries);
 
 			for (int i = 0; i < deleted.Length; i++)
-				deleted[i] = System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.UTF8.GetBytes(deleted[i])));
+				deleted[i] = Base64Url.Encode(deleted[i]);
 
 			return Result<string[]>.Success(deleted);
 		}
@@ -198,8 +198,8 @@ namespace AleProjects.Cms.Application.Services
 		{
 			string path;
 
-			if (!ReferencesHelper.TryFromBase64(System.Web.HttpUtility.UrlDecode(destination), out path))
-				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64 format");
+			if (!Base64Url.TryDecode(destination, out path))
+				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64-url format");
 
 			var authResult = await _authService.AuthorizeAsync(user, "UploadUnsafeContent");
 

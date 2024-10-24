@@ -173,8 +173,13 @@
 						this.upload = false;
 						this.selectedForUpload = null;
 
+						let hashset = new Set(r.result.map((e) => e.link));
+						let newEntries = this.mediaEntries.filter((e) => !hashset.has(e.link));
+
 						for (const e of r.result)
-							this.mediaEntries.push(e);
+							newEntries.push(e);
+
+						this.mediaEntries = newEntries;
 
 						if (r.result.length == input.files.length)
 							displayMessage(TEXT.MEDIA.get('MESSAGE_UPLOAD_SUCCESS'), false);

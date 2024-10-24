@@ -12,6 +12,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
+using AleProjects.Base64;
 using AleProjects.Cms.Domain.ValueObjects;
 
 
@@ -57,15 +58,8 @@ namespace AleProjects.Cms.Infrastructure.Media
 				if (k < 0)
 					k = previewName.Length;
 
-				try
-				{
-					byte[] data = Convert.FromBase64String(System.Web.HttpUtility.UrlDecode(previewName[0 .. k]));
-					result = Encoding.UTF8.GetString(data) + (k < previewName.Length ? previewName[k ..] : string.Empty);
-				}
-				catch
-				{
+				if (!Base64Url.TryDecode(previewName[0..k], out result))
 					result = string.Empty;
-				}
 			}
 
 			return result;

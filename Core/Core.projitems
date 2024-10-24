@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Base64Url.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\JsonParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\RandomString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Documents.cs" />

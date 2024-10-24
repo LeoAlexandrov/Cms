@@ -13,13 +13,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 
 
+using AleProjects.Base64;
+using AleProjects.Json;
+using AleProjects.Cms;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Media;
-using AleProjects.Json;
 
 using Sdk = AleProjects.Cms.Sdk;
 
@@ -30,10 +32,8 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System.Reflection;
 using MessagePack.Resolvers;
 using MessagePack;
-
 
 namespace Test
 {
@@ -234,6 +234,25 @@ namespace Test
 		static void Main(string[] args)
 		{
 			/*
+			for (int i = 3; i < 50; i++)
+			{
+				for (int j = 0; j < 10; j++)
+				{
+					var s = RandomString.Create(i);
+					var bytes = Encoding.UTF8.GetBytes(s);
+					var b = Convert.ToBase64String(bytes);
+					var b64 = Base64Url.Encode(s);
+					Base64Url.TryDecode(b64, out string s64);
+
+					Console.WriteLine(s + " | " + s64 + " | " + bytes.Length.ToString() + " | " + b64); // + " | " + b);
+				}
+			}
+
+			return;
+			*/
+
+
+			/*
 			var  mobj = new {
 				Title = "asdadsas",
 				Text = "dfsdfsdd",
@@ -333,43 +352,6 @@ namespace Test
 			return;
 			*/
 
-
-			/*
-			string json = @"{
-	""User"": { ""Name"": ""Leo"", ""Role"": ""Admin"", ""Enabled"": true, ""LastLogon"": ""\/Date(1614929892344)\/""}, 
-	""Array1"": [0, 1, 2, 3, 4, 5],
-	""Array2"": [0, 1, 2.1, 3.112, 0.342],
-	""Array3"": [""\/Date(1614929892344)\/""], 
-	""Array4"": [""\/Date(1614929892344)\/"", ""QWERTY""],
-	""Array5"": [ { ""x"": 1, ""y"": 2 }, { ""x"": 3, ""y"": 4 } ],
-	""IntValue"": 1,
-	""LongValue"": 8589934592,
-	""DoubleValue"": 3.1416,
-	""BoolValue"": true,
-	""NullValue"": null,
-	""DateTimeAlt"": ""2009-06-15T13:45:30.000Z""
-}";
-
-
-			JsonDoc doc;
-
-			try
-			{
-				doc = JsonDoc.Parse(json, new JsonDoc.ParsingSettings() { AllowComments = true, RecognizeDateTime = true, ForceDoubleInArrays = false, StrictPropertyNames = true });
-			}
-			catch (JsonParseException ex)
-			{
-				System.Diagnostics.Debug.WriteLine("Error message: {0}, code {1}, line {2}, position {3}", ex.Message, ex.Data["Code"], ex.Data["Line"], ex.Data["Position"]);
-				doc = null;
-			}
-			catch
-			{
-				doc = null;
-			}
-
-			if (doc == null)
-				return;
-			*/
 
 			var obj = pod;
 
