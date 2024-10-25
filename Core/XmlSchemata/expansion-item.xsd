@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	
+	<!-- expansion item -->
+
+	<xs:complexType name="expansion-item.content">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Content</xs:documentation>
+			<xs:documentation xml:lang="fr">Contenu</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="subtitle" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Subtitle</xs:documentation>
+					<xs:documentation xml:lang="fr">Sous-titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Icon</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="expansion-item.appearance">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Appearance</xs:documentation>
+			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="color" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Color</xs:documentation>
+					<xs:documentation xml:lang="fr">Couleur</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="inset-level" type="xs:decimal" default="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Inset level</xs:documentation>
+					<xs:documentation xml:lang="fr">Inset level</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="toggle-left" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Left toggle</xs:documentation>
+					<xs:documentation xml:lang="fr">Left toggle</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="separator" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Separator</xs:documentation>
+					<xs:documentation xml:lang="fr">Séparateur</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="expansion-item.accordion">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Accordion behavior</xs:documentation>
+			<xs:documentation xml:lang="fr">Accordion behavior</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="group" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Group</xs:documentation>
+					<xs:documentation xml:lang="fr">Groupe</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="default-opened" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Default opened</xs:documentation>
+					<xs:documentation xml:lang="fr">Ouvert par défaut</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="expansion-item">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Expansion item</xs:documentation>
+			<xs:documentation xml:lang="fr">Élément d'extension</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="content" type="expansion-item.content"/>
+			<xs:element name="appearance" type="expansion-item.appearance"/>
+			<xs:element name="accordion" type="expansion-item.accordion"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="expansion-item" type="expansion-item"/>
+
+</xs:schema>

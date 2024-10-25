@@ -595,7 +595,7 @@ namespace AleProjects.Cms.Application.Services
 
 			if (dto.SharedFragment != null)
 			{
-				sharedFragment = await dbContext.Fragments.FindAsync(long.Parse(dto.SharedFragment));
+				sharedFragment = await dbContext.Fragments.FindAsync(int.Parse(dto.SharedFragment));
 
 				if (sharedFragment == null)
 					return Result<DtoFragmentChangeResult>.BadParameters("SharedFragment", "No shared fragment found");
@@ -623,7 +623,8 @@ namespace AleProjects.Cms.Application.Services
 				xmlName = null;
 
 				for (int i = 0; i < _schemaService.Fragments.Count; i++)
-					if (_schemaService.Fragments[i].Name == dto.TemplateName)
+					if (_schemaService.Fragments[i].Name == dto.TemplateName &&
+						_schemaService.Fragments[i].Namespace == dto.Schema)
 					{
 						var sb = FragmentSchemaService.GetDefaultValue(_schemaService.Fragments[i]);
 						content = sb.ToString();

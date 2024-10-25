@@ -2,6 +2,8 @@
 
 This project currently is under heavy development. It consists of two parts - standalone content management system, and some SDK for content consuming applications. The SDK is the abstraction over the database, querying it directly. The third project **Test** is just a playground for debugging purposes, not unit tests.
 
+The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility to the backend developer.
+
 Decomposition of documents visual content into simple structured fragments is in the main focus of development. Once decomposition of some visual fragment (like card, hero section, accordion, grid with rows and cols, etc) is defined and described, CMS can display its html form and save entered values to the database. To describe the decomposition, XML schemata are used.
 
 For example, the [card](https://getbootstrap.com/docs/5.3/components/card/) in simpliest case generally consists of title, image, text, and one or more "call-to-action". Its basic decomposition description will be:
@@ -97,7 +99,7 @@ CMS uses MS SQL database. Provide the connection string in the `settings.json` f
 
 ### External authorization
 
-CMS uses external authorization. Google, Microsoft, and Github are currently supported. It is easier to create Github OAuth app for the first time. Click you profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
+CMS uses external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create Github OAuth app for the first time. Click you profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
 
 In appeared form set these fields as
 

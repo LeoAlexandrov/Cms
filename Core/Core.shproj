@@ -8,6 +8,26 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\CodeSharing\Microsoft.CodeSharing.Common.Default.props" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\CodeSharing\Microsoft.CodeSharing.Common.props" />
   <PropertyGroup />
+  <ItemGroup>
+    <None Include="XmlSchemata\call-to-action.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XmlSchemata\card.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XmlSchemata\common.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XmlSchemata\expansion-item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XmlSchemata\image.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XmlSchemata\text.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
   <Import Project="Core.projitems" Label="Core" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\CodeSharing\Microsoft.CodeSharing.CSharp.targets" />
 </Project>

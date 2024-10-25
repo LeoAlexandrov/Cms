@@ -49,29 +49,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchemaService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Media\MediaStorage.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\basic-fragments.xsd">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\basic-types.xsd">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\default.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\test3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\test.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\test1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\test2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
 </Project>

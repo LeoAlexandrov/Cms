@@ -104,6 +104,10 @@ namespace AleProjects.Cms.Application.Services
 
 			try
 			{
+				var xmls = FragmentSchemaService.ReadXsd(dto.Data);
+
+				schema.Namespace = xmls.TargetNamespace;
+
 				(schemaSet, fragments) = FragmentSchemaService.ReadSchemata(schemata);
 			}
 			catch (XmlSchemaException ex)

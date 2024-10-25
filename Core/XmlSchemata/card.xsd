@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<!-- card -->
+
+
+	<xs:complexType name="card.content">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Content</xs:documentation>
+			<xs:documentation xml:lang="fr">Contenu</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="subtitle" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Subtitle</xs:documentation>
+					<xs:documentation xml:lang="fr">Sous-titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="text" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Text</xs:documentation>
+					<xs:documentation xml:lang="fr">Texte</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties textformat="html"></xsc:properties>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="card.appearance">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Appearance</xs:documentation>
+			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="layout">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Layout</xs:documentation>
+					<xs:documentation xml:lang="fr">Disposition</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="start"/>
+						<xs:enumeration value="end"/>
+						<xs:enumeration value="over"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="horizontal" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Horizontal</xs:documentation>
+					<xs:documentation xml:lang="fr">Horizontal</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="color" type="standard-color">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Color</xs:documentation>
+					<xs:documentation xml:lang="fr">Couleur</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="card">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Card</xs:documentation>
+			<xs:documentation xml:lang="fr">Carte</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="content" type="card.content"/>
+			<xs:element name="appearance" type="card.appearance"/>
+			<xs:element name="image" type="image"/>
+			<xs:element name="call-to-action" type="call-to-action" maxOccurs="3"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:element name="card" type="card"/>
+	
+
+</xs:schema>

@@ -38,7 +38,7 @@ namespace AleProjects.Cms.Application.Services
 				f.AddSelfToIndex(Index);
 		}
 
-		private static XmlSchema ReadXsd(string data)
+		public static XmlSchema ReadXsd(string data)
 		{
 			using var stream = new MemoryStream(Encoding.UTF8.GetBytes(data));
 			using var reader = XmlReader.Create(stream);
@@ -329,6 +329,7 @@ namespace AleProjects.Cms.Application.Services
 			for (int i = 0; i < schemata.Count; i++)
 			{
 				var schema = ReadXsd(schemata[i].Data);
+
 				schemaSet.Add(schema);
 			}
 
