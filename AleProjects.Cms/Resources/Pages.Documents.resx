@@ -318,4 +318,7 @@
   <data name="UnsavedChangesText" xml:space="preserve">
     <value>Are you sure you want to discard changes and continue?</value>
   </data>
+  <data name="Tags" xml:space="preserve">
+    <value>Tags</value>
+  </data>
 </root>

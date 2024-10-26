@@ -39,6 +39,8 @@ namespace AleProjects.Cms.Domain.Entities
 		[MaxLength(64)]
 		public string Icon { get; set; }
 
+		public string Tags { get; set; }
+
 		public string AssociatedClaims { get; set; }
 
 		public bool Published { get; set; }

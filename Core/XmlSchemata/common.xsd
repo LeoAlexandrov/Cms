@@ -136,6 +136,7 @@
 			<xs:enumeration value="error"/>
 			<xs:enumeration value="warning"/>
 			<xs:enumeration value="success"/>
+			<xs:enumeration value="info"/>
 			<xs:enumeration value="disabled"/>
 			<xs:enumeration value="transparent"/>
 			<xs:enumeration value="light"/>

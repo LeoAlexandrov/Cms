@@ -50,6 +50,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MaxLength(64)]
 		public string Icon { get; set; }
 
+		[MessagePack.Key("tags")]
+		public string Tags { get; set; }
+
 		[MessagePack.Key("shared")]
 		public bool Shared { get; set; }
 
@@ -69,6 +72,7 @@ namespace AleProjects.Cms.Application.Dto
 				Id = fragment.Id;
 				Name = fragment.Name;
 				Icon = fragment.Icon;
+				Tags = fragment.Tags;
 				Shared = fragment.Shared;
 				XmlSchema = fragment.XmlSchema;
 				XmlName = fragment.XmlName;

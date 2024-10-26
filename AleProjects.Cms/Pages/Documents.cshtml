@@ -352,8 +352,13 @@
 							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
 						</q-input>
 
+						<q-input dense outlined
+							v-model="fragment.properties.tags"
+							label="@Localizer["Tags"]" >
+						</q-input>
+
 						<q-checkbox v-model="fragment.enabled"
-							class="q-pb-lg"
+							class="q-py-lg"
 							label="@Localizer["FragmentEnabledLabel"]"
 							ref="FragmentEnabled">
 						</q-checkbox>
@@ -644,6 +649,12 @@
 							ref="Description"
 							@@update:model-value="hasChanged=true">
 						</q-input>
+
+						<q-input dense outlined
+							v-model="editedDoc.properties.tags"
+							label="@Localizer["Tags"]"
+							@@update:model-value="hasChanged=true">
+						 </q-input>
 
 						<q-input dense outlined
 							v-model="editedDoc.properties.associatedClaims"

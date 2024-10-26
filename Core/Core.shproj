@@ -18,6 +18,9 @@
     <None Include="XmlSchemata\common.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="XmlSchemata\containers.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="XmlSchemata\expansion-item.xsd">
       <SubType>Designer</SubType>
     </None>

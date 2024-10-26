@@ -318,4 +318,7 @@
   <data name="UnsavedChangesText" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir annuler les modifications et continuer?</value>
   </data>
+  <data name="Tags" xml:space="preserve">
+    <value>Balises</value>
+  </data>
 </root>

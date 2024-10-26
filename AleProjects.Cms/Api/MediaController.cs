@@ -80,9 +80,9 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
-		[CsrAntiforgery]
 		[HttpPost]
 		[Authorize("IsUser")]
+		[CsrAntiforgery]
 		public async Task<IActionResult> Upload()
 		{
 			MediaTypeHeaderValue cType = MediaTypeHeaderValue.Parse(Request.ContentType);
@@ -127,9 +127,9 @@ namespace AleProjects.Cms.Web.Api
 			return Ok(uploaded);
 		}
 
-		[CsrAntiforgery]
 		[HttpPost]
 		[Authorize("IsUser")]
+		[CsrAntiforgery]
 		public async Task<IActionResult> Folder([Required] DtoMediaStorageFolderCreate dto)
 		{
 			if (!ModelState.IsValid)
@@ -143,9 +143,9 @@ namespace AleProjects.Cms.Web.Api
 			return Ok(result.Value);
 		}
 
-		[CsrAntiforgery]
 		[HttpDelete]
 		[Authorize("IsUser")]
+		[CsrAntiforgery]
 		public async Task<IActionResult> Entry([Required] DtoMediaStorageEntryDelete dto)
 		{
 			if (!ModelState.IsValid)

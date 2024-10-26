@@ -44,6 +44,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("icon")]
 		public string Icon { get; set; }
 
+		[MessagePack.Key("tags")]
+		public string Tags { get; set; }
+
 		[MessagePack.Key("associatedClaims")]
 		public string AssociatedClaims { get; set; }
 
@@ -79,6 +82,7 @@ namespace AleProjects.Cms.Application.Dto
 				Language = doc.Language;
 				Description = doc.Description;
 				Icon = doc.Icon;
+				Tags = doc.Tags;
 				AssociatedClaims = doc.AssociatedClaims;
 				Published = doc.Published;
 				CreatedAt = doc.CreatedAt;
@@ -172,6 +176,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("icon")]
 		[MaxLength(64)]
 		public string Icon { get; set; }
+
+		[MessagePack.Key("tags")]
+		public string Tags { get; set; }
 
 		[MessagePack.Key("associatedClaims")]
 		public string AssociatedClaims { get; set; }

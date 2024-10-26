@@ -22,6 +22,7 @@
 					title: null,
 					language: null,
 					icon: null,
+					tags: null,
 					position: null,
 					summary: null,
 					coverPicture: null,
@@ -85,6 +86,7 @@
 					id: 0,
 					name: null,
 					icon: null,
+					tags: null,
 					shared: false,
 					xmlSchema: null
 				},
@@ -435,6 +437,7 @@
 				title: this.editedDoc.properties.title,
 				language: this.editedDoc.properties.language,
 				icon: this.editedDoc.properties.icon,
+				tags: this.editedDoc.properties.tags,
 				summary: this.editedDoc.properties.summary,
 				coverPicture: this.editedDoc.properties.coverPicture,
 				description: this.editedDoc.properties.description,

@@ -212,7 +212,6 @@ namespace AleProjects.Cms.Application.Services
 
 			Document result = new()
 			{
-				//Id = id,
 				Parent = dto.Parent,
 				Position = position,
 				Slug = slug,
@@ -256,6 +255,7 @@ namespace AleProjects.Cms.Application.Services
 			string summary;
 			string picture;
 			string icon;
+			string tags;
 			string description;
 
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
@@ -269,6 +269,7 @@ namespace AleProjects.Cms.Application.Services
 				summary = sanitizer.Sanitize(dto.Summary);
 				picture = sanitizer.Sanitize(dto.CoverPicture);
 				icon = sanitizer.Sanitize(dto.Icon);
+				tags = sanitizer.Sanitize(dto.Tags);
 				description = sanitizer.Sanitize(dto.Description);
 			}
 			else
@@ -278,6 +279,7 @@ namespace AleProjects.Cms.Application.Services
 				summary = dto.Summary;
 				picture = dto.CoverPicture;
 				icon = dto.Icon;
+				tags = dto.Tags;
 				description = dto.Description;
 			}
 
@@ -351,6 +353,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Description = description;
 			doc.Language = dto.Language;
 			doc.Icon = icon;
+			doc.Tags = tags;
 			doc.AssociatedClaims = dto.AssociatedClaims;
 			doc.Published = dto.Published;
 			doc.Author = user.Identity.Name;
