@@ -9,8 +9,6 @@
     <BaseIntermediateOutputPath>C:\VSBuild\Cms\obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
-  <Import Project="..\Core\Core.projitems" Label="Core" />
-
   <ItemGroup>
     <Compile Remove="obj\**" />
     <Content Remove="obj\**" />
@@ -47,5 +45,7 @@
   <ItemGroup>
     <None Include="wwwroot\js\auth.js" />
   </ItemGroup>
+
+  <Import Project="..\Core\Core.projitems" Label="Shared" />
 
 </Project>

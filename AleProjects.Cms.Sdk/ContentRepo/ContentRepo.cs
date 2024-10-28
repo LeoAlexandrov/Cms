@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 using AleProjects.Base64;
 using AleProjects.Cms.Application.Services;
@@ -14,13 +16,14 @@ using AleProjects.Cms.Sdk.ViewModels;
 
 namespace AleProjects.Cms.Sdk.ContentRepo
 {
-	public class ContentRepo
+
+	public class ContentRepo : IDisposable
 	{
 		readonly CmsDbContext dbContext;
 		readonly static FragmentSchemaService fss = new();
 		readonly static object lockObject = new();
 		static int? schemataChecksum = null;
-
+		bool disposed;
 
 		struct Reference
 		{
@@ -42,11 +45,13 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 		}
 
-		public ContentRepo(CmsDbContext dbCcontext)
+		public ContentRepo(IConfiguration configuration)
 		{
-			dbContext = dbCcontext;
+			string connString = configuration.GetConnectionString("CmsDbConnection");
+			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
+			dbContext = new CmsDbContext(contextOptions);
 
-			LoadFragmentSchemaService(dbCcontext);
+			LoadFragmentSchemaService(dbContext);
 		}
 
 		#region private-functions
@@ -121,7 +126,6 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		}
 
 		#endregion
-
 
 
 		public async Task<Document> GetDocument(string root, string path, bool children, bool siblings)
@@ -249,5 +253,38 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.ToArrayAsync();
 		}
 
+
+		#region IDisposable-implementation
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposed)
+			{
+				if (disposing)
+				{
+					dbContext.Dispose();
+				}
+
+				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
+				// TODO: set large fields to null
+
+				disposed = true;
+			}
+		}
+
+		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+		// ~ContentRepo()
+		// {
+		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+		//     Dispose(disposing: false);
+		// }
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		#endregion
 	}
 }

@@ -81,6 +81,11 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
+		private static string NullIfEmpty(string value)
+		{
+			return value.Equals(string.Empty) ? null : value;
+		}
+
 		#endregion
 
 		public async Task<DtoTreeNode<int>[]> DocumentsTree()
@@ -348,13 +353,13 @@ namespace AleProjects.Cms.Application.Services
 
 
 			doc.Title = title;
-			doc.Summary = summary;
-			doc.CoverPicture = picture;
-			doc.Description = description;
+			doc.Summary = NullIfEmpty(summary);
+			doc.CoverPicture = NullIfEmpty(picture);
+			doc.Description = NullIfEmpty(description);
 			doc.Language = dto.Language;
-			doc.Icon = icon;
-			doc.Tags = tags;
-			doc.AssociatedClaims = dto.AssociatedClaims;
+			doc.Icon = NullIfEmpty(icon);
+			doc.Tags = NullIfEmpty(tags);
+			doc.AssociatedClaims = NullIfEmpty(dto.AssociatedClaims);
 			doc.Published = dto.Published;
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;

@@ -296,20 +296,20 @@ namespace Test
 
 
 			string connString = config.GetConnectionString("CmsDbConnection");
-			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
-			var dc = new CmsDbContext(contextOptions);
 
 			// check if something changed in Documents table 
 			//var cs = dc.Database.SqlQueryRaw<int>($"select CHECKSUM_AGG(BINARY_CHECKSUM(*)) as [Value] From Documents with (Nolock)");
 			//int agg = cs.FirstOrDefault();
 
-			var cp = new Sdk.ContentRepo.ContentRepo(dc);
+			var cp = new Sdk.ContentRepo.ContentRepo(config);
 			var doc = cp.GetDocument("home1", null, true, true).Result; //"/new4/new2"
 			return;
 
 
 
 
+			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
+			var dc = new CmsDbContext(contextOptions);
 
 
 			var fs = new FragmentSchemaService(dc);

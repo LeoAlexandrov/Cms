@@ -21,6 +21,6 @@
     <Folder Include="ContentRepo\" />
   </ItemGroup>
 
-  <Import Project="..\Core\Core.projitems" Label="Core" />
+  <Import Project="..\Core\Core.projitems" Label="Shared" />
 
 </Project>

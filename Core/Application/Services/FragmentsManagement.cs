@@ -744,14 +744,14 @@ namespace AleProjects.Cms.Application.Services
 			if (sanitizer == null)
 			{
 				fragment.Name = dto.Properties.Name;
-				fragment.Icon = dto.Properties.Icon;
-				fragment.Tags = dto.Properties.Tags;
+				fragment.Icon = NullIfEmpty(dto.Properties.Icon);
+				fragment.Tags = NullIfEmpty(dto.Properties.Tags);
 			}
 			else
 			{
 				fragment.Name = sanitizer.Sanitize(dto.Properties.Name);
-				fragment.Icon = sanitizer.Sanitize(dto.Properties.Icon);
-				fragment.Tags = sanitizer.Sanitize(dto.Properties.Tags);
+				fragment.Icon = NullIfEmpty(sanitizer.Sanitize(dto.Properties.Icon));
+				fragment.Tags = NullIfEmpty(sanitizer.Sanitize(dto.Properties.Tags));
 			}
 
 

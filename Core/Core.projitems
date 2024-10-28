@@ -3,50 +3,73 @@
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>a01ab9eb-2eda-4c9d-930a-344046acf8b5</SharedGUID>
+    <SharedGUID>d00f2719-cc90-45dd-8210-4ce9297393d6</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Core</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Media.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Attributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Documents.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Fragments.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Media.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Schemata.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Tree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Users.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\AttributesManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\DocumentsManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchemaService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentsManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\MediaManagement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ReferencesHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Result.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\SchemaManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Application\Services\UserManagement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Base64Url.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\JsonParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\RandomString.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Documents.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentsManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\DocumentsManagement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Dto\Fragments.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\ReferencesHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Document.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentPathNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Fragment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\FragmentLink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Reference.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Schema.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\User.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\DynamicXml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\MediaStorageEntry.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Schema.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\Result.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageUser.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageDocument.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageFragment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\SignInHandler.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\RoleClaimPolicies.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Data\CmsDbContext.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Reference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\TreeNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\FragmentLink.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentPathNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\User.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Fragment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Document.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\XSElement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Application\Services\FragmentSchemaService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageFragment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageUser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\RoleClaimPolicies.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\SignInHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Data\CmsDbContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Media\MediaStorage.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\call-to-action.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\card.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\common.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\containers.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\expansion-item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\image.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\text.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
 </Project>

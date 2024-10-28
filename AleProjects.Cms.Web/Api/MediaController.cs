@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +11,6 @@ using AleProjects.Cms.Application.Services;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 
 
