@@ -44,7 +44,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		public DtoUserLiteResult() { }
 
-		public DtoUserLiteResult(User user)
+		internal DtoUserLiteResult(User user)
 		{
 			if (user != null)
 			{
@@ -72,7 +72,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		public DtoUserResult() { }
 
-		public DtoUserResult(User user, bool includeApiKey) : base(user)
+		internal DtoUserResult(User user, bool includeApiKey) : base(user)
 		{
 			if (user != null)
 			{

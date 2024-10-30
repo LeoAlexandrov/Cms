@@ -27,7 +27,7 @@ namespace AleProjects.Cms.Web.Pages
 		public bool PopupSuccess { get; set; }
 
 
-		public void OnGet([FromQuery] string error, [FromQuery] bool success, [FromServices] UserManagementService ums)
+		public void OnGet([FromQuery] string error, [FromQuery] bool success, [FromServices] IUserManagementService ums)
 		{
 			if (ums.NoUsers())
 			{

@@ -74,10 +74,10 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				return new(scope.ServiceProvider.GetRequiredService<CmsDbContext>());
 			})
 		.AddScoped<ContentManagementService>()
-		.AddScoped<UserManagementService>()
 		.AddTransient<MediaStorage>()
 		.AddTransient<MediaManagementService>()
-		.AddTransient<SchemaManagementService>()
+		.AddTransient<ISchemaManagementService, SchemaManagementService>()
+		.AddScoped<IUserManagementService, UserManagementService>()
 		.AddScoped<SignInHandler>()
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
 		.AddScoped<IAuthorizationHandler, CanManageDocumentHandler>()

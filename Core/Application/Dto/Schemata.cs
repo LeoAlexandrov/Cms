@@ -29,7 +29,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		public DtoSchemaResult() { }
 
-		public DtoSchemaResult(Schema schema)
+		internal DtoSchemaResult(Schema schema)
 		{
 			if (schema != null)
 			{

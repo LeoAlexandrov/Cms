@@ -15,7 +15,7 @@ using AleProjects.Cms.Infrastructure.Auth;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public class UserManagementService(CmsDbContext dbContext, IAuthorizationService authService, IRoleClaimPolicies policies)
+	internal class UserManagementService(CmsDbContext dbContext, IAuthorizationService authService, IRoleClaimPolicies policies) : IUserManagementService
 	{
 		private readonly CmsDbContext _dbContext = dbContext;
 		private readonly IAuthorizationService _authService = authService;

@@ -7,18 +7,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
-using AleProjects.Cms.Infrastructure.Data;
 
 
 namespace AleProjects.Cms.Web.Pages
 {
 	[IgnoreAntiforgeryToken(Order = 1001)]
-	public class StartModel(UserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
+	public class StartModel(IUserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
 		private static readonly object _lockObj = new();
 
 		private readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
-		private readonly UserManagementService _ums = ums;
+		private readonly IUserManagementService _ums = ums;
 
 		public string ErrorMessage {get; private set;}
 

@@ -15,8 +15,8 @@ namespace AleProjects.Cms.Infrastructure.Data
 		public DbSet<Reference> References { get; set; }
 		public DbSet<FragmentLink> FragmentLinks { get; set; }
 		public DbSet<Fragment> Fragments { get; set; }
-		public DbSet<User> Users { get; set; }
-		public DbSet<Schema> Schemata { get; set; }
+		internal DbSet<Schema> Schemata { get; set; }
+		internal DbSet<User> Users { get; set; }
 
 
 		public CmsDbContext(DbContextOptions<CmsDbContext> options) : base(options)
@@ -69,15 +69,6 @@ namespace AleProjects.Cms.Infrastructure.Data
 			modelBuilder.Entity<User>()
 				.HasIndex(s => s.Login)
 				.IsUnique();
-
-
-			/*
-			this is the question
-
-			modelBuilder.Entity<Schema>()
-				.HasIndex(s => s.Namespace)
-				.IsUnique();
-			*/
 
 		}
 	}

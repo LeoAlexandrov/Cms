@@ -16,7 +16,7 @@ using AleProjects.Cms.Infrastructure.Data;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public partial class SchemaManagementService(CmsDbContext dbContext, IAuthorizationService authService)
+	internal class SchemaManagementService(CmsDbContext dbContext, IAuthorizationService authService) : ISchemaManagementService
 	{
 		private readonly CmsDbContext dbContext = dbContext;
 		private readonly IAuthorizationService _authService = authService;
@@ -166,7 +166,6 @@ namespace AleProjects.Cms.Application.Services
 
 			return Result<bool>.Success(true);
 		}
-
 
 	}
 }

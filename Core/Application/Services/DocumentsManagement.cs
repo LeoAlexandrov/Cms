@@ -83,7 +83,7 @@ namespace AleProjects.Cms.Application.Services
 
 		private static string NullIfEmpty(string value)
 		{
-			return value.Equals(string.Empty) ? null : value;
+			return string.IsNullOrEmpty(value) ? null : value;
 		}
 
 		#endregion

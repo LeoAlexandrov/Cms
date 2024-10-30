@@ -18,10 +18,10 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class SchemataController(SchemaManagementService sms) : ControllerBase
+	public class SchemataController(ISchemaManagementService sms) : ControllerBase
 
 	{
-		private readonly SchemaManagementService _sms = sms;
+		private readonly ISchemaManagementService _sms = sms;
 
 
 		[HttpGet("{id:int?}")]

@@ -18,10 +18,9 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class UsersController(UserManagementService ums) : ControllerBase
-
+	public class UsersController(IUserManagementService ums) : ControllerBase
 	{
-		private readonly UserManagementService _ums = ums;
+		private readonly IUserManagementService _ums = ums;
 
 		[HttpGet("{id:int?}")]
 		[Authorize]

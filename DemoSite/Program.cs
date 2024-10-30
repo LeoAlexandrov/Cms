@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 
-//using AleProjects.Cms.Application.
+using AleProjects.Cms.Application.Services;
 using AleProjects.Cms.Sdk.ContentRepo;
 
 
@@ -20,8 +20,6 @@ string settingsFile = builder.Configuration["Settings"];
 
 if (!string.IsNullOrEmpty(settingsFile))
 	builder.Configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
-
-
 
 // Add services to the container.
 builder.Services.AddRazorPages();

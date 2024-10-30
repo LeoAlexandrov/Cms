@@ -322,7 +322,7 @@ namespace AleProjects.Cms.Application.Services
 			return ReadSchemata(schemata);
 		}
 
-		public static (XmlSchemaSet, List<XSElement>) ReadSchemata(IReadOnlyList<Schema> schemata)
+		internal static (XmlSchemaSet, List<XSElement>) ReadSchemata(IReadOnlyList<Schema> schemata)
 		{
 			XmlSchemaSet schemaSet = new();
 
