@@ -33,23 +33,6 @@
 	</xs:simpleType>
 
 
-	<xs:simpleType name="gutter">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Gutter</xs:documentation>
-			<xs:documentation xml:lang="fr">Gouttière</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:token">
-			<xs:enumeration value="default"/>
-			<xs:enumeration value="xs"/>
-			<xs:enumeration value="sm"/>
-			<xs:enumeration value="md"/>
-			<xs:enumeration value="lg"/>
-			<xs:enumeration value="xlg"/>
-			<xs:enumeration value="other"/>
-		</xs:restriction>
-	</xs:simpleType>
-
-	
 	<xs:simpleType name="colwidth">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Column width</xs:documentation>
@@ -124,8 +107,8 @@
 
 	<xs:simpleType name="standard-color">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Standard color</xs:documentation>
-			<xs:documentation xml:lang="fr">Couleur standard</xs:documentation>
+			<xs:documentation xml:lang="en">Color</xs:documentation>
+			<xs:documentation xml:lang="fr">Couleur</xs:documentation>
 		</xs:annotation>
 		<xs:restriction base="xs:token">
 			<xs:enumeration value="accent"/>

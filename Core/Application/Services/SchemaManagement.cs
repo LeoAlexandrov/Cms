@@ -93,6 +93,13 @@ namespace AleProjects.Cms.Application.Services
 			schema.Data = dto.Data;
 			schema.ModifiedAt = DateTimeOffset.UtcNow;
 
+			if (dto.OnlySave)
+			{
+				await dbContext.SaveChangesAsync();
+
+				return Result<DtoSchemaResult>.Success(new(schema));
+			}
+
 			List<Schema> schemata = await dbContext.Schemata
 				.Where(s => s.Id != id)
 				.ToListAsync();
@@ -167,5 +174,31 @@ namespace AleProjects.Cms.Application.Services
 			return Result<bool>.Success(true);
 		}
 
+		public async Task<Result<bool>> CompileAndReload(FragmentSchemaService fss, ClaimsPrincipal user)
+		{
+			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
+
+			if (!authResult.Succeeded)
+				return Result<bool>.Forbidden();
+
+			Schema[] schemata = await dbContext.Schemata.ToArrayAsync();
+
+			XmlSchemaSet schemaSet;
+			List<XSElement> fragments;
+
+			try
+			{
+				(schemaSet, fragments) = FragmentSchemaService.ReadSchemata(schemata);
+			}
+			catch (Exception ex)
+			{
+				return Result<bool>.BadParameters("Data", [string.Format("Compilation error: {0}", ex.Message)]);
+			}
+
+			fss.Reload(schemaSet, fragments);
+
+			return Result<bool>.Success(true);
+
+		}
 	}
 }

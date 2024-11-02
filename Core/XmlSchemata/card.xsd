@@ -10,7 +10,6 @@
 
 	<!-- card -->
 
-
 	<xs:complexType name="card.content">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Content</xs:documentation>
@@ -67,6 +66,12 @@
 					<xs:documentation xml:lang="fr">Horizontal</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="featured" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Featured</xs:documentation>
+					<xs:documentation xml:lang="fr">En vedette</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="color" type="standard-color">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Color</xs:documentation>
@@ -89,7 +94,7 @@
 			<xs:element name="content" type="card.content"/>
 			<xs:element name="appearance" type="card.appearance"/>
 			<xs:element name="image" type="image"/>
-			<xs:element name="call-to-action" type="call-to-action" maxOccurs="3"/>
+			<xs:element name="action" type="action" maxOccurs="3"/>
 		</xs:sequence>
 	</xs:complexType>
 

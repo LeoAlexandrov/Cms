@@ -86,7 +86,9 @@ var DICTIONARY_MEDIA = {
 	"MESSAGE_FOLDERCREATE_FAIL": "Échec de la création du dossier.",
 	"MESSAGE_DELETE_SUCCESS": "Les éléments sélectionnés ont été supprimés avec succès.",
 	"MESSAGE_DELETE_PARTIAL_FAIL": "Échec de la suppression de partie des éléments sélectionnés.",
-	"MESSAGE_DELETE_FAIL": "Échec de la suppression des éléments sélectionnés."
+	"MESSAGE_DELETE_FAIL": "Échec de la suppression des éléments sélectionnés.",
+	"MESSAGE_COMPILE_SUCCESS": "Les schémas ont été compilés et rechargés avec succès.",
+	"MESSAGE_COMPILE_FAIL": "Échec de la compilation des schémas.",
 };
 
 var DICTIONARY_SCHEMATA = {

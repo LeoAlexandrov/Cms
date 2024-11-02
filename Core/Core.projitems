@@ -52,7 +52,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Media\MediaStorage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\call-to-action.xsd">
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\action.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\card.xsd">
@@ -67,7 +67,13 @@
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\expansion-item.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\feature.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\image.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\hero.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\text.xsd">

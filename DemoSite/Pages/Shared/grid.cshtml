@@ -1,0 +1,131 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	int columns = Model.Props.container.columns;
+
+	System.Text.StringBuilder divClass = new();
+	string cls;
+
+	foreach (string colw in Model.Props.cells.colwidth)
+	{
+		if (!string.IsNullOrEmpty(cls = secondaryDivClass(colw)))
+			divClass.Append(' ').Append(cls);
+	}
+
+	foreach (string al in Model.Props.cells.cells_alignment)
+	{
+		if (!string.IsNullOrEmpty(cls = secondaryDivClass(al)))
+			divClass.Append(' ').Append(cls);
+	}
+
+	cls = divClass.ToString();
+
+	int n = Model.Children.Length;
+	int i = 0;
+
+	if (n != 0)
+	{
+		<div class="row">
+	
+		@while (i < n)
+		{
+			if (i > 0 && i % columns == 0)
+			{
+				@Html.Raw("</div><div class=\"row\">");
+			}
+	
+			<div class="@cls">
+				@{
+					await Html.RenderPartialAsync(Model.Children[i].XmlName, Model.Children[i]);
+				}
+			</div>
+	
+			i++;
+		}
+	
+		</div>
+	}
+}
+
+@{
+	string secondaryDivClass(string value)
+	{
+		return value switch
+		{
+			"xs-1" => "col-xs-1",
+			"xs-2" => "col-xs-2",
+			"xs-3" => "col-xs-3",
+			"xs-4" => "col-xs-4",
+			"xs-5" => "col-xs-5",
+			"xs-6" => "col-xs-6",
+			"xs-7" => "col-xs-7",
+			"xs-8" => "col-xs-8",
+			"xs-9" => "col-xs-9",
+			"xs-10" => "col-xs-10",
+			"xs-11" => "col-xs-11",
+			"xs-12" => "col-xs-12",
+			"sm-1" => "col-sm-1",
+			"sm-2" => "col-sm-2",
+			"sm-3" => "col-sm-3",
+			"sm-4" => "col-sm-4",
+			"sm-5" => "col-sm-5",
+			"sm-6" => "col-sm-6",
+			"sm-7" => "col-sm-7",
+			"sm-8" => "col-sm-8",
+			"sm-9" => "col-sm-9",
+			"sm-10" => "col-sm-10",
+			"sm-11" => "col-sm-11",
+			"sm-12" => "col-sm-12",
+			"md-1" => "col-md-1",
+			"md-2" => "col-md-2",
+			"md-3" => "col-md-3",
+			"md-4" => "col-md-4",
+			"md-5" => "col-md-5",
+			"md-6" => "col-md-6",
+			"md-7" => "col-md-7",
+			"md-8" => "col-md-8",
+			"md-9" => "col-md-9",
+			"md-10" => "col-md-10",
+			"md-11" => "col-md-11",
+			"md-12" => "col-md-12",
+			"lg-1" => "col-lg-1",
+			"lg-2" => "col-lg-2",
+			"lg-3" => "col-lg-3",
+			"lg-4" => "col-lg-4",
+			"lg-5" => "col-lg-5",
+			"lg-6" => "col-lg-6",
+			"lg-7" => "col-lg-7",
+			"lg-8" => "col-lg-8",
+			"lg-9" => "col-lg-9",
+			"lg-10" => "col-lg-10",
+			"lg-11" => "col-lg-11",
+			"lg-12" => "col-lg-12",
+			"xl-1" => "col-xl-1",
+			"xl-2" => "col-xl-2",
+			"xl-3" => "col-xl-3",
+			"xl-4" => "col-xl-4",
+			"xl-5" => "col-xl-5",
+			"xl-6" => "col-xl-6",
+			"xl-7" => "col-xl-7",
+			"xl-8" => "col-xl-8",
+			"xl-9" => "col-xl-9",
+			"xl-10" => "col-xl-10",
+			"xl-11" => "col-xl-11",
+			"xl-12" => "col-xl-12",
+			// alignment
+			"vertical-start" => "align-items-start",
+			"vertical-center" => "align-items-center",
+			"vertical-end" => "align-items-end",
+			"vertical-self-start" => "align-self-start",
+			"vertical-self-center" => "align-self-center",
+			"vertical-self-end" => "align-self-end",
+			"horizontal-start" => "justify-content-start",
+			"horizontal-center" => "justify-content-center",
+			"horizontal-end" => "justify-content-end",
+			"horizontal-around" => "justify-content-around",
+			"horizontal-between" => "justify-content-between",
+			"horizontal-evenly" => "justify-content-evenly",
+			_ => null
+		};
+	}
+}

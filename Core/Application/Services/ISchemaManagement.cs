@@ -17,6 +17,6 @@ namespace AleProjects.Cms.Application.Services
 		Task<Result<DtoSchemaResult>> CreateSchema(DtoCreateSchema dto, ClaimsPrincipal user);
 		Task<Result<DtoSchemaResult>> UpdateSchema(int id, DtoUpdateSchema dto, FragmentSchemaService fss, ClaimsPrincipal user);
 		Task<Result<bool>> DeleteSchema(int id, FragmentSchemaService fss, ClaimsPrincipal user);
-
+		Task<Result<bool>> CompileAndReload(FragmentSchemaService fss, ClaimsPrincipal user);
 	}
 }

@@ -1,0 +1,9 @@
+﻿@using Markdig;
+
+@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string html = Markdown.ToHtml(Model.Props.ToString());
+}
+
+@Html.Raw(html)

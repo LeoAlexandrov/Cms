@@ -78,7 +78,8 @@ namespace AleProjects.Cms.Domain.ValueObjects
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
-			string name = string.IsNullOrEmpty(_ns) ? binder.Name : string.Format("{{{0}}}{1}", _ns, binder.Name);
+			string bName = binder.Name;
+			string name = string.IsNullOrEmpty(_ns) ? bName : string.Format("{{{0}}}{1}", _ns, bName);
 
 			var attr = _root.Attribute(name);
 
@@ -91,10 +92,18 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			var nodes = _root.Elements(name);
 			var n = nodes.Count();
 
+			if (n == 0 && bName.Contains('_'))
+			{
+				bName = bName.Replace('_', '-');
+				name = string.IsNullOrEmpty(_ns) ? bName : string.Format("{{{0}}}{1}", _ns, bName);
+				nodes = _root.Elements(name);
+				n = nodes.Count();
+			}
+
 			if (n == 0)
 			{
 				result = null;
-				return false;
+				return true;
 			}
 
 			XSElement newXse = null;
@@ -104,7 +113,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			if (_xse != null)
 			{
 				for (int i = 0; i < _xse.Elements.Count; i++)
-					if (_xse.Elements[i].Name == binder.Name)
+					if (_xse.Elements[i].Name == bName)
 					{
 						newXse = _xse.Elements[i];
 						isArray = newXse.MaxOccurs > 1;
@@ -141,6 +150,11 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			result = isArray ? new object[] { res } : res;
 
 			return true;
+		}
+
+		public override string ToString()
+		{
+			return _root.Value;
 		}
 	}
 

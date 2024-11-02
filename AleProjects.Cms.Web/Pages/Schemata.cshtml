@@ -137,7 +137,8 @@
 					@@update:model-value="hasChanged=true">
 				</code-editor>
 
-				<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateSchema()"></q-btn>
+				<q-btn color="secondary" label="@Localizer["SaveAndCompile"]" :disable="!hasChanged" @@click="updateSchema(false)"></q-btn>
+				<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateSchema(true)"></q-btn>
 				<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardSchema()"></q-btn>
 
 			</div>
@@ -161,6 +162,11 @@
 	<q-btn flat round icon="delete" :disabled="selectedSchema<=0" @@click="startDeleteSchema()">
 		<q-tooltip>@Localizer["DeleteSchema"]</q-tooltip>
 	</q-btn>
+
+	<q-btn flat round icon="build_circle" @@click="compileAndReload()">
+		<q-tooltip>@Localizer["Compile"]</q-tooltip>
+	</q-btn>
+
 }
 
 @section Scripts

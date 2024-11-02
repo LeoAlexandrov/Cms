@@ -71,21 +71,21 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					}
 		}
 
-		private static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, IList<XSElement> xse)
+		private static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Document doc, IList<XSElement> xse)
 		{
-			if (tree.TryGetValue(fr.Id, out Memory<Entities.FragmentLink> children))
+			if (tree.TryGetValue(fr.LinkId, out Memory<Entities.FragmentLink> children))
 			{
 				Span<Entities.FragmentLink> span = children.Span;
 				Fragment[] frChildren = new Fragment[span.Length];
 
 				for (int i = 0; i < span.Length; i++)
-					SetChildren(frChildren[i] = Fragment.Create(span[i], xse), tree, xse);
+					SetChildren(frChildren[i] = Fragment.Create(span[i], doc, xse), tree, doc, xse);
 
 				fr.Children = frChildren;
 			}
 		}
 
-		private static Fragment[] CreateFragmentsTree(Entities.FragmentLink[] links, IList<XSElement> xse)
+		private static Fragment[] CreateFragmentsTree(Entities.FragmentLink[] links, Document doc, IList<XSElement> xse)
 		{
 			Dictionary<int, Memory<Entities.FragmentLink>> tree = [];
 
@@ -111,11 +111,11 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			{
 				result = roots
 					.ToArray()
-					.Select(fl => Fragment.Create(fl, xse))
+					.Select(fl => Fragment.Create(fl, doc, xse))
 					.ToArray();
 
 				foreach (var d in result)
-					SetChildren(d, tree, xse);
+					SetChildren(d, tree, doc, xse);
 			}
 			else
 			{
@@ -238,7 +238,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			foreach (var link in links)
 				link.Fragment.Data = ReferencesHelper.Replace(link.Fragment.Data, refs);
 
-			result.Fragments = CreateFragmentsTree(links, fss.Fragments);
+			result.Fragments = CreateFragmentsTree(links, result, fss.Fragments);
 
 			return result;
 		}

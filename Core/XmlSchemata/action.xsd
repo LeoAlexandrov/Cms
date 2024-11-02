@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	
+	<!-- action -->
+	
+	<xs:complexType name="action">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Action</xs:documentation>
+			<xs:documentation xml:lang="fr">Action</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="action-type">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Action type</xs:documentation>
+					<xs:documentation xml:lang="fr">Type d'action</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="Url"/>
+						<xs:enumeration value="Javascript"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="action" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Action (Url or JS function)</xs:documentation>
+					<xs:documentation xml:lang="fr">Action (Url ou fonction JS)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="altText" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Alt text</xs:documentation>
+					<xs:documentation xml:lang="fr">Texte alternatif</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Icon</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon-left" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Icon on the left</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône de gauche</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="color" type="standard-color" default="accent"/>
+			<xs:element name="target" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Target</xs:documentation>
+					<xs:documentation xml:lang="fr">Cible</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="new_window"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="action" type="action"/>
+	
+</xs:schema>

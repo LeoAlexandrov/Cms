@@ -22,7 +22,7 @@ Write-Host "============== ContaboVPS ==============\r\n"
 
 ssh ContaboVPS $prepCommands
 scp C:\VSBuild\Cms\publish.tar ContaboVPS:/home/leo/Cms
-scp C:\OneDrive\Projects\Cms\AleProjects.Cms\Dockerfile ContaboVPS:/home/leo/Cms
+scp C:\OneDrive\Projects\Cms\AleProjects.Cms.Web\Dockerfile ContaboVPS:/home/leo/Cms
 
 ssh ContaboVPS $commands 
 
@@ -44,7 +44,7 @@ Write-Host "============== MiniAir11 ===============\r\n"
 
 ssh MiniAir11 $prepCommands
 scp C:\VSBuild\Cms\publish.tar MiniAir11:/home/leo/Cms
-scp C:\OneDrive\Projects\Cms\AleProjects.Cms\Dockerfile MiniAir11:/home/leo/Cms
+scp C:\OneDrive\Projects\Cms\AleProjects.Cms.Web\Dockerfile MiniAir11:/home/leo/Cms
 
 ssh MiniAir11 $commands 
 

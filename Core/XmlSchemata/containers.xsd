@@ -124,7 +124,6 @@
 			<xs:element name="type" type="container.type"/>
 			<xs:element name="subtype" type="container.subtype" minOccurs="1" maxOccurs="5" />
 			<xs:element name="alignment" type="alignment" minOccurs="1" maxOccurs="5" />
-			<xs:element name="gutter" type="gutter" />
 		</xs:sequence>
 	</xs:complexType>
 
@@ -134,13 +133,10 @@
 
 	<!-- grid -->
 
-	<xs:complexType name="grid">
+	<xs:complexType name="grid.container">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Grid</xs:documentation>
-			<xs:documentation xml:lang="fr">Grid</xs:documentation>
-			<xs:appinfo>
-				<xsc:properties container="true"></xsc:properties>
-			</xs:appinfo>
+			<xs:documentation xml:lang="en">Container</xs:documentation>
+			<xs:documentation xml:lang="fr">Conteneur</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="columns" default="3">
@@ -155,10 +151,32 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
+			<xs:element name="container-alignment" type="alignment" minOccurs="1" maxOccurs="5"/>
+		</xs:sequence>
+	</xs:complexType>
 
+	<xs:complexType name="grid.cells">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Cells</xs:documentation>
+			<xs:documentation xml:lang="fr">Cellules</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
 			<xs:element name="colwidth" type="colwidth" minOccurs="1" maxOccurs="5" />
-			<xs:element name="alignment" type="alignment" minOccurs="1" maxOccurs="5" />
-			<xs:element name="gutter" type="gutter" />
+			<xs:element name="cells-alignment" type="alignment" minOccurs="1" maxOccurs="5"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="grid">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Grid</xs:documentation>
+			<xs:documentation xml:lang="fr">Grid</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="container" type="grid.container"/>
+			<xs:element name="cells" type="grid.cells"/>
 		</xs:sequence>
 	</xs:complexType>
 

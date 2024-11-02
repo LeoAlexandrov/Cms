@@ -1,0 +1,80 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	bool jsAction = string.Compare(Model.Props.action_type, "Javascript", StringComparison.InvariantCultureIgnoreCase) == 0;
+	string action = Model.Props.action;
+	string title = Model.Props.title;
+	string altText = Model.Props.altText;
+	string icon = Model.Props.icon;
+	bool iconLeft = Model.Props.icon_left;
+	string target = Model.Props.target;
+
+	if (string.Compare(target, "default", StringComparison.InvariantCultureIgnoreCase) == 0)
+		target = null;
+
+	string color = btnColorClass(Model.Props.color);
+	
+	string cls = string.IsNullOrEmpty(color) ? 
+		(jsAction ? "btn" : null) :
+		"btn " + color;
+}
+
+@if (jsAction)
+{
+	<button type="button" class="@cls" onclick="@Html.Raw(action)">
+	@if (string.IsNullOrEmpty(icon))
+	{
+		@title
+		
+	}
+	else if (iconLeft)
+	{
+		<i class="fa fa-fw @icon"></i> @title
+	}
+	else
+	{
+		@title <i class="fa fa-fw @icon"></i>
+	}
+	</button>
+}
+else
+{
+	<a class="@cls" href="@action" alt="@altText" target="@target">
+	@if (string.IsNullOrEmpty(icon))
+	{
+		@title
+		
+	}
+	else if (iconLeft)
+	{
+		<i class="fa fa-fw @icon"></i> @title
+	}
+	else
+	{
+		@title <i class="fa fa-fw @icon"></i>
+	}
+	</a>
+}
+
+@{
+	string btnColorClass(string color)
+	{
+		return color switch
+		{
+			"accent" => "btn-primary",
+			"primary" => "btn-primary",
+			"secondary" => "btn-secondary",
+			"text" => "btn-dark",
+			"secondary_text" => "btn-dark",
+			"error" => "btn-danger",
+			"warning" => "btn-warning",
+			"success" => "btn-success",
+			"info" => "btn-info",
+			"disabled" => "btn-light",
+			"light" => "btn-light",
+			"dark" => "btn-dark",
+			"important" => "btn-info",
+			_ => null
+		};
+	}
+}

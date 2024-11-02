@@ -147,4 +147,10 @@
   <data name="UnsavedChangesText" xml:space="preserve">
     <value>Êtes-vous sûr de vouloir annuler les modifications et continuer?</value>
   </data>
+  <data name="SaveAndCompile" xml:space="preserve">
+    <value>Enregistrer et compiler</value>
+  </data>
+  <data name="Compile" xml:space="preserve">
+    <value>Compiler et recharger</value>
+  </data>
 </root>

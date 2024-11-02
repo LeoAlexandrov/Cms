@@ -1,10 +1,12 @@
 ﻿@page
+@using AleProjects.Cms.Sdk.ViewModels;
 @model IndexModel
-@{
-    ViewData["Title"] = "Home page";
+
+<h1>@Model.Document.Title</h1>
+<div>@Html.Raw(Model.Document.Summary)</div>
+
+@foreach (Fragment f in Model.Document.Fragments)
+{
+	await Html.RenderPartialAsync(f.XmlName, f);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>

@@ -98,6 +98,8 @@ var DICTIONARY_SCHEMATA = {
 	"MESSAGE_DELETE_SUCCESS": "Schema has been deleted successfully.",
 	"MESSAGE_DELETE_FAIL": "Failed to delete schema.",
 	"MESSAGE_DELETE_IMPOSSIBLE": "This schema can't be deleted.",
+	"MESSAGE_COMPILE_SUCCESS": "Schemata have been compiled and reloaded successfully.",
+	"MESSAGE_COMPILE_FAIL": "Failed to compile schemata.",
 };
 
 var DICTIONARY_USERS = {

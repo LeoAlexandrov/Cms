@@ -61,6 +61,10 @@ namespace AleProjects.Cms.Application.Dto
 		[Required(AllowEmptyStrings = false)]
 		public string Description { get; set; }
 
+		[MessagePack.Key("onlySave")]
+		[Required]
+		public bool OnlySave { get; set; }
+
 		[MessagePack.Key("data")]
 		[Required(AllowEmptyStrings = false)]
 		public string Data { get; set; }

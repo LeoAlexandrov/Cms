@@ -236,6 +236,7 @@ namespace AleProjects.Cms.Application.Services
 						{
 							case "string":
 							case "normalizedString":
+							case "token":
 
 								e.DefaultValue = element.DefaultValue;
 								break;

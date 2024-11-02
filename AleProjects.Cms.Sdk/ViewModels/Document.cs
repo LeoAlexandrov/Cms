@@ -19,6 +19,8 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public string CoverPicture { get; set; }
 		public string Language { get; set; }
 		public string Icon { get; set; }
+		public string[] Tags { get; set; }
+
 		public string AssociatedClaims { get; set; }
 		public bool Published { get; set; }
 		public DateTimeOffset CreatedAt { get; set; }
@@ -49,6 +51,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				CoverPicture = doc.CoverPicture;
 				Language = doc.Language;
 				Icon = doc.Icon;
+				Tags = doc.Tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 				AssociatedClaims = doc.AssociatedClaims;
 				Published = doc.Published;
 				CreatedAt = doc.CreatedAt;

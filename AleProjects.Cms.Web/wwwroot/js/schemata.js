@@ -194,10 +194,11 @@
 
 		},
 
-		updateSchema() {
+		updateSchema(onlySave) {
 
 			let dto = {
 				description: this.editedSchema.description,
+				onlySave: onlySave,
 				data: this.editedSchema.data
 			};
 
@@ -303,6 +304,37 @@
 						}
 					}
 				});
+		},
+
+		compileAndReload() {
+
+			Quasar.LoadingBar.start();
+
+			application
+				.apiCallAsync(`/api/v1/schemata/compile`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.then((r) => {
+
+					Quasar.LoadingBar.stop();
+
+					if (r.ok) {
+
+						displayMessage(TEXT.SCHEMATA.get('MESSAGE_COMPILE_SUCCESS'), false);
+
+					} else {
+
+						displayMessage(`${TEXT.SCHEMATA.get('MESSAGE_COMPILE_FAIL')} (${formatHTTPStatus(r)})`, true);
+
+						if (r.status == 400) {
+
+							if (r.result.errors && r.result.errors.Data) {
+								this.errorSchemaContent = r.result.errors.Data[0];
+								this.errorSchemaDisplay = true;
+							}
+
+						}
+					}
+				});
+
 		},
 
 		discardSchema() {

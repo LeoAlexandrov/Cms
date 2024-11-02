@@ -94,5 +94,19 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpPost("compile")]
+		[Authorize("IsAdmin")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> Compile([FromServices] FragmentSchemaService fss)
+		{
+			var result = await _sms.CompileAndReload(fss, this.HttpContext.User);
+
+			if (result.IsBadParameters)
+				return BadRequest(result.Errors);
+
+			return Ok();
+		}
+
+
 	}
 }
