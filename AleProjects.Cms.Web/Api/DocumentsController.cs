@@ -11,7 +11,6 @@ using AleProjects.Cms.Application.Services;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 
 
-
 namespace AleProjects.Cms.Web.Api
 {
 
@@ -166,5 +165,71 @@ namespace AleProjects.Cms.Web.Api
 				_ => Ok(result.Value)
 			};
 		}
+
+		[HttpGet("attributes/{id:int}")]
+		[Authorize]
+		public async Task<IActionResult> GetAttribute(int id)
+		{
+			var result = await _cms.GetDocumentAttribute(id);
+
+			if (result == null)
+				return NotFound();
+
+			return Ok(result);
+		}
+
+		[HttpPost("attributes")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> PostAttribute([Required] DtoCreateDocumentAttribute dto)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+
+			var result = await _cms.CreateAttribute(dto, this.HttpContext.User);
+
+			return result.Type switch
+			{
+				ResultType.BadParameters => BadRequest(result.Errors),
+				ResultType.Conflict => Conflict(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
+
+		[HttpPut("attributes/{id:int}")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateDocumentAttribute dto)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+
+			var result = await _cms.UpdateAttribute(id, dto, this.HttpContext.User);
+
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
+
+		[HttpDelete("attributes/{id:int}")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> DeleteAttribute(int id)
+		{
+			var result = await _cms.DeleteAttribute(id, this.HttpContext.User);
+
+			if (result.IsNotFound)
+				return NotFound();
+
+			if (!result.Ok)
+				return BadRequest();
+
+			return Ok();
+		}
+
 	}
 }

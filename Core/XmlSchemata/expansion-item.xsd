@@ -44,12 +44,6 @@
 			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="color" type="xs:string">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Color</xs:documentation>
-					<xs:documentation xml:lang="fr">Couleur</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="inset-level" type="xs:decimal" default="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Inset level</xs:documentation>

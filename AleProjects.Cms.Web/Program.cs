@@ -82,7 +82,6 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
 		.AddScoped<IAuthorizationHandler, CanManageDocumentHandler>()
 		.AddScoped<IAuthorizationHandler, CanManageFragmentHandler>()
-		.AddScoped<IAuthorizationHandler, CanManageAttributeHandler>()
 		.AddScoped<IAuthorizationHandler, CanManageUserHandler>()
 		.AddAuthorization(options =>
 			{
@@ -94,7 +93,6 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				RoleClaimPolicies.CreatePolicies(configuration, options);
 				options.AddPolicy("CanManageDocument", policyBuilder => policyBuilder.AddRequirements(new CanManageDocumentRequirement()));
 				options.AddPolicy("CanManageFragment", policyBuilder => policyBuilder.AddRequirements(new CanManageFragmentRequirement()));
-				options.AddPolicy("CanManageAttribute", policyBuilder => policyBuilder.AddRequirements(new CanManageAttributeRequirement()));
 				options.AddPolicy("CanManageUser", policyBuilder => policyBuilder.AddRequirements(new CanManageUserRequirement()));
 			})
 		.AddCors(options => options.AddPolicy("All", policyBuilder => policyBuilder.AllowAnyOrigin()))

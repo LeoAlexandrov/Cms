@@ -223,6 +223,7 @@
 			</q-toolbar>
 			<q-tabs class="text-secondary" align="left" v-model="fragmentPropsTab">
 				<q-tab name="content" label="@Localizer["Content"]"></q-tab>
+				<q-tab name="attributes" label="@Localizer["Attributes"]"></q-tab>
 				<q-tab name="properties" label="@Localizer["Properties"]"></q-tab>
 			</q-tabs>
 		</q-header>
@@ -324,6 +325,20 @@
 						</div>
 					</q-tab-panel>
 
+					<q-tab-panel name="attributes">
+						<div class="q-gutter-md">
+							<div class="row">
+								<q-chip v-for="(a,idx) in fragment.attributes"
+									removable clickable
+									:color="a.enabled ? 'primary': 'grey'"
+									text-color="white"
+									@@click="startChangeAttribute(a, true)"
+									@@remove="startDeleteAttribute(a, true)">{{a.attributeKey}}</q-chip>
+							</div>
+							<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute(true)"></q-btn>
+						</div>
+					</q-tab-panel>
+
 					<q-tab-panel name="properties">
 
 						<table class="q-mt-md q-mb-lg">
@@ -331,16 +346,16 @@
 								<tr>
 									<td><span class="text-caption text-grey-7">Id:</span></td>
 									<td>{{ fragment.properties.id }}</td>
-									<td></td>
+									@* <td></td> *@
 								</tr>
 								<tr>
 									<td><span class="text-caption text-grey-7">@Localizer["FragmentDocument"]:</span></td>
 									<td>{{ editedDoc.properties.id }}</td>
-									<td>
+									@* <td>
 										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
 											<q-tooltip>@Localizer["Hint_ChangeDocument"]</q-tooltip>
 										</q-btn>
-									</td>
+									</td> *@
 								</tr>
 							</tbody>
 						</table>
@@ -350,11 +365,6 @@
 							label="@Localizer["FragmentName"]"
 							ref="FragmentName"
 							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
-						</q-input>
-
-						<q-input dense outlined
-							v-model="fragment.properties.tags"
-							label="@Localizer["Tags"]" >
 						</q-input>
 
 						<q-checkbox v-model="fragment.enabled"
@@ -379,7 +389,7 @@
 							ref="FragmentShared">
 						</q-checkbox>
 
-						<div class="q-mt-lg"><span class="text-caption text-grey-7">XML schema: </span>{{ fragment.properties.xmlSchema }}</div>
+						<div class="q-mt-lg"><span class="text-caption text-grey-7">@Localizer["XMLSchema"]: </span>{{ fragment.properties.xmlSchema }}</div>
 					</q-tab-panel>
 
 				</q-tab-panels>
@@ -740,10 +750,10 @@
 								removable clickable
 								:color="a.enabled ? 'primary': 'grey'" 
 								text-color="white" 
-								@@click="startChangeAttribute(a)"
-								@@remove="startDeleteAttribute(a)">{{a.attributeKey}}</q-chip>
+								@@click="startChangeAttribute(a, false)"
+								@@remove="startDeleteAttribute(a, false)">{{a.attributeKey}}</q-chip>
 						</div>
-						<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute()"></q-btn>
+						<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute(false)"></q-btn>
 
 					</div>
 				</div>

@@ -458,12 +458,22 @@ namespace AleProjects.Cms.Application.Services
 					.Where(fl => fl.DocumentRef != link.DocumentRef && fl.FragmentRef == link.FragmentRef)
 					.CountAsync();
 
+			int fId = fragment.Id;
+
+			FragmentAttribute[] attrs = await dbContext.FragmentAttributes
+				.AsNoTracking()
+				.Where(a => a.FragmentRef == fId)
+				.OrderBy(a => a.AttributeKey)
+				.ToArrayAsync();
+
+
 			DtoFullFragmentResult dto = new() 
 			{ 
 				Properties = new(fragment), 
 				Enabled = link.Enabled, 
 				LockShare = useCount > 0,  
-				LinkId = link.Id 
+				LinkId = link.Id,
+				Attributes = attrs.Select(a => new DtoFragmentAttributeResult(a)).ToArray(),
 			};
 			
 			XmlReaderSettings settings = new() { ValidationType = ValidationType.Schema };
@@ -745,13 +755,11 @@ namespace AleProjects.Cms.Application.Services
 			{
 				fragment.Name = dto.Properties.Name;
 				fragment.Icon = NullIfEmpty(dto.Properties.Icon);
-				fragment.Tags = NullIfEmpty(dto.Properties.Tags);
 			}
 			else
 			{
 				fragment.Name = sanitizer.Sanitize(dto.Properties.Name);
 				fragment.Icon = NullIfEmpty(sanitizer.Sanitize(dto.Properties.Icon));
-				fragment.Tags = NullIfEmpty(sanitizer.Sanitize(dto.Properties.Tags));
 			}
 
 

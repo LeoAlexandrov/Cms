@@ -139,7 +139,7 @@
     <value>La clé d`attribut existe déjà</value>
   </data>
   <data name="Attributes" xml:space="preserve">
-    <value>Attributs supplémentaires</value>
+    <value>Attributs</value>
   </data>
   <data name="AttributeValue" xml:space="preserve">
     <value>Valeur d'attribut</value>
@@ -320,5 +320,8 @@
   </data>
   <data name="Tags" xml:space="preserve">
     <value>Balises</value>
+  </data>
+  <data name="XMLSchema" xml:space="preserve">
+    <value>XML schema</value>
   </data>
 </root>

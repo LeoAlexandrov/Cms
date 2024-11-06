@@ -86,13 +86,13 @@
 					id: 0,
 					name: null,
 					icon: null,
-					tags: null,
 					shared: false,
 					xmlSchema: null
 				},
 				linkId: 0,
 				enabled: true,
 				lockShare: false,
+				attributes: [],
 				decomposition: []
 			},
 
@@ -104,13 +104,13 @@
 				id: 0,
 				attributeKey: "new-key",
 				value: null,
-				enabled: true
+				enabled: true,
+				forFragment: false
 			},
 
 			invalidAttributeKeys: [],
 
 			deleteAttributeConfirm: false,
-			attributeToDelete: null,
 
 			htmlToolbar: [
 				[
@@ -347,7 +347,9 @@
 					if (r.ok) {
 
 						this.editedDoc.properties = r.result;
-						this.editedDoc.contentBlocks = [];
+						this.editedDoc.fragmentLinks = [];
+						this.editedDoc.fragmentsTree = [];
+						this.editedDoc.attributes = [];
 						this.hasChanged = false;
 						this.newDocumentProps = false;
 
@@ -1450,8 +1452,9 @@
 			return true;
 		},
 
-		startNewAttribute() {
-			this.attribute = { id: 0, key: "new-key", value: null, enabled: true };
+		startNewAttribute(forFragment) {
+
+			this.attribute = { id: 0, key: "new-key", value: null, enabled: true, forFragment: forFragment };
 			this.attributeProps = true;
 
 			Vue.nextTick(() => {
@@ -1462,17 +1465,28 @@
 
 		createAttribute() {
 
-			const dto = {
-				documentRef: this.selectedDoc,
+			let dto = {
 				attributeKey: this.attribute.key,
 				value: this.attribute.value,
 				enabled: this.attribute.enabled
 			};
 
+			const forFragment = this.attribute.forFragment;
+			let url;
+
+
+			if (forFragment) {
+				dto.fragmentLinkRef = this.fragment.linkId;
+				url = "/api/v1/fragments/attributes";
+			} else {
+				dto.documentRef = this.selectedDoc;
+				url = "/api/v1/documents/attributes";
+			}
+
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/attributes`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(url, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1480,7 +1494,13 @@
 					if (r.ok) {
 
 						this.attributeProps = false;
-						this.editedDoc.attributes.push(r.result);
+
+						if (forFragment) {
+							this.fragment.attributes.push(r.result);
+						} else {
+							this.editedDoc.attributes.push(r.result);
+						}
+
 						displayMessage(TEXT.DOCS.get('MESSAGE_CREATE_ATTR_SUCCESS'), false);
 
 					} else {
@@ -1511,20 +1531,30 @@
 				});
 		},
 
-		startChangeAttribute(a) {
-			this.attribute = { id: a.id, key: a.attributeKey, value: a.value, enabled: a.enabled };
+		startChangeAttribute(a, forFragment) {
+			this.attribute = { id: a.id, key: a.attributeKey, value: a.value, enabled: a.enabled, forFragment: forFragment };
 			this.attributeProps = true;
 		},
 
 		changeAttribute() {
 
 			const id = this.attribute.id;
-			const dto = { value: this.attribute.value, enabled: this.attribute.enabled };
+			const forFragment = this.attribute.forFragment;
+
+			let dto = { value: this.attribute.value, enabled: this.attribute.enabled };
+			let url;
+
+			if (forFragment) {
+				dto.documentRef = this.selectedDoc;
+				url = `/api/v1/fragments/attributes/${id}`;
+			} else {
+				url = `/api/v1/documents/attributes/${id}`;
+			}
 
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/attributes/${id}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(url, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1533,11 +1563,23 @@
 
 						this.attributeProps = false;
 
-						for (const a of this.editedDoc.attributes)
-							if (a.id == id) {
-								a.value = r.result.value;
-								a.enabled = r.result.enabled;
-							}
+						if (forFragment) {
+
+							for (const a of this.fragment.attributes)
+								if (a.id == id) {
+									a.value = r.result.value;
+									a.enabled = r.result.enabled;
+								}
+
+						} else {
+
+							for (const a of this.editedDoc.attributes)
+								if (a.id == id) {
+									a.value = r.result.value;
+									a.enabled = r.result.enabled;
+								}
+						}
+
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_UPDATE_ATTR_SUCCESS'), false);
 
@@ -1547,19 +1589,25 @@
 				});
 		},
 
-		startDeleteAttribute(a) {
+		startDeleteAttribute(a, forFragment) {
+			this.attribute = { id: a.id, forFragment: forFragment };
 			this.deleteAttributeConfirm = true;
-			this.attributeToDelete = a.id;
 		},
 
 		deleteAttribute() {
 
-			const id = this.attributeToDelete;
+			const id = this.attribute.id;
+			const forFragment = this.attribute.forFragment;
+
+			let url = forFragment ? 
+				`/api/v1/fragments/attributes/${id}?documentRef=${this.selectedDoc}` :
+				`/api/v1/documents/attributes/${id}`;
+
 
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/attributes/${id}`, "DELETE", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync(url, "DELETE", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1568,13 +1616,27 @@
 
 						this.deleteAttributeConfirm = false;
 
-						let attrs = this.editedDoc.attributes;
+						let attrs;
 
-						for (let i = 0, n = attrs.length; i < n; i++)
-							if (attrs[i].id == id) {
-								this.editedDoc.attributes = [...attrs.slice(0, i), ...attrs.slice(i + 1)];
-								break;
-							}
+						if (forFragment) {
+
+							attrs = this.fragment.attributes;
+
+							for (let i = 0, n = attrs.length; i < n; i++)
+								if (attrs[i].id == id) {
+									this.fragment.attributes = [...attrs.slice(0, i), ...attrs.slice(i + 1)];
+									break;
+								}
+						} else {
+
+							attrs = this.editedDoc.attributes;
+
+							for (let i = 0, n = attrs.length; i < n; i++)
+								if (attrs[i].id == id) {
+									this.editedDoc.attributes = [...attrs.slice(0, i), ...attrs.slice(i + 1)];
+									break;
+								}
+						}
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_DELETE_ATTR_SUCCESS'), false);
 

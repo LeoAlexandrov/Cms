@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\JsonParser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\RandomString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Document.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\FragmentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\DocumentPathNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\Entities\Fragment.cs" />
@@ -42,7 +43,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\MediaStorageEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\TreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Domain\ValueObjects\XSElement.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageDocument.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageFragment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Infrastructure\Auth\CanManageUser.cs" />

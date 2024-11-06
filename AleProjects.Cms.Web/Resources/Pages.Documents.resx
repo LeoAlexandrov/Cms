@@ -139,7 +139,7 @@
     <value>Attribute key already exists</value>
   </data>
   <data name="Attributes" xml:space="preserve">
-    <value>Additional attributes</value>
+    <value>Attributes</value>
   </data>
   <data name="AttributeValue" xml:space="preserve">
     <value>Attribute value</value>
@@ -320,5 +320,8 @@
   </data>
   <data name="Tags" xml:space="preserve">
     <value>Tags</value>
+  </data>
+  <data name="XMLSchema" xml:space="preserve">
+    <value>XML schema</value>
   </data>
 </root>

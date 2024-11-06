@@ -17,8 +17,6 @@ namespace AleProjects.Cms.Domain.Entities
 		[MaxLength(64)]
 		public string Icon { get; set; }
 
-		public string Tags { get; set; }
-
 		public bool Shared { get; set; }
 
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
@@ -31,5 +29,7 @@ namespace AleProjects.Cms.Domain.Entities
 		public string Data { get; set; }
 
 		public List<FragmentLink> DocumentLinks { get; set; }
+
+		public List<FragmentAttribute> FragmentAttributes { get; set; }
 	}
 }

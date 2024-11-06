@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 
@@ -17,18 +18,19 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public bool Shared { get; set; }
 		public string XmlName { get; set; }
 		public string XmlSchema { get; set; }
-		public string[] Tags { get; set; }
 		public dynamic Props { get; set; }
+		public Dictionary<string, Attribute> Attributes { get; set; }
 		public Document Document { get; set; }
 		public Fragment[] Children { get; set; }
 
 		// ITreeNode<int> implementation
+
 		public int Parent => Container;
 		public string Title => Name;
 		public string Caption => null;
 		public string Data { get; set; }
 
-		public static Fragment Create(FragmentLink link, Document doc, IList<XSElement> xse)
+		public static Fragment Create(FragmentLink link, Document doc, IEnumerable<FragmentAttribute> attrs, IList<XSElement> xse)
 		{
 			return new Fragment()
 			{
@@ -40,8 +42,8 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				Shared = link.Fragment.Shared,
 				XmlName = link.Fragment.XmlName,
 				XmlSchema = link.Fragment.XmlSchema,
-				Tags = link.Fragment.Tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries),
 				Props = DynamicXml.Parse(link.Fragment.Data, xse),
+				Attributes = attrs.ToDictionary(a => a.AttributeKey, a => new Attribute() { Id = a.Id, Value = a.Value, Enabled = a.Enabled }),
 				Document = doc,
 				Data = link.Data
 			};

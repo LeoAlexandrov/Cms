@@ -72,7 +72,6 @@ namespace AleProjects.Cms.Application.Dto
 				Id = fragment.Id;
 				Name = fragment.Name;
 				Icon = fragment.Icon;
-				Tags = fragment.Tags;
 				Shared = fragment.Shared;
 				XmlSchema = fragment.XmlSchema;
 				XmlName = fragment.XmlName;
@@ -94,6 +93,9 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("enabled")]
 		public bool Enabled { get; set; }
+
+		[MessagePack.Key("attributes")]
+		public DtoFragmentAttributeResult[] Attributes { get; set; }
 
 		[MessagePack.Key("decomposition")]
 		public IReadOnlyList<DtoFragmentElement> Decomposition { get; set; }

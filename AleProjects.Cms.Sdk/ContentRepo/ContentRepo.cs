@@ -71,7 +71,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					}
 		}
 
-		private static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Document doc, IList<XSElement> xse)
+		private static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Func<Entities.FragmentLink, Fragment> fragmentFactory)
 		{
 			if (tree.TryGetValue(fr.LinkId, out Memory<Entities.FragmentLink> children))
 			{
@@ -79,14 +79,16 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				Fragment[] frChildren = new Fragment[span.Length];
 
 				for (int i = 0; i < span.Length; i++)
-					SetChildren(frChildren[i] = Fragment.Create(span[i], doc, xse), tree, doc, xse);
+					SetChildren(frChildren[i] = fragmentFactory(span[i]), tree, fragmentFactory); // Fragment.Create(span[i], doc, fragmentAttrs, xse)
 
 				fr.Children = frChildren;
 			}
 		}
 
-		private static Fragment[] CreateFragmentsTree(Entities.FragmentLink[] links, Document doc, IList<XSElement> xse)
+		private static Fragment[] CreateFragmentsTree(Entities.FragmentLink[] links, Document doc, ILookup<int, Entities.FragmentAttribute> fragmentAttrs, IList<XSElement> xse)
 		{
+			Fragment fragmentFactory(Entities.FragmentLink link) => Fragment.Create(link, doc, fragmentAttrs[link.FragmentRef], xse);
+
 			Dictionary<int, Memory<Entities.FragmentLink>> tree = [];
 
 			if (links.Length > 0)
@@ -111,11 +113,11 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			{
 				result = roots
 					.ToArray()
-					.Select(fl => Fragment.Create(fl, doc, xse))
+					.Select(fl => Fragment.Create(fl, doc, fragmentAttrs[fl.FragmentRef], xse))
 					.ToArray();
 
 				foreach (var d in result)
-					SetChildren(d, tree, doc, xse);
+					SetChildren(d, tree, fragmentFactory);
 			}
 			else
 			{
@@ -154,7 +156,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 			else
 			{
-				string[] slugs = path.ToLower().Split('/');
+				string[] slugs = path.ToLower().Split('/', StringSplitOptions.RemoveEmptyEntries);
 
 				var docs = await dbContext.Documents
 					.AsNoTracking()
@@ -238,7 +240,16 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			foreach (var link in links)
 				link.Fragment.Data = ReferencesHelper.Replace(link.Fragment.Data, refs);
 
-			result.Fragments = CreateFragmentsTree(links, result, fss.Fragments);
+			var attrs = await dbContext.FragmentLinks
+				.AsNoTracking()
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.ToArrayAsync();
+
+
+			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fss.Fragments);
 
 			return result;
 		}

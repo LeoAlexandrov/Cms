@@ -72,12 +72,6 @@
 					<xs:documentation xml:lang="fr">En vedette</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="color" type="standard-color">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Color</xs:documentation>
-					<xs:documentation xml:lang="fr">Couleur</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -93,8 +87,8 @@
 		<xs:sequence>
 			<xs:element name="content" type="card.content"/>
 			<xs:element name="appearance" type="card.appearance"/>
-			<xs:element name="image" type="image"/>
-			<xs:element name="action" type="action" maxOccurs="3"/>
+			<xs:element name="image" type="image" minOccurs="0" maxOccurs="3"/>
+			<xs:element name="action" type="action" minOccurs="0" maxOccurs="3"/>
 		</xs:sequence>
 	</xs:complexType>
 

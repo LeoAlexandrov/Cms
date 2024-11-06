@@ -104,29 +104,4 @@
 		</xs:restriction>
 	</xs:simpleType>
 
-
-	<xs:simpleType name="standard-color">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Color</xs:documentation>
-			<xs:documentation xml:lang="fr">Couleur</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:token">
-			<xs:enumeration value="accent"/>
-			<xs:enumeration value="primary"/>
-			<xs:enumeration value="secondary"/>
-			<xs:enumeration value="text"/>
-			<xs:enumeration value="secondary_text"/>
-			<xs:enumeration value="error"/>
-			<xs:enumeration value="warning"/>
-			<xs:enumeration value="success"/>
-			<xs:enumeration value="info"/>
-			<xs:enumeration value="disabled"/>
-			<xs:enumeration value="transparent"/>
-			<xs:enumeration value="light"/>
-			<xs:enumeration value="dark"/>
-			<xs:enumeration value="important"/>
-			<xs:enumeration value="any"/>
-		</xs:restriction>
-	</xs:simpleType>
-
 </xs:schema>

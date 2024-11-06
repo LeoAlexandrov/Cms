@@ -19,7 +19,7 @@ namespace DemoSite.Pages
 
 		public async Task<IActionResult> OnGet()
 		{
-			this.Document = await _repo.GetDocument("home1", null, true, true);
+			this.Document = await _repo.GetDocument("home", "/new1", true, true);
 
 			return Page();
 

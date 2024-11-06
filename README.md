@@ -1,6 +1,6 @@
 # Headless CMS
 
-This project currently is under heavy development. It consists of two parts - standalone content management system, and some SDK for content consuming applications. The SDK is the abstraction over the database, querying it directly. The third project **Test** is just a playground for debugging purposes, not unit tests.
+This project currently is under heavy development. It consists of two parts - standalone content management system, and some SDK for content consuming applications. The SDK is the abstraction over the database, querying it directly. The third project **DemoSite** is a site using SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
 
 The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility to the backend developer.
 

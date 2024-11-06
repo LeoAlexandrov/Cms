@@ -121,7 +121,7 @@
     <value>Create owner login</value>
   </data>
   <data name="CreateLoginText" xml:space="preserve">
-    <value>It must be existing Google, Microsoft, or Github account. Be careful, this operation is allowed only once per installation.</value>
+    <value>It must be existing Google, Microsoft, Github, or StackOverflow account. Be careful, this operation is allowed only once per installation.</value>
   </data>
   <data name="InputLabel" xml:space="preserve">
     <value>Account</value>

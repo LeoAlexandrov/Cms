@@ -51,7 +51,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				CoverPicture = doc.CoverPicture;
 				Language = doc.Language;
 				Icon = doc.Icon;
-				Tags = doc.Tags.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+				Tags = doc.Tags?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 				AssociatedClaims = doc.AssociatedClaims;
 				Published = doc.Published;
 				CreatedAt = doc.CreatedAt;
