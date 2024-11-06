@@ -172,6 +172,7 @@ namespace AleProjects.Cms.Web.Api
 
 			return result.Type switch
 			{
+				ResultType.Forbidden => Forbid(),
 				ResultType.BadParameters => BadRequest(result.Errors),
 				ResultType.Conflict => Conflict(result.Errors),
 				_ => Ok(result.Value)
@@ -204,13 +205,13 @@ namespace AleProjects.Cms.Web.Api
 		{
 			var result = await _cms.DeleteAttribute(id, documentRef, this.HttpContext.User);
 
-			if (result.IsNotFound)
-				return NotFound();
-
-			if (!result.Ok)
-				return BadRequest();
-
-			return Ok();
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.Success => Ok(result.Value),
+				_ => BadRequest()
+			};
 		}
 
 	}

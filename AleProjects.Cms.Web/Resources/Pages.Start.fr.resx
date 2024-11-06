@@ -121,7 +121,7 @@
     <value>Créer un compte propriétaire</value>
   </data>
   <data name="CreateLoginText" xml:space="preserve">
-    <value>Il doit s'agir d'un compte Google, Microsoft Github ou StackOverflow existant. Attention, cette opération n'est autorisée qu'une seule fois par installation.</value>
+    <value>Il doit s'agir d'un compte Google, Microsoft, Github ou StackOverflow existant. Attention, cette opération n'est autorisée qu'une seule fois par installation.</value>
   </data>
   <data name="InputLabel" xml:space="preserve">
     <value>Compte</value>
