@@ -2,7 +2,7 @@
 
 This project currently is under heavy development. It consists of two parts - standalone content management system, and some SDK for content consuming applications. The SDK is the abstraction over the database, querying it directly. The third project **DemoSite** is a site using SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
 
-The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility to the backend developer.
+The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility for backend developer.
 
 Decomposition of documents visual content into simple structured fragments is in the main focus of development. Once decomposition of some visual fragment (like card, hero section, accordion, grid with rows and cols, etc) is defined and described, CMS can display its html form and save entered values to the database. To describe the decomposition, XML schemata are used.
 
@@ -118,6 +118,6 @@ Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms
 
 ## Demo
 
-Here [admin.h-cms.net](https://admin.h-cms.net) is the current demo version with guest access. But guest users have readonly access rights.
+Here [admin.h-cms.net](https://admin.h-cms.net) is the current demo version with guest access. But guest users have only read-permissions.
 
 _To be continued..._

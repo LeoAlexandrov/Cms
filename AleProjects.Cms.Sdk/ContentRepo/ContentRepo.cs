@@ -56,9 +56,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 		#region private-functions
 
-		private static void LoadFragmentSchemaService(CmsDbContext dbCcontext)
+		private static void LoadFragmentSchemaService(CmsDbContext dbContext)
 		{
-			var cs = dbCcontext.Database
+			var cs = dbContext.Database
 				.SqlQueryRaw<int>($"SELECT CHECKSUM_AGG(BINARY_CHECKSUM(ModifiedAt)) AS [Value] FROM Schemata WITH (NOLOCK)")
 				.FirstOrDefault();
 
@@ -67,7 +67,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					if (!schemataChecksum.HasValue || cs != schemataChecksum)
 					{
 						schemataChecksum = cs;
-						fss.Reload(dbCcontext);
+						fss.Reload(dbContext);
 					}
 		}
 

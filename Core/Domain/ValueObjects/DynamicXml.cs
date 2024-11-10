@@ -131,7 +131,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 					}
 			}
 
-			if (n > 1)
+			if (isArray)
 			{
 				result = nodes.Select(n => n.HasElements ? (object)new DynamicXml(n, _ns, _fmt, newXse) : Convert(n.Value, mtype)).ToArray();
 				return true;
@@ -139,7 +139,9 @@ namespace AleProjects.Cms.Domain.ValueObjects
 
 			var node = nodes.FirstOrDefault();
 
-			if (node.HasElements || node.HasAttributes)
+			if (node.HasElements || 
+				node.HasAttributes ||
+				(node.FirstNode != null && node.FirstNode.NodeType == System.Xml.XmlNodeType.Comment))
 			{
 				result = new DynamicXml(node, _ns, _fmt, newXse);
 				return true;

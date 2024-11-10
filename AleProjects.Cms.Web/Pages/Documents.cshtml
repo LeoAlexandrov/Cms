@@ -240,8 +240,8 @@
 				<q-tab-panels v-model="fragmentPropsTab" animated>
 
 					<q-tab-panel name="content">
-						<div v-for="(f,idx) in fragment.decomposition" :key="idx" :style="{'margin-left': (f.level > 0 ? f.level-1 : 0) + 'em'}">
-							<q-separator size="2px" v-if="!f.isSimple && f.level==1"></q-separator>
+						<div v-for="(f,idx) in fragment.decomposition" :key="idx" :style="{'margin-left': (f.level > 0 ? (f.level-1)*1.5 : 0) + 'em'}">
+							@* <q-separator size="2px" v-if="!f.isSimple && f.level==1"></q-separator> *@
 							<div class="text-subtitle1 q-mb-md" v-if="!f.isSimple && f.level==0">{{ f.annotation }}</div>
 							<div class="row q-my-md items-center" v-else-if="f.isAddable">
 								<q-btn color="secondary" icon="add" :label="f.annotation" @@click="addFragmentElement(idx)"></q-btn>

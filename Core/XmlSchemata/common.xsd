@@ -9,99 +9,88 @@
 
 	<!-- common types -->
 
-	<xs:simpleType name="alignment">
+	<xs:simpleType name="breakpoint-token">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Breakpoint</xs:documentation>
+			<xs:documentation xml:lang="fr">Point d'arrêt</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:enumeration value="none"/>
+			<xs:enumeration value="xs"/>
+			<xs:enumeration value="sm"/>
+			<xs:enumeration value="md"/>
+			<xs:enumeration value="lg"/>
+			<xs:enumeration value="xl"/>
+			<xs:enumeration value="xxl"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	
+	<xs:complexType name="width">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Width</xs:documentation>
+			<xs:documentation xml:lang="fr">Largeur</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="breakpoint" type="breakpoint-token"/>
+			<xs:element name="span">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Span</xs:documentation>
+					<xs:documentation xml:lang="fr">Envergure</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="auto"/>
+						<xs:enumeration value="1"/>
+						<xs:enumeration value="2"/>
+						<xs:enumeration value="3"/>
+						<xs:enumeration value="4"/>
+						<xs:enumeration value="5"/>
+						<xs:enumeration value="6"/>
+						<xs:enumeration value="7"/>
+						<xs:enumeration value="8"/>
+						<xs:enumeration value="9"/>
+						<xs:enumeration value="10"/>
+						<xs:enumeration value="11"/>
+						<xs:enumeration value="12"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="alignment">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Alignment</xs:documentation>
 			<xs:documentation xml:lang="fr">Alignement</xs:documentation>
 		</xs:annotation>
-		<xs:restriction base="xs:token">
-			<xs:enumeration value="default"/>
-			<xs:enumeration value="vertical-start"/>
-			<xs:enumeration value="vertical-center"/>
-			<xs:enumeration value="vertical-end"/>
-			<xs:enumeration value="vertical-self-start"/>
-			<xs:enumeration value="vertical-self-center"/>
-			<xs:enumeration value="vertical-self-end"/>
-			<xs:enumeration value="horizontal-start"/>
-			<xs:enumeration value="horizontal-center"/>
-			<xs:enumeration value="horizontal-end"/>
-			<xs:enumeration value="horizontal-around"/>
-			<xs:enumeration value="horizontal-between"/>
-			<xs:enumeration value="horizontal-evenly"/>
-			<xs:enumeration value="other"/>
-		</xs:restriction>
-	</xs:simpleType>
-
-
-	<xs:simpleType name="colwidth">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Column width</xs:documentation>
-			<xs:documentation xml:lang="fr">Largeur de la colonne</xs:documentation>
-		</xs:annotation>
-		<xs:restriction base="xs:token">
-			<xs:enumeration value="default"/>
-			<xs:enumeration value="xs-1"/>
-			<xs:enumeration value="xs-2"/>
-			<xs:enumeration value="xs-3"/>
-			<xs:enumeration value="xs-4"/>
-			<xs:enumeration value="xs-5"/>
-			<xs:enumeration value="xs-6"/>
-			<xs:enumeration value="xs-7"/>
-			<xs:enumeration value="xs-8"/>
-			<xs:enumeration value="xs-9"/>
-			<xs:enumeration value="xs-10"/>
-			<xs:enumeration value="xs-11"/>
-			<xs:enumeration value="xs-12"/>
-			<xs:enumeration value="sm-1"/>
-			<xs:enumeration value="sm-2"/>
-			<xs:enumeration value="sm-3"/>
-			<xs:enumeration value="sm-4"/>
-			<xs:enumeration value="sm-5"/>
-			<xs:enumeration value="sm-6"/>
-			<xs:enumeration value="sm-7"/>
-			<xs:enumeration value="sm-8"/>
-			<xs:enumeration value="sm-9"/>
-			<xs:enumeration value="sm-10"/>
-			<xs:enumeration value="sm-11"/>
-			<xs:enumeration value="sm-12"/>
-			<xs:enumeration value="md-1"/>
-			<xs:enumeration value="md-2"/>
-			<xs:enumeration value="md-3"/>
-			<xs:enumeration value="md-4"/>
-			<xs:enumeration value="md-5"/>
-			<xs:enumeration value="md-6"/>
-			<xs:enumeration value="md-7"/>
-			<xs:enumeration value="md-8"/>
-			<xs:enumeration value="md-9"/>
-			<xs:enumeration value="md-10"/>
-			<xs:enumeration value="md-11"/>
-			<xs:enumeration value="md-12"/>
-			<xs:enumeration value="lg-1"/>
-			<xs:enumeration value="lg-2"/>
-			<xs:enumeration value="lg-3"/>
-			<xs:enumeration value="lg-4"/>
-			<xs:enumeration value="lg-5"/>
-			<xs:enumeration value="lg-6"/>
-			<xs:enumeration value="lg-7"/>
-			<xs:enumeration value="lg-8"/>
-			<xs:enumeration value="lg-9"/>
-			<xs:enumeration value="lg-10"/>
-			<xs:enumeration value="lg-11"/>
-			<xs:enumeration value="lg-12"/>
-			<xs:enumeration value="xl-1"/>
-			<xs:enumeration value="xl-2"/>
-			<xs:enumeration value="xl-3"/>
-			<xs:enumeration value="xl-4"/>
-			<xs:enumeration value="xl-5"/>
-			<xs:enumeration value="xl-6"/>
-			<xs:enumeration value="xl-7"/>
-			<xs:enumeration value="xl-8"/>
-			<xs:enumeration value="xl-9"/>
-			<xs:enumeration value="xl-10"/>
-			<xs:enumeration value="xl-11"/>
-			<xs:enumeration value="xl-12"/>
-			<xs:enumeration value="other"/>
-		</xs:restriction>
-	</xs:simpleType>
-
+		<xs:sequence>
+			<xs:element name="breakpoint" type="breakpoint-token"/>
+			<xs:element name="align">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Alignment</xs:documentation>
+					<xs:documentation xml:lang="fr">Alignement</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="vertical-start"/>
+						<xs:enumeration value="vertical-center"/>
+						<xs:enumeration value="vertical-end"/>
+						<xs:enumeration value="vertical-self-start"/>
+						<xs:enumeration value="vertical-self-center"/>
+						<xs:enumeration value="vertical-self-end"/>
+						<xs:enumeration value="horizontal-start"/>
+						<xs:enumeration value="horizontal-center"/>
+						<xs:enumeration value="horizontal-end"/>
+						<xs:enumeration value="horizontal-around"/>
+						<xs:enumeration value="horizontal-between"/>
+						<xs:enumeration value="horizontal-evenly"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
 </xs:schema>

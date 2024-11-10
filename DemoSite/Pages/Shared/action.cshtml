@@ -12,11 +12,16 @@
 	if (string.Compare(target, "default", StringComparison.InvariantCultureIgnoreCase) == 0)
 		target = null;
 
-	string color = btnColorClass(Model.Props.color);
-	
-	string cls = string.IsNullOrEmpty(color) ? 
-		(jsAction ? "btn" : null) :
-		"btn " + color;
+	string category = Model.Props.category;
+
+	string cls = category switch
+	{
+		"Default" => jsAction ? "btn" : null,
+		"Primary" => "btn btn-primary",
+		"Secondary" => "btn btn-secondary",
+		_ => "btn btn-link"
+	};
+
 }
 
 @if (jsAction)
