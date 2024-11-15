@@ -59,6 +59,8 @@ var DICTIONARY_DOCS = {
 	"MESSAGE_LOAD_FR_FAIL": "Impossible de charger le fragment.",
 	"MESSAGE_UPDATE_FR_SUCCESS": "Le fragment a été mis à jour avec succès.",
 	"MESSAGE_UPDATE_FR_FAIL": "Échec de la mise à jour du fragment.",
+	"MESSAGE_COPY_FR_SUCCESS": "Le fragment a été copié avec succès.",
+	"MESSAGE_COPY_FR_FAIL": "Impossible de copier le fragment.",
 	"MESSAGE_CREATE_ATTR_SUCCESS": "L\'attribut a été créé avec succès.",
 	"MESSAGE_CREATE_ATTR_FAIL": "Échec de la création de l\'attribut.",
 	"MESSAGE_UPDATE_ATTR_SUCCESS": "L\'attribut a été mis à jour avec succès.",

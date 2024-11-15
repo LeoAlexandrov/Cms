@@ -48,7 +48,6 @@ else
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title
-		
 	}
 	else if (iconLeft)
 	{
@@ -59,27 +58,4 @@ else
 		@title <i class="fa fa-fw @icon"></i>
 	}
 	</a>
-}
-
-@{
-	string btnColorClass(string color)
-	{
-		return color switch
-		{
-			"accent" => "btn-primary",
-			"primary" => "btn-primary",
-			"secondary" => "btn-secondary",
-			"text" => "btn-dark",
-			"secondary_text" => "btn-dark",
-			"error" => "btn-danger",
-			"warning" => "btn-warning",
-			"success" => "btn-success",
-			"info" => "btn-info",
-			"disabled" => "btn-light",
-			"light" => "btn-light",
-			"dark" => "btn-dark",
-			"important" => "btn-info",
-			_ => null
-		};
-	}
 }

@@ -1,19 +1,18 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
-	int columns = Model.Props.container.columns;
-	dynamic width = Model.Props.cells.colwidth;
-	dynamic align = Model.Props.container.alignment;
+	System.Text.StringBuilder divClass = new("row");
 	string rowCls;
 
-	System.Text.StringBuilder divClass = new($"row row-cols-{columns}");
+	var columns = Model.Props.container.columns;
 
-	if (width != null)
-		foreach (var w in width)
-		{
-			if (!string.IsNullOrEmpty(rowCls = widthDivClass(w.breakpoint, w.span)))
-				divClass.Append(' ').Append(rowCls);
-		}
+	foreach (var col in columns)
+	{
+		if (!string.IsNullOrEmpty(rowCls = rowDivClass(col.breakpoint, col.number)))
+			divClass.Append(' ').Append(rowCls);
+	}
+
+	var align = Model.Props.container.alignment;
 
 	if (align != null)
 		foreach (var a in align)
@@ -38,12 +37,12 @@
 		}
 
 		cls = divClass.ToString();
-
 	}
 	else cls = null;
 
 
-	<div class="@rowCls">
+<div class="container">
+	<div class="@rowCls g-4 my-4">
 
 	@if (Model.Children != null)
 		foreach (var f in Model.Children)
@@ -53,11 +52,13 @@
 			}
 			</div>
 		}
+
 	</div>
+</div>
 }
 
 @{
-	string widthDivClass(string breakpoint, string span)
+	string rowDivClass(string breakpoint, string span)
 	{
 		if (string.IsNullOrEmpty(breakpoint) || string.IsNullOrEmpty(span))
 			return null;

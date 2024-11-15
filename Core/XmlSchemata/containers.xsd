@@ -44,7 +44,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	
+
 	<xs:element name="container" type="container"/>
 
 
@@ -56,19 +56,41 @@
 			<xs:documentation xml:lang="fr">Conteneur</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="columns" default="3">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Columns</xs:documentation>
-					<xs:documentation xml:lang="fr">Colonnes</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:integer">
-						<xs:minInclusive value="1"/>
-						<xs:maxInclusive value="12"/>
-					</xs:restriction>
-				</xs:simpleType>
+			<xs:element name="columns" maxOccurs="6">
+				<xs:complexType>
+					<xs:annotation>
+						<xs:documentation xml:lang="en">Columns</xs:documentation>
+						<xs:documentation xml:lang="fr">Colonnes</xs:documentation>
+					</xs:annotation>
+					<xs:sequence>
+						<xs:element name="breakpoint" type="breakpoint-token"/>
+						<xs:element name="number" default="3">
+							<xs:annotation>
+								<xs:documentation xml:lang="en">Number</xs:documentation>
+								<xs:documentation xml:lang="fr">Number</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:token">
+									<xs:enumeration value="auto"/>
+									<xs:enumeration value="1"/>
+									<xs:enumeration value="2"/>
+									<xs:enumeration value="3"/>
+									<xs:enumeration value="4"/>
+									<xs:enumeration value="5"/>
+									<xs:enumeration value="6"/>
+									<xs:enumeration value="7"/>
+									<xs:enumeration value="8"/>
+									<xs:enumeration value="9"/>
+									<xs:enumeration value="10"/>
+									<xs:enumeration value="11"/>
+									<xs:enumeration value="12"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
 			</xs:element>
-			<xs:element name="alignment" type="alignment" minOccurs="0" maxOccurs="5"/>
+			<xs:element name="alignment" type="alignment" minOccurs="0" maxOccurs="6"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -78,8 +100,7 @@
 			<xs:documentation xml:lang="fr">Cellules</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="colwidth" type="width" minOccurs="0" maxOccurs="5" />
-			<xs:element name="cells-alignment" type="alignment" minOccurs="0" maxOccurs="5"/>
+			<xs:element name="cells-alignment" type="alignment" minOccurs="0" maxOccurs="6"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -97,7 +118,7 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	
+
 	<xs:element name="grid" type="grid"/>
 
 </xs:schema>

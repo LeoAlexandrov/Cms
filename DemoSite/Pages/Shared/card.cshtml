@@ -1,0 +1,120 @@
+﻿@using AleProjects.Cms.Sdk.ViewModels
+@model Fragment
+
+@{
+	string title = Model.Props.content.title;
+	string subTitle = Model.Props.content.subtitle;
+	string text = Model.Props.content.text;
+	string layout = Model.Props.appearance.layout;
+	bool horizontal = Model.Props.appearance.horizontal;
+	bool featured = Model.Props.appearance.featured;
+
+	bool isOver = layout == "over";
+
+	string textOnImgCls = isOver ? "text-bg-dark" : null;
+	string fullHeightCls = Model.Document.FindFragment(Model.Parent)?.XmlName == "grid" ? "h-100" : null;
+	string isOverCardCls = null;
+	string featuredCls = featured ? "border border-primary shadow-4" : null;
+
+	var pict = Model.Props.picture;
+	var actions = Model.Props.action;
+	var pictSources = pict?.sources;
+
+	string imgSrc = pict?.source;
+}
+
+@if (isOver)
+{
+	isOverCardCls = "card" + Model.Id.ToString();
+
+	<style>
+		.@isOverCardCls {
+			background: no-repeat center / cover url("@imgSrc");
+		}
+		@if (pictSources != null)
+		{
+			@foreach (var src in pictSources)
+			{
+				<text>@@media @src.media {
+					.@isOverCardCls {
+						background: no-repeat center / cover url("@src.srcset");
+					}
+				}</text>
+			}
+		}
+	</style>
+}
+
+<div class="card @fullHeightCls @textOnImgCls @isOverCardCls @featuredCls">
+	@if (horizontal && !isOver && pict != null)
+	{
+		<div class="row gx-4">
+			<div class="col-md-6 @(layout == "end" ? "order-md-last" : null)">
+				@{
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded-start" } });
+				}
+
+			</div>
+			<div class="col-md-6 @(layout == "end" ? "order-md-first" : null)">
+				<div class="card-body">
+					@if (!string.IsNullOrEmpty(title))
+					{
+						<h3 class="card-title">@Html.Raw(title)</h3>
+					}
+					@if (!string.IsNullOrEmpty(subTitle))
+					{
+						<h5 class="card-subtitle mb-2 text-secondary">@Html.Raw(subTitle)</h5>
+					}
+					@if (!string.IsNullOrEmpty(text))
+					{
+						<div class="card-text">@Html.Raw(text)</div>
+					}
+				</div>
+				@if (actions != null)
+				{
+					<div class="mx-4 mb-4">
+						@foreach (var a in actions)
+						{
+							await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
+						}
+					</div>
+				}
+			</div>
+		</div>
+	}
+	else 
+	{
+		if (layout == "start" && pict != null)
+		{
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "card-img-top" } });
+		}
+		<div class="card-body">
+			@if (!string.IsNullOrEmpty(title))
+			{
+				<h3 class="card-title">@Html.Raw(title)</h3>
+			}
+			@if (!string.IsNullOrEmpty(subTitle))
+			{
+				<h5 class="card-subtitle mb-2 @(isOver ? null : "text-body-secondary")">@Html.Raw(subTitle)</h5>
+			}
+			@if (!string.IsNullOrEmpty(text))
+			{
+				<div class="card-text">@Html.Raw(text)</div>
+			}
+		</div>
+		@if (layout == "end" && pict != null)
+		{
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", Model.Props.picture) { Attributes = { ["bootstrap:img:class"] = "card-img-bottom" } });
+		}
+
+		@if (actions != null)
+		{
+			<div class="mx-4 mb-4">
+			@foreach (var a in actions)
+			{
+				await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
+			}
+			</div>
+		}
+	}
+</div>

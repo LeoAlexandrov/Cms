@@ -241,9 +241,9 @@
 
 					<q-tab-panel name="content">
 						<div v-for="(f,idx) in fragment.decomposition" :key="idx" :style="{'margin-left': (f.level > 0 ? (f.level-1)*1.5 : 0) + 'em'}">
-							@* <q-separator size="2px" v-if="!f.isSimple && f.level==1"></q-separator> *@
+							@* <q-separator size="1px" v-if="!f.isSimple && f.level==1"></q-separator> *@
 							<div class="text-subtitle1 q-mb-md" v-if="!f.isSimple && f.level==0">{{ f.annotation }}</div>
-							<div class="row q-my-md items-center" v-else-if="f.isAddable">
+							<div class="row q-mb-md items-center" v-else-if="f.isAddable">
 								<q-btn color="secondary" icon="add" :label="f.annotation" @@click="addFragmentElement(idx)"></q-btn>
 							</div>
 							<div class="q-my-sm row items-center content-dialog-title" v-else-if="!f.isSimple && f.level>0">
@@ -279,13 +279,13 @@
 									border-radius="4px">
 								</code-editor>
 							</div>
-							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='string'">
+							<div class="row q-mb-none items-start" v-else-if="f.xmlType=='string'">
 								<q-input dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 							</div>
-							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='anyURI'">
+							<div class="row q-mb-none items-center" v-else-if="f.xmlType=='anyURI'">
 								<q-img v-if="f.value && f.isImage"
 									class="cursor-pointer q-mb-md"
 									:src="imageUrl(f.value)"
@@ -303,19 +303,19 @@
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 
 							</div>
-							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='integer' || f.xmlType=='int' || f.xmlType=='short' || f.xmlType=='byte'">
+							<div class="row q-mb-none items-start" v-else-if="f.xmlType=='integer' || f.xmlType=='int' || f.xmlType=='short' || f.xmlType=='byte'">
 								<q-input dense outlined v-model.number="f.value" type="number" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 							</div>
-							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='decimal' || f.xmlType=='double' || f.xmlType=='float'">
+							<div class="row q-mb-none items-start" v-else-if="f.xmlType=='decimal' || f.xmlType=='double' || f.xmlType=='float'">
 								<q-input dense outlined v-model.number="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 							</div>
-							<div class="row q-mb-sm items-center" v-else-if="f.xmlType=='boolean'">
+							<div class="row q-mb-md items-center" v-else-if="f.xmlType=='boolean'">
 								<q-checkbox v-model="f.value" :label="f.annotation"></q-checkbox>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
@@ -735,6 +735,9 @@
 										</q-btn>
 										<q-btn flat round color="secondary" size="sm" icon="arrow_downward" @@click="moveFragment(prop.node.id, prop.node.parent, 1)">
 											<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
+										</q-btn>
+										<q-btn flat round color="secondary" size="sm" icon="content_copy" @@click="copyFragment(prop.node.id)">
+											<q-tooltip>@Localizer["Hint_CopyFragment"]</q-tooltip>
 										</q-btn>
 									</div>
 								</div>

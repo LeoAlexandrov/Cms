@@ -59,6 +59,8 @@ var DICTIONARY_DOCS = {
 	"MESSAGE_LOAD_FR_FAIL": "Failed to load fragment.",
 	"MESSAGE_UPDATE_FR_SUCCESS": "Fragment has been updated successfully.",
 	"MESSAGE_UPDATE_FR_FAIL": "Failed to update fragment.",
+	"MESSAGE_COPY_FR_SUCCESS": "Fragment has been copied successfully.",
+	"MESSAGE_COPY_FR_FAIL": "Failed to copy fragment.",
 	"MESSAGE_CREATE_ATTR_SUCCESS": "Attribute has been created successfully.",
 	"MESSAGE_CREATE_ATTR_FAIL": "Failed to create attribute.",
 	"MESSAGE_UPDATE_ATTR_SUCCESS": "Attribute has been updated successfully.",

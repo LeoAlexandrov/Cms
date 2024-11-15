@@ -19,7 +19,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public string XmlName { get; set; }
 		public string XmlSchema { get; set; }
 		public dynamic Props { get; set; }
-		public Dictionary<string, Attribute> Attributes { get; set; }
+		public Dictionary<string, string> Attributes { get; set; }
 		public Document Document { get; set; }
 		public Fragment[] Children { get; set; }
 
@@ -29,6 +29,27 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public string Title => Name;
 		public string Caption => null;
 		public string Data { get; set; }
+
+		public Fragment() { }
+
+		public Fragment(Fragment fragment, string xmlName, dynamic props)
+		{
+			if (fragment != null)
+			{
+				Id = fragment.Id;
+				LinkId = fragment.LinkId;
+				Container = fragment.Container;
+				Name = fragment.Name;
+				Icon = fragment.Icon;
+				Shared = fragment.Shared;
+				XmlName = xmlName;
+				XmlSchema = fragment.XmlSchema;
+				Props = props;
+				Attributes = fragment.Attributes;
+				Document = fragment.Document;
+				Data = fragment.Data;
+			}
+		}
 
 		public static Fragment Create(FragmentLink link, Document doc, IEnumerable<FragmentAttribute> attrs, IList<XSElement> xse)
 		{
@@ -43,10 +64,11 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				XmlName = link.Fragment.XmlName,
 				XmlSchema = link.Fragment.XmlSchema,
 				Props = DynamicXml.Parse(link.Fragment.Data, xse),
-				Attributes = attrs.ToDictionary(a => a.AttributeKey, a => new Attribute() { Id = a.Id, Value = a.Value, Enabled = a.Enabled }),
+				Attributes = attrs.ToDictionary(a => a.AttributeKey, a => a.Value),
 				Document = doc,
 				Data = link.Data
 			};
 		}
+
 	}
 }

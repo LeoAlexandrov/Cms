@@ -87,13 +87,12 @@
 		<xs:sequence>
 			<xs:element name="content" type="card.content"/>
 			<xs:element name="appearance" type="card.appearance"/>
-			<xs:element name="image" type="image" minOccurs="0" maxOccurs="3"/>
+			<xs:element name="image" type="image" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="action" type="action" minOccurs="0" maxOccurs="3"/>
 		</xs:sequence>
 	</xs:complexType>
 
 	
 	<xs:element name="card" type="card"/>
-	
 
 </xs:schema>

@@ -126,6 +126,26 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpPost("{id:int}/copy")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> Copy(int id)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest(ModelState);
+
+			var result = await _cms.CopyFragment(id, this.HttpContext.User);
+
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
+
+
 		[HttpPost("reloadschema")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]

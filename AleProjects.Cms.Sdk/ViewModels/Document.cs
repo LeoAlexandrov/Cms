@@ -33,7 +33,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public Document[] Children { get; set; }
 
 		public Fragment[] Fragments { get; set; }
-		public Dictionary<string, Attribute> Attributes { get; set; }
+		public Dictionary<string, string> Attributes { get; set; }
 
 		public Document() { }
 
@@ -58,6 +58,36 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				ModifiedAt = doc.ModifiedAt;
 				Author = doc.Author;
 			}
+		}
+
+
+		public Fragment FindFragment(int id)
+		{
+			if (id <= 0 || Fragments == null)
+				return null;
+
+			static Fragment find(Fragment fragment, int id)
+			{
+				if (fragment.Id == id)
+					return fragment;
+
+				Fragment result;
+
+				if (fragment.Children != null)
+					for (int i = 0; i < fragment.Children.Length; i++)
+						if ((result = find(fragment.Children[i], id)) != null)
+							return result;
+
+				return null;
+			}
+
+			Fragment result = null;
+
+			for (int i = 0; i < Fragments.Length; i++)
+				if ((result = find(Fragments[i], id)) != null)
+					break;
+
+			return result;
 		}
 	}
 

@@ -982,6 +982,71 @@ namespace AleProjects.Cms.Application.Services
 				});
 		}
 
+		public async Task<Result<DtoFragmentChangeResult>> CopyFragment(int id, ClaimsPrincipal user)
+		{
+			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageFragment");
+
+			if (!authResult.Succeeded)
+				return Result<DtoFragmentChangeResult>.Forbidden();
+
+			var link = await dbContext.FragmentLinks.FindAsync(id);
+
+			if (link == null)
+				return Result<DtoFragmentChangeResult>.NotFound();
+
+			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
+
+			if (fragment == null)
+				return Result<DtoFragmentChangeResult>.NotFound();
+
+			int containerRef = link.ContainerRef;
+			int fId = fragment.Id;
+
+			FragmentAttribute[] attrs = await dbContext.FragmentAttributes
+				.AsNoTracking()
+				.Where(a => a.FragmentRef == fId)
+				.OrderBy(a => a.AttributeKey)
+				.ToArrayAsync();
+
+			int pos = await dbContext.FragmentLinks.CountAsync(l => l.ContainerRef == containerRef);
+			var doc = await dbContext.Documents.FindAsync(link.DocumentRef);
+
+			var newFragment = new Fragment()
+			{
+				Name = fragment.Name + " (copy)",
+				Icon = fragment.Icon,
+				XmlSchema = fragment.XmlSchema,
+				XmlName = fragment.XmlName,
+				Data = fragment.Data,
+				FragmentAttributes = attrs.Select(a => new FragmentAttribute() { AttributeKey = a.AttributeKey, Enabled = a.Enabled, Value = a.Value }).ToList()
+			};
+
+			var newLink = new FragmentLink()
+			{
+				DocumentRef = link.DocumentRef,
+				ContainerRef = link.ContainerRef,
+				Position = pos,
+				Enabled = link.Enabled,
+				Fragment = newFragment
+			};
+
+			dbContext.FragmentLinks.Add(newLink);
+
+			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.Author = user.Identity.Name;
+
+			await dbContext.SaveChangesAsync();
+
+			return Result<DtoFragmentChangeResult>.Success(
+				new DtoFragmentChangeResult()
+				{
+					Fragment = new(newFragment),
+					Link = new(newLink),
+					Author = doc.Author,
+					ModifiedAt = doc.ModifiedAt
+				});
+		}
+
 		public static IReadOnlyList<DtoFragmentElement> NewFragmentElementValue(string path, string lang, IDictionary<string, XSElement> index)
 		{
 			if (!index.TryGetValue(path, out XSElement xse))

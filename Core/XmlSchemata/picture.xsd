@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<!-- picture -->
+
+	<xs:complexType name="picture.source">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Source</xs:documentation>
+			<xs:documentation xml:lang="fr">Source</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="media" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Media</xs:documentation>
+					<xs:documentation xml:lang="fr">Media</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="srcset" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Srcset</xs:documentation>
+					<xs:documentation xml:lang="fr">Srcset</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Type</xs:documentation>
+					<xs:documentation xml:lang="fr">Taper</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="picture">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Picture</xs:documentation>
+			<xs:documentation xml:lang="fr">Picture</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="source" type="xs:anyURI">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Source</xs:documentation>
+					<xs:documentation xml:lang="fr">Source</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties image="true"></xsc:properties>
+					</xs:appinfo>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="alt" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Alt</xs:documentation>
+					<xs:documentation xml:lang="fr">Alt</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="width" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Width</xs:documentation>
+					<xs:documentation xml:lang="fr">Largeur</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="0"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="height" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Height</xs:documentation>
+					<xs:documentation xml:lang="fr">Hauteur</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="0"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="srcset" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Srcset</xs:documentation>
+					<xs:documentation xml:lang="fr">Srcset</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sizes" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Sizes</xs:documentation>
+					<xs:documentation xml:lang="fr">Tailles</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sources" type="picture.source" minOccurs="0" maxOccurs="6"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="picture" type="picture"/>
+
+</xs:schema>

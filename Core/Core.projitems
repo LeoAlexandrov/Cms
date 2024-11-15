@@ -70,7 +70,10 @@
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\feature.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\image.xsd">
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\metadata.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\picture.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\hero.xsd">

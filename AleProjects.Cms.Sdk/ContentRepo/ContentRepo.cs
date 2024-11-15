@@ -20,6 +20,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 	public class ContentRepo : IDisposable
 	{
 		readonly CmsDbContext dbContext;
+		readonly string mediaHost;
 		readonly static FragmentSchemaService fss = new();
 		readonly static object lockObject = new();
 		static int? schemataChecksum = null;
@@ -30,7 +31,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			public string Pattern { get; set; }
 			public string Replacement { get; set; }
 
-			public Reference(int referenceTo, string path, string mediaLink)
+			public Reference(int referenceTo, string path, string mediaLink, string mediaHost)
 			{
 				if (string.IsNullOrEmpty(mediaLink))
 				{
@@ -40,7 +41,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				else
 				{
 					Pattern = string.Format("#('{0}')", Base64Url.Encode(mediaLink));
-					Replacement = mediaLink;
+					Replacement = mediaHost + mediaLink;
 				}
 			}
 		}
@@ -50,6 +51,11 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			string connString = configuration.GetConnectionString("CmsDbConnection");
 			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
 			dbContext = new CmsDbContext(contextOptions);
+
+			mediaHost = configuration.GetValue<string>("MediaHost");
+
+			if (!mediaHost.EndsWith('/'))
+				mediaHost += "/";
 
 			LoadFragmentSchemaService(dbContext);
 		}
@@ -79,7 +85,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				Fragment[] frChildren = new Fragment[span.Length];
 
 				for (int i = 0; i < span.Length; i++)
-					SetChildren(frChildren[i] = fragmentFactory(span[i]), tree, fragmentFactory); // Fragment.Create(span[i], doc, fragmentAttrs, xse)
+					SetChildren(frChildren[i] = fragmentFactory(span[i]), tree, fragmentFactory);
 
 				fr.Children = frChildren;
 			}
@@ -209,7 +215,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.AsNoTracking()
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.OrderBy(a => a.AttributeKey)
-				.ToDictionaryAsync(a => a.AttributeKey, a => new ViewModels.Attribute() { Id = a.Id, Value = a.Value, Enabled = a.Enabled });
+				.ToDictionaryAsync(a => a.AttributeKey, a => a.Value);
 
 
 			if (children)
@@ -223,7 +229,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(rd => rd.r.DocumentRef == doc.Id)
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.ReferenceTo, d.Path, r.r.MediaLink))
+					(r, d) => new Reference(r.r.ReferenceTo, d.Path, r.r.MediaLink, mediaHost))
 				.ToDictionaryAsync(r => r.Pattern, r => r.Replacement);
 
 			result.Summary = ReferencesHelper.Replace(result.Summary, refs);

@@ -1,0 +1,17 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	bool title = Model.Props.title;
+	bool cover = Model.Props.cover;
+	bool summary = Model.Props.summary;
+	bool breadcrumbs = Model.Props.breadcrumbs;
+}
+
+@if (title)
+{
+	<h1>@Model.Document.Title</h1>
+}
+@if (summary)
+{
+	<div>@Html.Raw(Model.Document.Summary)</div>
+}

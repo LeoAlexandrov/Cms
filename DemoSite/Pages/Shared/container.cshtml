@@ -3,8 +3,9 @@
 @{
 	System.Text.StringBuilder divClass = new(mainDivClass(Model.Props.type));
 	string cls;
-	dynamic width = Model.Props.width;
-	dynamic al = Model.Props.alignment;
+
+	var width = Model.Props.width;
+	var al = Model.Props.alignment;
 
 	if (width != null)
 		foreach (var w in width)
@@ -23,8 +24,8 @@
 	cls = divClass.ToString();
 }
 
-<div class="@cls">
 
+	<div class="@cls">
 @if (Model.Children != null)
 {
 	foreach (var f in Model.Children)
@@ -32,8 +33,7 @@
 		await Html.RenderPartialAsync(f.XmlName, f);
 	}
 }
-
-</div>
+	</div>
 
 @{
 	string mainDivClass(string type)
@@ -116,6 +116,5 @@
 			"horizontal-evenly" => $"justify-content-{bp}evenly",
 			_ => null
 		};
-
 	}
 }

@@ -291,6 +291,11 @@
 						if (pushState)
 							window.history.pushState({ docId: id }, "", `/documents/${id}`);
 
+						Vue.nextTick(() => {
+							this.$refs.FragmentsTree.expandAll();
+						});
+
+
 					} else {
 						displayMessage(`${TEXT.DOCS.get('MESSAGE_OPEN_FAIL')} (${formatHTTPStatus(r)})`, true);
 
@@ -1169,6 +1174,71 @@
 
 					}
 				});
+		},
+
+		copyFragment(id) {
+
+			Quasar.LoadingBar.start();
+
+			application
+				.apiCallAsync(`/api/v1/fragments/${id}/copy`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.then(r => {
+
+					Quasar.LoadingBar.stop();
+
+					if (r.ok) {
+
+						let parent = r.result.link.containerRef;
+
+						let node = {
+							id: r.result.link.id,
+							parent: parent,
+							label: r.result.fragment.name,
+							label2: r.result.fragment.xmlName,
+							icon: r.result.fragment.icon,
+							data: r.result.link.data,
+							iconColor: "blue-grey",
+							expandable: false,
+							selectable: true
+						};
+
+
+						if (parent == 0) {
+
+							this.editedDoc.fragmentLinks.push(r.result.link);
+							this.editedDoc.fragmentsTree.push(node);
+
+						} else {
+
+							var pNode = this.$refs.FragmentsTree.getNodeByKey(parent);
+
+							if (pNode) {
+								if (!pNode.hasOwnProperty("children")) {
+									pNode["children"] = [node];
+									pNode.expandable = true;
+								} else if (pNode.children == null) {
+									pNode.children = [node];
+									pNode.expandable = true;
+								} else {
+									pNode.children.push(node);
+								}
+
+								this.$refs.FragmentsTree.setExpanded(parent, true);
+							}
+						}
+
+						this.editedDoc.properties.author = r.result.author;
+						this.editedDoc.properties.modifiedAt = r.result.modifiedAt;
+
+						displayMessage(TEXT.DOCS.get('MESSAGE_COPY_FR_SUCCESS'), false);
+
+					} else {
+
+						displayMessage(`${TEXT.DOCS.get('MESSAGE_COPY_FR_FAIL')} (${formatHTTPStatus(r)})`, true);
+
+					}
+				});
+
 		},
 
 		countSimilarFragmentElements(pos) {

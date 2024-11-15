@@ -1,0 +1,28 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string src = Model.Props.source;
+	string alt = Model.Props.alt;
+	int? width = Model.Props.width;
+	int? height = Model.Props.height;
+	string srcset = Model.Props.srcset;
+	string sizes = Model.Props.sizes;
+
+	var sources = Model.Props.sources;
+
+	bool isPicture = sources != null;
+
+	string pictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
+	string imgClass = Model.Attributes?.GetValueOrDefault("bootstrap:img:class");
+}
+
+<picture class="@pictClass">
+@if (sources != null)
+{
+	foreach (var s in sources)
+	{
+	<source media="@s.media" srcset="@s.srcset" type="@s.type"/>
+	}
+}
+	<img class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" />
+</picture>

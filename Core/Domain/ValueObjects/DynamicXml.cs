@@ -124,7 +124,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 								"int" or "integer" or "short" or "byte" => 1,
 								"double" or "decimal" or "float" => 2,
 								"boolean" or "bool" => 3,
-								_ => 0,
+								_ => 0, // string
 							};
 
 						break;
@@ -139,17 +139,16 @@ namespace AleProjects.Cms.Domain.ValueObjects
 
 			var node = nodes.FirstOrDefault();
 
-			if (node.HasElements || 
+			if (node.HasElements ||
 				node.HasAttributes ||
 				(node.FirstNode != null && node.FirstNode.NodeType == System.Xml.XmlNodeType.Comment))
 			{
 				result = new DynamicXml(node, _ns, _fmt, newXse);
-				return true;
 			}
-
-			object res = Convert(node.Value, mtype);
-
-			result = isArray ? new object[] { res } : res;
+			else
+			{
+				result = Convert(node.Value, mtype);
+			}
 
 			return true;
 		}

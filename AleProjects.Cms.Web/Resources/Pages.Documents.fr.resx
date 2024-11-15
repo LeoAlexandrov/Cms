@@ -324,4 +324,7 @@
   <data name="XMLSchema" xml:space="preserve">
     <value>XML schema</value>
   </data>
+  <data name="Hint_CopyFragment" xml:space="preserve">
+    <value>Créer une copie</value>
+  </data>
 </root>
