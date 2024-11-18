@@ -9,16 +9,16 @@
 	bool horizontal = Model.Props.appearance.horizontal;
 	bool featured = Model.Props.appearance.featured;
 
-	bool isOver = layout == "over";
-
-	string textOnImgCls = isOver ? "text-bg-dark" : null;
-	string fullHeightCls = Model.Document.FindFragment(Model.Parent)?.XmlName == "grid" ? "h-100" : null;
-	string isOverCardCls = null;
-	string featuredCls = featured ? "border border-primary shadow-4" : null;
-
 	var pict = Model.Props.picture;
 	var actions = Model.Props.action;
 	var pictSources = pict?.sources;
+
+	bool isOver = pict != null && layout == "over";
+
+	string textOnImgCls = isOver ? "text-white" : null;
+	string fullHeightCls = Model.Document.FindFragment(Model.Parent)?.XmlName == "grid" ? "h-100" : null;
+	string isOverCardCls = null;
+	string featuredCls = featured ? "border border-primary shadow-4" : null;
 
 	string imgSrc = pict?.source;
 }

@@ -1,0 +1,121 @@
+﻿@using AleProjects.Cms.Sdk.ViewModels
+@model Fragment
+
+@{
+	string title = Model.Props.content.title;
+	string subTitle = Model.Props.content.subtitle;
+	string text = Model.Props.content.text;
+	string layout = Model.Props.appearance.layout;
+	bool featured = Model.Props.appearance.featured;
+
+	var pict = Model.Props.content.picture;
+	var bkPict = Model.Props.appearance.background;
+	var bkPictSources = bkPict?.sources;
+	var actions = Model.Props.action;
+
+	string textOnDarkCls = featured || bkPict != null ? "text-white" : null;
+	string featuredCls = featured && bkPict == null ? "bg-secondary" : null;
+	string bkPictCls = null;
+
+	string col1Cls;
+	string col2Cls;
+	string col1ContentCls;
+
+	if (pict == null && Model.Children == null)
+	{
+		col1Cls = "col-12";
+		col1ContentCls = "m-4";
+		col2Cls = null;
+	}
+	else if (layout == "start")
+	{
+		col1Cls = "col-lg-8 col-xl-7"; // order-last
+		col1ContentCls = "mx-4 mx-md-0 ms-lg-4 mt-4 mt-lg-0";
+		col2Cls = "col-lg-4 col-xl-5 d-xl-block text-center order-first";
+	}
+	else
+	{
+		col1Cls = "col-lg-8 col-xl-7";
+		col1ContentCls = "mx-4 mx-md-0 mt-4 mt-lg-0";
+		col2Cls = "col-lg-4 col-xl-5 d-xl-block text-center order-first order-lg-last";
+	}
+
+}
+
+@if (bkPict != null)
+{
+	bkPictCls = "hero" + Model.Id.ToString();
+
+	<style>
+		.@bkPictCls {
+		background: no-repeat center / cover url("@bkPict.source");
+		}
+		@if (bkPictSources != null)
+		{
+			@foreach (var src in bkPictSources)
+			{
+				<text>@@media @src.media {
+					.@bkPictCls {
+					background: no-repeat center / cover url("@src.srcset");
+					}
+					}</text>
+			}
+		}
+	</style>
+}
+
+<header class="py-4 @featuredCls @bkPictCls @textOnDarkCls">
+	<div class="container-md">
+		<div class="row gx-5 align-items-center justify-content-center">
+			
+			<div class="@col1Cls">
+				<div class="@col1ContentCls">
+					@if (!string.IsNullOrEmpty(title))
+					{
+						<h1 class="fw-bolder mb-2">@Html.Raw(title)</h1>
+					}
+					@if (!string.IsNullOrEmpty(subTitle))
+					{
+						<h4 class="fw-bolder mb-2">@Html.Raw(subTitle)</h4>
+					}
+					@if (!string.IsNullOrEmpty(text))
+					{
+						<div class="fw-normal mb-2">@Html.Raw(text)</div>
+					}
+					@if (Model.Children != null && pict != null)
+					{
+						foreach (var f in Model.Children)
+						{
+							await Html.RenderPartialAsync(f.XmlName, f); 
+						}
+					}
+					@if (actions != null)
+					{
+						<div class="justify-content-start">
+							@foreach (var a in actions)
+							{
+								await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
+							}
+						</div>
+					}
+				</div>
+			</div>
+
+			@if (pict != null || Model.Children != null)
+			{
+				<div class="@col2Cls">
+				@if (pict != null) {
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded" } });
+				}
+				else if (Model.Children != null)
+				{
+					foreach (var f in Model.Children)
+					{
+						await Html.RenderPartialAsync(f.XmlName, f); 
+					}
+				}
+				</div>
+			}
+		</div>
+	</div>
+</header>

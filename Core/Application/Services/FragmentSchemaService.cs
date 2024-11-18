@@ -131,7 +131,7 @@ namespace AleProjects.Cms.Application.Services
 				case XmlSchemaComplexType complexType:
 
 					e.XmlType = element.SchemaTypeName.Name;
-					e.Annotation = GetAnnotation(complexType);
+					e.Annotation = GetAnnotation(element) ?? GetAnnotation(complexType);
 
 					/*
 					if (complexType.AttributeUses.Count > 0)

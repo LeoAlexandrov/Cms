@@ -75,24 +75,21 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	
+
 	<xs:complexType name="card">
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Card</xs:documentation>
 			<xs:documentation xml:lang="fr">Carte</xs:documentation>
-			<xs:appinfo>
-				<xsc:properties container="true"></xsc:properties>
-			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="content" type="card.content"/>
 			<xs:element name="appearance" type="card.appearance"/>
-			<xs:element name="image" type="image" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="picture" type="picture" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="action" type="action" minOccurs="0" maxOccurs="3"/>
 		</xs:sequence>
 	</xs:complexType>
 
-	
+
 	<xs:element name="card" type="card"/>
 
 </xs:schema>

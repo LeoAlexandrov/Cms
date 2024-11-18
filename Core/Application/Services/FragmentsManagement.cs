@@ -868,7 +868,7 @@ namespace AleProjects.Cms.Application.Services
 
 			RecursiveDelete(links, id, linkComparer, fragmentsToDelete, linksToDelete);
 
-			int idx = Array.BinarySearch(links, link) + 1;
+			int idx = Array.FindIndex(links, l => l.Id == id);
 
 			if (idx > 0)
 				while (idx < links.Length && links[idx].ContainerRef == containerRef)
@@ -999,6 +999,7 @@ namespace AleProjects.Cms.Application.Services
 			if (fragment == null)
 				return Result<DtoFragmentChangeResult>.NotFound();
 
+			int documentRef = link.DocumentRef;
 			int containerRef = link.ContainerRef;
 			int fId = fragment.Id;
 
@@ -1008,8 +1009,8 @@ namespace AleProjects.Cms.Application.Services
 				.OrderBy(a => a.AttributeKey)
 				.ToArrayAsync();
 
-			int pos = await dbContext.FragmentLinks.CountAsync(l => l.ContainerRef == containerRef);
-			var doc = await dbContext.Documents.FindAsync(link.DocumentRef);
+			int pos = await dbContext.FragmentLinks.CountAsync(l => l.ContainerRef == containerRef && l.DocumentRef == documentRef);
+			var doc = await dbContext.Documents.FindAsync(documentRef);
 
 			var newFragment = new Fragment()
 			{
@@ -1023,8 +1024,8 @@ namespace AleProjects.Cms.Application.Services
 
 			var newLink = new FragmentLink()
 			{
-				DocumentRef = link.DocumentRef,
-				ContainerRef = link.ContainerRef,
+				DocumentRef = documentRef,
+				ContainerRef = containerRef,
 				Position = pos,
 				Enabled = link.Enabled,
 				Fragment = newFragment

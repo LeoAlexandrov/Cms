@@ -258,7 +258,7 @@
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 							</div>
-							<div class="q-mb-sm" v-else-if="f.xmlType=='string' && f.textFormat">
+							<div class="q-mb-lg" v-else-if="f.xmlType=='string' && f.textFormat">
 								<div class="row items-center">
 									<span class="text-caption text-grey-7 q-mb-none">{{ f.annotation }}</span>
 									<q-space></q-space>
