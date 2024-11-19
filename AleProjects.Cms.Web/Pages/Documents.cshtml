@@ -323,6 +323,27 @@
 							</div>
 							<div class="text-subtitle2" v-else>{{ f.annotation }}</div>
 						</div>
+						<div v-if="fragment.rawXml">
+							<q-banner inline-actions class="text-white bg-red">@Localizer["FragmentCorrupted"]</q-banner>
+							<q-input v-model="fragment.validationError"
+								outlined
+								readonly
+								autogrow
+								type="textarea"
+								class="q-my-md multiline-monospace">
+							</q-input>
+							<code-editor v-model="fragment.rawXml"
+								line-nums
+								theme="vs"
+								:languages="[['xml', 'XML']]"
+								tab-spaces="4"
+								font-size="14px"
+								width="100%"
+								height="450px"
+								style="tab-size:4; border: 1px solid gainsboro;"
+								border-radius="4px">
+							</code-editor>
+						</div>
 					</q-tab-panel>
 
 					<q-tab-panel name="attributes">

@@ -99,6 +99,9 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("decomposition")]
 		public IReadOnlyList<DtoFragmentElement> Decomposition { get; set; }
+
+		[MessagePack.Key("rawXml")]
+		public string RawXml { get; set; }
 	}
 
 
@@ -108,6 +111,9 @@ namespace AleProjects.Cms.Application.Dto
 	{
 		[MessagePack.Key("lockShare")]
 		public bool LockShare { get; set; }
+
+		[MessagePack.Key("validationError")]
+		public string ValidationError { get; set; }
 	}
 
 

@@ -492,14 +492,26 @@ namespace AleProjects.Cms.Application.Services
 			manager.AddNamespace("t", fragment.XmlSchema);
 			*/
 
-			XmlDocument document = new();
-			document.Load(reader);
-
-			var root = document.DocumentElement;
-
-			if (root != null)
+			try
 			{
-				dto.Decomposition = TraverseElement(root, 0, null, lang, [], _schemaService.Index);
+				XmlDocument document = new();
+				document.Load(reader);
+
+				var root = document.DocumentElement;
+
+				if (root != null)
+				{
+					dto.Decomposition = TraverseElement(root, 0, null, lang, [], _schemaService.Index);
+				}
+				else
+				{
+					throw new XmlException();
+				}
+			}
+			catch (Exception ex)
+			{
+				dto.RawXml = fragment.Data;
+				dto.ValidationError = ex.Message;
 			}
 
 			/*
@@ -717,6 +729,14 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoFragmentChangeResult>.Forbidden();
 
+			if (!string.IsNullOrEmpty(dto.RawXml))
+			{
+				authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
+
+				if (!authResult.Succeeded)
+					return Result<DtoFragmentChangeResult>.Forbidden();
+			}
+
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 
 			if (link == null)
@@ -726,7 +746,10 @@ namespace AleProjects.Cms.Application.Services
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
 			HtmlSanitizer sanitizer = authResult.Succeeded ? null : new();
-			string data = BuildXmlValue(dto.Decomposition, sanitizer);
+
+			string data = string.IsNullOrEmpty(dto.RawXml) ?
+				BuildXmlValue(dto.Decomposition, sanitizer) :
+				sanitizer?.Sanitize(dto.RawXml) ?? dto.RawXml;
 
 			XmlReaderSettings settings = new() { ValidationType = ValidationType.Schema };
 			XmlDocument document = new();

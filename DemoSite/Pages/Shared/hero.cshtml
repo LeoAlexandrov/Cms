@@ -105,9 +105,9 @@
 			{
 				<div class="@col2Cls">
 				@if (pict != null) {
-					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded" } });
+						await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded img-hero-stretched" } });
 				}
-				else if (Model.Children != null)
+				else
 				{
 					foreach (var f in Model.Children)
 					{

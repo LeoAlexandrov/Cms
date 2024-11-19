@@ -1,0 +1,9 @@
+.img-hero-stretched {
+}
+
+@media (max-width: 991px) {
+
+	.img-hero-stretched {
+		width: 100%;
+	}
+}

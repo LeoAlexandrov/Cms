@@ -93,7 +93,8 @@
 				enabled: true,
 				lockShare: false,
 				attributes: [],
-				decomposition: []
+				decomposition: [],
+				rawXml: null
 			},
 
 			deleteFragmentElementConfirm: false,
@@ -1023,7 +1024,8 @@
 				properties: this.fragment.properties,
 				enabled: this.fragment.enabled,
 				linkId: this.fragment.linkId,
-				decomposition: this.fragment.decomposition
+				decomposition: this.fragment.decomposition,
+				rawXml: this.fragment.rawXml
 			};
 
 			Quasar.LoadingBar.start();

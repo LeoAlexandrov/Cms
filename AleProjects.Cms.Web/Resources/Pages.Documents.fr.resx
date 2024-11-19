@@ -327,4 +327,7 @@
   <data name="Hint_CopyFragment" xml:space="preserve">
     <value>Créer une copie</value>
   </data>
+  <data name="FragmentCorrupted" xml:space="preserve">
+    <value>Le fragment est corrompu</value>
+  </data>
 </root>

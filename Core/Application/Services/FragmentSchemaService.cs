@@ -402,7 +402,7 @@ namespace AleProjects.Cms.Application.Services
 				if (n == 0)
 				{
 					result
-						.AppendLine("<!-- Do not remove the comment below -->")
+						.AppendLine("<!-- Do not remove or change the comment below -->")
 						.AppendLine(string.Format("<!-- {0} -->", e.Path));
 
 					return; // n = 1;
