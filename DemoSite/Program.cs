@@ -22,7 +22,15 @@ if (!string.IsNullOrEmpty(settingsFile))
 	builder.Configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
 
 // Add services to the container.
-builder.Services.AddRazorPages();
+
+builder.Services
+	.AddRazorPages()
+	.AddRazorPagesOptions(options =>
+		{
+			options.Conventions.AddPageRoute("/index", "{*url}");
+		});
+
+
 builder.Services.AddScoped<ContentRepo>();
 
 
@@ -32,6 +40,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
 	app.UseExceptionHandler("/Error");
+	app.UseStatusCodePages();
 	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }

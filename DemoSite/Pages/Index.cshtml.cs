@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using AleProjects.Cms.Sdk.ContentRepo;
 using AleProjects.Cms.Sdk.ViewModels;
 using System.Threading.Tasks;
+using System;
 
 namespace DemoSite.Pages
 {
@@ -12,6 +13,7 @@ namespace DemoSite.Pages
 		ContentRepo _repo;
 
 		public Document Document { get; set; }
+
 		public IndexModel(ContentRepo repo)
 		{
 			_repo = repo;
@@ -19,10 +21,12 @@ namespace DemoSite.Pages
 
 		public async Task<IActionResult> OnGet()
 		{
-			this.Document = await _repo.GetDocument("home", "", true, true);
+			this.Document = await _repo.GetDocument("home", this.Request.Path, true, true);
+
+			if (this.Document == null) 
+				return NotFound();
 
 			return Page();
-
 		}
 	}
 }

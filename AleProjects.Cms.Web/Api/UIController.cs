@@ -31,6 +31,11 @@ namespace AleProjects.Cms.Web.Api
 			public string Icon { get; set; }
 		}
 
+		class Status
+		{
+			public string Version { get; set; }
+		}
+
 		#endregion
 
 		[HttpGet]
@@ -49,10 +54,15 @@ namespace AleProjects.Cms.Web.Api
 				//new() { Id = "templates", Label = _sharedLocalizer.GetString("Nav_Templates"), Url = "/templates", Icon = "dynamic_form" },
 				new() { Id = "schemata", Label = _sharedLocalizer.GetString("Nav_Schemata"), Url = "/schemata", Icon = "code" },
 				new() { Id = "users", Label = _sharedLocalizer.GetString("Nav_Users"), Url = "/users", Icon = "people" },
-				new() { Id = "settings", Label = _sharedLocalizer.GetString("Nav_Settings"), Url = "/settings", Icon = "settings" }
+				//new() { Id = "settings", Label = _sharedLocalizer.GetString("Nav_Settings"), Url = "/settings", Icon = "settings" }
 			];
 
-			return Ok(new { user, menu });
+			Status status = new()
+			{
+				Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
+			};
+
+			return Ok(new { user, menu, status });
 		}
 	}
 

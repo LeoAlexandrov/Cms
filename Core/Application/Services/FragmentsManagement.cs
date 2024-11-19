@@ -397,8 +397,8 @@ namespace AleProjects.Cms.Application.Services
 					list.Add(vmi);
 
 					if (!element.IsSimple)
-						for (int j = 0; i < element.Elements.Count; j++)
-							AddDefaultValue(element.Elements[i], level + 1, lang, list);
+						for (int j = 0; j < element.Elements.Count; j++)
+							AddDefaultValue(element.Elements[j], level + 1, lang, list);
 				}
 			}
 

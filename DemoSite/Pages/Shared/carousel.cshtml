@@ -1,0 +1,51 @@
+﻿@using AleProjects.Cms.Sdk.ViewModels
+@model Fragment
+
+@{
+	string id = $"carousel-{Model.Id}";
+	int i = 0;
+
+	var items = Model.Props.item;
+}
+
+
+<div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-carousel-init>
+
+	<div class="carousel-indicators">
+		@foreach (var item in items)
+		{
+			<button type="button" data-mdb-target="#@id" data-mdb-slide-to="@(i++)" class="@(i == 1 ? "active" : null)" aria-current="true"></button>
+		}
+	</div>
+
+	<div class="carousel-inner rounded-5 shadow-4-strong">
+		@{
+			i = 0;	
+		}
+		@foreach (var item in items)
+		{
+			<div class="carousel-item @(i++ == 0 ? "active" : null)">
+
+				@{
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
+				}
+
+				<div class="carousel-caption d-none d-md-block">
+					@Html.Raw(item.text)					
+				</div>
+			</div>
+		}
+	</div>
+
+	@if (Model.Props.appearance.buttons)
+	{
+		<button class="carousel-control-prev" type="button" data-mdb-target="#@id" data-mdb-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-mdb-target="#@id" data-mdb-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	}
+</div>

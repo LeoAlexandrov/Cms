@@ -79,6 +79,9 @@
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\hero.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)XmlSchemata\carousel.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="$(MSBuildThisFileDirectory)XmlSchemata\text.xsd">
       <SubType>Designer</SubType>
     </None>

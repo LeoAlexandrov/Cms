@@ -7,3 +7,8 @@
 		width: 100%;
 	}
 }
+
+.breakout {
+	margin: 0em -100%; /* old browsers fallback */
+	margin: 0em calc(50% - 50vw);
+}
