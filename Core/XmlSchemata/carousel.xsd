@@ -17,6 +17,12 @@
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="picture" type="picture"/>
+			<xs:element name="active" type="xs:boolean" default="true">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Active</xs:documentation>
+					<xs:documentation xml:lang="fr">Actif</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="text" type="xs:string">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Text</xs:documentation>
@@ -26,6 +32,7 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="action" type="action" minOccurs="0" maxOccurs="3"/>
 		</xs:sequence>
 	</xs:complexType>
 
@@ -36,7 +43,18 @@
 			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="buttons" type="xs:boolean">
+			<xs:element name="interval" default="5000">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Cycling interval</xs:documentation>
+					<xs:documentation xml:lang="fr">Intervalle de boucle</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="0"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="buttons" type="xs:boolean" default="true">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Buttons</xs:documentation>
 					<xs:documentation xml:lang="fr">Boutons</xs:documentation>

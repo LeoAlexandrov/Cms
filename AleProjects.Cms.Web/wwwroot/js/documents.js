@@ -1018,14 +1018,14 @@
 
 		},
 
-		saveFragment() {
+		saveFragment(forceXml) {
 
 			let dto = {
 				properties: this.fragment.properties,
 				enabled: this.fragment.enabled,
 				linkId: this.fragment.linkId,
-				decomposition: this.fragment.decomposition,
-				rawXml: this.fragment.rawXml
+				decomposition: forceXml ? null : this.fragment.decomposition,
+				rawXml: forceXml ? this.fragment.rawXml : null
 			};
 
 			Quasar.LoadingBar.start();

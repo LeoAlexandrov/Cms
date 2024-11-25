@@ -328,6 +328,9 @@
     <value>Create copy</value>
   </data>
   <data name="FragmentCorrupted" xml:space="preserve">
-    <value>Fragment is corrupted</value>
+    <value>Fragment is corrupted. Edit its raw content in 'xml' tab.</value>
+  </data>
+  <data name="SaveXml" xml:space="preserve">
+    <value>Save content as raw XML</value>
   </data>
 </root>

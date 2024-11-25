@@ -172,7 +172,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					.OrderBy(d => d.Id)
 					.ToArrayAsync();
 
-				doc = docs.FirstOrDefault(d => string.Compare(d.Path, path, StringComparison.InvariantCultureIgnoreCase) == 0);
+				string pathNoSlash = path[^1] == '/' ? path[..^1] : path;
+
+				doc = docs.FirstOrDefault(d => string.Compare(d.Path, pathNoSlash, StringComparison.InvariantCultureIgnoreCase) == 0);
 
 				if (EqualityComparer<Entities.Document>.Default.Equals(doc, default))
 					return null;

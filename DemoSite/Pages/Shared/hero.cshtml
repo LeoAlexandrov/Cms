@@ -40,6 +40,8 @@
 		col2Cls = "col-lg-4 col-xl-5 d-xl-block text-center order-first order-lg-last";
 	}
 
+	if (Model.Props.appearance.visibility && !string.IsNullOrEmpty(col2Cls))
+		col2Cls += " d-none";
 }
 
 @if (bkPict != null)

@@ -90,7 +90,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		const int REFRESH_EXPIRES_IN = 3600;
 
 		const string MS_ACCESS_TOKEN = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
-		const string MS_USER = "https://graph.microsoft.com/beta/me/profile";
+		const string MS_USER = "https://graph.microsoft.com/v1.0/me";
 		const string GITHUB_ACCESS_TOKEN = "https://github.com/login/oauth/access_token";
 		const string GITHUB_USER = "https://api.github.com/user";
 		const string STACKOVERFLOW_ACCESS_TOKEN = "https://stackoverflow.com/oauth/access_token/json";
@@ -306,7 +306,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			if (msUser.Root is JsonDoc.JsonObject root)
 			{
-				string upn = root.GetValueOrDefault<string>("account", "0", "userPrincipalName");
+				string upn = root.GetValueOrDefault<string>("userPrincipalName");
 				bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
 
 				var user = _dbContext.Users.FirstOrDefault(u => u.Login == upn);
@@ -323,14 +323,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				if (string.IsNullOrEmpty(user.Name))
 				{
-					string name = root.GetValueOrDefault<string>("names", "0", "displayName");
+					string name = root.GetValueOrDefault<string>("displayName");
 
 					if (string.IsNullOrEmpty(name))
 					{
 						var nameParts = new string[] {
-							root.GetValueOrDefault<string>("names", "0", "first"),
-							root.GetValueOrDefault<string>("names", "0", "middle"),
-							root.GetValueOrDefault<string>("names", "0", "last")
+							root.GetValueOrDefault<string>("givenName"),
+							root.GetValueOrDefault<string>("surname")
 						};
 
 						name = string.Join(' ', nameParts.Where(n => !string.IsNullOrEmpty(n)));
@@ -349,7 +348,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 					user.Role = "User";
 
 				if (string.IsNullOrEmpty(user.Locale))
-					user.Locale = root.GetValueOrDefault<string>("account", "0", "preferredLanguageTag", "locale");
+					user.Locale = root.GetValueOrDefault<string>("preferredLanguage");
 
 				user.LastSignIn = DateTimeOffset.UtcNow;
 

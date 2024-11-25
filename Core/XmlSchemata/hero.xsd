@@ -66,6 +66,12 @@
 					<xs:documentation xml:lang="fr">En vedette</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="visibility" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Variable visibility</xs:documentation>
+					<xs:documentation xml:lang="fr">Visibilité variable</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="background" type="picture" minOccurs="0" maxOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Background picture</xs:documentation>

@@ -474,6 +474,7 @@ namespace AleProjects.Cms.Application.Services
 				LockShare = useCount > 0,  
 				LinkId = link.Id,
 				Attributes = attrs.Select(a => new DtoFragmentAttributeResult(a)).ToArray(),
+				RawXml = fragment.Data
 			};
 			
 			XmlReaderSettings settings = new() { ValidationType = ValidationType.Schema };
@@ -510,7 +511,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				dto.RawXml = fragment.Data;
+				dto.Decomposition = [];
 				dto.ValidationError = ex.Message;
 			}
 

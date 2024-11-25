@@ -222,15 +222,16 @@
 				<q-btn flat v-close-popup round dense icon="close"></q-btn>
 			</q-toolbar>
 			<q-tabs class="text-secondary" align="left" v-model="fragmentPropsTab">
+				<q-tab name="properties" label="@Localizer["Properties"]"></q-tab>
 				<q-tab name="content" label="@Localizer["Content"]"></q-tab>
 				<q-tab name="attributes" label="@Localizer["Attributes"]"></q-tab>
-				<q-tab name="properties" label="@Localizer["Properties"]"></q-tab>
+				<q-tab name="xml" label="XML"></q-tab>
 			</q-tabs>
 		</q-header>
 
 		<q-footer class="bg-grey-1 text-dark">
 			<q-card-actions align="right">
-				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="saveFragment()"></q-btn>
+				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="saveFragment(false)"></q-btn>
 				<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
 			</q-card-actions>
 		</q-footer>
@@ -238,6 +239,59 @@
 		<q-page-container class="bg-white text-dark">
 			<q-page>
 				<q-tab-panels v-model="fragmentPropsTab" animated>
+
+					<q-tab-panel name="properties">
+
+						<table class="q-mt-md q-mb-lg">
+							<tbody>
+								<tr>
+									<td><span class="text-caption text-grey-7">Id:</span></td>
+									<td>{{ fragment.properties.id }}</td>
+									@* <td></td> *@
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">@Localizer["FragmentDocument"]:</span></td>
+									<td>{{ editedDoc.properties.id }}</td>
+									@* <td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
+											<q-tooltip>@Localizer["Hint_ChangeDocument"]</q-tooltip>
+										</q-btn>
+									</td> *@
+								</tr>
+							</tbody>
+						</table>
+
+						<q-input dense outlined
+							v-model="fragment.properties.name"
+							label="@Localizer["FragmentName"]"
+							ref="FragmentName"
+							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
+						</q-input>
+
+						<q-checkbox v-model="fragment.enabled"
+							class="q-py-lg"
+							label="@Localizer["FragmentEnabledLabel"]"
+							ref="FragmentEnabled">
+						</q-checkbox>
+
+						<div class="row">
+							<q-input dense outlined
+								v-model="fragment.properties.icon"
+								class="content-dialog-field-small"
+								label="@Localizer["Icon"]"
+								ref="FragmentIcon"
+								:rules="[val => !val || val.length <= 64 || '@ErrorsLocalizer["Validation_MaxLen64"]']">
+							</q-input>
+						</div>
+
+						<q-checkbox v-model="fragment.properties.shared"
+							label="@Localizer["FragmentSharedLabel"]"
+							:disable="fragment.lockShare"
+							ref="FragmentShared">
+						</q-checkbox>
+
+						<div class="q-mt-lg"><span class="text-caption text-grey-7">@Localizer["XMLSchema"]: </span>{{ fragment.properties.xmlSchema }}</div>
+					</q-tab-panel>
 
 					<q-tab-panel name="content">
 						<div v-for="(f,idx) in fragment.decomposition" :key="idx" :style="{'margin-left': (f.level > 0 ? (f.level-1)*1.5 : 0) + 'em'}">
@@ -323,7 +377,7 @@
 							</div>
 							<div class="text-subtitle2" v-else>{{ f.annotation }}</div>
 						</div>
-						<div v-if="fragment.rawXml">
+						<div v-if="fragment.validationError">
 							<q-banner inline-actions class="text-white bg-red">@Localizer["FragmentCorrupted"]</q-banner>
 							<q-input v-model="fragment.validationError"
 								outlined
@@ -332,17 +386,6 @@
 								type="textarea"
 								class="q-my-md multiline-monospace">
 							</q-input>
-							<code-editor v-model="fragment.rawXml"
-								line-nums
-								theme="vs"
-								:languages="[['xml', 'XML']]"
-								tab-spaces="4"
-								font-size="14px"
-								width="100%"
-								height="450px"
-								style="tab-size:4; border: 1px solid gainsboro;"
-								border-radius="4px">
-							</code-editor>
 						</div>
 					</q-tab-panel>
 
@@ -360,59 +403,23 @@
 						</div>
 					</q-tab-panel>
 
-					<q-tab-panel name="properties">
-
-						<table class="q-mt-md q-mb-lg">
-							<tbody>
-								<tr>
-									<td><span class="text-caption text-grey-7">Id:</span></td>
-									<td>{{ fragment.properties.id }}</td>
-									@* <td></td> *@
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["FragmentDocument"]:</span></td>
-									<td>{{ editedDoc.properties.id }}</td>
-									@* <td>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
-											<q-tooltip>@Localizer["Hint_ChangeDocument"]</q-tooltip>
-										</q-btn>
-									</td> *@
-								</tr>
-							</tbody>
-						</table>
-
-						<q-input dense outlined
-							v-model="fragment.properties.name"
-							label="@Localizer["FragmentName"]"
-							ref="FragmentName"
-							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
-						</q-input>
-
-						<q-checkbox v-model="fragment.enabled"
-							class="q-py-lg"
-							label="@Localizer["FragmentEnabledLabel"]"
-							ref="FragmentEnabled">
-						</q-checkbox>
-
-						<div class="row">
-							<q-input dense outlined
-								v-model="fragment.properties.icon"
-								class="content-dialog-field-small"
-								label="@Localizer["Icon"]"
-								ref="FragmentIcon"
-								:rules="[val => !val || val.length <= 64 || '@ErrorsLocalizer["Validation_MaxLen64"]']">
-							</q-input>
+					<q-tab-panel name="xml">
+						<code-editor v-model="fragment.rawXml"
+							line-nums
+							theme="vs"
+							:languages="[['xml', 'XML']]"
+							tab-spaces="4"
+							font-size="14px"
+							width="100%"
+							height="450px"
+							style="tab-size:4; border: 1px solid gainsboro;"
+							border-radius="4px">
+						</code-editor>
+						<div class="row q-mt-lg">
+							<q-space></q-space>
+							<q-btn flat label="@Localizer["SaveXml"]" color="primary" @@click="saveFragment(true)"></q-btn>
 						</div>
-
-						<q-checkbox v-model="fragment.properties.shared"
-							label="@Localizer["FragmentSharedLabel"]"
-							:disable="fragment.lockShare"
-							ref="FragmentShared">
-						</q-checkbox>
-
-						<div class="q-mt-lg"><span class="text-caption text-grey-7">@Localizer["XMLSchema"]: </span>{{ fragment.properties.xmlSchema }}</div>
 					</q-tab-panel>
-
 				</q-tab-panels>
 			</q-page>
 		</q-page-container>
@@ -732,6 +739,7 @@
 						<q-tree ref="FragmentsTree"
 							:nodes="editedDoc.fragmentsTree"
 							v-model:selected="selectedFragment"
+							dense
 							no-connectors
 							no-transition
 							no-selection-unset

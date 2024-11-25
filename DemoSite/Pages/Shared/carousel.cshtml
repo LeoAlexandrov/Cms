@@ -4,17 +4,26 @@
 @{
 	string id = $"carousel-{Model.Id}";
 	int i = 0;
+	int activeIdx = -1;
+
+	int interval = Model.Props.appearance.interval;
+	string sInterval = interval == 0 ? "false" : interval.ToString();
 
 	var items = Model.Props.item;
 }
 
 
-<div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-carousel-init>
+<div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
 	<div class="carousel-indicators">
 		@foreach (var item in items)
 		{
-			<button type="button" data-mdb-target="#@id" data-mdb-slide-to="@(i++)" class="@(i == 1 ? "active" : null)" aria-current="true"></button>
+			if (item.active && activeIdx < 0) 
+			{
+				activeIdx = i;
+			}
+
+			<button type="button" data-mdb-target="#@id" data-mdb-slide-to="@(i++)" class="@(activeIdx == i-1 ? "active" : null)" aria-current="true"></button>
 		}
 	</div>
 
@@ -24,14 +33,27 @@
 		}
 		@foreach (var item in items)
 		{
-			<div class="carousel-item @(i++ == 0 ? "active" : null)">
-
+			<div class="carousel-item @(i++ == activeIdx ? "active" : null)">
 				@{
 					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
 				}
-
 				<div class="carousel-caption d-none d-md-block">
-					@Html.Raw(item.text)					
+					<div>
+						@Html.Raw(item.text)					
+					</div>
+					<div class="my-4">
+						@{
+							var actions = item.action;
+
+							if (actions != null)
+							{
+								foreach (var a in actions)
+								{
+									await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
+								}
+							}
+						}
+					</div>
 				</div>
 			</div>
 		}

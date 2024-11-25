@@ -328,6 +328,9 @@
     <value>Créer une copie</value>
   </data>
   <data name="FragmentCorrupted" xml:space="preserve">
-    <value>Le fragment est corrompu</value>
+    <value>Le fragment est corrompu. Le fragment est corrompu. Modifiez son contenu brut dans l'onglet «xml».</value>
+  </data>
+  <data name="SaveXml" xml:space="preserve">
+    <value>Enregistrer le contenu au format XML brut</value>
   </data>
 </root>
