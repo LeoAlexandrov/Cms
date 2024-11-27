@@ -37,7 +37,7 @@
 				@{
 					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
 				}
-				<div class="carousel-caption d-none d-md-block">
+				<div class="carousel-caption d-md-block">
 					<div>
 						@Html.Raw(item.text)					
 					</div>

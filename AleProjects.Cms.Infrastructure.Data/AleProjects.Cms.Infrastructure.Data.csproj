@@ -2,9 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,13 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ContentRepo\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
-    <ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj" />
   </ItemGroup>
 
-  <Import Project="..\Common\Common.projitems" Label="Shared" />
 </Project>

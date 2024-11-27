@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
+using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 
 
@@ -18,9 +19,9 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class UsersController(IUserManagementService ums) : ControllerBase
+	public class UsersController(UserManagementService ums) : ControllerBase
 	{
-		private readonly IUserManagementService _ums = ums;
+		private readonly UserManagementService _ums = ums;
 
 		[HttpGet("{id:int?}")]
 		[Authorize]

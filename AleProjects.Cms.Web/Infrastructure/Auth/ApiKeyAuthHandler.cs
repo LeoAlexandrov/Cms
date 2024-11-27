@@ -18,13 +18,13 @@ namespace AleProjects.Cms.Web.Infrastructure.Auth
 	{
 		private const string APIKEY_HEADER = "APIKey";
 
-		private readonly IUserManagementService _ums;
+		private readonly UserManagementService _ums;
 
 		public ApiKeyAuthenticationHandler(
 			IOptionsMonitor<AuthenticationSchemeOptions> options,
 			ILoggerFactory logger,
 			UrlEncoder encoder,
-			IUserManagementService ums) : base(options, logger, encoder)
+			UserManagementService ums) : base(options, logger, encoder)
 		{
 			_ums = ums;
 		}

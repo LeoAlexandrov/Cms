@@ -14,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 
 
 using AleProjects.Base64;
-using AleProjects.Json;
 using AleProjects.Cms;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
@@ -312,7 +311,7 @@ namespace Test
 			var dc = new CmsDbContext(contextOptions);
 
 
-			var fs = new FragmentSchemaService(dc);
+			var fs = new FragmentSchemaRepo(dc);
 			var xsePod = fs.Fragments.FirstOrDefault(f => f.Name == "pod");
 
 			dynamic pod = DynamicXml.Parse(podxml, fs.Fragments);

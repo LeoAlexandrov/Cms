@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 using AleProjects.Base64;
-using AleProjects.Cms.Application.Services;
 using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
@@ -17,14 +17,29 @@ using AleProjects.Cms.Sdk.ViewModels;
 namespace AleProjects.Cms.Sdk.ContentRepo
 {
 
-	public class ContentRepo : IDisposable
+	public partial class ContentRepo : IDisposable
 	{
 		readonly CmsDbContext dbContext;
 		readonly string mediaHost;
-		readonly static FragmentSchemaService fss = new();
+		readonly static FragmentSchemaRepo fsr = new();
 		readonly static object lockObject = new();
 		static int? schemataChecksum = null;
 		bool disposed;
+
+		[GeneratedRegex("#\\(\\d+\\)")]
+		private static partial Regex RefRegex();
+
+		[GeneratedRegex("#\\('[a-zA-Z0-9+/%]+'\\)")]
+		private static partial Regex MediaLinkRegex();
+
+
+		class MatchComparer : IComparer<Match>
+		{
+			public int Compare(Match x, Match y)
+			{
+				return x.Index.CompareTo(y.Index);
+			}
+		}
 
 		struct Reference
 		{
@@ -46,13 +61,14 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 		}
 
+
 		public ContentRepo(IConfiguration configuration)
 		{
 			string connString = configuration.GetConnectionString("CmsDbConnection");
 			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
 			dbContext = new CmsDbContext(contextOptions);
 
-			mediaHost = configuration.GetValue<string>("MediaHost");
+			mediaHost = configuration["MediaHost"]; // GetValue<string>(, "");
 
 			if (!mediaHost.EndsWith('/'))
 				mediaHost += "/";
@@ -73,7 +89,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					if (!schemataChecksum.HasValue || cs != schemataChecksum)
 					{
 						schemataChecksum = cs;
-						fss.Reload(dbContext);
+						fsr.Reload(dbContext);
 					}
 		}
 
@@ -131,6 +147,49 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 
 			return result;
+		}
+
+		private static string ReplaceRefs(string content, Dictionary<string, string> refs)
+		{
+			if (string.IsNullOrEmpty(content))
+				return string.Empty;
+
+			var re1 = RefRegex();
+			MatchCollection matchesD = re1.Matches(content);
+
+			var re2 = MediaLinkRegex();
+			MatchCollection matchesM = re2.Matches(content);
+
+			if (matchesD.Count + matchesM.Count == 0)
+				return content;
+
+			var matches = new Match[matchesD.Count + matchesM.Count];
+
+			matchesD.CopyTo(matches, 0);
+			matchesM.CopyTo(matches, matchesD.Count);
+
+			Array.Sort(matches, new MatchComparer());
+
+			StringBuilder result = new();
+			var span = content.AsSpan();
+			int from = 0;
+
+			foreach (Match m in matches)
+			{
+				result.Append(span[from..m.Index]);
+
+				if (refs.TryGetValue(m.Value, out string link))
+					result.Append(link);
+				else
+					result.Append(m.Value);
+
+				from = m.Index + m.Length;
+			}
+
+			if (from < content.Length)
+				result.Append(span[from..content.Length]);
+
+			return result.ToString();
 		}
 
 		#endregion
@@ -234,8 +293,8 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					(r, d) => new Reference(r.r.ReferenceTo, d.Path, r.r.MediaLink, mediaHost))
 				.ToDictionaryAsync(r => r.Pattern, r => r.Replacement);
 
-			result.Summary = ReferencesHelper.Replace(result.Summary, refs);
-			result.CoverPicture = ReferencesHelper.Replace(result.CoverPicture, refs);
+			result.Summary = ReplaceRefs(result.Summary, refs);
+			result.CoverPicture = ReplaceRefs(result.CoverPicture, refs);
 
 			Entities.FragmentLink[] links = await dbContext.FragmentLinks
 				.AsNoTracking()
@@ -246,7 +305,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.ToArrayAsync();
 
 			foreach (var link in links)
-				link.Fragment.Data = ReferencesHelper.Replace(link.Fragment.Data, refs);
+				link.Fragment.Data = ReplaceRefs(link.Fragment.Data, refs);
 
 			var attrs = await dbContext.FragmentLinks
 				.AsNoTracking()
@@ -257,7 +316,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.ToArrayAsync();
 
 
-			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fss.Fragments);
+			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 
 			return result;
 		}

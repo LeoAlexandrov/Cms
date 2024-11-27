@@ -1,6 +1,8 @@
 # Headless CMS
 
-This project currently is under heavy development. It consists of two parts - standalone content management system, and some SDK for content consuming applications. The SDK is the abstraction over the database, querying it directly. The third project **DemoSite** is a site using SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
+This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**AleProjects.Cms.Sdk**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
+
+There are also **AleProjects.Cms.Domain**, **AleProjects.Cms.Infrastructure**, **AleProjects.Cms.Infrastructure.Data**, and **AleProjects.Cms.Application** projects in the solution. These are shared core modules managing documents, visual fragments, media library, etc.
 
 The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility for backend developer.
 
@@ -118,6 +120,8 @@ Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms
 
 ## Demo
 
-Here [admin.h-cms.net](https://admin.h-cms.net) is the current demo version with guest access. But guest users have only read-permissions.
+Here [admin.h-cms.net](https://admin.h-cms.net) is the current control panel demo with guest access. Guest users have only read-permissions.
+
+This [demo.h-cms.net](https://demo.h-cms.net) is the demo site that uses the SDK.
 
 _To be continued..._

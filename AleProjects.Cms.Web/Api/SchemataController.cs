@@ -8,6 +8,7 @@ using Asp.Versioning;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
+using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 
 
@@ -18,10 +19,10 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class SchemataController(ISchemaManagementService sms) : ControllerBase
+	public class SchemataController(SchemaManagementService sms) : ControllerBase
 
 	{
-		private readonly ISchemaManagementService _sms = sms;
+		private readonly SchemaManagementService _sms = sms;
 
 
 		[HttpGet("{id:int?}")]
@@ -62,12 +63,12 @@ namespace AleProjects.Cms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateSchema dto, [FromServices] FragmentSchemaService fss)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateSchema dto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var result = await _sms.UpdateSchema(id, dto, fss, this.HttpContext.User);
+			var result = await _sms.UpdateSchema(id, dto, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -81,9 +82,9 @@ namespace AleProjects.Cms.Web.Api
 		[HttpDelete("{id:int}")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Delete(int id, [FromServices] FragmentSchemaService fss)
+		public async Task<IActionResult> Delete(int id)
 		{
-			var result = await _sms.DeleteSchema(id, fss, this.HttpContext.User);
+			var result = await _sms.DeleteSchema(id, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -97,9 +98,9 @@ namespace AleProjects.Cms.Web.Api
 		[HttpPost("compile")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Compile([FromServices] FragmentSchemaService fss)
+		public async Task<IActionResult> Compile()
 		{
-			var result = await _sms.CompileAndReload(fss, this.HttpContext.User);
+			var result = await _sms.CompileAndReload(this.HttpContext.User);
 
 			if (result.IsBadParameters)
 				return BadRequest(result.Errors);

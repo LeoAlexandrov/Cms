@@ -9,6 +9,7 @@ using Asp.Versioning;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
+using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 
@@ -19,10 +20,10 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class FragmentsController(ContentManagementService cms, FragmentSchemaService schemaService, IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
+	public class FragmentsController(ContentManagementService cms, FragmentSchemaRepo schemaRepo, IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
 	{
 		private readonly ContentManagementService _cms = cms;
-		private readonly FragmentSchemaService _schemaService = schemaService;
+		private readonly FragmentSchemaRepo _schemaRepo = schemaRepo;
 		private readonly IHtmlLocalizer<SharedResources> _sharedLocalizer = sharedLocalizer;
 
 		[HttpGet("shared")]
@@ -151,7 +152,7 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public IActionResult ReloadSchema([FromServices] CmsDbContext dbContext)
 		{
-			if (_schemaService.Reload(dbContext))
+			if (_schemaRepo.Reload(dbContext))
 				return Ok();
 
 			return StatusCode(500);
@@ -160,7 +161,7 @@ namespace AleProjects.Cms.Web.Api
 		[HttpGet("newelement")]
 		public IActionResult NewElement([FromQuery] string path)
 		{
-			var result = ContentManagementService.NewFragmentElementValue(path, _sharedLocalizer.GetString("Language"), _schemaService.Index);
+			var result = ContentManagementService.NewFragmentElementValue(path, _sharedLocalizer.GetString("Language"), _schemaRepo.Index);
 
 			if (result == null)
 				return BadRequest();

@@ -68,7 +68,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 	services
 		.AddDbContext<CmsDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("CmsDbConnection")))
-		.AddSingleton<FragmentSchemaService>(s =>
+		.AddSingleton<FragmentSchemaRepo>(s =>
 			{
 				using var scope = s.CreateScope();
 				return new(scope.ServiceProvider.GetRequiredService<CmsDbContext>());
@@ -76,8 +76,8 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddScoped<ContentManagementService>()
 		.AddTransient<MediaStorage>()
 		.AddTransient<MediaManagementService>()
-		.AddTransient<ISchemaManagementService, SchemaManagementService>()
-		.AddScoped<IUserManagementService, UserManagementService>()
+		.AddTransient<SchemaManagementService>()
+		.AddScoped<UserManagementService>()
 		.AddScoped<SignInHandler>()
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
 		.AddScoped<IAuthorizationHandler, CanManageDocumentHandler>()

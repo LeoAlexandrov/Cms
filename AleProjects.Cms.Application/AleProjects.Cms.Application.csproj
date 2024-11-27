@@ -2,24 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlSanitizer" Version="8.1.870" />
+    <PackageReference Include="MessagePack" Version="2.5.192" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ContentRepo\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
     <ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj" />
+    <ProjectReference Include="..\AleProjects.Cms.Infrastructure\AleProjects.Cms.Infrastructure.csproj" />
   </ItemGroup>
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />
+
 </Project>

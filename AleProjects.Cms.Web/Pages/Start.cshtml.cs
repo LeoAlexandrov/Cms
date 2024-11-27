@@ -12,12 +12,12 @@ using AleProjects.Cms.Application.Services;
 namespace AleProjects.Cms.Web.Pages
 {
 	[IgnoreAntiforgeryToken(Order = 1001)]
-	public class StartModel(IUserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
+	public class StartModel(UserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
 		private static readonly object _lockObj = new();
 
 		private readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
-		private readonly IUserManagementService _ums = ums;
+		private readonly UserManagementService _ums = ums;
 
 		public string ErrorMessage {get; private set;}
 
