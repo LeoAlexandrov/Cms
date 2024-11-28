@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -12,10 +11,12 @@ namespace AleProjects.Cms.Sdk.ViewModels
 	{
 		public int Id { get; set; }
 		public int LinkId { get; set; }
+		public string DomId { get => XmlName + LinkId; }
 		public int Container { get; set; }
 		public string Name { get; set; }
 		public string Icon { get; set; }
 		public bool Shared { get; set; }
+		public bool Anchor { get; set; }
 		public string XmlName { get; set; }
 		public string XmlSchema { get; set; }
 		public dynamic Props { get; set; }
@@ -61,6 +62,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				Name = link.Title,
 				Icon = link.Icon,
 				Shared = link.Fragment.Shared,
+				Anchor = link.Anchor,
 				XmlName = link.Fragment.XmlName,
 				XmlSchema = link.Fragment.XmlSchema,
 				Props = DynamicXml.Parse(link.Fragment.Data, xse),

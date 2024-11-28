@@ -2,8 +2,8 @@
 
 @{
 	bool title = Model.Props.title;
-	bool cover = Model.Props.cover;
 	bool summary = Model.Props.summary;
+	bool cover = Model.Props.cover;
 	bool breadcrumbs = Model.Props.breadcrumbs;
 }
 
@@ -15,3 +15,13 @@
 {
 	<div>@Html.Raw(Model.Document.Summary)</div>
 }
+
+@*
+if (cover) ...
+
+and
+
+if (breadcrumbs) ...
+
+are not ready yet
+*@

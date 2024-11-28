@@ -484,7 +484,7 @@ namespace AleProjects.Cms.Application.Services
 			return list;
 		}
 
-		private static DtoFragmentLiteResult[] FragmentTemplates(IReadOnlyList<XSElement> fragments, string language)
+		private static DtoFragmentLiteResult[] FragmentTemplates(List<XSElement> fragments, string language)
 		{
 			if (fragments == null || fragments.Count == 0)
 				return [];
@@ -550,6 +550,7 @@ namespace AleProjects.Cms.Application.Services
 			{ 
 				Properties = new(fragment), 
 				Enabled = link.Enabled, 
+				Anchor = link.Anchor,
 				LockShare = useCount > 0,  
 				LinkId = link.Id,
 				Attributes = attrs.Select(a => new DtoFragmentAttributeResult(a)).ToArray(),
@@ -769,6 +770,7 @@ namespace AleProjects.Cms.Application.Services
 			var existingRefs = await dbContext.References
 				.Where(r => r.DocumentRef == dto.Document)
 				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
@@ -852,6 +854,34 @@ namespace AleProjects.Cms.Application.Services
 			if (link.Enabled != dto.Enabled)
 				link.Enabled = dto.Enabled;
 
+			if (link.Anchor != dto.Anchor)
+			{
+				link.Anchor = dto.Anchor;
+
+				var links = await dbContext.FragmentLinks
+					.Where(l => l.DocumentRef == link.DocumentRef)
+					.OrderBy(l => l.ContainerRef)
+					.ThenBy(l => l.Position)
+					.ToArrayAsync();
+
+				if (dto.Anchor)
+				{
+					FragmentLink parent = links.FirstOrDefault(l => l.Id == link.ContainerRef);
+
+					while (parent != null)
+					{
+						parent.Anchor = true;
+						parent = links.FirstOrDefault(l => l.Id == parent.ContainerRef);
+					}
+				}
+				else
+				{
+					List<FragmentLink> sublinks = RecursiveSelect(links, link.Id, new LinkComparer(), []);
+
+					sublinks.ForEach(l => l.Anchor = false);
+				}
+			}
+
 			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
 
 			if (sanitizer == null)
@@ -896,6 +926,7 @@ namespace AleProjects.Cms.Application.Services
 			var existingRefs = await dbContext.References
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
@@ -989,6 +1020,7 @@ namespace AleProjects.Cms.Application.Services
 			var existingRefs = await dbContext.References
 				.Where(r => r.DocumentRef == docId)
 				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
 				.ToListAsync();
 
 			int[] excludedIds = RecursiveSelect(links, id, linkComparer, [])

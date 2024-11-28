@@ -1,6 +1,8 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
+	string id = Model.DomId;
+
 	System.Text.StringBuilder divClass = new("row");
 	string rowCls;
 
@@ -41,7 +43,7 @@
 	else cls = null;
 
 
-<div class="container">
+<div id="@id" class="container">
 	<div class="@rowCls g-4 my-4">
 
 	@if (Model.Children != null)

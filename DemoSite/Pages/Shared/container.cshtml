@@ -1,6 +1,8 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
+	string id = Model.DomId;
+
 	System.Text.StringBuilder divClass = new(mainDivClass(Model.Props.type));
 	string cls;
 
@@ -25,7 +27,7 @@
 }
 
 
-	<div class="@cls">
+	<div id="@id" class="@cls">
 @if (Model.Children != null)
 {
 	foreach (var f in Model.Children)

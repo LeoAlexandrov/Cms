@@ -22,6 +22,8 @@ namespace AleProjects.Cms.Domain.Entities
 
 		public bool Enabled { get; set; }
 
+		public bool Anchor { get; set; }
+
 		public Document Document { get; set; }
 
 		public Fragment Fragment { get; set; }

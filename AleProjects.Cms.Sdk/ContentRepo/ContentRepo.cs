@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -147,6 +147,26 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 
 			return result;
+		}
+
+		private static void FillAnchors(Entities.FragmentLink[] links, int linkIdx, List<Anchor> anchors, int level)
+		{
+			int cref = links[linkIdx].ContainerRef;
+
+			do
+			{
+				if (links[linkIdx].Anchor)
+				{
+					anchors.Add(new Anchor() { Id = links[linkIdx].Fragment.XmlName + links[linkIdx].Id, Name = links[linkIdx].Fragment?.Name, Level = level });
+
+					int i = Array.FindIndex(links, linkIdx, l => l.ContainerRef == links[linkIdx].Id && l.Anchor);
+
+					if (i >= 0)
+						FillAnchors(links, i, anchors, level + 1);
+				}
+
+				linkIdx++;
+			} while (linkIdx < links.Length && links[linkIdx].ContainerRef == cref);
 		}
 
 		private static string ReplaceRefs(string content, Dictionary<string, string> refs)
@@ -304,6 +324,15 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.ThenBy(b => b.Position)
 				.ToArrayAsync();
 
+			int anchorsCount = links.Count(l => l.Anchor);
+
+			if (anchorsCount > 0)
+			{
+				result.Anchors = new List<Anchor>(anchorsCount);
+
+				FillAnchors(links, 0, result.Anchors, 0);
+			}
+
 			foreach (var link in links)
 				link.Fragment.Data = ReplaceRefs(link.Fragment.Data, refs);
 
@@ -314,7 +343,6 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
-
 
 			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 

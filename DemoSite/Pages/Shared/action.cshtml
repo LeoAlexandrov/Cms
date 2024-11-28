@@ -1,6 +1,7 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
+	string id = Model.DomId;
 	bool jsAction = string.Compare(Model.Props.action_type, "Javascript", StringComparison.InvariantCultureIgnoreCase) == 0;
 	string action = Model.Props.action;
 	string title = Model.Props.title;
@@ -26,7 +27,7 @@
 
 @if (jsAction)
 {
-	<button type="button" class="@cls" onclick="@Html.Raw(action)">
+	<button id="@id" type="button" class="@cls" onclick="@Html.Raw(action)">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title
@@ -44,7 +45,7 @@
 }
 else
 {
-	<a class="@cls" href="@action" alt="@altText" target="@target">
+	<a id="@id" class="@cls" href="@action" alt="@altText" target="@target">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title

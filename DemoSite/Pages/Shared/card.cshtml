@@ -2,6 +2,7 @@
 @model Fragment
 
 @{
+	string id = Model.DomId;
 	string title = Model.Props.content.title;
 	string subTitle = Model.Props.content.subtitle;
 	string text = Model.Props.content.text;
@@ -45,7 +46,7 @@
 	</style>
 }
 
-<div class="card @fullHeightCls @textOnImgCls @isOverCardCls @featuredCls">
+<div id="@id" class="card @fullHeightCls @textOnImgCls @isOverCardCls @featuredCls">
 	@if (horizontal && !isOver && pict != null)
 	{
 		<div class="row gx-4">
@@ -53,7 +54,6 @@
 				@{
 					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded-start" } });
 				}
-
 			</div>
 			<div class="col-md-6 @(layout == "end" ? "order-md-first" : null)">
 				<div class="card-body">

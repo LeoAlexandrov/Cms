@@ -122,6 +122,6 @@ Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms
 
 Here [admin.h-cms.net](https://admin.h-cms.net) is the current control panel demo with guest access. Guest users have only read-permissions.
 
-This [demo.h-cms.net](https://demo.h-cms.net) is the demo site that uses the SDK.
+This [demo.h-cms.net](https://demo.h-cms.net) is the draft demo site that uses the SDK.
 
 _To be continued..._

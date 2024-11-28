@@ -2,6 +2,7 @@
 @model Fragment
 
 @{
+	string id = Model.DomId;
 	string title = Model.Props.content.title;
 	string subTitle = Model.Props.content.subtitle;
 	string text = Model.Props.content.text;
@@ -66,7 +67,7 @@
 	</style>
 }
 
-<header class="py-4 breakout @featuredCls @bkPictCls @textOnDarkCls">
+<header id="@id" class="py-4 breakout @featuredCls @bkPictCls @textOnDarkCls">
 	<div class="container-md">
 		<div class="row gx-5 align-items-center justify-content-center">
 			

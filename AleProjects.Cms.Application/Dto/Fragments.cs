@@ -50,9 +50,6 @@ namespace AleProjects.Cms.Application.Dto
 		[MaxLength(64)]
 		public string Icon { get; set; }
 
-		[MessagePack.Key("tags")]
-		public string Tags { get; set; }
-
 		[MessagePack.Key("shared")]
 		public bool Shared { get; set; }
 
@@ -93,6 +90,9 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("enabled")]
 		public bool Enabled { get; set; }
+
+		[MessagePack.Key("anchor")]
+		public bool Anchor { get; set; }
 
 		[MessagePack.Key("attributes")]
 		public DtoFragmentAttributeResult[] Attributes { get; set; }
@@ -139,6 +139,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("enabled")]
 		public bool Enabled { get; set; }
 
+		[MessagePack.Key("anchor")]
+		public bool Anchor { get; set; }
+
 		[MessagePack.Key("data")]
 		public string Data { get; set; }
 
@@ -155,6 +158,7 @@ namespace AleProjects.Cms.Application.Dto
 				ContainerRef = link.ContainerRef;
 				Position = link.Position;
 				Enabled = link.Enabled;
+				Anchor = link.Anchor;
 				Data = link.Data;
 			}
 		}

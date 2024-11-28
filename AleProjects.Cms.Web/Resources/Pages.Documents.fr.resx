@@ -333,4 +333,7 @@
   <data name="SaveXml" xml:space="preserve">
     <value>Enregistrer le contenu au format XML brut</value>
   </data>
+  <data name="Anchor" xml:space="preserve">
+    <value>Ancre</value>
+  </data>
 </root>

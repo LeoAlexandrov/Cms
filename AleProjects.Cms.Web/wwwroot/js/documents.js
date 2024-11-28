@@ -91,6 +91,7 @@
 				},
 				linkId: 0,
 				enabled: true,
+				anchor: false,
 				lockShare: false,
 				attributes: [],
 				decomposition: [],
@@ -1023,6 +1024,7 @@
 			let dto = {
 				properties: this.fragment.properties,
 				enabled: this.fragment.enabled,
+				anchor: this.fragment.anchor,
 				linkId: this.fragment.linkId,
 				decomposition: forceXml ? null : this.fragment.decomposition,
 				rawXml: forceXml ? this.fragment.rawXml : null

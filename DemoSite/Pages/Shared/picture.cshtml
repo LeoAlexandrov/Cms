@@ -1,6 +1,7 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
+	string id = Model.DomId;
 	string src = Model.Props.source;
 	string alt = Model.Props.alt;
 	int? width = Model.Props.width;
@@ -24,5 +25,5 @@
 	<source media="@s.media" srcset="@s.srcset" type="@s.type"/>
 	}
 }
-	<img class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" />
+	<img id="@id" class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" />
 </picture>

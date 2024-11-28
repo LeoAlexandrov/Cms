@@ -9,13 +9,13 @@ namespace AleProjects.Base64
 
 	internal static class Base64Url
 	{
-		private const int STACKALLOCK_THRESHOLD = 128;
+		private const int STACKALLOC_THRESHOLD = 128;
 
 		public static string Encode(string input)
 		{
 			int n = Encoding.UTF8.GetByteCount(input);
 
-			if (n <= STACKALLOCK_THRESHOLD)
+			if (n <= STACKALLOC_THRESHOLD)
 			{
 				Span<byte> bytes = stackalloc byte[n];
 
@@ -106,7 +106,7 @@ namespace AleProjects.Base64
 
 			int n = base64url.Length;
 
-			if (n <= STACKALLOCK_THRESHOLD)
+			if (n <= STACKALLOC_THRESHOLD)
 			{
 				Span<char> chars = stackalloc char[n];
 				Span<byte> bytes = stackalloc byte[n];

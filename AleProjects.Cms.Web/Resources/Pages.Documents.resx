@@ -333,4 +333,7 @@
   <data name="SaveXml" xml:space="preserve">
     <value>Save content as raw XML</value>
   </data>
+  <data name="Anchor" xml:space="preserve">
+    <value>Anchor</value>
+  </data>
 </root>

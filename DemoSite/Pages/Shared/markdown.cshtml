@@ -3,9 +3,10 @@
 @model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
+	string id = Model.DomId;
 	string html = Markdown.ToHtml(Model.Props.ToString());
 }
 
-<div class="raw-html-fragment">
+<div id="@id" class="raw-html-fragment">
 @Html.Raw(html)
 </div>

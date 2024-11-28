@@ -35,6 +35,8 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public Fragment[] Fragments { get; set; }
 		public Dictionary<string, string> Attributes { get; set; }
 
+		public List<Anchor> Anchors { get; set; }
+
 		public Document() { }
 
 		public Document(Entities.Document doc)
