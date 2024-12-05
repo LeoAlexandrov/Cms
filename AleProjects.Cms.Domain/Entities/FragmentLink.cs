@@ -53,7 +53,7 @@ namespace AleProjects.Cms.Domain.Entities
 		public string Caption => Fragment?.XmlName;
 
 		[NotMapped]
-		public string Icon => Fragment?.Icon;
+		public string Icon => Data == "container" ? "web" : "data_object";
 
 		[NotMapped]
 		public string Data { get; set; }

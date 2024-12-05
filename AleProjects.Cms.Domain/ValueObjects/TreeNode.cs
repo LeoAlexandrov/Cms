@@ -11,5 +11,6 @@ namespace AleProjects.Cms.Domain.ValueObjects
 		string Caption { get; }
 		string Icon { get; }
 		string Data { get; }
+		bool Enabled { get; }
 	}
 }

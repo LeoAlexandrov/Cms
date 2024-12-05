@@ -748,7 +748,6 @@ namespace AleProjects.Cms.Application.Services
 				{
 					Name = name,
 					Data = content,
-					Icon = "web",
 					XmlName = xmlName,
 					XmlSchema = dto.Schema,
 					DocumentLinks = [fl]
@@ -884,16 +883,10 @@ namespace AleProjects.Cms.Application.Services
 
 			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
 
-			if (sanitizer == null)
-			{
-				fragment.Name = dto.Properties.Name;
-				fragment.Icon = NullIfEmpty(dto.Properties.Icon);
-			}
-			else
-			{
+			if (sanitizer != null)
 				fragment.Name = sanitizer.Sanitize(dto.Properties.Name);
-				fragment.Icon = NullIfEmpty(sanitizer.Sanitize(dto.Properties.Icon));
-			}
+			else
+				fragment.Name = dto.Properties.Name;
 
 
 			if (fragment.Shared)
@@ -1150,7 +1143,6 @@ namespace AleProjects.Cms.Application.Services
 			var newFragment = new Fragment()
 			{
 				Name = fragment.Name + " (copy)",
-				Icon = fragment.Icon,
 				XmlSchema = fragment.XmlSchema,
 				XmlName = fragment.XmlName,
 				Data = fragment.Data,

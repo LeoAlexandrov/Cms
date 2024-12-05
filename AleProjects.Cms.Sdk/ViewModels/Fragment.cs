@@ -31,6 +31,8 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public string Caption => null;
 		public string Data { get; set; }
 
+		public bool Enabled => true;
+
 		public Fragment() { }
 
 		public Fragment(Fragment fragment, string xmlName, dynamic props)

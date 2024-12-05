@@ -14,9 +14,6 @@ namespace AleProjects.Cms.Domain.Entities
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Name { get; set; }
 
-		[MaxLength(64)]
-		public string Icon { get; set; }
-
 		public bool Shared { get; set; }
 
 		[Required(AllowEmptyStrings = false), MaxLength(256)]

@@ -85,7 +85,6 @@
 				properties: {
 					id: 0,
 					name: null,
-					icon: null,
 					shared: false,
 					xmlSchema: null
 				},
@@ -472,6 +471,12 @@
 						if (node) {
 							node.label = this.editedDoc.properties.title;
 							node.icon = this.editedDoc.properties.icon;
+
+							if (!this.editedDoc.properties.published) {
+								iterateNodes(node, (n) => n.iconColor = "blue-grey-2");
+							} else {
+								node.iconColor = "blue-grey";
+							}
 						}
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_UPDATE_SUCCESS'), false);
@@ -961,8 +966,8 @@
 							parent: parent,
 							label: r.result.fragment.name,
 							label2: r.result.fragment.xmlName,
-							icon: r.result.fragment.icon,
 							data: r.result.link.data,
+							icon: r.result.link.icon,
 							iconColor: "blue-grey",
 							expandable: false,
 							selectable: true
@@ -1046,7 +1051,7 @@
 
 						if (node) {
 							node.label = r.result.fragment.name;
-							node.icon = r.result.fragment.icon;
+							node.iconColor = r.result.link.enabled ? "blue-grey" : "blue-grey-2";
 						}
 
 						if (r.result.sharedStateChanged)
@@ -1820,6 +1825,17 @@
 		'code-editor': CodeEditor
 	}
 
+}
+
+
+function iterateNodes(node, f) {
+	f(node);
+
+	if (node.hasOwnProperty("children")) {
+		for (const n of node.children) {
+			iterateNodes(n, f);
+		}
+	}
 }
 
 function formatHTTPStatus(r) {

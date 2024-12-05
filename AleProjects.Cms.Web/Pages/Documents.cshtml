@@ -280,17 +280,8 @@
 							ref="FragmentAnchor">
 						</q-checkbox>
 
-						<div class="row">
-							<q-input dense outlined
-								v-model="fragment.properties.icon"
-								class="content-dialog-field-small"
-								label="@Localizer["Icon"]"
-								ref="FragmentIcon"
-								:rules="[val => !val || val.length <= 64 || '@ErrorsLocalizer["Validation_MaxLen64"]']">
-							</q-input>
-						</div>
-
 						<q-checkbox v-model="fragment.properties.shared"
+							class="q-py-lg q-ml-lg"
 							label="@Localizer["FragmentSharedLabel"]"
 							:disable="fragment.lockShare"
 							ref="FragmentShared">

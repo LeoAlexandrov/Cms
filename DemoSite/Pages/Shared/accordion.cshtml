@@ -1,0 +1,54 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string id = Model.DomId;
+	string title = Model.Props.title;
+	var items = Model.Props.item;
+	int n = items.Length;
+	int m = Model.Children.Length;
+
+	if (m > n)
+		m = n;
+	else if (m < n)
+		n = m;
+
+	bool alwaysOpen = Model.Props.appearance.always_open;
+
+	string look = Model.Props.appearance.look;
+	string cls;
+
+	if (look == "minimalistic")
+		cls = "accordion-flush";
+	else if (look == "alternative")
+		cls = "accordion-borderless";
+	else
+		cls = null;
+}
+
+@if (!string.IsNullOrEmpty(title))
+{
+	<h2>@title</h2>
+}
+<div class="accordion @cls" id="@id">
+	@for(int i = 0; i < n; i++)
+	{
+		<div class="accordion-item">
+			<h2 class="accordion-header" id="@id-heading-@i">
+				<button data-mdb-collapse-init class="accordion-button" type="button" data-mdb-target="#@id-body-@i">
+					@if (!string.IsNullOrEmpty(items[i].icon))
+					{
+						<i class="fas @(items[i].icon) fa-sm me-2 opacity-70"></i>
+					}
+					@items[i].title
+				</button>
+			</h2>
+			<div id="@id-body-@i" class="accordion-collapse collapse @(items[i].opened ? "show" : null)" data-mdb-parent="@(alwaysOpen ? null : "#" + id)">
+				<div class="accordion-body">
+					@{
+						await Html.RenderPartialAsync(Model.Children[i].XmlName, Model.Children[i]);
+					}
+				</div>
+			</div>
+		</div>
+	}
+</div>

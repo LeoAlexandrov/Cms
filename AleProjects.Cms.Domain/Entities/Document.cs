@@ -72,5 +72,8 @@ namespace AleProjects.Cms.Domain.Entities
 
 		[NotMapped]
 		public string Data { get; set; }
+
+		[NotMapped]
+		public bool Enabled => Published;
 	}
 }

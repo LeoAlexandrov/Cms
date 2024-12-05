@@ -1,0 +1,67 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string id = Model.DomId;
+	var tabs = Model.Props.tab;
+	int n = tabs.Length;
+	int m = Model.Children.Length;
+
+	if (m > n)
+		m = n;
+	else if (m < n)
+		n = m;
+
+	int activeIdx = -1;
+	int i = 0;
+	bool isActive;
+}
+
+<ul class="nav nav-tabs my-3" id="@id" role="tablist">
+	@foreach (var tab in tabs)
+	{
+		isActive = tab.active && activeIdx < 0;
+
+		if (isActive)
+		{
+			activeIdx = i;
+		}
+
+		<li class="nav-item" role="presentation">
+			<a data-mdb-tab-init 
+			class="nav-link @(isActive ? "active" : null)" 
+			id="@id-tab-@i"
+			href="#@id-tabs-@i" role="tab">
+				@if (!string.IsNullOrEmpty(tab.icon))
+				{
+					<i class="fas @tab.icon fa-fw me-2"></i>
+				}
+				@tab.title</a>
+		</li>
+
+		i++;
+
+		if (i >= n)
+			break;
+	}
+</ul>
+
+@{
+	i = 0;
+}
+
+<!-- Tabs content -->
+<div class="tab-content" id="@id-content">
+	@foreach (var f in Model.Children)
+	{
+		<div class="tab-pane fade show @(i == activeIdx ? "active" : null)" id="@id-tabs-@i" role="tabpanel">
+			@{
+				await Html.RenderPartialAsync(f.XmlName, f);
+			}
+		</div>
+
+		i++;
+
+		if (i >= m)
+			break;
+	}
+</div>

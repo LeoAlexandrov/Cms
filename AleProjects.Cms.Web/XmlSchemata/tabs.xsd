@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<xs:complexType name="tabs.tab">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Tab item</xs:documentation>
+			<xs:documentation xml:lang="fr">Tab item</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Icon</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Active</xs:documentation>
+					<xs:documentation xml:lang="fr">Actif</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="tabs">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Tabs</xs:documentation>
+			<xs:documentation xml:lang="fr">Tabs</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="tab" type="tabs.tab" maxOccurs="8"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="tabs" type="tabs"/>
+
+</xs:schema>

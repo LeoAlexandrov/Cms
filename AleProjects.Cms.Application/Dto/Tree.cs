@@ -51,7 +51,7 @@ namespace AleProjects.Cms.Application.Dto
 				Label = doc.Title,
 				Label2 = doc.Caption,
 				Icon = doc.Icon,
-				IconColor = "blue-grey",
+				IconColor = doc.Enabled ? "blue-grey" : "blue-grey-2",
 				Selectable = true,
 				Data = doc.Data
 			};

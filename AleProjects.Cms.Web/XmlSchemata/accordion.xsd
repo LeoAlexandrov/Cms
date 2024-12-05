@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	
+	<!-- accordion item -->
+
+	<xs:complexType name="accordion.item">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Expansion item</xs:documentation>
+			<xs:documentation xml:lang="fr">Article d'extension</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="icon" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Icon</xs:documentation>
+					<xs:documentation xml:lang="fr">Icône</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="opened" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Default opened</xs:documentation>
+					<xs:documentation xml:lang="fr">Ouvert par défaut</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="accordion.appearance">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Appearance</xs:documentation>
+			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="look">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Look</xs:documentation>
+					<xs:documentation xml:lang="fr">Aspect</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="minimalistic"/>
+						<xs:enumeration value="alternative"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="always-open" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Always open</xs:documentation>
+					<xs:documentation xml:lang="fr">Toujours ouvert</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+
+	<xs:complexType name="accordion">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Accordion</xs:documentation>
+			<xs:documentation xml:lang="fr">Accordion</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="appearance" type="accordion.appearance"/>
+			<xs:element name="item" type="accordion.item" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="accordion" type="accordion"/>
+
+</xs:schema>

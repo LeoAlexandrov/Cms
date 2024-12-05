@@ -46,10 +46,6 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("name")]
 		public string Name { get; set; }
 
-		[MessagePack.Key("icon")]
-		[MaxLength(64)]
-		public string Icon { get; set; }
-
 		[MessagePack.Key("shared")]
 		public bool Shared { get; set; }
 
@@ -68,7 +64,6 @@ namespace AleProjects.Cms.Application.Dto
 			{
 				Id = fragment.Id;
 				Name = fragment.Name;
-				Icon = fragment.Icon;
 				Shared = fragment.Shared;
 				XmlSchema = fragment.XmlSchema;
 				XmlName = fragment.XmlName;
@@ -145,6 +140,10 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("data")]
 		public string Data { get; set; }
 
+		[MessagePack.Key("icon")]
+		[MaxLength(64)]
+		public string Icon { get; set; }
+
 
 		public DtoFragmentLinkResult() { }
 
@@ -160,6 +159,7 @@ namespace AleProjects.Cms.Application.Dto
 				Enabled = link.Enabled;
 				Anchor = link.Anchor;
 				Data = link.Data;
+				Icon = link.Icon;
 			}
 		}
 	}
