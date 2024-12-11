@@ -175,7 +175,7 @@
 					if (authEndpoints) 
 						window.location = authEndpoints.signin;
 
-					return { ok: false, status: 0, result: null, contentType: null, totalItems: 0, link: null };
+					return { ok: false, status: 401, result: null, contentType: null, totalItems: 0, link: null };
 				}
 
 			} else {

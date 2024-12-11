@@ -21,10 +21,15 @@ namespace DemoSite.Pages
 
 		public async Task<IActionResult> OnGet()
 		{
+			if (this.Request.Path == "/666") // 500 page test
+				_repo = null;
+
 			this.Document = await _repo.GetDocument("home", this.Request.Path, true, true);
 
-			if (this.Document == null) 
+			if (this.Document == null)
+			{
 				return NotFound();
+			}
 
 			return Page();
 		}

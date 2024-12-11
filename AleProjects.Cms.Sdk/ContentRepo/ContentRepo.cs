@@ -217,26 +217,31 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 		public async Task<Document> GetDocument(string root, string path, bool children, bool siblings)
 		{
-			var doc = await dbContext.Documents
+			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
 				.Where(d => d.Parent == 0 && d.Slug == root && d.Published)
 				.FirstOrDefaultAsync();
 
-			if (doc == default)
+			if (rootDoc == null)
 				return null;
 
-			int rootId = doc.Id;
+			int rootId = rootDoc.Id;
 
 			Document result;
 			BreadcrumbsItem[] breadcrumbs;
+			Entities.Document doc;
+			List<int> allDocsIds;
 
 			if (string.IsNullOrEmpty(path) || path == "/")
 			{
+				doc = rootDoc;
 				breadcrumbs = [new BreadcrumbsItem() { Path = "/", Title = string.Empty }];
+				allDocsIds = [rootId];
 
 				result = new(doc)
 				{
-					Breadcrumbs = breadcrumbs
+					Breadcrumbs = breadcrumbs,
+					Siblings = []
 				};
 			}
 			else
@@ -255,29 +260,31 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 				doc = docs.FirstOrDefault(d => string.Compare(d.Path, pathNoSlash, StringComparison.InvariantCultureIgnoreCase) == 0);
 
-				if (EqualityComparer<Entities.Document>.Default.Equals(doc, default))
+				if (doc == null)
 					return null;
 
-				Document parent = null;
+				Document parent = slugs.Length < 2 ? new Document(rootDoc) : null;
 				int[] ids = docs.Select(d => d.Id).ToArray();
 				int id = doc.Parent;
 
-				breadcrumbs = new BreadcrumbsItem[slugs.Length];
+				breadcrumbs = new BreadcrumbsItem[slugs.Length + 1];
 
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = "/", Title = string.Empty };
 				breadcrumbs[^1] = new BreadcrumbsItem() { Path = doc.Path, Title = doc.Title };
 
-				for (int i = 2; i < slugs.Length; i++)
+
+				for (int i = 1; i < slugs.Length; i++)
 				{
 					int j = Array.BinarySearch(ids, id);
 
 					id = docs[j].Parent;
-					breadcrumbs[^i] = new BreadcrumbsItem() { Path = docs[j].Path, Title = docs[j].Title };
+					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = docs[j].Path, Title = docs[j].Title };
 
-					if (i == 2)
+					if (i == 1)
 						parent = new Document(docs[j]);
 				}
 
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = "/", Title = string.Empty };
+				allDocsIds = [doc.Id, parent.Id];
 
 				result = new(doc)
 				{
@@ -286,7 +293,10 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				};
 
 				if (siblings)
+				{
 					result.Siblings = await Children(doc.Parent);
+					allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
+				}
 				else
 					result.Siblings = [];
 			}
@@ -300,14 +310,17 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 
 			if (children)
+			{
 				result.Children = await Children(doc.Id);
+				allDocsIds.AddRange(result.Children.Select(d => d.Id));
+			}
 			else
 				result.Children = [];
 
 			var refs = await dbContext.References
 				.AsNoTracking()
 				.GroupJoin(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d })
-				.Where(rd => rd.r.DocumentRef == doc.Id)
+				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
 					(r, d) => new Reference(r.r.ReferenceTo, d.Path, r.r.MediaLink, mediaHost))
@@ -335,6 +348,18 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 			foreach (var link in links)
 				link.Fragment.Data = ReplaceRefs(link.Fragment.Data, refs);
+
+			foreach (var s in result.Siblings)
+			{
+				s.Summary = ReplaceRefs(s.Summary, refs);
+				s.CoverPicture = ReplaceRefs(s.CoverPicture, refs);
+			}
+
+			foreach (var c in result.Children)
+			{
+				c.Summary = ReplaceRefs(c.Summary, refs);
+				c.CoverPicture = ReplaceRefs(c.CoverPicture, refs);
+			}
 
 			var attrs = await dbContext.FragmentLinks
 				.AsNoTracking()

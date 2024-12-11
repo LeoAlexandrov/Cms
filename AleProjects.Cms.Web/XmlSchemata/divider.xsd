@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	
+	<!-- page metadata -->
+
+	<xs:complexType name="divider">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Divider</xs:documentation>
+			<xs:documentation xml:lang="fr">Diviseur</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="look">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Look</xs:documentation>
+					<xs:documentation xml:lang="fr">Aspect</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="alternative"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="divider" type="divider"/>
+
+</xs:schema>

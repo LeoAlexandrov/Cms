@@ -13,44 +13,53 @@ using Microsoft.Extensions.Hosting;
 using AleProjects.Cms.Sdk.ContentRepo;
 
 
+
+void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
+{
+	string settingsFile = configuration["Settings"];
+
+	if (!string.IsNullOrEmpty(settingsFile))
+		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
+
+	services
+		.AddScoped<ContentRepo>()
+		.AddRazorPages()
+		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"));
+}
+
+
+void ConfigureApp(WebApplication app)
+{
+	app.UseStatusCodePagesWithReExecute("/{0}");
+
+	if (app.Environment.IsDevelopment())
+	{
+		app.UseDeveloperExceptionPage();
+	}
+	else
+	{
+		app.UseExceptionHandler("/Error");
+		// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+		app.UseHsts();
+	}
+
+	app.UseHttpsRedirection()
+		.UseStaticFiles()
+		.UseRouting()
+		.UseAuthorization();
+
+	app.MapRazorPages();
+}
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-string settingsFile = builder.Configuration["Settings"];
-
-if (!string.IsNullOrEmpty(settingsFile))
-	builder.Configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
-
-// Add services to the container.
-
-builder.Services
-	.AddRazorPages()
-	.AddRazorPagesOptions(options =>
-		{
-			options.Conventions.AddPageRoute("/index", "{*url}");
-		});
-
-
-builder.Services.AddScoped<ContentRepo>();
+ConfigureServices(builder.Services, builder.Configuration);
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-	app.UseExceptionHandler("/Error");
-	app.UseStatusCodePages();
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
+ConfigureApp(app);
 
 app.Run();

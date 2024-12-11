@@ -12,7 +12,7 @@
 
 	<xs:complexType name="metadata">
 		<xs:annotation>
-			<xs:documentation xml:lang="en">Page me;tadata</xs:documentation>
+			<xs:documentation xml:lang="en">Page metadata</xs:documentation>
 			<xs:documentation xml:lang="fr">Métadonnées de la page</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
@@ -20,6 +20,12 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Title</xs:documentation>
 					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="breadcrumbs" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Breadcrumbs</xs:documentation>
+					<xs:documentation xml:lang="fr">Fil d'Ariane</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="cover" type="xs:boolean">
@@ -34,10 +40,16 @@
 					<xs:documentation xml:lang="fr">Résumé</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="breadcrumbs" type="xs:boolean">
+			<xs:element name="siblings" type="xs:boolean">
 				<xs:annotation>
-					<xs:documentation xml:lang="en">Breadcrumbs</xs:documentation>
-					<xs:documentation xml:lang="fr">Fil d'Ariane</xs:documentation>
+					<xs:documentation xml:lang="en">Siblings</xs:documentation>
+					<xs:documentation xml:lang="fr">Frères et sœurs</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="children" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Siblings</xs:documentation>
+					<xs:documentation xml:lang="fr">Frères et sœurs</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

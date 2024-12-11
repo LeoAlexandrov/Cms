@@ -38,14 +38,7 @@
 
 	<main role="main" class="pb-3">
 		<div class="container">
-			<div class="row">
-				<div class="col-12 col-lg-9">
-					@RenderBody()
-				</div>
-				<div class="col-3 d-none d-lg-block">
-					@await RenderSectionAsync("ScrollSpy", required: false)
-				</div>
-			</div>
+			@RenderBody()
 		</div>
 	</main>
 
@@ -54,6 +47,10 @@
 			&copy; 2024 - DemoSite - <a asp-area="" asp-page="/Privacy">Privacy</a>
 		</div>
 	</footer>
+
+	@{
+		IgnoreSection("ScrollSpy");
+	}
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.umd.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>

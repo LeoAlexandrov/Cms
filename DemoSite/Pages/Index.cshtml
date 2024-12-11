@@ -2,6 +2,10 @@
 @using AleProjects.Cms.Sdk.ViewModels;
 @model IndexModel
 
+@{
+	Layout = Model.Document.Parent == null || Model.Document.Anchors == null ? "_WideLayout" : "_Layout";
+}
+
 @if (Model.Document.Anchors != null)
 {
 	@Html.Raw("<div data-mdb-scrollspy-init data-mdb-target=\"#scrollspy\" data-mdb-offset=\"0\" class=\"scrollspy-example\">")
