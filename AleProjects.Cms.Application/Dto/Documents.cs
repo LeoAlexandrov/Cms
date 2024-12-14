@@ -142,6 +142,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("title")]
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Title { get; set; }
+
+		[MessagePack.Key("inheritAttributes")]
+		public bool InheritAttributes { get; set; }
 	}
 
 

@@ -24,6 +24,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		readonly static FragmentSchemaRepo fsr = new();
 		readonly static object lockObject = new();
 		static int? schemataChecksum = null;
+		static int PageSize = 25;
 		bool disposed;
 
 		[GeneratedRegex("#\\(\\d+\\)")]
@@ -215,7 +216,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		#endregion
 
 
-		public async Task<Document> GetDocument(string root, string path, bool children, bool siblings)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings)
 		{
 			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
@@ -294,7 +295,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 				if (siblings)
 				{
-					result.Siblings = await Children(doc.Parent);
+					result.Siblings = await Children(doc.Parent, -1);
 					allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
 				}
 				else
@@ -309,9 +310,10 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.ToDictionaryAsync(a => a.AttributeKey, a => a.Value);
 
 
-			if (children)
+			if (childrenFromPos >= 0)
 			{
-				result.Children = await Children(doc.Id);
+				result.TotalChildCount = await dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
+				result.Children = await Children(doc.Id, childrenFromPos);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
@@ -374,14 +376,17 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			return result;
 		}
 
-		public Task<Document[]> Children(int docId)
+		public Task<Document[]> Children(int docId, int childrenFromPos)
 		{
-			return dbContext.Documents
+			var qry = dbContext.Documents
 				.AsNoTracking()
-				.Where(d => d.Parent == docId && d.Published)
-				.OrderBy(d => d.Position)
-				.Select(d => new Document(d))
-				.ToArrayAsync();
+				.Where(d => d.Parent == docId && d.Published && d.Position >= childrenFromPos)
+				.OrderBy(d => d.Position);
+
+			if (childrenFromPos > 0)
+				return qry.Take(PageSize).Select(d => new Document(d)).ToArrayAsync();
+
+			return qry.Select(d => new Document(d)).ToArrayAsync();
 		}
 
 

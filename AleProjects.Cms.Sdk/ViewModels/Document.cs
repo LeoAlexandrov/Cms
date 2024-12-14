@@ -31,6 +31,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public Document Parent { get; set; }
 		public Document[] Siblings { get; set; }
 		public Document[] Children { get; set; }
+		public int TotalChildCount { get; set; }
 
 		public Fragment[] Fragments { get; set; }
 		public Dictionary<string, string> Attributes { get; set; }

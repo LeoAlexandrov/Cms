@@ -52,6 +52,13 @@
 				ref="NewDocumentTitle"
 				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
 			</q-input>
+
+			<q-checkbox v-model="newDocument.inheritAttributes" v-if="newDocument.parent"
+				class="q-py-lg"
+				label="@Localizer["InheritAttributes"]"
+				ref="InheritAttributes">
+			</q-checkbox>
+
 		</q-card-section>
 
 		<q-card-actions align="right">

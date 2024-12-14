@@ -158,7 +158,7 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<Result<DtoDocumentResult>> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFullDocumentResult>> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -184,16 +184,18 @@ namespace AleProjects.Cms.Application.Services
 			bool published;
 			string path;
 			List<DocumentPathNode> pathNodes;
+			List<DocumentAttribute> newAttrs;
 
 			if (dto.Parent > 0)
 			{
 				var parent = await dbContext.Documents
 					.AsNoTracking()
 					.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
+					.Include(d => d.DocumentAttributes)
 					.FirstOrDefaultAsync(d => d.Id == dto.Parent);
 
 				if (parent == null)
-					return Result<DtoDocumentResult>.BadParameters("Parent", "No parent document found");
+					return Result<DtoFullDocumentResult>.BadParameters("Parent", "No parent document found");
 
 				path = parent.Path + "/" + slug;
 				language = parent.Language;
@@ -202,6 +204,10 @@ namespace AleProjects.Cms.Application.Services
 				pathNodes = new(parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
 				pathNodes.Add(new() { Parent = dto.Parent, Position = pathNodes.Count });
+
+				newAttrs = dto.InheritAttributes ?
+					new(parent.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled })) :
+					null;
 			}
 			else
 			{
@@ -210,12 +216,13 @@ namespace AleProjects.Cms.Application.Services
 				icon = "home";
 				published = true;
 				pathNodes = null;
+				newAttrs = null;
 			}
 
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == dto.Parent);
 			DateTimeOffset now = DateTimeOffset.UtcNow;
 
-			Document result = new()
+			Document doc = new()
 			{
 				Parent = dto.Parent,
 				Position = position,
@@ -228,10 +235,11 @@ namespace AleProjects.Cms.Application.Services
 				Author = user.Identity.Name,
 				CreatedAt = now,
 				ModifiedAt = now,
-				DocumentPathNodes = pathNodes
+				DocumentPathNodes = pathNodes,
+				DocumentAttributes = newAttrs
 			};
 
-			dbContext.Documents.Add(result);
+			dbContext.Documents.Add(doc);
 
 			try
 			{
@@ -240,12 +248,20 @@ namespace AleProjects.Cms.Application.Services
 			catch (Exception ex)
 			{
 				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return Result<DtoDocumentResult>.Conflict("Slug", "Must be unique under parent document");
+					return Result<DtoFullDocumentResult>.Conflict("Slug", "Must be unique under parent document");
 
 				throw;
 			}
 
-			return Result<DtoDocumentResult>.Success(new(result));
+			DtoFullDocumentResult result = new()
+			{
+				Properties = new(doc),
+				Attributes = doc.DocumentAttributes?.Select(a => new DtoDocumentAttributeResult(a)).ToArray() ?? [],
+				FragmentLinks = [],
+				FragmentsTree = []
+			};
+
+			return Result<DtoFullDocumentResult>.Success(result);
 		}
 
 		public async Task<Result<DtoDocumentResult>> UpdateDocument(int id, DtoUpdateDocument dto, ClaimsPrincipal user)
@@ -737,21 +753,22 @@ namespace AleProjects.Cms.Application.Services
 				});
 		}
 
-		public async Task<Result<DtoDocumentResult>> CopyDocument(int originId, ClaimsPrincipal user)
+		public async Task<Result<DtoFullDocumentResult>> CopyDocument(int originId, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, originId, "CanManageDocument");
 
 			if (!authResult.Succeeded)
-				return Result<DtoDocumentResult>.Forbidden();
+				return Result<DtoFullDocumentResult>.Forbidden();
 
 			Document origin = await dbContext.Documents
 				.AsNoTracking()
 				.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
 				.Include(d => d.References.OrderBy(r => r.ReferenceTo))
+				.Include(d => d.DocumentAttributes)
 				.FirstOrDefaultAsync(d => d.Id == originId);
 
 			if (origin == null)
-				return Result<DtoDocumentResult>.BadParameters("Origin", "Original document not found");
+				return Result<DtoFullDocumentResult>.BadParameters("Origin", "Original document not found");
 
 			DateTimeOffset now = DateTimeOffset.UtcNow;
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent);
@@ -762,7 +779,7 @@ namespace AleProjects.Cms.Application.Services
 			if (origin.Parent > 0)
 				pathItems[^1] = newSlug;
 
-			Document result = new()
+			Document doc = new()
 			{
 				Slug = newSlug,
 				Path = string.Join('/', pathItems),
@@ -783,16 +800,52 @@ namespace AleProjects.Cms.Application.Services
 			};
 
 			if (origin.DocumentPathNodes.Count != 0)
-				result.DocumentPathNodes = new(origin.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
+				doc.DocumentPathNodes = new(origin.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
 			if (origin.References.Count != 0)
-				result.References = new(origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo }));
+				doc.References = new(origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo }));
 
-			dbContext.Documents.Add(result);
+			if (origin.DocumentAttributes.Count != 0)
+				doc.DocumentAttributes = new(origin.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled }));
+
+			/*
+			FragmentLink[] links = await dbContext.FragmentLinks
+				.AsNoTracking()
+				.Include(b => b.Fragment)
+				.Where(b => b.DocumentRef == originId)
+				.OrderBy(b => b.ContainerRef)
+				.ThenBy(b => b.Position)
+				.ToArrayAsync();
+
+			if (links.Length > 0)
+			{
+				doc.FragmentLinks = links.Select(
+					l => new FragmentLink()
+					{
+						ContainerRef = l.ContainerRef,
+						Position = l.Position,
+						Enabled = l.Enabled,
+						Anchor = l.Anchor,
+						Document = doc
+					}).ToList();
+
+			}
+			*/
+
+			dbContext.Documents.Add(doc);
 
 			await dbContext.SaveChangesAsync();
 
-			return Result<DtoDocumentResult>.Success(new(result));
+			DtoFullDocumentResult result = new()
+			{
+				Properties = new(doc),
+				Attributes = doc.DocumentAttributes?.Select(a => new DtoDocumentAttributeResult(a)).ToArray() ?? [],
+				FragmentLinks = [],
+				FragmentsTree = []
+			};
+
+
+			return Result<DtoFullDocumentResult>.Success(result);
 		}
 	}
 

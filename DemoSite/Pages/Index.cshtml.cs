@@ -24,7 +24,7 @@ namespace DemoSite.Pages
 			if (this.Request.Path == "/666") // 500 page test
 				_repo = null;
 
-			this.Document = await _repo.GetDocument("home", this.Request.Path, true, true);
+			this.Document = await _repo.GetDocument("home", this.Request.Path, 1, true);
 
 			if (this.Document == null)
 			{

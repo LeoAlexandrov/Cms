@@ -336,4 +336,7 @@
   <data name="Anchor" xml:space="preserve">
     <value>Ancre</value>
   </data>
+  <data name="InheritAttributes" xml:space="preserve">
+    <value>Hériter des attributs</value>
+  </data>
 </root>

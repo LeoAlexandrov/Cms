@@ -301,7 +301,7 @@ namespace Test
 			//int agg = cs.FirstOrDefault();
 
 			var cp = new Sdk.ContentRepo.ContentRepo(config);
-			var doc = cp.GetDocument("home1", null, true, true).Result; //"/new4/new2"
+			var doc = cp.GetDocument("home1", null, -1, true).Result; //"/new4/new2"
 			return;
 
 

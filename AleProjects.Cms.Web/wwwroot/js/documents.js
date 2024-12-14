@@ -47,7 +47,8 @@
 			newDocument: {
 				parent: 0,
 				slug: null,
-				title: null
+				title: null,
+				inheritAttributes: false
 			},
 			invalidNewDocSlugs: [],
 
@@ -323,7 +324,8 @@
 			this.newDocument = {
 				parent: parentId,
 				slug: TEXT.DOCS.get('SLUG_NEW_DOCUMENT'),
-				title: null
+				title: null,
+				inheritAttributes: false
 			}
 
 			this.newDocumentProps = true;
@@ -339,7 +341,8 @@
 			let dto = {
 				parent: this.newDocument.parent,
 				slug: this.newDocument.slug,
-				title: this.newDocument.title
+				title: this.newDocument.title,
+				inheritAttributes: this.newDocument.inheritAttributes
 			};
 
 			Quasar.LoadingBar.start();
@@ -352,10 +355,7 @@
 
 					if (r.ok) {
 
-						this.editedDoc.properties = r.result;
-						this.editedDoc.fragmentLinks = [];
-						this.editedDoc.fragmentsTree = [];
-						this.editedDoc.attributes = [];
+						this.editedDoc = r.result;
 						this.hasChanged = false;
 						this.newDocumentProps = false;
 
@@ -777,8 +777,7 @@
 
 					if (r.ok) {
 
-						this.editedDoc.properties = r.result;
-						this.editedDoc.contentBlocks = [];
+						this.editedDoc = r.result;
 						this.hasChanged = false;
 
 						let node = {
