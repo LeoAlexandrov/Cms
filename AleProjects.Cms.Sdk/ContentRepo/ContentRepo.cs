@@ -16,6 +16,8 @@ using AleProjects.Cms.Sdk.ViewModels;
 
 namespace AleProjects.Cms.Sdk.ContentRepo
 {
+	public delegate string ReferenceTransformer(string documentPath, string mediaPath);
+
 
 	public partial class ContentRepo : IDisposable
 	{
@@ -46,20 +48,6 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		{
 			public string Pattern { get; set; }
 			public string Replacement { get; set; }
-
-			public Reference(int referenceTo, string path, string mediaLink, string mediaHost)
-			{
-				if (string.IsNullOrEmpty(mediaLink))
-				{
-					Pattern = string.Format("#({0})", referenceTo);
-					Replacement = path;
-				}
-				else
-				{
-					Pattern = string.Format("#('{0}')", Base64Url.Encode(mediaLink));
-					Replacement = mediaHost + mediaLink;
-				}
-			}
 		}
 
 
@@ -69,7 +57,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
 			dbContext = new CmsDbContext(contextOptions);
 
-			mediaHost = configuration["MediaHost"]; // GetValue<string>(, "");
+			mediaHost = configuration["MediaHost"];
 
 			if (!mediaHost.EndsWith('/'))
 				mediaHost += "/";
@@ -213,10 +201,21 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			return result.ToString();
 		}
 
+		private string DefaultRefTransformer(string documentPath, string mediaPath)
+		{
+			if (string.IsNullOrEmpty(mediaPath))
+				return documentPath;
+
+			if (string.IsNullOrEmpty(mediaHost))
+				return mediaHost;
+
+			return mediaHost + mediaPath;
+		}
+
 		#endregion
 
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, ReferenceTransformer refTransformer)
 		{
 			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
@@ -312,6 +311,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 			if (childrenFromPos >= 0)
 			{
+				result.ChildrenPosition = childrenFromPos;
 				result.TotalChildCount = await dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
 				result.Children = await Children(doc.Id, childrenFromPos);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
@@ -319,13 +319,16 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			else
 				result.Children = [];
 
+			refTransformer ??= DefaultRefTransformer;
+
 			var refs = await dbContext.References
 				.AsNoTracking()
 				.GroupJoin(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d })
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.ReferenceTo, d.Path, r.r.MediaLink, mediaHost))
+					(r, d) => new Reference() { Pattern = r.r.Encoded, Replacement = refTransformer(d.Path, r.r.MediaLink) }
+				)
 				.ToDictionaryAsync(r => r.Pattern, r => r.Replacement);
 
 			result.Summary = ReplaceRefs(result.Summary, refs);

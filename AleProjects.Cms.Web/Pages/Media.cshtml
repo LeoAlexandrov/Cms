@@ -30,17 +30,6 @@
 			</q-card-section>
 
 			<q-card-section class="col-8 q-pt-none">
-				<q-input v-model="opened.url"
-					label="@Localizer["Url"]"
-					readonly
-					ref="OpenedEntryUrl">
-
-					<template v-slot:after>
-						<q-btn round flat size="sm" icon="content_copy" @@click="copyToClipboard(opened.url)">
-							<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
-						</q-btn>
-					</template>
-				</q-input>
 
 				<q-input v-model="opened.hrefLink"
 					label="@Localizer["Link"]"

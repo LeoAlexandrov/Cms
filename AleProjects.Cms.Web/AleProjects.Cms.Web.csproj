@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Content Update="Pages\Webhooks.cshtml">
+	  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+	  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	</Content>
 	<Content Update="settings.json">
 	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	</Content>
@@ -47,63 +51,67 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AleProjects.Cms.Application\AleProjects.Cms.Application.csproj" />
-    <ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
+	<ProjectReference Include="..\AleProjects.Cms.Application\AleProjects.Cms.Application.csproj" />
+	<ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="XmlSchemata\action.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\card.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\carousel.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\common.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\containers.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\accordion.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\expansion-item.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\feature.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\hero.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\divider.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\metadata.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\picture.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
-    <None Update="XmlSchemata\text.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
+	<None Update="XmlSchemata\directory.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\action.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\card.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\carousel.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\common.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\containers.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\accordion.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\expansion-item.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\feature.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\hero.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\divider.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\metadata.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\picture.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\text.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
   </ItemGroup>
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />

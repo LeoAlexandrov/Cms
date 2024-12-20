@@ -12,10 +12,11 @@ using AleProjects.Cms.Domain.Entities;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public struct ExtractedRef(int id, string link) : IComparable<ExtractedRef>, IComparable<Reference>, IEquatable<ExtractedRef>
+	public struct ExtractedRef(int id, string link, string encoded) : IComparable<ExtractedRef>, IComparable<Reference>, IEquatable<ExtractedRef>
 	{
 		public int DocumentId { get; set; } = id;
 		public string MediaLink { get; set; } = link;
+		public string Encoded { get; set; } = encoded;
 
 		public readonly int CompareTo(ExtractedRef other)
 		{
@@ -97,14 +98,14 @@ namespace AleProjects.Cms.Application.Services
 			var matches = re.Matches(content);
 
 			for (int i = 0; i < matches.Count; i++)
-				refs.Add(new(int.Parse(matches[i].Value[2..^1]), null));
+				refs.Add(new(int.Parse(matches[i].Value[2..^1]), null, matches[i].Value));
 
 			re = MediaLinkRegex();
 			matches = re.Matches(content);
 
 			for (int i = 0; i < matches.Count; i++)
 				if (Base64Url.TryDecode(matches[i].Value[3..^2], out string path))
-					refs.Add(new(0, path));
+					refs.Add(new(0, path, matches[i].Value));
 
 			if (refs.Count == 0)
 				return [];
@@ -132,7 +133,7 @@ namespace AleProjects.Cms.Application.Services
 					matches = re.Matches(content[i]);
 
 					for (int j = 0; j < matches.Count; j++)
-						refs.Add(new(int.Parse(matches[j].Value[2..^1]), null));
+						refs.Add(new(int.Parse(matches[j].Value[2..^1]), null, matches[j].Value));
 				}
 
 			re = MediaLinkRegex();
@@ -144,7 +145,7 @@ namespace AleProjects.Cms.Application.Services
 
 					for (int j = 0; j < matches.Count; j++)
 						if (Base64Url.TryDecode(matches[j].Value[3..^2], out string path))
-							refs.Add(new(0, path));
+							refs.Add(new(0, path, matches[j].Value));
 				}
 
 			if (refs.Count == 0)
@@ -172,7 +173,7 @@ namespace AleProjects.Cms.Application.Services
 
 			if (m == 0)
 			{
-				toAdd = newRefs.Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink }).ToList();
+				toAdd = newRefs.Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink, Encoded = r.Encoded }).ToList();
 				toRemove = null;
 				return;
 			}
@@ -189,7 +190,7 @@ namespace AleProjects.Cms.Application.Services
 
 				if (cmpRes < 0)
 				{
-					toAdd.Add(new Reference { DocumentRef = id, ReferenceTo = newRefs[i].DocumentId, MediaLink = newRefs[i].MediaLink });
+					toAdd.Add(new Reference { DocumentRef = id, ReferenceTo = newRefs[i].DocumentId, MediaLink = newRefs[i].MediaLink, Encoded = newRefs[i].Encoded });
 					i++;
 				}
 				else if (cmpRes > 0)
@@ -205,7 +206,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 
 			if (i < n)
-				toAdd.AddRange(newRefs[i ..].Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink }));
+				toAdd.AddRange(newRefs[i ..].Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink, Encoded = r.Encoded }));
 
 			if (j < m)
 				toRemove.AddRange(existingRefs[j ..]);

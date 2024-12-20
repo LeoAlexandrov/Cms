@@ -486,15 +486,13 @@ namespace AleProjects.Cms.Application.Services
 
 		private static DtoFragmentLiteResult[] FragmentTemplates(List<XSElement> fragments, string language)
 		{
-			if (fragments == null || fragments.Count == 0)
+			if (fragments == null)
 				return [];
 
-			var result = new DtoFragmentLiteResult[fragments.Count];
-			int i = 0;
-
-			foreach (var f in fragments)
-				result[i++] = new() { Value = f.Name, Label = f.GetAnnotationDoc(language), Ns = f.Namespace };
-		
+			var result = fragments
+				.Select(f => new DtoFragmentLiteResult() { Value = f.Name, Label = f.GetAnnotationDoc(language), Ns = f.Namespace })
+				.OrderBy(f => f.Label)
+				.ToArray();
 
 			return result;
 		}
@@ -505,9 +503,9 @@ namespace AleProjects.Cms.Application.Services
 		{
 			var fragments = await dbContext.Fragments
 				.AsNoTracking()
-				.Where(b => b.Shared)
-				.Select(b => new DtoFragmentLiteResult() { Label = b.Name, Value = b.Id.ToString(), Ns = b.XmlSchema })
-				.OrderBy(b => b.Label)
+				.Where(f => f.Shared)
+				.Select(f => new DtoFragmentLiteResult() { Label = f.Name, Value = f.Id.ToString(), Ns = f.XmlSchema })
+				.OrderBy(f => f.Label)
 				.ToArrayAsync();
 
 			return fragments;

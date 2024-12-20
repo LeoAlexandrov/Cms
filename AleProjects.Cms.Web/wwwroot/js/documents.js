@@ -7,7 +7,7 @@
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "documents",
-			splitter: 20,
+			splitter: 25,
 
 			docTree: [],
 			selectedDoc: 0,
@@ -193,10 +193,21 @@
 						this.docTree = r.result;
 
 						Vue.nextTick(() => {
-							this.$refs.DocTree.expandAll();
 
-							if (id)
+							if (id) {
+
+								let node = this.$refs.DocTree.getNodeByKey(id);
+
+								while (node && node.parent) {
+									this.$refs.DocTree.setExpanded(node.parent, true);
+									node = this.$refs.DocTree.getNodeByKey(node.parent);
+								}
+
 								this.selectedDoc = id;
+
+							} else if (r.result.length > 0) {
+								this.$refs.DocTree.setExpanded(r.result[0].id, true);
+							}
 						});
 					}
 				});
@@ -1778,7 +1789,7 @@
 		if (id)
 			id = JSON.parse(id.innerHTML);
 
-		this.getDocTree(0);
+		this.getDocTree(id);
 
 		if (id)
 			this.selectDoc(id, true, true, true);

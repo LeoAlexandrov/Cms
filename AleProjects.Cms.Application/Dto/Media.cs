@@ -34,9 +34,6 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("mimeType")]
 		public string MimeType { get; set; }
 
-		[MessagePack.Key("url")] 
-		public string Url { get; set; }
-
 		[MessagePack.Key("width")]
 		public int Width { get; set; }
 
@@ -45,7 +42,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		public DtoMediaStorageEntry() { }
 
-		public DtoMediaStorageEntry(MediaStorageEntry mse, string url) 
+		public DtoMediaStorageEntry(MediaStorageEntry mse) 
 		{
 			if (mse != null)
 			{
@@ -58,7 +55,6 @@ namespace AleProjects.Cms.Application.Dto
 				MimeType = mse.MimeType;
 				Width = mse.Width;
 				Height = mse.Height;
-				Url = url?.Replace('\\', '/');
 			}
 		}
 	}

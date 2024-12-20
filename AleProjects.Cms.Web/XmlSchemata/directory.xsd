@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<!-- directory -->
+
+	<xs:complexType name="directory">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Directory</xs:documentation>
+			<xs:documentation xml:lang="fr">Répertoire</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="look">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Look</xs:documentation>
+					<xs:documentation xml:lang="fr">Aspect</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="grid"/>
+						<xs:enumeration value="expandable"/>
+						<xs:enumeration value="hero"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<!--
+			<xs:element name="document" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Document ID</xs:documentation>
+					<xs:documentation xml:lang="fr">ID du document</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			-->
+			<xs:element name="pagination" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Pagination</xs:documentation>
+					<xs:documentation xml:lang="fr">Pagination</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="directory" type="directory"/>
+
+</xs:schema>

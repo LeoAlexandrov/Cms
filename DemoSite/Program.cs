@@ -22,6 +22,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
 
 	services
+		.AddMemoryCache()
 		.AddScoped<ContentRepo>()
 		.AddRazorPages()
 		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"));
@@ -46,6 +47,7 @@ void ConfigureApp(WebApplication app)
 	app.UseHttpsRedirection()
 		.UseStaticFiles()
 		.UseRouting()
+		.UseContentCache()
 		.UseAuthorization();
 
 	app.MapRazorPages();

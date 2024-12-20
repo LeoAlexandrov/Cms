@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -14,6 +15,9 @@ namespace AleProjects.Cms.Domain.Entities
 		public int ReferenceTo { get; set; }
 
 		public string MediaLink { get; set; }
+
+		[Required(AllowEmptyStrings = false)]
+		public string Encoded { get; set; }
 
 		public Document Document { get; set; }
 	}

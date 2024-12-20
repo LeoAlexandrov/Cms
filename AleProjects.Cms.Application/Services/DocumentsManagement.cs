@@ -803,7 +803,7 @@ namespace AleProjects.Cms.Application.Services
 				doc.DocumentPathNodes = new(origin.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
 			if (origin.References.Count != 0)
-				doc.References = new(origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo }));
+				doc.References = new(origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo, MediaLink = r.MediaLink, Encoded = r.Encoded }));
 
 			if (origin.DocumentAttributes.Count != 0)
 				doc.DocumentAttributes = new(origin.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled }));

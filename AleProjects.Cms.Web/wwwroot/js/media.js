@@ -12,7 +12,7 @@
 			mediaEntries: [],
 			path: [{ label: TEXT.MEDIA.get("ROOT"), link: null }],
 			selected: [],
-			opened: { name: null, link: null, url: null, hrefLink: null, width: 0, height: 0, size: 0 },
+			opened: { name: null, link: null, hrefLink: null, width: 0, height: 0, size: 0 },
 
 			maxUploadSize: 10 * 1024 * 1024,
 			safeNameRegexString: "^[\\w-]+.\\w+$",

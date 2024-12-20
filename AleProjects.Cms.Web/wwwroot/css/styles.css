@@ -108,17 +108,23 @@
 }
 
 .treenode-row .treenode-link {
-	margin-left: 16px;
+	margin-left: 12px;
 	visibility: hidden;
 	opacity: 0;
+	display: flex;
 	transition: .5s;
 }
 
 .treenode-row:hover .treenode-link {
-	margin-left: 16px;
+	margin-left: 12px;
 	visibility: visible;
 	opacity: 1;
+	display: flex;
 	transition: .5s;
+}
+
+.treenode-row .treenode-link a {
+	margin-top: -3px;
 }
 
 .tree-scroller {

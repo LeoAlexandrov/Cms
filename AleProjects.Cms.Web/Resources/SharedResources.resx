@@ -180,6 +180,9 @@
   <data name="Signout" xml:space="preserve">
     <value>Sign out</value>
   </data>
+  <data name="Nav_Webhooks" xml:space="preserve">
+    <value>Webhooks</value>
+  </data>
   <data name="Welcome" xml:space="preserve">
     <value>Welcome to the Headless CMS !</value>
   </data>

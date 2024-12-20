@@ -76,15 +76,10 @@ namespace AleProjects.Cms.Application.Services
 				}
 			}
 
-			var url = _configuration.GetValue<string>("Media:StorageHost");
-
-			if (!url.EndsWith('/'))
-				url += "/";
-
 			return Result<DtoMediaFolderReadResult>.Success(
 				new()
 				{
-					Entries = entries?.Select(e => new DtoMediaStorageEntry(e, url + e.RelativeName)),
+					Entries = entries?.Select(e => new DtoMediaStorageEntry(e)),
 					Path = breadcrumbs
 				});
 		}
@@ -112,15 +107,7 @@ namespace AleProjects.Cms.Application.Services
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.NotFound();
 
-			var url = _configuration.GetValue<string>("Media:StorageHost");
-
-			if (url.EndsWith('/'))
-				url += path;
-			else
-				url += "/" + path;
-
-
-			return Result<DtoMediaStorageEntry>.Success(new(entry, url));
+			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 
 		public async Task<Result<DtoPhysicalMediaFileResult>> Preview(string link, int? size)
@@ -166,12 +153,7 @@ namespace AleProjects.Cms.Application.Services
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Failed to save file");
 
-			var url = _configuration.GetValue<string>("Media:StorageHost");
-
-			if (!url.EndsWith('/'))
-				url += "/";
-
-			return Result<DtoMediaStorageEntry>.Success(new(entry, url + entry.RelativeName));
+			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 
 		public async Task<Result<string[]>> Delete(string[] links)
@@ -212,7 +194,7 @@ namespace AleProjects.Cms.Application.Services
 
 			var entry = _mediaStorage.CreateFolder(name, path);
 
-			return Result<DtoMediaStorageEntry>.Success(new(entry, null));
+			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 	}
 }
