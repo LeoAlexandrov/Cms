@@ -115,3 +115,12 @@ var DICTIONARY_USERS = {
 	"MESSAGE_INVALID_ROLE": "Must be one of the following: %s1.",
 	"MESSAGE_INVALID_ROLE_UPDATE": "Can't be changed or must be on of the following: %s1.",
 };
+
+var DICTIONARY_WEBHOOKS = {
+	"MESSAGE_CREATE_SUCCESS": "Webhook has been created successfully.",
+	"MESSAGE_CREATE_FAIL": "Failed to create webhook.",
+	"MESSAGE_UPDATE_SUCCESS": "Webhook has been updated successfully.",
+	"MESSAGE_UPDATE_FAIL": "Failed to update webhook.",
+	"MESSAGE_DELETE_SUCCESS": "Webhook has been deleted successfully.",
+	"MESSAGE_DELETE_FAIL": "Failed to delete webhook.",
+};

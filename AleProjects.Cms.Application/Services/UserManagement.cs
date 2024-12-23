@@ -37,7 +37,7 @@ namespace AleProjects.Cms.Application.Services
 			if (authResult.Succeeded) 
 			{
 				result = await _dbContext.Users
-					.OrderBy(u => u.Id)
+					.AsNoTracking()
 					.OrderBy(u => u.Login)
 					.Select(u => new DtoUserLiteResult(u))
 					.ToArrayAsync();
@@ -47,6 +47,7 @@ namespace AleProjects.Cms.Application.Services
 				string login = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
 				result = await _dbContext.Users
+					.AsNoTracking()
 					.Where(u => u.Login == login)
 					.Select(u => new DtoUserLiteResult(u))
 					.ToArrayAsync();

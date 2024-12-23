@@ -18,12 +18,13 @@ using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 
 using AleProjects.Cms.Application.Services;
-using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Auth;
+using AleProjects.Cms.Infrastructure.Data;
+using AleProjects.Cms.Infrastructure.Media;
+using AleProjects.Cms.Infrastructure.Notification;
 using AleProjects.Cms.Web.Infrastructure.Auth;
 using AleProjects.Cms.Web.Infrastructure.Middleware;
 using AleProjects.Cms.Web.Infrastructure.MediaTypeFormatters;
-using AleProjects.Cms.Infrastructure.Media;
 
 
 
@@ -73,11 +74,13 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				using var scope = s.CreateScope();
 				return new(scope.ServiceProvider.GetRequiredService<CmsDbContext>());
 			})
+		.AddScoped<IWebhookNotifier, WebhookNotifier>()
 		.AddScoped<ContentManagementService>()
 		.AddTransient<MediaStorage>()
 		.AddTransient<MediaManagementService>()
 		.AddTransient<SchemaManagementService>()
 		.AddScoped<UserManagementService>()
+		.AddScoped<WebhooksManagementService>()
 		.AddScoped<SignInHandler>()
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
 		.AddScoped<IAuthorizationHandler, CanManageDocumentHandler>()

@@ -8,16 +8,18 @@ using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
+using AleProjects.Cms.Infrastructure.Notification;
 
 
 namespace AleProjects.Cms.Application.Services
 {
 
-	public class SchemaManagementService(CmsDbContext dbContext, FragmentSchemaRepo fsr, IAuthorizationService authService)
+	public class SchemaManagementService(CmsDbContext dbContext, FragmentSchemaRepo fsr, IAuthorizationService authService, IWebhookNotifier notifier)
 	{
 		private readonly CmsDbContext dbContext = dbContext;
 		private readonly FragmentSchemaRepo fsr = fsr;
 		private readonly IAuthorizationService _authService = authService;
+		private readonly IWebhookNotifier _notifier = notifier;
 
 
 		public Task<DtoSchemaResult[]> Schemata()
@@ -56,6 +58,8 @@ namespace AleProjects.Cms.Application.Services
 			if (!result.Ok)
 				return Result<DtoSchemaResult>.From(result);
 
+			await _notifier.Notify("on_xmlschema_change", 0);
+
 			return Result<DtoSchemaResult>.Success(new(result.Value));
 		}
 
@@ -65,6 +69,8 @@ namespace AleProjects.Cms.Application.Services
 
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
+
+			await _notifier.Notify("on_xmlschema_change", 0);
 
 			return await fsr.DeleteSchema(dbContext, id);
 		}
@@ -76,7 +82,12 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			return await fsr.CompileAndReload(dbContext);
+			var result = await fsr.CompileAndReload(dbContext);
+
+			if (result.Value)
+				await _notifier.Notify("on_xmlschema_change", 0);
+
+			return result;
 		}
 	}
 }

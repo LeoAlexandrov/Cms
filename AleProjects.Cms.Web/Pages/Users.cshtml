@@ -123,7 +123,6 @@
 				ref="UserResetApiKey">
 			</q-checkbox>
 
-
 		</q-card-section>
 
 		<q-card-actions align="right">
@@ -208,8 +207,8 @@
 	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
 	<script>
 		const app = Vue.createApp(vueAppOptions);
-		app.use(Quasar, { config: { loadingBar: { color: "info" }}})
-		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}});
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]));
 		app.mount('#q-app')
 	</script>
 }

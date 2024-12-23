@@ -12,16 +12,18 @@ using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
+using AleProjects.Cms.Infrastructure.Notification;
 
 
 namespace AleProjects.Cms.Application.Services
 {
 
-	public partial class ContentManagementService(CmsDbContext dbContext, FragmentSchemaRepo schemaRepo, IAuthorizationService authService)
+	public partial class ContentManagementService(CmsDbContext dbContext, FragmentSchemaRepo schemaRepo, IAuthorizationService authService, IWebhookNotifier notifier)
 	{
 		private readonly CmsDbContext dbContext = dbContext;
 		private readonly FragmentSchemaRepo _schemaRepo = schemaRepo;
 		private readonly IAuthorizationService _authService = authService;
+		private readonly IWebhookNotifier _notifier = notifier;
 
 
 		#region private-functions
@@ -261,6 +263,8 @@ namespace AleProjects.Cms.Application.Services
 				FragmentsTree = []
 			};
 
+			await _notifier.Notify("on_doc_create", doc.Id);
+
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
 
@@ -417,6 +421,8 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
+			await _notifier.Notify("on_doc_update", id);
+
 			return Result<DtoDocumentResult>.Success(new(doc)); ;
 		}
 
@@ -486,6 +492,8 @@ namespace AleProjects.Cms.Application.Services
 				dbContext.Fragments.RemoveRange(fragmentsToRemove);
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_delete", id);
 
 			return Result<bool>.Success(true);
 		}
@@ -692,6 +700,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
+			await _notifier.Notify("on_doc_update", id);
 
 			return Result<DtoDocumentResult>.Success(new(doc));
 		}
@@ -741,6 +750,8 @@ namespace AleProjects.Cms.Application.Services
 				}
 
 				await dbContext.SaveChangesAsync();
+
+				await _notifier.Notify("on_doc_update", id);
 			}
 
 			return Result<DtoMoveDocumentResult>.Success(
@@ -835,6 +846,9 @@ namespace AleProjects.Cms.Application.Services
 			dbContext.Documents.Add(doc);
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_create", doc.Id);
+
 
 			DtoFullDocumentResult result = new()
 			{
