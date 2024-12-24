@@ -35,6 +35,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 	public class WebhookNotifier(CmsDbContext context, IHttpClientFactory httpClientFactory) : IWebhookNotifier
 	{
 		public const string EVENT_CREATE = "on_doc_create";
+		public const string EVENT_CHANGE = "on_doc_change";
 		public const string EVENT_UPDATE = "on_doc_update";
 		public const string EVENT_DELETE = "on_doc_delete";
 		public const string EVENT_XMLSCHEMA = "on_xmlschema_change";
@@ -97,18 +98,11 @@ namespace AleProjects.Cms.Infrastructure.Notification
 			}
 			else
 			{
-				// use JOIN here instead of two queries
-
-				var nodes = await _dbContext.DocumentPathNodes
-					.AsNoTracking()
-					.Where(n => n.DocumentRef == affectedDocument)
-					.Select(n => n.Parent)
-					.ToArrayAsync();
-
 				webhooks = await _dbContext.Webhooks
 					.AsNoTracking()
-					.Where(w => nodes.Contains(w.RootDocument) && w.Enabled)
-					.Select(w => new Webhook() { Endpoint = w.Endpoint, Secret = w.Secret })
+					.Join(_dbContext.DocumentPathNodes, w => w.RootDocument, n => n.Parent, (w, n) => new { w, n })
+					.Where(wn => wn.n.DocumentRef == affectedDocument && wn.w.Enabled)
+					.Select(wn => new Webhook() { Endpoint = wn.w.Endpoint, Secret = wn.w.Secret })
 					.ToArrayAsync();
 			}
 

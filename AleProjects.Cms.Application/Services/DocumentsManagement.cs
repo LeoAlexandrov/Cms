@@ -255,6 +255,8 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
+			await _notifier.Notify("on_doc_create", doc.Id);
+
 			DtoFullDocumentResult result = new()
 			{
 				Properties = new(doc),
@@ -262,8 +264,6 @@ namespace AleProjects.Cms.Application.Services
 				FragmentLinks = [],
 				FragmentsTree = []
 			};
-
-			await _notifier.Notify("on_doc_create", doc.Id);
 
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
@@ -327,7 +327,7 @@ namespace AleProjects.Cms.Application.Services
 
 			if (children != null && children.Length > 0)
 			{
-				authResult = await _authService.AuthorizeAsync(user, "IsDeveloper");
+				authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 				if (!authResult.Succeeded)
 					return Result<DtoDocumentResult>.Forbidden();
@@ -421,7 +421,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_update", id);
+			await _notifier.Notify("on_doc_change", doc.Id);
 
 			return Result<DtoDocumentResult>.Success(new(doc)); ;
 		}
@@ -700,7 +700,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_update", id);
+			await _notifier.Notify("on_doc_change", doc.Id);
 
 			return Result<DtoDocumentResult>.Success(new(doc));
 		}
@@ -751,7 +751,7 @@ namespace AleProjects.Cms.Application.Services
 
 				await dbContext.SaveChangesAsync();
 
-				await _notifier.Notify("on_doc_update", id);
+				await _notifier.Notify("on_doc_change", doc.Id);
 			}
 
 			return Result<DtoMoveDocumentResult>.Success(

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -9,12 +8,36 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
 
+using AleProjects.Cms.Sdk.ContentRepo;
+
 
 public static class ContentCacheExtension
 {
 	public static IApplicationBuilder UseContentCache(this IApplicationBuilder builder)
 	{
 		return builder.UseMiddleware<ContentCacheMiddleware>();
+	}
+}
+
+public static class ContentCache
+{
+	public class Notification
+	{
+		public string Event { get; set; }
+		public int AffectedDocument { get; set; }
+		public string Secret { get; set; }
+	}
+
+	public static void Update(Notification model, IMemoryCache cache, ContentRepo repo)
+	{
+		if (model.Secret != "0tFFzJD1s652UIlnXzhOosmI2Z3HnI0r")
+			return;
+
+		if (model.Event == "on_xmlschema_change")
+			ContentRepo.ReloadSchemata();
+		
+		if (cache is MemoryCache memoryCache)
+			memoryCache.Clear();
 	}
 }
 
@@ -53,7 +76,6 @@ public class ContentCacheMiddleware(RequestDelegate next)
 					context.Response.StatusCode < (int)HttpStatusCode.Ambiguous)
 				{
 					newBody.Seek(0, SeekOrigin.Begin);
-
 					body = new byte[newBody.Length];
 					newBody.Read(body, 0, body.Length);
 

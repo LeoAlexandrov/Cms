@@ -12,6 +12,7 @@ using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Sdk.ViewModels;
+using System.Threading;
 
 
 namespace AleProjects.Cms.Sdk.ContentRepo
@@ -25,7 +26,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		readonly string mediaHost;
 		readonly static FragmentSchemaRepo fsr = new();
 		readonly static object lockObject = new();
-		static int? schemataChecksum = null;
+		static int NeedsSchemataReload = 1;
 		static int PageSize = 25;
 		bool disposed;
 
@@ -69,17 +70,15 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 		private static void LoadFragmentSchemaService(CmsDbContext dbContext)
 		{
-			var cs = dbContext.Database
-				.SqlQueryRaw<int>($"SELECT CHECKSUM_AGG(BINARY_CHECKSUM(ModifiedAt)) AS [Value] FROM Schemata WITH (NOLOCK)")
-				.FirstOrDefault();
-
-			if (!schemataChecksum.HasValue || cs != schemataChecksum)
+			if (NeedsSchemataReload > 0)
 				lock (lockObject)
-					if (!schemataChecksum.HasValue || cs != schemataChecksum)
+				{
+					if (NeedsSchemataReload > 0)
 					{
-						schemataChecksum = cs;
 						fsr.Reload(dbContext);
+						NeedsSchemataReload = 0;
 					}
+				}
 		}
 
 		private static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Func<Entities.FragmentLink, Fragment> fragmentFactory)
@@ -207,13 +206,18 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				return documentPath;
 
 			if (string.IsNullOrEmpty(mediaHost))
-				return mediaHost;
+				return mediaPath;
 
 			return mediaHost + mediaPath;
 		}
 
 		#endregion
 
+
+		public static void ReloadSchemata()
+		{
+			NeedsSchemataReload = 1;
+		}
 
 		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, ReferenceTransformer refTransformer)
 		{

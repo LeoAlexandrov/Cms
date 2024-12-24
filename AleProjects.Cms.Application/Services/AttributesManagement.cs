@@ -98,6 +98,8 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoDocumentAttributeResult>.Success(new(result));
 		}
 
@@ -164,6 +166,8 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoFragmentAttributeResult>.Success(new(result));
 		}
 
@@ -207,6 +211,9 @@ namespace AleProjects.Cms.Application.Services
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoDocumentAttributeResult>.Success(new(attr)); ;
 		}
 
@@ -257,6 +264,9 @@ namespace AleProjects.Cms.Application.Services
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoFragmentAttributeResult>.Success(new(attr)); ;
 		}
 
@@ -283,6 +293,8 @@ namespace AleProjects.Cms.Application.Services
 			dbContext.DocumentAttributes.Remove(attr);
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
 
 			return Result<bool>.Success(true);
 		}
@@ -318,6 +330,8 @@ namespace AleProjects.Cms.Application.Services
 			dbContext.FragmentAttributes.Remove(attr);
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
 
 			return Result<bool>.Success(true);
 		}

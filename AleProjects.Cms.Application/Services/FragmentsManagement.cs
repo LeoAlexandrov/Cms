@@ -791,6 +791,8 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()
 				{
@@ -941,6 +943,8 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()
 				{
@@ -1039,6 +1043,8 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
+			await _notifier.Notify("on_doc_update", doc.Id);
+
 			return Result<DtoDocumentChangeResult>.Success(
 				new DtoDocumentChangeResult() 
 				{ 
@@ -1096,6 +1102,8 @@ namespace AleProjects.Cms.Application.Services
 				doc.Author = user.Identity.Name;
 
 				await dbContext.SaveChangesAsync();
+
+				await _notifier.Notify("on_doc_update", doc.Id);
 			}
 
 			return Result<DtoMoveFragmentResult>.Success(
@@ -1162,6 +1170,8 @@ namespace AleProjects.Cms.Application.Services
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
 
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()

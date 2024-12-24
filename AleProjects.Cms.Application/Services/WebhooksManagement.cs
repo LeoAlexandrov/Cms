@@ -99,7 +99,7 @@ namespace AleProjects.Cms.Application.Services
 			await _dbContext.SaveChangesAsync();
 
 			if (enabled)
-				await _notifier.Notify("on_webhook_enable", 0);
+				await _notifier.Notify("on_webhook_enable", 0, id);
 
 			return Result<DtoWebhookLiteResult>.Success(new(result));
 		}
