@@ -25,6 +25,8 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 	if (!string.IsNullOrEmpty(settingsFile))
 		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
 
+	ContentCache.WebhookSecret = configuration["WebhookSecret"];
+
 	services
 		.AddMemoryCache()
 		.AddScoped<ContentRepo>()

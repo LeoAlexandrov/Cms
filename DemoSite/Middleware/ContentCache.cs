@@ -21,6 +21,8 @@ public static class ContentCacheExtension
 
 public static class ContentCache
 {
+	public static string WebhookSecret { get; set; }
+
 	public class Notification
 	{
 		public string Event { get; set; }
@@ -30,14 +32,20 @@ public static class ContentCache
 
 	public static void Update(Notification model, IMemoryCache cache, ContentRepo repo)
 	{
-		if (model.Secret != "0tFFzJD1s652UIlnXzhOosmI2Z3HnI0r")
+		if (model.Secret != WebhookSecret)
 			return;
 
 		if (model.Event == "on_xmlschema_change")
+		{
 			ContentRepo.ReloadSchemata();
-		
+			Console.WriteLine("*** Schema reloaded ***");
+		}
+
 		if (cache is MemoryCache memoryCache)
+		{
 			memoryCache.Clear();
+			Console.WriteLine("*** Entire cache cleared ***");
+		}
 	}
 }
 

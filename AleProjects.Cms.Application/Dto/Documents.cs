@@ -125,7 +125,7 @@ namespace AleProjects.Cms.Application.Dto
 
 
 
-	[MessagePackObject]
+	[MessagePackObject(AllowPrivate = true)]
 	public class DtoCreateDocument
 	{
 		[MessagePack.IgnoreMember]
@@ -149,7 +149,7 @@ namespace AleProjects.Cms.Application.Dto
 
 
 
-	[MessagePackObject]
+	[MessagePackObject(AllowPrivate = true)]
 	public class DtoUpdateDocument
 	{
 		[MessagePack.IgnoreMember]

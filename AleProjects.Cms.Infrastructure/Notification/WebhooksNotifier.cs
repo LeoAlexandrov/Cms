@@ -98,11 +98,16 @@ namespace AleProjects.Cms.Infrastructure.Notification
 			}
 			else
 			{
+				var nodes = await _dbContext.DocumentPathNodes
+					.AsNoTracking()
+					.Where(n => n.DocumentRef == affectedDocument)
+					.Select(n => n.Parent)
+					.ToArrayAsync();
+
 				webhooks = await _dbContext.Webhooks
 					.AsNoTracking()
-					.Join(_dbContext.DocumentPathNodes, w => w.RootDocument, n => n.Parent, (w, n) => new { w, n })
-					.Where(wn => wn.n.DocumentRef == affectedDocument && wn.w.Enabled)
-					.Select(wn => new Webhook() { Endpoint = wn.w.Endpoint, Secret = wn.w.Secret })
+					.Where(w => (nodes.Contains(w.RootDocument) || w.RootDocument == affectedDocument) && w.Enabled)
+					.Select(w => new Webhook() { Endpoint = w.Endpoint, Secret = w.Secret })
 					.ToArrayAsync();
 			}
 
