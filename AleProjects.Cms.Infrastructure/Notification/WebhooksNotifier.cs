@@ -39,7 +39,8 @@ namespace AleProjects.Cms.Infrastructure.Notification
 		public const string EVENT_UPDATE = "on_doc_update";
 		public const string EVENT_DELETE = "on_doc_delete";
 		public const string EVENT_XMLSCHEMA = "on_xmlschema_change";
-		public const string EVENT_ENABLED = "on_webhook_enable";
+		public const string EVENT_ENABLE = "on_webhook_enable";
+		public const string EVENT_DISABLE = "on_webhook_disable";
 
 		private readonly CmsDbContext _dbContext = context;
 		private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
@@ -82,7 +83,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 		{
 			Webhook[] webhooks;
 
-			if (eventType == EVENT_ENABLED)
+			if (eventType == EVENT_ENABLE || eventType == EVENT_DISABLE)
 			{
 				var w = await _dbContext.Webhooks.FindAsync(webhook);
 

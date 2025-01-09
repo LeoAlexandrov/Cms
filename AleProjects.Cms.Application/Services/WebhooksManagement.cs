@@ -38,19 +38,21 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<Result<DtoWebhookResult>> GetById(int id, ClaimsPrincipal user)
+		public async Task<DtoWebhookResult> GetById(int id, ClaimsPrincipal user)
 		{
-			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
-
-			if (!authResult.Succeeded)
-				return Result<DtoWebhookResult>.Forbidden();
-
 			var w = await _dbContext.Webhooks.FindAsync(id);
 
 			if (w == null)
-				return Result<DtoWebhookResult>.NotFound();
+				return null;
 
-			return Result<DtoWebhookResult>.Success(new(w, true));
+			DtoWebhookResult result = new(w, true);
+
+			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
+
+			if (!authResult.Succeeded)
+				result.Secret = new string('*', 32);
+
+			return result;
 		}
 
 		public async Task<Result<DtoWebhookLiteResult>> CreateWebhook(DtoCreateWebhook dto, ClaimsPrincipal user)
@@ -88,6 +90,7 @@ namespace AleProjects.Cms.Application.Services
 				return Result<DtoWebhookLiteResult>.NotFound();
 
 			bool enabled = !result.Enabled && dto.Enabled;
+			bool disabled = result.Enabled && !dto.Enabled;
 
 			result.Endpoint = dto.Endpoint;
 			result.RootDocument = dto.RootDocument;
@@ -100,6 +103,8 @@ namespace AleProjects.Cms.Application.Services
 
 			if (enabled)
 				await _notifier.Notify("on_webhook_enable", 0, id);
+			else if (disabled)
+				await _notifier.Notify("on_webhook_disable", 0, id);
 
 			return Result<DtoWebhookLiteResult>.Success(new(result));
 		}

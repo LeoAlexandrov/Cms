@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 
 using AleProjects.Cms.Sdk.ContentRepo;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Http;
 
 
 
@@ -29,6 +29,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 	services
 		.AddMemoryCache()
+		.AddTransient<IReferenceTransformer, DefaultReferenceTransformer>()
 		.AddScoped<ContentRepo>()
 		.AddRazorPages()
 		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"));
@@ -57,7 +58,8 @@ void ConfigureApp(WebApplication app)
 		.UseAuthorization();
 
 	app.MapPost("/cms-webhook-handler",
-		(ContentCache.Notification model, IMemoryCache cache, ContentRepo repo) => ContentCache.Update(model, cache, repo));
+		async (ContentCache.Notification model, IMemoryCache cache, ContentRepo repo) => await ContentCache.Update(model, cache, repo));
+		
 
 	app.MapRazorPages();
 }

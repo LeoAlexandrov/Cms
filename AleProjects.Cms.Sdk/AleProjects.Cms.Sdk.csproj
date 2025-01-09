@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ContentRepo\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
     <ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj" />
   </ItemGroup>

@@ -9,23 +9,16 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AleProjects.Cms.Web.Pages
 {
-	public class MediaModel : PageModel
+	public class MediaModel(MediaManagementService mms, IAuthorizationService authService) : PageModel
 	{
-		private readonly MediaManagementService _mms;
-		private readonly IAuthorizationService _authService;
+		private readonly MediaManagementService _mms = mms;
+		private readonly IAuthorizationService _authService = authService;
 
 		public string Link { get; set; }
 		public int MaxUploadSize { get; set; }
 		public bool UploadOnlySafeContent { get; set; }
 		public string SafeNameRegexString { get; set; }
 		public object UploadParams { get; set; }
-
-
-		public MediaModel(MediaManagementService mms, IAuthorizationService authService)
-		{
-			_mms = mms;
-			_authService = authService;
-		}
 
 		public async Task<IActionResult> OnGet([FromRoute] string link)
 		{

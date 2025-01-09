@@ -8,6 +8,8 @@ using MessagePack;
 namespace AleProjects.Cms.Application.Dto
 {
 
+	[Union(0, typeof(DtoDocumentAttributeResult))]
+	[Union(1, typeof(DtoFragmentAttributeResult))]
 	[MessagePackObject]
 	public abstract class DtoAttributeResult
 	{
@@ -72,6 +74,8 @@ namespace AleProjects.Cms.Application.Dto
 
 
 
+	[Union(0, typeof(DtoCreateDocumentAttribute))]
+	[Union(1, typeof(DtoCreateFragmentAttribute))]
 	[MessagePackObject]
 	public abstract class DtoCreateAttribute
 	{
@@ -108,6 +112,8 @@ namespace AleProjects.Cms.Application.Dto
 
 
 
+	[Union(0, typeof(DtoUpdateDocumentAttribute))]
+	[Union(1, typeof(DtoUpdateFragmentAttribute))]
 	[MessagePackObject]
 	public abstract class DtoUpdateAttribute
 	{

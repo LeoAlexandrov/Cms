@@ -23,17 +23,20 @@ namespace DemoSite.Pages
 			if (this.Request.Path == "/666") // 500 page test
 				_repo = null;
 
-			this.Document = await _repo.GetDocument("home", this.Request.Path, 1, true, null);
+			this.Document = await _repo.GetDocument("home", this.Request.Path, 1, true);
 
 			if (this.Document == null)
-			{
 				return NotFound();
-			}
 
 			if (this.Document.Attributes.ContainsKey("no-cache"))
-			{
 				this.HttpContext.Response.Headers.Append("Cache-Control", "max-age=0, no-store");
-			}
+
+			if (!string.IsNullOrEmpty(this.Document.Language))
+				ViewData["Language"] = this.Document.Language;
+			else
+				ViewData["Language"] = "en";
+
+			ViewData["Title"] = this.Document.Title;
 
 			return Page();
 		}

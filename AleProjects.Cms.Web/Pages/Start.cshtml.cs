@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
@@ -51,7 +50,7 @@ namespace AleProjects.Cms.Web.Pages
 					return;
 				}
 
-				DtoCreateUser user = new()
+				var user = new DtoCreateUser()
 				{
 					Login = this.Account,
 					Role = "Developer"

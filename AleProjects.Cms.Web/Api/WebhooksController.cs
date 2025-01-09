@@ -36,12 +36,10 @@ namespace AleProjects.Cms.Web.Api
 
 			var result = await _wms.GetById(id.Value, this.HttpContext.User);
 
-			return result.Type switch
-			{
-				ResultType.NotFound => NotFound(),
-				ResultType.Forbidden => Forbid(),
-				_ => Ok(result.Value)
-			};
+			if (result == null)
+				return NotFound();
+
+			return Ok(result);
 		}
 
 		[HttpPost]

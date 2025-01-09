@@ -11,16 +11,15 @@ using Microsoft.Extensions.Caching.Memory;
 using AleProjects.Cms.Sdk.ContentRepo;
 
 
-public static class ContentCacheExtension
-{
-	public static IApplicationBuilder UseContentCache(this IApplicationBuilder builder)
-	{
-		return builder.UseMiddleware<ContentCacheMiddleware>();
-	}
-}
-
 public static class ContentCache
 {
+	const string EVENT_CREATE = "on_doc_create";
+	const string EVENT_CHANGE = "on_doc_change";
+	const string EVENT_UPDATE = "on_doc_update";
+	const string EVENT_DELETE = "on_doc_delete";
+	const string EVENT_XMLSCHEMA = "on_xmlschema_change";
+	const string EVENT_ENABLED = "on_webhook_enable";
+
 	public static string WebhookSecret { get; set; }
 
 	public class Notification
@@ -30,22 +29,49 @@ public static class ContentCache
 		public string Secret { get; set; }
 	}
 
-	public static void Update(Notification model, IMemoryCache cache, ContentRepo repo)
+
+	public static IApplicationBuilder UseContentCache(this IApplicationBuilder builder)
+	{
+		return builder.UseMiddleware<ContentCacheMiddleware>();
+	}
+
+	public static async Task Update(Notification model, IMemoryCache cache, ContentRepo repo)
 	{
 		if (model.Secret != WebhookSecret)
 			return;
 
-		if (model.Event == "on_xmlschema_change")
+		string cacheKey = null;
+
+		switch (model.Event)
 		{
-			ContentRepo.ReloadSchemata();
-			Console.WriteLine("*** Schema reloaded ***");
+			case EVENT_XMLSCHEMA:
+
+				ContentRepo.ReloadSchemata();
+				Console.WriteLine("*** Schema reloaded ***");
+				break;
+
+			case EVENT_UPDATE:
+
+				var (path, root) = await repo.IdToPath(model.AffectedDocument);
+				cacheKey = repo.ReferenceTransformer.Forward(path, false, root);
+				break;
+
+			default:
+				break;
 		}
 
-		if (cache is MemoryCache memoryCache)
+
+		if (!string.IsNullOrEmpty(cacheKey))
+		{
+			cache.Remove(cacheKey);
+			Console.WriteLine("*** Entry '{0}' is removed ***", cacheKey);
+		}
+		else if (cache is MemoryCache memoryCache)
 		{
 			memoryCache.Clear();
 			Console.WriteLine("*** Entire cache cleared ***");
 		}
+		
 	}
 }
 

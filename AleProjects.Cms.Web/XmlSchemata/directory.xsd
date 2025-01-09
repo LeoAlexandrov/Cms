@@ -27,6 +27,7 @@
 						<xs:enumeration value="grid"/>
 						<xs:enumeration value="expandable"/>
 						<xs:enumeration value="hero"/>
+						<xs:enumeration value="blog"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
