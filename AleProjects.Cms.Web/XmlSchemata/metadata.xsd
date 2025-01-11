@@ -16,10 +16,10 @@
 			<xs:documentation xml:lang="fr">Métadonnées de la page</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="title" type="xs:boolean" default="true">
+			<xs:element name="cover" type="xs:boolean">
 				<xs:annotation>
-					<xs:documentation xml:lang="en">Title</xs:documentation>
-					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+					<xs:documentation xml:lang="en">Cover picture</xs:documentation>
+					<xs:documentation xml:lang="fr">Image de couverture</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="breadcrumbs" type="xs:boolean">
@@ -28,28 +28,16 @@
 					<xs:documentation xml:lang="fr">Fil d'Ariane</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="cover" type="xs:boolean">
+			<xs:element name="title" type="xs:boolean" default="true">
 				<xs:annotation>
-					<xs:documentation xml:lang="en">Cover picture</xs:documentation>
-					<xs:documentation xml:lang="fr">Image de couverture</xs:documentation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="summary" type="xs:boolean">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Summary</xs:documentation>
 					<xs:documentation xml:lang="fr">Résumé</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="siblings" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Siblings</xs:documentation>
-					<xs:documentation xml:lang="fr">Frères et sœurs</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="children" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Siblings</xs:documentation>
-					<xs:documentation xml:lang="fr">Frères et sœurs</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

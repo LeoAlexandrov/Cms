@@ -1,10 +1,32 @@
 ﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
 
 @{
-	bool title = Model.Props.title;
-	bool summary = Model.Props.summary;
 	bool cover = Model.Props.cover;
 	bool breadcrumbs = Model.Props.breadcrumbs;
+	bool title = Model.Props.title;
+	bool summary = Model.Props.summary;
+}
+
+@if (cover && !string.IsNullOrEmpty(Model.Document.CoverPicture))
+{
+	<img src="@Model.Document.CoverPicture" class="img-fluid" alt="@Model.Document.Title" />
+}
+
+@if (breadcrumbs && Model.Document.Breadcrumbs.Length > 1)
+{
+	<nav class="mt-4">
+		<ol class="breadcrumb">
+
+			<li class="breadcrumb-item"><a href="@Model.Document.Breadcrumbs[0].Path"><i class="fas fa-house"></i></a></li>
+			@for (int i = 1; i < Model.Document.Breadcrumbs.Length - 1; i++)
+			{
+				<li class="breadcrumb-item"><a href="@Model.Document.Breadcrumbs[i].Path">@Model.Document.Breadcrumbs[i].Title</a></li>
+			}
+			<li class="breadcrumb-item active" aria-current="page">
+				@Model.Document.Breadcrumbs[Model.Document.Breadcrumbs.Length - 1].Title
+			</li>
+		</ol>
+	</nav>
 }
 
 @if (title)
@@ -15,13 +37,3 @@
 {
 	<div>@Html.Raw(Model.Document.Summary)</div>
 }
-
-@*
-if (cover) ...
-
-and
-
-if (breadcrumbs) ...
-
-are not ready yet
-*@

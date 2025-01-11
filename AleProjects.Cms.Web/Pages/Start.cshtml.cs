@@ -22,7 +22,6 @@ namespace AleProjects.Cms.Web.Pages
 
 		[BindProperty]
 		[Required]
-		[EmailAddress]
 		public string Account { get; set; }
 
 		public void OnGet()

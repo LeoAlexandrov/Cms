@@ -536,6 +536,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			if (doc == null)
 				return (null, null);
 
+			if (doc.Parent == 0)
+				return (doc.Path, doc.Slug);
+
 			var root = await dbContext.Documents
 				.AsNoTracking()
 				.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.Parent, (d, n) => new { d, n })

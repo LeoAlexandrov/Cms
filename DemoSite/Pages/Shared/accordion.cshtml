@@ -17,17 +17,23 @@
 	string look = Model.Props.appearance.look;
 	string cls;
 
-	if (look == "minimalistic")
-		cls = "accordion-flush";
-	else if (look == "alternative")
-		cls = "accordion-borderless";
-	else
-		cls = null;
+	switch (look)
+	{
+		case "minimalistic":
+			cls = "accordion-flush";
+			break;
+		case "alternative":
+			cls = "accordion-borderless";
+			break;
+		default:
+			cls = null;
+			break;
+	}
 }
 
 @if (!string.IsNullOrEmpty(title))
 {
-	<h2>@title</h2>
+	<h3>@title</h3>
 }
 <div class="accordion @cls" id="@id">
 	@for(int i = 0; i < n; i++)
