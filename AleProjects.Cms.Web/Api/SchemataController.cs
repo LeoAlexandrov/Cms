@@ -49,9 +49,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Post([Required] DtoCreateSchema dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _sms.CreateSchema(dto, this.HttpContext.User);
 
 			if (result.IsBadParameters)
@@ -65,9 +62,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoUpdateSchema dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _sms.UpdateSchema(id, dto, this.HttpContext.User);
 
 			return result.Type switch

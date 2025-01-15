@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-using AleProjects.Cms.Domain.Entities;
 using MessagePack;
+
+using AleProjects.Cms.Domain.Entities;
 
 
 namespace AleProjects.Cms.Application.Dto
@@ -63,7 +64,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("onlySave")]
 		[Required]
-		public bool OnlySave { get; set; }
+		public bool? OnlySave { get; set; }
 
 		[MessagePack.Key("data")]
 		[Required(AllowEmptyStrings = false)]

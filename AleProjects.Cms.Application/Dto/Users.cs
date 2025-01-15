@@ -1,9 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+
+using MessagePack;
 
 using AleProjects.Cms.Domain.Entities;
-using MessagePack;
 
 
 namespace AleProjects.Cms.Application.Dto
@@ -118,11 +118,11 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("resetApiKey")]
 		[Required]
-		public bool ResetApiKey { get; set; }
+		public bool? ResetApiKey { get; set; }
 
 		[MessagePack.Key("isEnabled")]
 		[Required]
-		public bool IsEnabled { get; set; }
+		public bool? IsEnabled { get; set; }
 	}
 
 

@@ -47,9 +47,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Post([Required] DtoCreateWebhook dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _wms.CreateWebhook(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -66,9 +63,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoUpdateWebhook dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _wms.UpdateWebhook(id, dto, this.HttpContext.User);
 
 			return result.Type switch

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using MessagePack;
@@ -112,9 +113,11 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoMediaStorageFolderCreate
 	{
 		[MessagePack.Key("name")]
+		[Required]
 		public string Name { get; set; }
 
 		[MessagePack.Key("destination")]
+		[Required]
 		public string Destination { get; set; } 
 	}
 

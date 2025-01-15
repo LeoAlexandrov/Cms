@@ -132,7 +132,7 @@ namespace AleProjects.Cms.Application.Dto
 		protected string slug;
 
 		[MessagePack.Key("parent")]
-		[Required]
+		[RequiredNonNegative]
 		public int Parent { get; set; }
 
 		[MessagePack.Key("slug")]
@@ -188,7 +188,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("published")]
 		[Required]
-		public bool Published { get; set; }
+		public bool? Published { get; set; }
 	}
 
 
@@ -198,7 +198,7 @@ namespace AleProjects.Cms.Application.Dto
 	{
 		[MessagePack.Key("lockState")]
 		[Required]
-		public bool LockState { get; set; }
+		public bool? LockState { get; set; }
 	}
 
 
@@ -207,7 +207,7 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoSetParentDocument
 	{
 		[MessagePack.Key("parent")]
-		[Required]
+		[RequiredNonNegative]
 		public int Parent { get; set; }
 	}
 
@@ -218,7 +218,7 @@ namespace AleProjects.Cms.Application.Dto
 	{
 		[MessagePack.Key("increment")]
 		[Required]
-		public int Increment { get; set; }
+		public int? Increment { get; set; }
 	}
 
 
@@ -239,7 +239,7 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoCopyDocument
 	{
 		[MessagePack.Key("origin")]
-		[Required]
+		[RequiredPositive]
 		public int Origin { get; set; }
 	}
 

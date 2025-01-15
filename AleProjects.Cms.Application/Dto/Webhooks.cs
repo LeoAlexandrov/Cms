@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-using AleProjects.Cms.Domain.Entities;
 using MessagePack;
+
+using AleProjects.Cms.Domain.Entities;
 
 
 namespace AleProjects.Cms.Application.Dto
@@ -67,7 +68,7 @@ namespace AleProjects.Cms.Application.Dto
 		public string Endpoint { get; set; }
 
 		[MessagePack.Key("rootDocument")]
-		[Required]
+		[RequiredPositive]
 		public int RootDocument { get; set; }
 	}
 
@@ -81,16 +82,16 @@ namespace AleProjects.Cms.Application.Dto
 		public string Endpoint { get; set; }
 
 		[MessagePack.Key("rootDocument")]
-		[Required]
+		[RequiredPositive]
 		public int RootDocument { get; set; }
 
 		[MessagePack.Key("resetSecret")]
 		[Required]
-		public bool ResetSecret { get; set; }
+		public bool? ResetSecret { get; set; }
 
 		[MessagePack.Key("enabled")]
 		[Required]
-		public bool Enabled { get; set; }
+		public bool? Enabled { get; set; }
 	}
 
 

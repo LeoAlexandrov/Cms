@@ -89,21 +89,22 @@ namespace AleProjects.Cms.Application.Services
 			if (result == null)
 				return Result<DtoWebhookLiteResult>.NotFound();
 
-			bool enabled = !result.Enabled && dto.Enabled;
-			bool disabled = result.Enabled && !dto.Enabled;
+			bool enabled = dto.Enabled.Value;
+			bool becomesEnabled = !result.Enabled && enabled;
+			bool becomesDisabled = result.Enabled && !enabled;
 
 			result.Endpoint = dto.Endpoint;
 			result.RootDocument = dto.RootDocument;
-			result.Enabled = dto.Enabled;
+			result.Enabled = enabled;
 
-			if (dto.ResetSecret)
+			if (dto.ResetSecret.Value)
 				result.Secret = RandomString.Create(32);
 
 			await _dbContext.SaveChangesAsync();
 
-			if (enabled)
+			if (becomesEnabled)
 				await _notifier.Notify("on_webhook_enable", 0, id);
-			else if (disabled)
+			else if (becomesDisabled)
 				await _notifier.Notify("on_webhook_disable", 0, id);
 
 			return Result<DtoWebhookLiteResult>.Success(new(result));

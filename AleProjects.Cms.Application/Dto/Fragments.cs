@@ -80,7 +80,7 @@ namespace AleProjects.Cms.Application.Dto
 		public DtoFragmentResult Properties { get; set; }
 
 		[MessagePack.Key("linkId")]
-		[Required]
+		[RequiredPositive]
 		public int LinkId { get; set; }
 
 		[MessagePack.Key("enabled")]
@@ -247,11 +247,11 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoCreateFragment
 	{
 		[MessagePack.Key("document")]
-		[Required]
+		[RequiredPositive]
 		public int Document { get; set; }
 
 		[MessagePack.Key("parent")]
-		[Required]
+		[RequiredNonNegative]
 		public int Parent { get; set; }
 
 		[MessagePack.Key("name")]
@@ -291,7 +291,7 @@ namespace AleProjects.Cms.Application.Dto
 	{
 		[MessagePack.Key("increment")]
 		[Required]
-		public int Increment { get; set; }
+		public int? Increment { get; set; }
 	}
 
 

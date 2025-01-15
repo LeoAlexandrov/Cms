@@ -519,7 +519,7 @@ namespace AleProjects.Cms.Application.Services
 			return new() { Shared = shared, Templates = templates };
 		}
 
-		public async ValueTask<Result<DtoFullFragmentResult>> GetFragmentByLink(int id, string lang)
+		public async Task<Result<DtoFullFragmentResult>> GetFragmentByLink(int id, string lang)
 		{
 			var link = await dbContext.FragmentLinks.FindAsync(id);
 

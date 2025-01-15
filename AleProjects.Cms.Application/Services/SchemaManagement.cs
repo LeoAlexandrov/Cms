@@ -53,7 +53,7 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoSchemaResult>.Forbidden();
 
-			var result = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave);
+			var result = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave.Value);
 
 			if (!result.Ok)
 				return Result<DtoSchemaResult>.From(result);

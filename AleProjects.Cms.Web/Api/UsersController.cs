@@ -56,9 +56,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Post([Required] DtoCreateUser dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _ums.CreateUser(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -75,9 +72,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoUpdateUser dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _ums.UpdateUser(id, dto, this.HttpContext.User);
 
 			return result.Type switch

@@ -282,6 +282,7 @@ namespace AleProjects.Cms.Application.Services
 			string icon;
 			string tags;
 			string description;
+			bool published = dto.Published.Value;
 
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -315,7 +316,7 @@ namespace AleProjects.Cms.Application.Services
 				return Result<DtoDocumentResult>.NotFound();
 
 			bool slugChanged = doc.Slug != slug;
-			bool needsChildrenUpdate = slugChanged || (!dto.Published && doc.Published);
+			bool needsChildrenUpdate = slugChanged || (!published && doc.Published);
 
 			Document[] children = needsChildrenUpdate ?
 				await dbContext.Documents
@@ -335,7 +336,7 @@ namespace AleProjects.Cms.Application.Services
 
 
 			if (doc.Published != dto.Published)
-				if (dto.Published)
+				if (published)
 				{
 					var parent = await dbContext.Documents.FindAsync(doc.Parent);
 
@@ -380,7 +381,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Icon = NullIfEmpty(icon);
 			doc.Tags = NullIfEmpty(tags);
 			doc.AssociatedClaims = NullIfEmpty(dto.AssociatedClaims);
-			doc.Published = dto.Published;
+			doc.Published = published;
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 

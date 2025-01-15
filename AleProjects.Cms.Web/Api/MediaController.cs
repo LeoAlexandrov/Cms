@@ -133,9 +133,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Folder([Required] DtoMediaStorageFolderCreate dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _mms.CreateFolder(dto.Name, dto.Destination, this.User);
 
 			if (result.IsBadParameters)
@@ -149,9 +146,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Entry([Required] DtoMediaStorageEntryDelete dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			if (dto.Links == null || dto.Links.Length == 0)
 				return Ok();
 

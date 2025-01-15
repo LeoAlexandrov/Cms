@@ -47,9 +47,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Post([Required] DtoCreateDocument dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.CreateDocument(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -65,9 +62,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoUpdateDocument dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.UpdateDocument(id, dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -101,10 +95,7 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> SetLock(int id, [Required] DtoLockDocument dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
-			var result = await _cms.LockDocument(id, dto.LockState, this.HttpContext.User);
+			var result = await _cms.LockDocument(id, dto.LockState.Value, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -120,9 +111,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> SetParent(int id, [Required] DtoSetParentDocument dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.SetParentDocument(id, dto.Parent, this.HttpContext.User);
 
 			return result.Type switch
@@ -140,10 +128,7 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Move(int id, [Required] DtoMoveDocument dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
-			var result = await _cms.MoveDocument(id, dto.Increment, this.HttpContext.User);
+			var result = await _cms.MoveDocument(id, dto.Increment.Value, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -185,9 +170,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> PostAttribute([Required] DtoCreateDocumentAttribute dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.CreateAttribute(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -204,9 +186,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateDocumentAttribute dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.UpdateAttribute(id, dto, this.HttpContext.User);
 
 			return result.Type switch

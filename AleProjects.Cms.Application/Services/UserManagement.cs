@@ -146,7 +146,9 @@ namespace AleProjects.Cms.Application.Services
 			if (!roles.Contains(dto.Role))
 				return Result<DtoUserResult>.BadParameters("Role", "Must be one of the followwing: " + string.Join(", ", roles));
 
-			if (result.Role == _policies.Roles[0] && (result.Role != dto.Role || !dto.IsEnabled))
+			bool isEnabled = dto.IsEnabled.Value;
+
+			if (result.Role == _policies.Roles[0] && (result.Role != dto.Role || !isEnabled))
 			{
 				var n = await _dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
 
@@ -154,7 +156,7 @@ namespace AleProjects.Cms.Application.Services
 				{
 					Dictionary<string, string[]> errors = [];
 
-					if (!dto.IsEnabled)
+					if (!isEnabled)
 						errors.Add("IsEnabled", ["Can't be disabled"]);
 
 					if (result.Role != dto.Role)
@@ -167,10 +169,10 @@ namespace AleProjects.Cms.Application.Services
 			result.Role = dto.Role;
 			result.Name = dto.Name;
 			result.Email = dto.Email;
-			result.IsEnabled = dto.IsEnabled;
+			result.IsEnabled = isEnabled;
 			result.Locale = dto.Locale;
 
-			if (dto.ResetApiKey)
+			if (dto.ResetApiKey.Value)
 				result.ApiKey = RandomString.Create(32);
 
 			authResult = await _authService.AuthorizeAsync(user, id, "IsAdmin");

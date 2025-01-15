@@ -96,7 +96,7 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoCreateDocumentAttribute : DtoCreateAttribute
 	{
 		[MessagePack.Key("documentRef")]
-		[Required]
+		[RequiredPositive]
 		public int DocumentRef { get; set; }
 	}
 
@@ -106,7 +106,7 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoCreateFragmentAttribute : DtoCreateAttribute
 	{
 		[MessagePack.Key("fragmentLinkRef")]
-		[Required]
+		[RequiredPositive]
 		public int FragmentLinkRef { get; set; }
 	}
 
@@ -137,7 +137,7 @@ namespace AleProjects.Cms.Application.Dto
 	public class DtoUpdateFragmentAttribute : DtoUpdateAttribute
 	{
 		[MessagePack.Key("documentRef")]
-		[Required]
+		[RequiredPositive]
 		public int DocumentRef { get; set; }
 	}
 

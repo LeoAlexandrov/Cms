@@ -314,15 +314,20 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				result.Children = [];
 
 
-			var refs = await dbContext.References
+			var refsList = await dbContext.References
 				.AsNoTracking()
 				.GroupJoin(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d })
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.Encoded,d.Path, r.r.MediaLink, rootKey, referenceTransformer)
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, referenceTransformer)
 				)
-				.ToDictionaryAsync(r => r.Pattern, r => r.Replacement);
+				.ToArrayAsync();
+
+			Dictionary<string, string> refs = [];
+
+			foreach (var r in refsList)
+				refs.TryAdd(r.Pattern, r.Replacement);
 
 			result.Summary = ReplaceRefs(result.Summary, refs);
 			result.CoverPicture = ReplaceRefs(result.CoverPicture, refs);
@@ -519,10 +524,8 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			var qry = dbContext.Documents
 				.AsNoTracking()
 				.Where(d => d.Parent == docId && d.Published && d.Position >= childrenFromPos)
-				.OrderBy(d => d.Position);
-
-			if (childrenFromPos > 0)
-				return qry.Take(PageSize).Select(d => new Document(d)).ToArrayAsync();
+				.OrderBy(d => d.Position)
+				.Take(PageSize);
 
 			return qry.Select(d => new Document(d)).ToArrayAsync();
 		}

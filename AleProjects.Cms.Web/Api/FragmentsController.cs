@@ -60,9 +60,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Post([Required] DtoCreateFragment dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.CreateFragment(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -78,9 +75,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoFullFragment dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.UpdateFragmentByLink(id, dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -114,10 +108,7 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Move(int id, [Required] DtoMoveFragment dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
-			var result = await _cms.MoveFragment(id, dto.Increment, this.HttpContext.User);
+			var result = await _cms.MoveFragment(id, dto.Increment.Value, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -132,9 +123,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Copy(int id)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.CopyFragment(id, this.HttpContext.User);
 
 			return result.Type switch
@@ -186,9 +174,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> PostAttribute([Required] DtoCreateFragmentAttribute dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.CreateAttribute(dto, this.HttpContext.User);
 
 			return result.Type switch
@@ -205,9 +190,6 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateFragmentAttribute dto)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var result = await _cms.UpdateAttribute(id, dto, this.HttpContext.User);
 
 			return result.Type switch
