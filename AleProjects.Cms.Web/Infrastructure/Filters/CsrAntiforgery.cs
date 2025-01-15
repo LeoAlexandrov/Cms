@@ -17,12 +17,27 @@ namespace AleProjects.Cms.Web.Infrastructure.Filters
 
 		public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
 		{
-			HttpRequest request = context.HttpContext.Request;
-			string method = request.Method;
+			var request = context.HttpContext.Request;
 
-			if (method != "GET" && method != "HEAD" && method != "TRACE" && method != "OPTIONS" && request.Cookies.ContainsKey("X-JWT"))
+			if (request.Cookies.ContainsKey("X-JWT"))
 			{
-				bool valid = await _antiforgery.IsRequestValidAsync(context.HttpContext);
+				// debugging
+
+				bool valid;
+
+				try
+				{
+					await _antiforgery.ValidateRequestAsync(context.HttpContext);
+					valid = true;
+				}
+				catch (Exception ex)
+				{
+					valid = false;
+					Console.WriteLine(ex.Message);
+					Console.WriteLine(ex.StackTrace);
+				}
+
+				//bool valid = await _antiforgery.IsRequestValidAsync(context.HttpContext);
 
 				if (!valid)
 				{

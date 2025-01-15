@@ -1,18 +1,13 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 
 using AleProjects.Cms.Sdk.ContentRepo;
 
@@ -31,13 +26,30 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddMemoryCache()
 		.AddTransient<IReferenceTransformer, DefaultReferenceTransformer>()
 		.AddScoped<ContentRepo>()
+		.AddLocalization(options => options.ResourcesPath = "Resources")
 		.AddRazorPages()
-		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"));
+		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"))
+		.AddViewLocalization();
+
 }
 
 
 void ConfigureApp(WebApplication app)
 {
+	var supportedCultures = new[]
+	{
+		new CultureInfo("en"),
+		new CultureInfo("fr")
+	};
+
+	var localizationOptions = new RequestLocalizationOptions
+	{
+		DefaultRequestCulture = new RequestCulture("en"),
+		SupportedCultures = supportedCultures,
+		SupportedUICultures = supportedCultures
+	};
+
+
 	app.UseStatusCodePagesWithReExecute("/{0}");
 
 	if (app.Environment.IsDevelopment())
@@ -54,6 +66,7 @@ void ConfigureApp(WebApplication app)
 	app.UseHttpsRedirection()
 		.UseStaticFiles()
 		.UseRouting()
+		.UseRequestLocalization(localizationOptions)
 		.UseContentCache()
 		.UseAuthorization();
 

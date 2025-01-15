@@ -137,7 +137,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("slug")]
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
-		public string Slug { get => slug; set => slug = value.ToLower(); }
+		public string Slug { get => slug; set => slug = value?.ToLower(); }
 
 		[MessagePack.Key("title")]
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
@@ -157,7 +157,7 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("slug")]
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
-		public string Slug { get => slug; set => slug = value.ToLower(); }
+		public string Slug { get => slug; set => slug = value?.ToLower(); }
 
 		[MessagePack.Key("title")]
 		[Required(AllowEmptyStrings = false), MaxLength(256)]

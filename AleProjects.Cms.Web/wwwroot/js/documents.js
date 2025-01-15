@@ -1214,8 +1214,8 @@
 							parent: parent,
 							label: r.result.fragment.name,
 							label2: r.result.fragment.xmlName,
-							icon: r.result.fragment.icon,
 							data: r.result.link.data,
+							icon: r.result.link.icon,
 							iconColor: "blue-grey",
 							expandable: false,
 							selectable: true

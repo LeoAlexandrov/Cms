@@ -1166,6 +1166,11 @@ namespace AleProjects.Cms.Application.Services
 
 			dbContext.FragmentLinks.Add(newLink);
 
+			XSElement xse;
+
+			if ((xse = _schemaRepo.Find(fragment.XmlSchema + ":" + fragment.XmlName)) != null && xse.RepresentsContainer)
+				newLink.Data = "container";
+
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
 

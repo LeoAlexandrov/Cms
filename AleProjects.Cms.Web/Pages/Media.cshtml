@@ -18,44 +18,40 @@
 			<div class="text-h6">@Localizer["Properties"]</div>
 		</q-card-section>
 
-		<q-card-section horizontal>
+		<q-card-section align="center" class="q-pt-none">
+			<q-img :src="`/api/v1/media/preview?link=${opened.link}`"
+				class="media-preview-img cursor-pointer"
+				loading="eager"
+				@@click="openImage(opened.link)">
+				<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+			</q-img>
+		</q-card-section>
 
-			<q-card-section class="col-4">
-				<q-img :src="`/api/v1/media/preview?link=${opened.link}`"
-					class="media-preview-img cursor-pointer"
-					loading="eager"
-					@@click="openImage(opened.link)">
-					<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
-				</q-img>
-			</q-card-section>
+		<q-card-section class="q-pt-none">
 
-			<q-card-section class="col-8 q-pt-none">
+			<q-input v-model="opened.hrefLink"
+				label="@Localizer["Link"]"
+				readonly
+				ref="OpenedEntryHrefLink">
 
-				<q-input v-model="opened.hrefLink"
-					label="@Localizer["Link"]"
-					readonly
-					ref="OpenedEntryHrefLink">
+				<template v-slot:after>
+					<q-btn round flat size="sm" icon="content_copy" @@click="copyToClipboard(opened.hrefLink)">
+						<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+					</q-btn>
+				</template>
+			</q-input>
 
-					<template v-slot:after>
-						<q-btn round flat size="sm" icon="content_copy" @@click="copyToClipboard(opened.hrefLink)">
-							<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
-						</q-btn>
-					</template>
-				</q-input>
+			<q-input v-model="opened.name"
+				label="@Localizer["FileName"]"
+				readonly
+				ref="OpenedEntryName">
+			</q-input>
 
-				<q-input v-model="opened.name"
-					label="@Localizer["FileName"]"
-					readonly
-					ref="OpenedEntryName">
-				</q-input>
-
-				<table class="text-caption text-grey q-pt-lg">
-					<tr v-if="opened.width+opened.height>0"><td>@Localizer["ImageSize"]</td><td>: {{ opened.width + ' x ' + opened.height }} px</td></tr>
-					<tr><td>@Localizer["MimeType"]</td><td>: {{ opened.mimeType }}</td></tr>
-					<tr><td>@Localizer["FileSize"]</td><td>: {{ opened.size }} @Localizer["Bytes"]</td></tr>
-				</table>
-
-			</q-card-section>
+			<table class="text-caption text-grey q-pt-lg">
+				<tr v-if="opened.width+opened.height>0"><td>@Localizer["ImageSize"]</td><td>: {{ opened.width + ' x ' + opened.height }} px</td></tr>
+				<tr><td>@Localizer["MimeType"]</td><td>: {{ opened.mimeType }}</td></tr>
+				<tr><td>@Localizer["FileSize"]</td><td>: {{ opened.size }} @Localizer["Bytes"]</td></tr>
+			</table>
 
 		</q-card-section>
 

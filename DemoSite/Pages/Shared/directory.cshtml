@@ -1,5 +1,117 @@
-﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Sdk.ViewModels
+@inject AleProjects.Cms.Sdk.ContentRepo.IReferenceTransformer RefTransformer
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@model Fragment
 
 @{
-
+	string id = Model.DomId;
+	string title = Model.Props.title;
+	string look = Model.Props.look;
+	string root = Model.Document.Root.Slug;
+	Document[] docs = Model.Document.Children;
+	int n = docs.Length;
 }
+
+@if (n != 0 && !string.IsNullOrEmpty(title))
+{
+	<h3>@title</h3>
+}
+
+
+@if (look == "default")
+{
+	<ul class="list-group list-group-light" id="@id">
+		@foreach (var doc in docs)
+		{
+			<li class="list-group-item"><a href="@RefTransformer.Forward(doc.Path, false, root)">@doc.Title</a></li>
+		}
+	</ul>
+}
+else if (look == "expandable")
+{
+	<div class="accordion accordion-flush" id="@id">
+		@for (int i = 0; i < n; i++)
+		{
+			<div class="accordion-item">
+				<h2 class="accordion-header" id="@id-heading-@i">
+					<button data-mdb-collapse-init class="accordion-button" type="button" data-mdb-target="#@id-body-@i">
+						@docs[i].Title
+					</button>
+				</h2>
+				<div id="@id-body-@i" class="accordion-collapse collapse" data-mdb-parent="@("#" + id)">
+					<div class="accordion-body">
+						<div class="directory-summary">
+							@Html.Raw(docs[i].Summary)
+						</div>
+						<div class="directory-open-doc">
+							<a class="btn btn-primary" href="@RefTransformer.Forward(docs[i].Path, false, root)">
+								@SharedLocalizer["More"]
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+else if (look == "grid" || look == "blog")
+{
+	<div class="container" id="@id">
+		<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4 my-4">
+			@foreach (var doc in docs)
+			{
+				<div class="col">
+					<div class="card h-100">
+						@if (!string.IsNullOrEmpty(doc.CoverPicture))
+						{
+							<div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+								<img src="@RefTransformer.Forward(doc.CoverPicture, true, root)" class="img-fluid" alt="@doc.Title" />
+								<a href="@RefTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">
+									<div class="mask" style="background-color: rgba(251, 251, 251, 0.15)"></div>
+								</a>
+							</div>
+						}
+						<div class="card-body">
+							<h3 class="card-title>">@doc.Title</h3>
+							<div class="card-text">@Html.Raw(doc.Summary)</div>
+						</div>
+						<div class="mx-4 mb-4">
+							<a class="btn btn-primary" href="@RefTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">
+								@SharedLocalizer["More"]
+							</a>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</div>
+}
+
+@*
+If you don't want to use SharedLocalizer, you can use the following code instead:
+Write
+
+@LearnMore(docs[i].Language)
+instead of @SharedLocalizer["More"]
+
+@{
+	string LearnMore(string lang)
+	{
+		int i = lang.IndexOf('-');
+		string prefix = i > 0 ? lang.Substring(0, i) : lang;
+
+		switch (prefix.ToLower())
+		{
+			case "en":
+				return "Learn more";
+
+			case "fr":
+				return "En savoir +";
+
+			default:
+				return "Learn more";
+		}
+	}
+}
+*@

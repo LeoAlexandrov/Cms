@@ -19,6 +19,7 @@ public static class ContentCache
 	const string EVENT_DELETE = "on_doc_delete";
 	const string EVENT_XMLSCHEMA = "on_xmlschema_change";
 	const string EVENT_ENABLED = "on_webhook_enable";
+	const string EVENT_DISABLE = "on_webhook_disable";
 
 	public static string WebhookSecret { get; set; }
 

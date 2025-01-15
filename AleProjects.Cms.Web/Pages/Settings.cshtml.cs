@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AleProjects.Cms.Web.Pages
 {
-    public class SettingsModel : PageModel
-    {
-        public void OnGet()
-        {
-        }
-    }
+
+	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+	public class SettingsModel : PageModel
+	{
+		public void OnGet()
+		{
+		}
+	}
 }

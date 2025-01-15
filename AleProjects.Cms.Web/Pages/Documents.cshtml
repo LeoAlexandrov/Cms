@@ -323,7 +323,12 @@
 									<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 									<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 								</div>
-								<q-editor v-model="f.value" min-height="16rem" paragraph-tag="p" :toolbar="htmlToolbar" v-if="f.textFormat=='html'"></q-editor>
+								<q-editor v-model="f.value" v-if="f.textFormat=='html'" 
+									min-height="16rem"
+									max-height="60vh"
+									paragraph-tag="p" 
+									:toolbar="htmlToolbar">
+								</q-editor>
 								<q-input outlined v-model="f.value" type="textarea" class="multiline-monospace" :rules="[val => validateFragment(val, f)]" v-else-if="f.textFormat=='multiline'"></q-input>
 								<code-editor v-model="f.value" v-else-if="f.textFormat=='markdown'"
 									line-nums

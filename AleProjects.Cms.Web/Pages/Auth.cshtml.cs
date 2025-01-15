@@ -9,6 +9,7 @@ using AleProjects.Cms.Application.Services;
 
 namespace AleProjects.Cms.Web.Pages
 {
+	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	public class AuthModel(IConfiguration configuration, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
 		private readonly IConfiguration _configuration = configuration;

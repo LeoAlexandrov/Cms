@@ -4,6 +4,7 @@
 
 @{
 	Layout = Model.Document.Parent == null || Model.Document.Anchors == null ? "_WideLayout" : "_Layout";
+	Model.SetPageLocale();
 }
 
 @if (Model.Document.Anchors != null)

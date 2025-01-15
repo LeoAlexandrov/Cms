@@ -10,6 +10,8 @@ using AleProjects.Cms.Application.Services;
 
 namespace AleProjects.Cms.Web.Pages
 {
+
+	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	[IgnoreAntiforgeryToken(Order = 1001)]
 	public class StartModel(UserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{

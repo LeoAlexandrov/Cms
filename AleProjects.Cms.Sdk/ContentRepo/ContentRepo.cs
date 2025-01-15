@@ -232,6 +232,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 				result = new(doc)
 				{
+					Root = new(doc),
 					Breadcrumbs = breadcrumbs,
 					Siblings = []
 				};

@@ -1,5 +1,6 @@
 body {
-	font-family: "Raleway"
+	font-family: "Raleway";
+	overflow-x: hidden;
 }
 
 .img-hero-stretched {
@@ -13,6 +14,15 @@ body {
 }
 
 .breakout {
+	width: 100vw;
+	position: relative;
+	left: 50%;
+	right: 50%;
+	margin-left: -50vw;
+	margin-right: -50vw;
+}
+
+.breakout2 {
 	margin: 0em -100%; /* old browsers fallback */
 	margin: 0em calc(50% - 50vw);
 }

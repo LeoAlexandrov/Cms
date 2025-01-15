@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AleProjects.Cms.Web.Pages
 {
+
+	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	public class MediaModel(MediaManagementService mms, IAuthorizationService authService) : PageModel
 	{
 		private readonly MediaManagementService _mms = mms;

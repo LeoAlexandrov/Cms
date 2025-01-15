@@ -18,7 +18,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 		public string Forward(string path, bool isMedia, string root)
 		{
-			if (isMedia)
+			if (isMedia && !path.StartsWith("https://") && !path.StartsWith("http://"))
 			{
 				var mediaUri = new Uri(mediaHost, path);
 				return mediaUri.ToString();
