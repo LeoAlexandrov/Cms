@@ -329,11 +329,26 @@
 									paragraph-tag="p" 
 									:toolbar="htmlToolbar">
 								</q-editor>
-								<q-input outlined v-model="f.value" type="textarea" class="multiline-monospace" :rules="[val => validateFragment(val, f)]" v-else-if="f.textFormat=='multiline'"></q-input>
+								<q-input outlined v-model="f.value" v-else-if="f.textFormat=='multiline'" 
+									type="textarea" 
+									class="multiline-monospace" 
+									:rules="[val => validateFragment(val, f)]">
+								</q-input>
 								<code-editor v-model="f.value" v-else-if="f.textFormat=='markdown'"
 									line-nums
 									theme="vs"
 									:languages="[['markdown', 'Markdown']]"
+									tab-spaces="4"
+									font-size="14px"
+									width="100%"
+									height="450px"
+									style="tab-size:4; border: 1px solid gainsboro;"
+									border-radius="4px">
+								</code-editor>
+								<code-editor v-model="f.value" v-else-if="f.textFormat=='text'"
+									line-nums
+									theme="vs"
+									:languages="[['text', 'Plain text']]"
 									tab-spaces="4"
 									font-size="14px"
 									width="100%"

@@ -312,7 +312,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			using (HttpRequestMessage request = new() { Method = HttpMethod.Post, RequestUri = new Uri(MS_ACCESS_TOKEN) })
 			{
-				string body = string.Format("code={0}&client_id={1}&client_secret={2}&scope=User.Read&grant_type=authorization_code&redirect_uri={3}://{4}/api/v1/auth/ms",
+				string body = string.Format("code={0}&client_id={1}&client_secret={2}&scope=User.Read&grant_type=authorization_code&redirect_uri={3}://{4}/auth/microsoft",
 					code,
 					_configuration.GetValue<string>("Auth:Microsoft:ClientId"),
 					_configuration.GetValue<string>("Auth:Microsoft:ClientSecret"),

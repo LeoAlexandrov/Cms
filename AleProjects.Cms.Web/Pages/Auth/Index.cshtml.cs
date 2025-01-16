@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,8 +9,9 @@ using Microsoft.Extensions.Configuration;
 using AleProjects.Cms.Application.Services;
 
 
-namespace AleProjects.Cms.Web.Pages
+namespace AleProjects.Cms.Web.Pages.Auth
 {
+
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	public class AuthModel(IConfiguration configuration, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
@@ -28,13 +31,28 @@ namespace AleProjects.Cms.Web.Pages
 		public bool PopupSuccess { get; set; }
 
 
-		public void OnGet([FromQuery] string error, [FromQuery] bool success, [FromServices] UserManagementService ums)
+		public static void SetAuthCookies(HttpResponse response, string jwt, string refresh, string locale)
+		{
+			response.Cookies.Append("X-JWT", jwt, new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Lax });
+			response.Cookies.Append("X-Refresh", refresh, new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
+
+			if (!string.IsNullOrEmpty(locale))
+				response.Cookies.Append("X-Locale", locale);
+			else
+				response.Cookies.Delete("X-Locale");
+
+			response.Cookies.Delete("popup_auth");
+		}
+
+		public void OnGet([FromServices] UserManagementService ums)
 		{
 			if (ums.NoUsers())
 			{
 				this.Response.Redirect("/start");
 				return;
 			}
+
+			string error = TempData["error"] as string;
 
 			AuthError = error switch
 			{
@@ -45,6 +63,8 @@ namespace AleProjects.Cms.Web.Pages
 				"access_denied" => string.Empty,
 				_ => error,
 			};
+
+			bool success = TempData["popup"] as string == "success";
 
 			if (string.IsNullOrEmpty(error) && success)
 				PopupSuccess = true;
@@ -72,7 +92,7 @@ namespace AleProjects.Cms.Web.Pages
 				StackOverflowState = RandomString.Create(32);
 				this.Response.Cookies.Append("stackoverflow_auth_state", StackOverflowState);
 			}
-
 		}
+
 	}
 }

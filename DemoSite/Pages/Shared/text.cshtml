@@ -1,0 +1,9 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string id = Model.DomId;
+}
+
+<div id="@id" class="raw-text-fragment">
+@Html.Raw(Model.Props.ToString())
+</div>

@@ -1,0 +1,10 @@
+﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+
+@{
+	string name = Model.Props.name;
+
+	if (!string.IsNullOrEmpty(name))
+	{
+		await Html.RenderPartialAsync(name, Model);
+	}
+}

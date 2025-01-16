@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<!-- asp.net partial view -->
+
+	<xs:complexType name="partial-view">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Partial view</xs:documentation>
+			<xs:documentation xml:lang="fr">Vue partielle</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Name</xs:documentation>
+					<xs:documentation xml:lang="fr">Nom</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="partial-view" type="partial-view"/>
+
+</xs:schema>

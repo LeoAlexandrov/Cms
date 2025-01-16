@@ -56,6 +56,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Update="XmlSchemata\partial-view.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
 	<None Update="XmlSchemata\directory.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
