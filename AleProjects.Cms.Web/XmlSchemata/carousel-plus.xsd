@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	
+	<!-- carousel -->
+
+	<xs:complexType name="carousel-plus.item">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Item</xs:documentation>
+			<xs:documentation xml:lang="fr">Article</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="picture" type="picture"/>
+			<xs:element name="active" type="xs:boolean" default="true">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Active</xs:documentation>
+					<xs:documentation xml:lang="fr">Actif</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	
+	<xs:complexType name="carousel-plus.appearance">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Appearance</xs:documentation>
+			<xs:documentation xml:lang="fr">Apparence</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="interval" default="5000">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Cycling interval</xs:documentation>
+					<xs:documentation xml:lang="fr">Intervalle de boucle</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="0"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="buttons" type="xs:boolean" default="true">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Buttons</xs:documentation>
+					<xs:documentation xml:lang="fr">Boutons</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="carousel-plus">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Carousel+</xs:documentation>
+			<xs:documentation xml:lang="fr">Carrousel+</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="appearance" type="carousel-plus.appearance"/>
+			<xs:element name="item" type="carousel-plus.item" maxOccurs="10"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:element name="carousel-plus" type="carousel-plus"/>
+
+</xs:schema>

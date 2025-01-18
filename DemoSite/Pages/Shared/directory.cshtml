@@ -13,15 +13,16 @@
 	int n = docs.Length;
 }
 
+<div class="directory-@look my-4" id="@id">
+
 @if (n != 0 && !string.IsNullOrEmpty(title))
 {
 	<h3>@title</h3>
 }
 
-
 @if (look == "default")
 {
-	<ul class="list-group list-group-light" id="@id">
+	<ul class="list-group list-group-light">
 		@foreach (var doc in docs)
 		{
 			<li class="list-group-item"><a href="@RefTransformer.Forward(doc.Path, false, root)">@doc.Title</a></li>
@@ -30,7 +31,7 @@
 }
 else if (look == "expandable")
 {
-	<div class="accordion accordion-flush" id="@id">
+	<div class="accordion accordion-flush">
 		@for (int i = 0; i < n; i++)
 		{
 			<div class="accordion-item">
@@ -57,8 +58,8 @@ else if (look == "expandable")
 }
 else if (look == "grid" || look == "blog")
 {
-	<div class="container" id="@id">
-		<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4 my-4">
+	<div class="container g-0">
+		<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4 my-2">
 			@foreach (var doc in docs)
 			{
 				<div class="col">
@@ -87,6 +88,8 @@ else if (look == "grid" || look == "blog")
 		</div>
 	</div>
 }
+
+</div>
 
 @*
 If you don't want to use SharedLocalizer, you can use the following code instead:

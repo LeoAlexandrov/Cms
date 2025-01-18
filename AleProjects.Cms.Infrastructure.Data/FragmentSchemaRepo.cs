@@ -264,9 +264,9 @@ namespace AleProjects.Cms.Infrastructure.Data
 							case "boolean":
 
 								if (string.Compare(element.DefaultValue, "true", StringComparison.InvariantCultureIgnoreCase) == 0)
-									e.DefaultValue = "true";
+									e.DefaultValue = true;
 								else if (string.Compare(element.DefaultValue, "false", StringComparison.InvariantCultureIgnoreCase) == 0)
-									e.DefaultValue = "false";
+									e.DefaultValue = false;
 								break;
 						}
 					}

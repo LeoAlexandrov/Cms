@@ -12,6 +12,24 @@
 	var items = Model.Props.item;
 }
 
+@* 
+This style defined in /css/site.css
+
+<style>
+	.carousel-item-body {
+		FONT-WEIGHT: 200;
+		position: absolute;
+		right: 15%;
+		bottom: 2rem;
+		left: 15%;
+		padding-top: 1.25rem;
+		padding-bottom: 1.25rem;
+		color: #fff;
+		top: 2rem;
+	}
+</style>
+*@
+
 <div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
 	<div class="carousel-indicators">
@@ -36,7 +54,8 @@
 				@{
 					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
 				}
-				<div class="carousel-caption d-md-block">
+				<div class="carousel-item-body d-flex align-items-center">
+					@* <div class="container-md"> *@
 					<div>
 						@Html.Raw(item.text)					
 					</div>
@@ -53,6 +72,7 @@
 							}
 						}
 					</div>
+					@* <div> *@
 				</div>
 			</div>
 		}

@@ -179,14 +179,19 @@ namespace AleProjects.Cms.Domain.ValueObjects
 				"boolean" => false,
 				"integer" or "int" or "short" or "byte" => this.DefaultIntValue(),
 				"decimal" or "double" or "float" => this.DefaultDoubleValue(),
-				_ => this.InnerTextFormat == "html" || this.InnerTextFormat == "markdown" ? "<![CDATA[]]>" : string.Empty,
+				_ => string.Empty
 			};
 		}
 
 		public string DefaultXmlValue()
 		{
 			if (this.DefaultValue != null)
+			{
+				if (this.XmlType == "boolean")
+					return this.DefaultValue.ToString().ToLower();
+
 				return this.DefaultValue.ToString();
+			}
 
 			return this.XmlType switch
 			{
@@ -194,7 +199,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 				"boolean" => "false",
 				"integer" or "int" or "short" or "byte" => this.DefaultIntValue().ToString(),
 				"decimal" or "double" or "float" => this.DefaultDoubleValue().ToString(new NumberFormatInfo()),
-				_ => this.InnerTextFormat == "html" || this.InnerTextFormat == "markdown" ? "<![CDATA[]]>" : string.Empty,
+				_ => string.Empty
 			};
 		}
 

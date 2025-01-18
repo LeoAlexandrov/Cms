@@ -117,7 +117,6 @@ namespace AleProjects.Cms.Application.Dto
 		public string Name { get; set; }
 
 		[MessagePack.Key("destination")]
-		[Required]
 		public string Destination { get; set; } 
 	}
 
