@@ -5,7 +5,7 @@
 	string title = Model.Props.title;
 	var items = Model.Props.item;
 	int n = items.Length;
-	int m = Model.Children.Length;
+	int m = Model.Children != null ? Model.Children.Length : 0;
 
 	if (m > n)
 		m = n;

@@ -58,6 +58,9 @@
 		<xs:annotation>
 			<xs:documentation xml:lang="en">Carousel+</xs:documentation>
 			<xs:documentation xml:lang="fr">Carrousel+</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="appearance" type="carousel-plus.appearance"/>

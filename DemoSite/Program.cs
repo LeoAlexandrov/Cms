@@ -67,7 +67,9 @@ void ConfigureApp(WebApplication app)
 		.UseStaticFiles()
 		.UseRouting()
 		.UseRequestLocalization(localizationOptions)
+#if !DEBUG
 		.UseContentCache()
+#endif
 		.UseAuthorization();
 
 	app.MapPost("/cms-webhook-handler",

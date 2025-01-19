@@ -28,13 +28,12 @@ body {
 }
 
 .carousel-item-body {
-	FONT-WEIGHT: 200;
 	position: absolute;
+	top: 2rem;
+	left: 15%;
 	right: 15%;
 	bottom: 2rem;
-	left: 15%;
 	padding-top: 1.25rem;
 	padding-bottom: 1.25rem;
 	color: white;
-	top: 2rem;
 }

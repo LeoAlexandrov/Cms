@@ -15,6 +15,9 @@
 
 	string pictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
 	string imgClass = Model.Attributes?.GetValueOrDefault("bootstrap:img:class");
+
+	if (string.IsNullOrEmpty(imgClass) && Model.Parent != 0)
+		imgClass = "w-100";
 }
 
 <picture class="@pictClass">
