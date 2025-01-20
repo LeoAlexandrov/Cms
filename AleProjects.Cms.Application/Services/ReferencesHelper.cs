@@ -80,10 +80,10 @@ namespace AleProjects.Cms.Application.Services
 
 	public static partial class ReferencesHelper
 	{
-		[GeneratedRegex("#\\(\\d+\\)")]
+		[GeneratedRegex("\\^\\(\\d+\\)")]
 		private static partial Regex RefRegex();
 
-		[GeneratedRegex("#\\('[a-zA-Z0-9+/%]+'\\)")]
+		[GeneratedRegex("\\^\\('[a-zA-Z0-9+/%]+'\\)")]
 		private static partial Regex MediaLinkRegex();
 
 

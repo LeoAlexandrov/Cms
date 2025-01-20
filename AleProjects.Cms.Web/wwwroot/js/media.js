@@ -125,7 +125,7 @@
 
 					if (r.ok) {
 						this.opened = r.result;
-						this.opened.hrefLink = `#('${r.result.link}')`;
+						this.opened.hrefLink = `^('${r.result.link}')`;
 						this.entryProps = true;
 					} else {
 						displayMessage(`${TEXT.MEDIA.get('MESSAGE_PROPERTIES_FAIL')} (${formatHTTPStatus(r)})`, true);

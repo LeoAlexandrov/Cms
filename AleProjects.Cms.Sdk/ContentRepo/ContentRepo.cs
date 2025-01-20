@@ -28,10 +28,10 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		static int PageSize = 25;
 		bool disposed;
 
-		[GeneratedRegex("#\\(\\d+\\)")]
+		[GeneratedRegex("\\^\\(\\d+\\)")]
 		private static partial Regex RefRegex();
 
-		[GeneratedRegex("#\\('[a-zA-Z0-9+/%]+'\\)")]
+		[GeneratedRegex("\\^\\('[a-zA-Z0-9+/%]+'\\)")]
 		private static partial Regex MediaLinkRegex();
 
 		public IReferenceTransformer ReferenceTransformer { get => referenceTransformer; }

@@ -1,4 +1,4 @@
-﻿@page "{id:int?}"
+﻿@page "{sId?}"
 
 @using Microsoft.AspNetCore.Mvc.Localization;
 @using AleProjects.Cms.Web;
@@ -566,7 +566,7 @@
 										<q-tooltip>@Localizer["Hint_OpenInNew"]</q-tooltip>
 									</q-icon>
 								</a>
-								<q-btn flat dense round color="blue-grey-3" icon="link" v-on:click.stop="copyToClipboard(`#(${prop.node.id})`)">
+								<q-btn flat dense round color="blue-grey-3" icon="link" v-on:click.stop="copyToClipboard(`^(${prop.node.id})`)">
 									<q-tooltip>@Localizer["Hint_CopyLink"]</q-tooltip>
 								</q-btn>
 							</div>
