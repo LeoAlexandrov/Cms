@@ -20,12 +20,12 @@ using AleProjects.Cms.Infrastructure.Media;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public class MediaManagementService(MediaStorage mediaStorage, IAuthorizationService authService, IConfiguration configuration)
+	public class MediaManagementService(IMediaStorage mediaStorage, IAuthorizationService authService, IConfiguration configuration)
 	{
 		const int DEFAULT_MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 		const string DEFAULT_SAFENAME_REGEX = ".+";
 
-		private readonly MediaStorage _mediaStorage = mediaStorage;
+		private readonly IMediaStorage _mediaStorage = mediaStorage;
 		private readonly IAuthorizationService _authService = authService;
 		private readonly IConfiguration _configuration = configuration;
 

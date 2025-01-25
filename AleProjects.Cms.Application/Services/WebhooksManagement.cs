@@ -97,7 +97,7 @@ namespace AleProjects.Cms.Application.Services
 			result.RootDocument = dto.RootDocument;
 			result.Enabled = enabled;
 
-			if (dto.ResetSecret.Value)
+			if (dto.ResetSecret)
 				result.Secret = RandomString.Create(32);
 
 			await _dbContext.SaveChangesAsync();

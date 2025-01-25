@@ -1,19 +1,17 @@
 ﻿<!DOCTYPE html>
-<html lang="@ViewData["Language"]">
+<html lang="@ViewData["Language"]" class="h-100">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>@ViewData["Title"]</title>
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-	<!-- Google Fonts -->
-	@* <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" /> *@
 	<link href="https://fonts.googleapis.com/css?family=Lato:400,300italic,300,400italic,700,700italic,900,900italic|Raleway:400,400italic,700,700italic|Montserrat:200,300,400,400i,600,600i,700,700i" rel="stylesheet" type="text/css" />
 	<!-- MDB -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.min.css" rel="stylesheet" />
 	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
+<body class="d-flex flex-column h-100">
 	<header>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
 			<div class="container">
@@ -36,21 +34,24 @@
 		</nav>
 	</header>
 
-	<main role="main" class="pb-3">
+	<main role="main" class="pb-3 flex-shrink-0">
 		<div class="container">
-			@RenderBody()
+			<div class="row">
+				<div class="col-12 col-lg-9">
+					@RenderBody()
+				</div>
+				<div class="col-3 d-none d-lg-block">
+					@await RenderSectionAsync("ScrollSpy", required: false)
+				</div>
+			</div>
 		</div>
 	</main>
 
-	<footer class="border-top footer text-muted">
+	<footer class="border-top footer text-muted mt-auto py-3">
 		<div class="container">
 			&copy; 2024 - DemoSite - <a asp-area="" asp-page="/Privacy">Privacy</a>
 		</div>
 	</footer>
-
-	@{
-		IgnoreSection("ScrollSpy");
-	}
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.umd.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>

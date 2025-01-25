@@ -53,8 +53,8 @@ public static class ContentCache
 
 			case EVENT_UPDATE:
 
-				var (path, root) = await repo.IdToPath(model.AffectedDocument);
-				cacheKey = repo.ReferenceTransformer.Forward(path, false, root);
+				var (root, path) = await repo.IdToPath(model.AffectedDocument);
+				cacheKey = repo.PathTransformer.Forward(path, false, root);
 				break;
 
 			default:
@@ -81,7 +81,7 @@ public class ContentCacheMiddleware(RequestDelegate next)
 {
 	private readonly RequestDelegate _next = next;
 
-	public async Task InvokeAsync(HttpContext context, IMemoryCache cache)
+	public async Task InvokeAsync(HttpContext context, ContentRepo repo, IMemoryCache cache)
 	{
 		var routeData = context.GetRouteData();
 

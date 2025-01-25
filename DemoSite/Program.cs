@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using AleProjects.Cms.Sdk.ContentRepo;
+using AleProjects.Cms.Sdk.Routing;
 
 
 
@@ -24,11 +25,10 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 	services
 		.AddMemoryCache()
-		.AddTransient<IReferenceTransformer, DefaultReferenceTransformer>()
+		.AddTransient<IPathTransformer, DefaultPathTransformer>()
 		.AddScoped<ContentRepo>()
 		.AddLocalization(options => options.ResourcesPath = "Resources")
-		.AddRazorPages()
-		.AddRazorPagesOptions(options => options.Conventions.AddPageRoute("/index", "{*url}"))
+		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
 		.AddViewLocalization();
 
 }

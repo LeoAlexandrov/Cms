@@ -41,7 +41,7 @@ namespace AleProjects.Cms.Domain.Entities
 
 		public string Tags { get; set; }
 
-		public string AssociatedClaims { get; set; }
+		public string AuthPolicies { get; set; }
 
 		public bool Published { get; set; }
 		

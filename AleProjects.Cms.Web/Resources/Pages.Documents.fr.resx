@@ -126,8 +126,8 @@
   <data name="AddFragment" xml:space="preserve">
     <value>Ajouter un fragment</value>
   </data>
-  <data name="AssociatedClaims" xml:space="preserve">
-    <value>Réclamations associées</value>
+  <data name="AuthPolicies" xml:space="preserve">
+    <value>Politiques d'autorisation</value>
   </data>
   <data name="AttributeEnabledLabel" xml:space="preserve">
     <value>Activé</value>

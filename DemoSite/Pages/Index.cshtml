@@ -3,7 +3,7 @@
 @model IndexModel
 
 @{
-	Layout = Model.Document.Parent == null || Model.Document.Anchors == null ? "_WideLayout" : "_Layout";
+	Layout = Model.ChooseLayout();
 	Model.SetPageLocale();
 }
 

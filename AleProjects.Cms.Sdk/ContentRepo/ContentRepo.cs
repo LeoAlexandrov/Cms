@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-using AleProjects.Base64;
 using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
+using AleProjects.Cms.Sdk.Routing;
 using AleProjects.Cms.Sdk.ViewModels;
 
 
@@ -21,7 +21,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 	public partial class ContentRepo : IDisposable
 	{
 		readonly CmsDbContext dbContext;
-		readonly IReferenceTransformer referenceTransformer;
+		readonly IPathTransformer pathTransformer;
 		readonly static FragmentSchemaRepo fsr = new();
 		readonly static object lockObject = new();
 		static int NeedsSchemataReload = 1;
@@ -34,7 +34,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 		[GeneratedRegex("\\^\\('[a-zA-Z0-9+/%]+'\\)")]
 		private static partial Regex MediaLinkRegex();
 
-		public IReferenceTransformer ReferenceTransformer { get => referenceTransformer; }
+		public IPathTransformer PathTransformer { get => pathTransformer; }
 
 		class MatchComparer : IComparer<Match>
 		{
@@ -44,21 +44,21 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 		}
 
-		struct Reference(string pattern, string docPath, string mediaLink, string root, IReferenceTransformer refTransformer)
+		struct Reference(string pattern, string docPath, string mediaLink, string root, IPathTransformer pathTransformer)
 		{
 			public string Pattern { get; set; } = pattern;
 			public string Replacement { get; set; } = string.IsNullOrEmpty(mediaLink) ?
-					refTransformer.Forward(docPath, false, root) :
-					refTransformer.Forward(mediaLink, true, root);
+					pathTransformer.Forward(docPath, false, root) :
+					pathTransformer.Forward(mediaLink, true, root);
 		}
 
 
-		public ContentRepo(IReferenceTransformer refTransformer, IConfiguration configuration)
+		public ContentRepo(IPathTransformer pathTformer, IConfiguration configuration)
 		{
 			string connString = configuration.GetConnectionString("CmsDbConnection");
 			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
 			dbContext = new CmsDbContext(contextOptions);
-			referenceTransformer = refTransformer;
+			pathTransformer = pathTformer;
 
 			LoadFragmentSchemaService(dbContext);
 		}
@@ -227,7 +227,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			if (string.IsNullOrEmpty(path) || path == "/")
 			{
 				doc = rootDoc;
-				breadcrumbs = [new BreadcrumbsItem() { Path = referenceTransformer.Forward("/", false, rootKey), Title = string.Empty }];
+				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = rootId }];
 				allDocsIds = [rootId];
 
 				result = new(doc)
@@ -262,8 +262,8 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 
 				breadcrumbs = new BreadcrumbsItem[slugs.Length + 1];
 
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = referenceTransformer.Forward("/", false, rootKey), Title = string.Empty };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = referenceTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title };
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = rootId };
+				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = doc.Id };
 
 
 				for (int i = 1; i < slugs.Length; i++)
@@ -271,7 +271,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 					int j = Array.BinarySearch(ids, id);
 
 					id = docs[j].Parent;
-					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = referenceTransformer.Forward(docs[j].Path, false, rootKey), Title = docs[j].Title };
+					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[j].Path, false, rootKey), Title = docs[j].Title, Document = docs[j].Id };
 
 					if (i == 1)
 						parent = new Document(docs[j]);
@@ -296,12 +296,29 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			}
 
 
-			result.Attributes = await dbContext.DocumentAttributes
+			var pathDocs = breadcrumbs.Select(b => b.Document).ToArray();
+			
+			var attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
-				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
-				.OrderBy(a => a.AttributeKey)
-				.ToDictionaryAsync(a => a.AttributeKey, a => a.Value);
+				.Where(a => pathDocs.Contains(a.DocumentRef) && a.Enabled)
+				.OrderBy(a => a.DocumentRef)
+				.ToArrayAsync();
 
+			result.Attributes = [];
+
+			int aIdx;
+
+			foreach (int docId in pathDocs)
+			{
+				if ((aIdx = Array.FindIndex(attrs, a => a.DocumentRef == docId)) >= 0)
+				{
+					while (aIdx < attrs.Length)
+					{
+						result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+						aIdx++;
+					}
+				}
+			}
 
 			if (childrenFromPos >= 0)
 			{
@@ -320,7 +337,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, referenceTransformer)
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, pathTransformer)
 				)
 				.ToArrayAsync();
 
@@ -364,7 +381,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				c.CoverPicture = ReplaceRefs(c.CoverPicture, refs);
 			}
 
-			var attrs = await dbContext.FragmentLinks
+			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
 				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
@@ -372,7 +389,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
 
-			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
+			result.Fragments = CreateFragmentsTree(links, result, fAttrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 
 			return result;
 		}
@@ -396,7 +413,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			if (doc.Parent <= 0)
 			{
 				rootKey = doc.Slug;
-				breadcrumbs = [new BreadcrumbsItem() { Path = referenceTransformer.Forward("/", false, rootKey), Title = string.Empty }];
+				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty }];
 				allDocsIds = [id];
 
 				result = new(doc)
@@ -418,11 +435,11 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				rootKey= docs[0].Slug;
 				breadcrumbs = new BreadcrumbsItem[docs.Length + 1];
 
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = referenceTransformer.Forward("/", false, rootKey), Title = string.Empty };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = referenceTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title };
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty };
+				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title };
 
 				for (int i = 1; i < docs.Length; i++)
-					breadcrumbs[i] = new BreadcrumbsItem() { Path = referenceTransformer.Forward(docs[i].Path, false, rootKey), Title = docs[i].Title };
+					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[i].Path, false, rootKey), Title = docs[i].Title };
 
 				result = new(doc)
 				{
@@ -440,15 +457,32 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				}
 				else
 					result.Siblings = [];
-
 			}
 
 
-			result.Attributes = await dbContext.DocumentAttributes
+			var pathDocs = breadcrumbs.Select(b => b.Document).ToArray();
+
+			var attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
-				.Where(a => a.DocumentRef == id && a.Enabled)
-				.OrderBy(a => a.AttributeKey)
-				.ToDictionaryAsync(a => a.AttributeKey, a => a.Value);
+				.Where(a => pathDocs.Contains(a.DocumentRef) && a.Enabled)
+				.OrderBy(a => a.DocumentRef)
+				.ToArrayAsync();
+
+			result.Attributes = [];
+
+			int aIdx;
+
+			foreach (int docId in pathDocs)
+			{
+				if ((aIdx = Array.FindIndex(attrs, a => a.DocumentRef == docId)) >= 0)
+				{
+					while (aIdx < attrs.Length)
+					{
+						result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+						aIdx++;
+					}
+				}
+			}
 
 
 			if (childrenFromPos >= 0)
@@ -461,15 +495,20 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			else
 				result.Children = [];
 
-			var refs = await dbContext.References
+			var refsList = await dbContext.References
 				.AsNoTracking()
 				.GroupJoin(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d })
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.Encoded,d.Path, r.r.MediaLink, rootKey, referenceTransformer)
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, pathTransformer)
 				)
-				.ToDictionaryAsync(r => r.Pattern, r => r.Replacement);
+				.ToArrayAsync();
+
+			Dictionary<string, string> refs = [];
+
+			foreach (var r in refsList)
+				refs.TryAdd(r.Pattern, r.Replacement);
 
 			result.Summary = ReplaceRefs(result.Summary, refs);
 			result.CoverPicture = ReplaceRefs(result.CoverPicture, refs);
@@ -506,7 +545,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				c.CoverPicture = ReplaceRefs(c.CoverPicture, refs);
 			}
 
-			var attrs = await dbContext.FragmentLinks
+			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
 				.Where(lf => lf.l.DocumentRef == id && lf.l.Enabled)
@@ -514,7 +553,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
 
-			result.Fragments = CreateFragmentsTree(links, result, attrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
+			result.Fragments = CreateFragmentsTree(links, result, fAttrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 
 			return result;
 		}
@@ -541,7 +580,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				return (null, null);
 
 			if (doc.Parent == 0)
-				return (doc.Path, doc.Slug);
+				return (doc.Slug, doc.Path);
 
 			var root = await dbContext.Documents
 				.AsNoTracking()
@@ -551,8 +590,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.OrderBy(d => d.Id)
 				.FirstOrDefaultAsync();
 
-			return (doc.Path, root.Slug);
+			return (root.Slug, doc.Path);
 		}
+
 
 		#region IDisposable-implementation
 

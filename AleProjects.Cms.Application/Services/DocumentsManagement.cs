@@ -185,6 +185,7 @@ namespace AleProjects.Cms.Application.Services
 			string icon;
 			bool published;
 			string path;
+			string authPolicies;
 			List<DocumentPathNode> pathNodes;
 			List<DocumentAttribute> newAttrs;
 
@@ -203,6 +204,7 @@ namespace AleProjects.Cms.Application.Services
 				language = parent.Language;
 				icon = "article";
 				published = parent.Published;
+				authPolicies = parent.AuthPolicies;
 				pathNodes = new(parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
 				pathNodes.Add(new() { Parent = dto.Parent, Position = pathNodes.Count });
@@ -218,6 +220,7 @@ namespace AleProjects.Cms.Application.Services
 				icon = "home";
 				published = true;
 				pathNodes = null;
+				authPolicies = null;
 				newAttrs = null;
 			}
 
@@ -233,6 +236,7 @@ namespace AleProjects.Cms.Application.Services
 				Title = title,
 				Language = language,
 				Icon = icon,
+				AuthPolicies = authPolicies,
 				Published = published,
 				Author = user.Identity.Name,
 				CreatedAt = now,
@@ -380,7 +384,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Language = dto.Language;
 			doc.Icon = NullIfEmpty(icon);
 			doc.Tags = NullIfEmpty(tags);
-			doc.AssociatedClaims = NullIfEmpty(dto.AssociatedClaims);
+			doc.AuthPolicies = NullIfEmpty(dto.AuthPolicies);
 			doc.Published = published;
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
@@ -803,7 +807,7 @@ namespace AleProjects.Cms.Application.Services
 				Language = origin.Language,
 				Description = origin.Description,
 				Icon = origin.Icon,
-				AssociatedClaims = origin.AssociatedClaims,
+				AuthPolicies = origin.AuthPolicies,
 				Published = origin.Published,
 				CreatedAt = now,
 				ModifiedAt = now,

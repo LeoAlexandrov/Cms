@@ -16,11 +16,23 @@ using AleProjects.Base64;
 using AleProjects.Cms.Domain.ValueObjects;
 
 
-
 namespace AleProjects.Cms.Infrastructure.Media
 {
 
-	public class MediaStorage(IConfiguration configuration)
+	public interface IMediaStorage
+	{
+		List<MediaStorageEntry> ReadDirectory(string path);
+		MediaStorageEntry GetFile(string path);
+		ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size);
+		Task<MediaStorageEntry> Properties(string path);
+		Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination);
+		Task<string[]> Delete(string[] entries);
+		MediaStorageEntry CreateFolder(string name, string path);
+	}
+
+
+
+	public class LocalMediaStorage(IConfiguration configuration) : IMediaStorage
 	{
 		const string DEFAULT_CACHE_FOLDER = ".cache";
 

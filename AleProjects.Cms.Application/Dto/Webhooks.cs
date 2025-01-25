@@ -68,7 +68,7 @@ namespace AleProjects.Cms.Application.Dto
 		public string Endpoint { get; set; }
 
 		[MessagePack.Key("rootDocument")]
-		[RequiredPositive]
+		[RequiredNonNegative]
 		public int RootDocument { get; set; }
 	}
 
@@ -82,12 +82,11 @@ namespace AleProjects.Cms.Application.Dto
 		public string Endpoint { get; set; }
 
 		[MessagePack.Key("rootDocument")]
-		[RequiredPositive]
+		[RequiredNonNegative]
 		public int RootDocument { get; set; }
 
 		[MessagePack.Key("resetSecret")]
-		[Required]
-		public bool? ResetSecret { get; set; }
+		public bool ResetSecret { get; set; }
 
 		[MessagePack.Key("enabled")]
 		[Required]

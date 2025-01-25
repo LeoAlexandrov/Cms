@@ -33,6 +33,8 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using MessagePack.Resolvers;
 using MessagePack;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Test
 {
@@ -229,9 +231,66 @@ namespace Test
 	</button>
 </pod>";
 
-
-		static void Main(string[] args)
+		static Task<bool> AuthorizeAllOr(string[] policies)
 		{
+			Task<bool> taskChain = Task.FromResult(false);
+
+			foreach (var policy in policies)
+			{
+				taskChain = taskChain.ContinueWith(async previousTask =>
+				{
+					Console.WriteLine("|| " + policy);
+
+					if (previousTask.Result)
+					{
+						return true;
+					}
+
+					await Task.Delay(1000);
+					return policy == "ok";
+
+				}).Unwrap();
+			}
+
+			return taskChain;
+		}
+
+		static Task<bool> AuthorizeAllAnd(string[] policies)
+		{
+			Task<bool> taskChain = Task.FromResult(true);
+
+			foreach (var policy in policies)
+			{
+				taskChain = taskChain.ContinueWith(async previousTask =>
+				{
+					Console.WriteLine("&& " + policy);
+
+					if (!previousTask.Result)
+					{
+						return false;
+					}
+
+					await Task.Delay(1000);
+					return policy == "ok";
+
+				}).Unwrap();
+			}
+
+			return taskChain;
+		}
+
+		static async Task Main(string[] args)
+		{
+			string[] policies = ["asdasd", "asdasd", "qweqweqw", "sasdasdasd", "ok"];
+
+			var res = await AuthorizeAllAnd(policies);
+			Console.WriteLine(res);
+			res = await AuthorizeAllOr(policies);
+			Console.WriteLine(res);
+			return;
+
+
+
 			/*
 			for (int i = 3; i < 50; i++)
 			{
@@ -300,13 +359,13 @@ namespace Test
 			//var cs = dc.Database.SqlQueryRaw<int>($"select CHECKSUM_AGG(BINARY_CHECKSUM(*)) as [Value] From Documents with (Nolock)");
 			//int agg = cs.FirstOrDefault();
 
-			var rt = new Sdk.ContentRepo.DefaultReferenceTransformer(config);
+			var rt = new Sdk.Routing.DefaultPathTransformer(config);
 
 			var cp = new Sdk.ContentRepo.ContentRepo(rt, config);
 			//var doc = cp.GetDocument("home1", null, -1, true, null).Result; //"/new4/new2"
 			var doc = cp.GetDocument(12, 0, true).Result;
 
-			var (path, root) = cp.IdToPath(12).Result;
+			var (root, path) = cp.IdToPath(12).Result;
 
 			return;
 

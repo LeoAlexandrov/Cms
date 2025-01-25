@@ -21,7 +21,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		public string Icon { get; set; }
 		public string[] Tags { get; set; }
 
-		public string AssociatedClaims { get; set; }
+		public string AuthPolicies { get; set; }
 		public bool Published { get; set; }
 		public DateTimeOffset CreatedAt { get; set; }
 		public DateTimeOffset ModifiedAt { get; set; }
@@ -37,8 +37,9 @@ namespace AleProjects.Cms.Sdk.ViewModels
 
 		public Fragment[] Fragments { get; set; }
 		public Dictionary<string, string> Attributes { get; set; }
-
 		public List<Anchor> Anchors { get; set; }
+
+		public bool AuthRequired { get => !(string.IsNullOrEmpty(AuthPolicies) || AuthPolicies.StartsWith("//")); }
 
 		public Document() { }
 
@@ -57,7 +58,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 				Language = doc.Language;
 				Icon = doc.Icon;
 				Tags = doc.Tags?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-				AssociatedClaims = doc.AssociatedClaims;
+				AuthPolicies = doc.AuthPolicies;
 				Published = doc.Published;
 				CreatedAt = doc.CreatedAt;
 				ModifiedAt = doc.ModifiedAt;

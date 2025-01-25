@@ -76,7 +76,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 			})
 		.AddScoped<IWebhookNotifier, WebhookNotifier>()
 		.AddScoped<ContentManagementService>()
-		.AddTransient<MediaStorage>()
+		.AddTransient<IMediaStorage, LocalMediaStorage>()
 		.AddTransient<MediaManagementService>()
 		.AddTransient<SchemaManagementService>()
 		.AddScoped<UserManagementService>()
@@ -125,7 +125,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 void ConfigureApp(WebApplication app)
 {
-	MediaStorage.CheckAndCreateCacheFolder(app.Configuration);
+	LocalMediaStorage.CheckAndCreateCacheFolder(app.Configuration);
 
 	var supportedCultures = new[]
 	{

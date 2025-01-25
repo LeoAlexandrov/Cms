@@ -172,7 +172,7 @@ namespace AleProjects.Cms.Application.Services
 			result.IsEnabled = isEnabled;
 			result.Locale = dto.Locale;
 
-			if (dto.ResetApiKey.Value)
+			if (dto.ResetApiKey)
 				result.ApiKey = RandomString.Create(32);
 
 			authResult = await _authService.AuthorizeAsync(user, id, "IsAdmin");

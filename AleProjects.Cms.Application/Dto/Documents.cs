@@ -47,8 +47,8 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("tags")]
 		public string Tags { get; set; }
 
-		[MessagePack.Key("associatedClaims")]
-		public string AssociatedClaims { get; set; }
+		[MessagePack.Key("authPolicies")]
+		public string AuthPolicies { get; set; }
 
 		[MessagePack.Key("published")]
 		public bool Published { get; set; }
@@ -83,7 +83,7 @@ namespace AleProjects.Cms.Application.Dto
 				Description = doc.Description;
 				Icon = doc.Icon;
 				Tags = doc.Tags;
-				AssociatedClaims = doc.AssociatedClaims;
+				AuthPolicies = doc.AuthPolicies;
 				Published = doc.Published;
 				CreatedAt = doc.CreatedAt;
 				ModifiedAt = doc.ModifiedAt;
@@ -183,8 +183,8 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("tags")]
 		public string Tags { get; set; }
 
-		[MessagePack.Key("associatedClaims")]
-		public string AssociatedClaims { get; set; }
+		[MessagePack.Key("authPolicies")]
+		public string AuthPolicies { get; set; }
 
 		[MessagePack.Key("published")]
 		[Required]

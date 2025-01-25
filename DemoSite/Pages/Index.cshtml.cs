@@ -19,6 +19,14 @@ namespace DemoSite.Pages
 
 		public Document Document { get; set; }
 
+		public string ChooseLayout()
+		{
+			string layout = this.Document.Parent == null || this.Document.Anchors == null ?
+				"_Layout" :
+				"_ScrollSpyLayout";
+
+			return layout;
+		}
 
 		public void SetPageLocale()
 		{
@@ -37,7 +45,8 @@ namespace DemoSite.Pages
 			if (this.Request.Path == "/666") // 500 page test
 				_repo = null;
 
-			this.Document = await _repo.GetDocument("home", this.Request.Path, 0, true);
+			this.Document = await _repo.GetDocument("home", this.Request.Path.Value, 0, true);
+			//this.Document = this.HttpContext.Features.Get<Document>();
 
 			if (this.Document == null)
 				return NotFound();

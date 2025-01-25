@@ -117,8 +117,7 @@ namespace AleProjects.Cms.Application.Dto
 		public string Locale { get; set; }
 
 		[MessagePack.Key("resetApiKey")]
-		[Required]
-		public bool? ResetApiKey { get; set; }
+		public bool ResetApiKey { get; set; }
 
 		[MessagePack.Key("isEnabled")]
 		[Required]

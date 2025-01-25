@@ -107,7 +107,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 				webhooks = await _dbContext.Webhooks
 					.AsNoTracking()
-					.Where(w => (nodes.Contains(w.RootDocument) || w.RootDocument == affectedDocument) && w.Enabled)
+					.Where(w => (nodes.Contains(w.RootDocument) || w.RootDocument == affectedDocument || w.RootDocument == 0) && w.Enabled)
 					.Select(w => new Webhook() { Endpoint = w.Endpoint, Secret = w.Secret })
 					.ToArrayAsync();
 			}

@@ -28,7 +28,7 @@
 					coverPicture: null,
 					description: null,
 					editorRoleRequired: null,
-					associatedClaims: null,
+					authPolicies: null,
 					published: false,
 					author: null,
 					createdAt: null,
@@ -265,6 +265,7 @@
 				this.invalidNewDocSlugs = [];
 				this.invalidParents = [];
 				this.invalidDocSlugs = [];
+				this.invalidAttributeKeys = [];
 				this.invalidPublishedState = null;
 				this.newFragment.stuffSelected = "new";
 				this.newFragment.templateSelected = null;
@@ -292,6 +293,7 @@
 						this.invalidNewDocSlugs = [];
 						this.invalidParents = [];
 						this.invalidDocSlugs = [];
+						this.invalidAttributeKeys = [];
 						this.invalidPublishedState = null;
 						this.selectedFragment = 0;
 						this.newFragment.stuffSelected = "new";
@@ -460,7 +462,7 @@
 				summary: this.editedDoc.properties.summary,
 				coverPicture: this.editedDoc.properties.coverPicture,
 				description: this.editedDoc.properties.description,
-				associatedClaims: this.editedDoc.properties.associatedClaims,
+				authPolicies: this.editedDoc.properties.authPolicies,
 				published: this.editedDoc.properties.published,
 			};
 
