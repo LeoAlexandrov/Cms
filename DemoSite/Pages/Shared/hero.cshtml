@@ -14,6 +14,7 @@
 	var bkPictSources = bkPict?.sources;
 	var actions = Model.Props.action;
 
+	string breakoutCls = featured || bkPict != null ? "breakout" : null;
 	string textOnDarkCls = featured || bkPict != null ? "text-white" : null;
 	string featuredCls = featured && bkPict == null ? "bg-secondary" : null;
 	string bkPictCls = null;
@@ -53,6 +54,7 @@
 		.@bkPictCls {
 		background: no-repeat center / cover url("@bkPict.source");
 		}
+
 		@if (bkPictSources != null)
 		{
 			@foreach (var src in bkPictSources)
@@ -61,29 +63,28 @@
 					.@bkPictCls {
 					background: no-repeat center / cover url("@src.srcset");
 					}
-					}</text>
+				}</text>
 			}
 		}
 	</style>
 }
 
-<header id="@id" class="py-4 breakout @featuredCls @bkPictCls @textOnDarkCls">
+<header id="@id" class="py-4 @breakoutCls @featuredCls @bkPictCls @textOnDarkCls">
 	<div class="container-md">
 		<div class="row gx-5 align-items-center justify-content-center">
-			
 			<div class="@col1Cls">
 				<div class="@col1ContentCls">
 					@if (!string.IsNullOrEmpty(title))
 					{
-						<h1 class="fw-bolder mb-2">@Html.Raw(title)</h1>
+						<h1 class="fw-bolder">@Html.Raw(title)</h1>
 					}
 					@if (!string.IsNullOrEmpty(subTitle))
 					{
-						<h4 class="fw-bolder mb-2">@Html.Raw(subTitle)</h4>
+						<h4 class="fw-bolder mt-2">@Html.Raw(subTitle)</h4>
 					}
 					@if (!string.IsNullOrEmpty(text))
 					{
-						<div class="fw-normal mb-2">@Html.Raw(text)</div>
+						<div class="fw-normal my-4">@Html.Raw(text)</div>
 					}
 					@if (Model.Children != null && pict != null)
 					{
@@ -94,7 +95,7 @@
 					}
 					@if (actions != null)
 					{
-						<div class="justify-content-start">
+						<div class="justify-content-start my-4">
 							@foreach (var a in actions)
 							{
 								await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
@@ -107,16 +108,16 @@
 			@if (pict != null || Model.Children != null)
 			{
 				<div class="@col2Cls">
-				@if (pict != null) {
+					@if (pict != null) {
 						await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded img-hero-stretched" } });
-				}
-				else
-				{
-					foreach (var f in Model.Children)
-					{
-						await Html.RenderPartialAsync(f.XmlName, f); 
 					}
-				}
+					else
+					{
+						foreach (var f in Model.Children)
+						{
+							await Html.RenderPartialAsync(f.XmlName, f); 
+						}
+					}
 				</div>
 			}
 		</div>

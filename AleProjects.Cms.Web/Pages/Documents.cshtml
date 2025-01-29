@@ -502,6 +502,12 @@
 				ref="AttributeValue">
 			</q-input>
 
+			<q-checkbox v-model="attribute.private" v-if="!attribute.forFragment"
+				class="q-mt-lg q-mr-lg"
+				label="@Localizer["AttributePrivateLabel"]"
+				ref="AttributePrivate">
+			</q-checkbox>
+
 			<q-checkbox v-model="attribute.enabled"
 				class="q-mt-lg"
 				label="@Localizer["AttributeEnabledLabel"]"
@@ -804,7 +810,7 @@
 						<div class="row">
 							<q-chip v-for="(a,idx) in editedDoc.attributes"
 								removable clickable
-								:color="a.enabled ? 'primary': 'grey'" 
+								:color="a.enabled ? (a.private ? 'dark' : 'primary'): 'grey'"
 								text-color="white" 
 								@@click="startChangeAttribute(a, false)"
 								@@remove="startDeleteAttribute(a, false)">{{a.attributeKey}}</q-chip>

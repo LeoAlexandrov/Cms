@@ -314,7 +314,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				{
 					while (aIdx < attrs.Length)
 					{
-						result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+						if (attrs[aIdx].DocumentRef == doc.Id || !attrs[aIdx].Private)
+							result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+
 						aIdx++;
 					}
 				}
@@ -337,7 +339,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, pathTransformer)
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathTransformer)
 				)
 				.ToArrayAsync();
 
@@ -413,7 +415,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 			if (doc.Parent <= 0)
 			{
 				rootKey = doc.Slug;
-				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty }];
+				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = id }];
 				allDocsIds = [id];
 
 				result = new(doc)
@@ -435,11 +437,11 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				rootKey= docs[0].Slug;
 				breadcrumbs = new BreadcrumbsItem[docs.Length + 1];
 
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title };
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = docs[0].Id };
+				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = id };
 
 				for (int i = 1; i < docs.Length; i++)
-					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[i].Path, false, rootKey), Title = docs[i].Title };
+					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[i].Path, false, rootKey), Title = docs[i].Title, Document = docs[i].Id };
 
 				result = new(doc)
 				{
@@ -478,7 +480,9 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				{
 					while (aIdx < attrs.Length)
 					{
-						result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+						if (attrs[aIdx].DocumentRef == id || !attrs[aIdx].Private)
+							result.Attributes[attrs[aIdx].AttributeKey] = attrs[aIdx].Value;
+
 						aIdx++;
 					}
 				}
@@ -501,7 +505,7 @@ namespace AleProjects.Cms.Sdk.ContentRepo
 				.Where(rd => allDocsIds.Contains(rd.r.DocumentRef))
 				.SelectMany(
 					rd => rd.d.DefaultIfEmpty(),
-					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, rootKey, pathTransformer)
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathTransformer)
 				)
 				.ToArrayAsync();
 

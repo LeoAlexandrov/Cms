@@ -20,6 +20,7 @@ namespace AleProjects.Cms.Domain.Entities
 		public string Value { get; set; }
 
 		public bool Enabled { get; set; }
+		public bool Private { get; set; }
 
 		public Document Document { get; set; }
 

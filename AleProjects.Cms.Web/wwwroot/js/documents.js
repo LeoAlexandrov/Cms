@@ -107,6 +107,7 @@
 				attributeKey: "new-key",
 				value: null,
 				enabled: true,
+				private: false,
 				forFragment: false
 			},
 
@@ -1545,7 +1546,7 @@
 
 		startNewAttribute(forFragment) {
 
-			this.attribute = { id: 0, key: "new-key", value: null, enabled: true, forFragment: forFragment };
+			this.attribute = { id: 0, key: "new-key", value: null, enabled: true, private: false, forFragment: forFragment };
 			this.attributeProps = true;
 
 			Vue.nextTick(() => {
@@ -1571,6 +1572,7 @@
 				url = "/api/v1/fragments/attributes";
 			} else {
 				dto.documentRef = this.selectedDoc;
+				dto.private = this.attribute.private;
 				url = "/api/v1/documents/attributes";
 			}
 
@@ -1623,7 +1625,7 @@
 		},
 
 		startChangeAttribute(a, forFragment) {
-			this.attribute = { id: a.id, key: a.attributeKey, value: a.value, enabled: a.enabled, forFragment: forFragment };
+			this.attribute = { id: a.id, key: a.attributeKey, value: a.value, enabled: a.enabled, private: a.private, forFragment: forFragment };
 			this.attributeProps = true;
 		},
 
@@ -1639,6 +1641,7 @@
 				dto.documentRef = this.selectedDoc;
 				url = `/api/v1/fragments/attributes/${id}`;
 			} else {
+				dto.private = this.attribute.private;
 				url = `/api/v1/documents/attributes/${id}`;
 			}
 
@@ -1668,6 +1671,7 @@
 								if (a.id == id) {
 									a.value = r.result.value;
 									a.enabled = r.result.enabled;
+									a.private = r.result.private;
 								}
 						}
 

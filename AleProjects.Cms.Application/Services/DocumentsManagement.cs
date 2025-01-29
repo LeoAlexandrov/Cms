@@ -185,6 +185,7 @@ namespace AleProjects.Cms.Application.Services
 			string icon;
 			bool published;
 			string path;
+			string rootSlug;
 			string authPolicies;
 			List<DocumentPathNode> pathNodes;
 			List<DocumentAttribute> newAttrs;
@@ -201,6 +202,7 @@ namespace AleProjects.Cms.Application.Services
 					return Result<DtoFullDocumentResult>.BadParameters("Parent", "No parent document found");
 
 				path = parent.Path + "/" + slug;
+				rootSlug = parent.RootSlug;
 				language = parent.Language;
 				icon = "article";
 				published = parent.Published;
@@ -216,6 +218,7 @@ namespace AleProjects.Cms.Application.Services
 			else
 			{
 				path = ""; // slug;
+				rootSlug = slug;
 				language = "en-US";
 				icon = "home";
 				published = true;
@@ -232,6 +235,7 @@ namespace AleProjects.Cms.Application.Services
 				Parent = dto.Parent,
 				Position = position,
 				Slug = slug,
+				RootSlug = rootSlug,
 				Path = path,
 				Title = title,
 				Language = language,
@@ -373,7 +377,11 @@ namespace AleProjects.Cms.Application.Services
 				else
 				{
 					doc.Slug = slug;
+					doc.RootSlug = slug;
 					doc.Path = "";
+
+					for (int i = 0; i < children.Length; i++)
+						children[i].RootSlug = slug;
 				}
 
 
@@ -593,9 +601,11 @@ namespace AleProjects.Cms.Application.Services
 				.CountAsync(d => d.Parent == parentId);
 
 			string oldPath = doc.Path;
-			string newPath = newParent != null ? newParent.Path + "/" + doc.Slug : ""; // doc.Slug;
+			string newPath = newParent != null ? newParent.Path + "/" + doc.Slug : "";
+			string newRootSlug = newParent != null ? newParent.RootSlug : doc.Slug;
 
 			doc.Path = newPath;
+			doc.RootSlug = newRootSlug;
 			doc.Parent = parentId;
 			doc.Position = newPosition;
 			doc.Author = user.Identity.Name;
@@ -657,6 +667,7 @@ namespace AleProjects.Cms.Application.Services
 				var child = children[i];
 
 				child.Path = newPath + child.Path[l..];
+				child.RootSlug = newRootSlug;
 
 				if (diff > 0)
 				{
@@ -799,6 +810,7 @@ namespace AleProjects.Cms.Application.Services
 			{
 				Slug = newSlug,
 				Path = string.Join('/', pathItems),
+				RootSlug = origin.RootSlug,
 				Title = string.Format("{0}-copy", origin.Title),
 				Parent = origin.Parent,
 				Position = position,
@@ -823,30 +835,6 @@ namespace AleProjects.Cms.Application.Services
 
 			if (origin.DocumentAttributes.Count != 0)
 				doc.DocumentAttributes = new(origin.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled }));
-
-			/*
-			FragmentLink[] links = await dbContext.FragmentLinks
-				.AsNoTracking()
-				.Include(b => b.Fragment)
-				.Where(b => b.DocumentRef == originId)
-				.OrderBy(b => b.ContainerRef)
-				.ThenBy(b => b.Position)
-				.ToArrayAsync();
-
-			if (links.Length > 0)
-			{
-				doc.FragmentLinks = links.Select(
-					l => new FragmentLink()
-					{
-						ContainerRef = l.ContainerRef,
-						Position = l.Position,
-						Enabled = l.Enabled,
-						Anchor = l.Anchor,
-						Document = doc
-					}).ToList();
-
-			}
-			*/
 
 			dbContext.Documents.Add(doc);
 

@@ -778,7 +778,7 @@ namespace AleProjects.Cms.Application.Services
 
 			ReferencesHelper.GetReferencesChanges(dto.Document,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, fr.Data, .. xmlData]),
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, fr.Data, .. xmlData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -930,7 +930,7 @@ namespace AleProjects.Cms.Application.Services
 
 			ReferencesHelper.GetReferencesChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, dto.Enabled ? data : null, .. xmlData]),
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? data : null, .. xmlData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -1030,7 +1030,7 @@ namespace AleProjects.Cms.Application.Services
 
 			ReferencesHelper.GetReferencesChanges(docId,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Title, doc.Summary, .. xmlData]),
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 

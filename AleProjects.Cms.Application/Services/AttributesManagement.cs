@@ -78,7 +78,8 @@ namespace AleProjects.Cms.Application.Services
 				DocumentRef = dto.DocumentRef,
 				AttributeKey = key,
 				Value = value,
-				Enabled = dto.Enabled
+				Enabled = dto.Enabled,
+				Private = dto.Private
 			};
 
 			dbContext.DocumentAttributes.Add(result);
@@ -98,7 +99,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_change", doc.Id);
 
 			return Result<DtoDocumentAttributeResult>.Success(new(result));
 		}
@@ -204,6 +205,7 @@ namespace AleProjects.Cms.Application.Services
 
 			attr.Value = value;
 			attr.Enabled = dto.Enabled;
+			attr.Private = dto.Private;
 
 			Document doc = await dbContext.Documents.FindAsync(attr.DocumentRef);
 
@@ -212,7 +214,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_change", doc.Id);
 
 			return Result<DtoDocumentAttributeResult>.Success(new(attr)); ;
 		}
@@ -294,7 +296,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_change", doc.Id);
 
 			return Result<bool>.Success(true);
 		}

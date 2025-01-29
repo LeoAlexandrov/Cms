@@ -14,22 +14,15 @@
 	int m = Model.Children != null ? Model.Children.Length : 0;
 }
 
-@* 
-This style defined in /css/site.css
 
 <style>
-	.carousel-item-body {
-		position: absolute;
-		top: 2rem;
-		left: 15%;
-		right: 15%;
-		bottom: 2rem;
-		padding-top: 1.25rem;
-		padding-bottom: 1.25rem;
-		color: white;
-	}
+@for (int i = 0; i < n; i++)
+{
+	<text>.carousel-item:nth-child(@(i+1)) {
+	background: no-repeat center / cover url('@items[i].picture.source');
+}</text>
+}
 </style>
-*@
 
 <div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
@@ -54,10 +47,7 @@ This style defined in /css/site.css
 		@for (int i = 0; i < n; i++)
 		{
 			<div class="carousel-item @(i == activeIdx ? "active" : null)">
-				@{
-					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", items[i].picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
-				}
-				<div class="carousel-item-body d-flex align-items-center">
+				<div class="d-flex justify-content-center align-items-center text-white h-100">
 				@if (i < m) 
 				{
 					await Html.RenderPartialAsync(Model.Children[i].XmlName, Model.Children[i]);

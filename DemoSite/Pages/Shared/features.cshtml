@@ -1,0 +1,165 @@
+﻿@using AleProjects.Cms.Sdk.ViewModels
+@model Fragment
+
+@{
+	string id = Model.DomId;
+	string title = Model.Props.title;
+	string look = Model.Props.look;
+
+	var features = Model.Props.feature;
+	int n = features.Length;
+
+	System.Text.StringBuilder divClass = new("row");
+	string rowCls;
+
+	var columns = Model.Props.container.columns;
+
+	foreach (var col in columns)
+	{
+		if (!string.IsNullOrEmpty(rowCls = rowDivClass(col.breakpoint, col.number)))
+			divClass.Append(' ').Append(rowCls);
+	}
+
+	var align = Model.Props.container.alignment;
+
+	if (align != null)
+		foreach (var a in align)
+		{
+			if (!string.IsNullOrEmpty(rowCls = alignDivClass(a.breakpoint, a.align)))
+				divClass.Append(' ').Append(rowCls);
+		}
+
+	rowCls = divClass.ToString();
+
+
+
+}
+
+<div class="features-@look my-4" id="@id">
+	@if (!string.IsNullOrEmpty(title))
+	{
+		<h2>@title</h2>
+	}
+
+	<div class="@rowCls g-4 mt-4">
+		@if (n != 0)
+		{
+			string cls;
+			string subtitle;
+			string text;
+
+			foreach (var f in features)
+			{
+				divClass.Clear();
+
+
+				align = f.cells_alignment;
+
+				if (align != null)
+				{
+					foreach (var a in align)
+					{
+						if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
+							divClass.Append(' ').Append(cls);
+					}
+
+					cls = divClass.ToString();
+				}
+				else cls = null;
+
+				title = f.title;
+				subtitle = f.subtitle;
+				text = f.text;
+
+				var pict = f.picture;
+			
+
+			<div class="col @cls mb-5 h-100">
+			@if (pict != null)
+			{
+				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict));
+			}
+			@if (!string.IsNullOrEmpty(title))
+			{
+					<h3>@Html.Raw(f.title)</h3>
+			}
+			@if (!string.IsNullOrEmpty(subtitle))
+			{
+					<h5>@Html.Raw(f.subtitle)</h5>
+			}
+			@if (!string.IsNullOrEmpty(text))
+			{
+					@Html.Raw(f.text)
+			}
+			</div>
+			}
+		}
+	</div>
+</div>
+
+@{
+	string rowDivClass(string breakpoint, string span)
+	{
+		if (string.IsNullOrEmpty(breakpoint) || string.IsNullOrEmpty(span))
+			return null;
+
+		string cls = breakpoint switch
+		{
+			"sm" => "row-cols-sm",
+			"md" => "row-cols-md",
+			"lg" => "row-cols-lg",
+			"xl" => "row-cols-xl",
+			"xxl" => "row-cols-xxl",
+			_ => "row-cols"
+		};
+
+		return span switch
+		{
+			"auto" => cls + "-auto",
+			"1" => cls + "-1",
+			"2" => cls + "-2",
+			"3" => cls + "-3",
+			"4" => cls + "-4",
+			"5" => cls + "-5",
+			"6" => cls + "-6",
+			"7" => cls + "-7",
+			"8" => cls + "-8",
+			"9" => cls + "-9",
+			"10" => cls + "-10",
+			"11" => cls + "-11",
+			"12" => cls + "-12",
+			_ => cls
+		};
+	}
+
+	string alignDivClass(string breakpoint, string align)
+	{
+		string bp = breakpoint switch
+		{
+			"xs" => "xs-",
+			"sm" => "sm-",
+			"md" => "md-",
+			"lg" => "lg-",
+			"xl" => "xl-",
+			"xxl" => "xxl-",
+			_ => string.Empty
+		};
+
+		return align switch
+		{
+			"vertical-start" => $"align-items-{bp}start",
+			"vertical-center" => $"align-items-{bp}center",
+			"vertical-end" => $"align-items-{bp}end",
+			"vertical-self-start" => $"align-self-{bp}start",
+			"vertical-self-center" => $"align-self-{bp}center",
+			"vertical-self-end" => $"align-self-{bp}end",
+			"horizontal-start" => $"justify-content-{bp}start",
+			"horizontal-center" => $"justify-content-{bp}center",
+			"horizontal-end" => $"justify-content-{bp}end",
+			"horizontal-around" => $"justify-content-{bp}around",
+			"horizontal-between" => $"justify-content-{bp}between",
+			"horizontal-evenly" => $"justify-content-{bp}evenly",
+			_ => null
+		};
+	}
+}

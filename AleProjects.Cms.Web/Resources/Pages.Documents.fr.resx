@@ -339,4 +339,7 @@
   <data name="InheritAttributes" xml:space="preserve">
     <value>Hériter des attributs</value>
   </data>
+  <data name="AttributePrivateLabel" xml:space="preserve">
+    <value>Privé</value>
+  </data>
 </root>

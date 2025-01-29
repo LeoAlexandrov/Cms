@@ -21,6 +21,9 @@ namespace AleProjects.Cms.Domain.Entities
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Slug { get; set; }
 
+		[Required(AllowEmptyStrings = false), MaxLength(256)]
+		public string RootSlug { get; set; }
+
 		[Required(AllowEmptyStrings = false)] 
 		public string Path { get; set; }
 

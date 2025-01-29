@@ -34,6 +34,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("documentRef")]
 		public int DocumentRef { get; set; }
 
+		[MessagePack.Key("private")]
+		public bool Private { get; set; }
+
 		public DtoDocumentAttributeResult() { }
 
 		public DtoDocumentAttributeResult(DocumentAttribute attr)
@@ -45,6 +48,7 @@ namespace AleProjects.Cms.Application.Dto
 				AttributeKey = attr.AttributeKey;
 				Value = attr.Value;
 				Enabled = attr.Enabled;
+				Private = attr.Private;
 			}
 		}
 	}
@@ -98,6 +102,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("documentRef")]
 		[RequiredPositive]
 		public int DocumentRef { get; set; }
+
+		[MessagePack.Key("private")]
+		public bool Private { get; set; }
 	}
 
 
@@ -129,6 +136,8 @@ namespace AleProjects.Cms.Application.Dto
 	[MessagePackObject]
 	public class DtoUpdateDocumentAttribute : DtoUpdateAttribute
 	{
+		[MessagePack.Key("private")]
+		public bool Private { get; set; }
 	}
 
 
