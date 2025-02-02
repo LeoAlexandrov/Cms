@@ -23,8 +23,8 @@
 			<q-input v-model="newUser.login"
 				autofocus
 				label="@Localizer["Login"]"
-				ref="NewUserLogin" 
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]', val => !invalidNewLogins.includes(val) || '@Localizer["LoginAlreadyExists"]']">
+				ref="NewUserLogin"
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]', val => !invalidNewLogins.includes(val) || '@Localizer["LoginAlreadyExists"]']">
 			</q-input>
 
 			<q-select v-model="newUser.role"

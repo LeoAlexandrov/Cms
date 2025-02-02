@@ -189,4 +189,7 @@
   <data name="Yes" xml:space="preserve">
     <value>Oui</value>
   </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Appliquer</value>
+  </data>
 </root>

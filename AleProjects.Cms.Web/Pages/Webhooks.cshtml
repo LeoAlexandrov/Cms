@@ -24,7 +24,7 @@
 				autofocus
 				label="@Localizer["Endpoint"]"
 				ref="NewWebhookEndpoint"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]']">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]']">
 			</q-input>
 
 			<q-input v-model.number="newWebhook.rootDocument"
@@ -57,7 +57,7 @@
 				autofocus
 				label="@Localizer["Endpoint"]"
 				ref="WebhookEndpoint"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]']">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 260 || '@ErrorsLocalizer["Validation_MaxLen260"]']">
 			</q-input>
 
 			<q-input v-model.number="editedWebhook.rootDocument"

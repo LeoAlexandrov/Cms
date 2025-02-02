@@ -41,7 +41,7 @@
 			<q-input v-model="newSchema.description"
 				label="@Localizer["Description"]"
 				ref="NewSchemaDescription"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]']">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]']">
 			</q-input>
 		</q-card-section>
 
@@ -121,7 +121,7 @@
 					label="@Localizer["Description"]"
 					ref="Description"
 					@@update:model-value="hasChanged=true"
-					:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]']">
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]']">
 				</q-input>
 
 				<code-editor v-model="editedSchema.data"

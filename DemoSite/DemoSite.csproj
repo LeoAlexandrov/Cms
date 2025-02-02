@@ -5,6 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <BaseOutputPath>C:\VSBuild\Cms.Demo\bin</BaseOutputPath>
+    <BaseIntermediateOutputPath>C:\VSBuild\Cms.Demo\obj\</BaseIntermediateOutputPath>
     <PublishTrimmed>False</PublishTrimmed>
     <PublishAot>False</PublishAot>
   </PropertyGroup>

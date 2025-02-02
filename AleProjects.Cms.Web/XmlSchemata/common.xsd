@@ -81,6 +81,7 @@
 						<xs:enumeration value="vertical-self-start"/>
 						<xs:enumeration value="vertical-self-center"/>
 						<xs:enumeration value="vertical-self-end"/>
+						<xs:enumeration value="horizontal-self-center"/>
 						<xs:enumeration value="horizontal-start"/>
 						<xs:enumeration value="horizontal-center"/>
 						<xs:enumeration value="horizontal-end"/>

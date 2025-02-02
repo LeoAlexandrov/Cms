@@ -29,72 +29,86 @@
 				divClass.Append(' ').Append(rowCls);
 		}
 
+	if (!string.IsNullOrEmpty(title))
+		divClass.Append(" mt-4");
+
 	rowCls = divClass.ToString();
 
+	string cls = null;
+
+	divClass.Clear();
 
 
+	align = Model.Props.container.item_alignment;
+
+	if (align != null)
+	{
+		foreach (var a in align)
+		{
+			if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
+			{
+				divClass.Append(' ').Append(cls);
+			}
+		}
+
+		cls = divClass.ToString();
+	}
+
+	bool isAlternative = look == "alternative" && !string.IsNullOrEmpty(title);
 }
 
 <div class="features-@look my-4" id="@id">
-	@if (!string.IsNullOrEmpty(title))
+	@if (isAlternative)
 	{
-		<h2>@title</h2>
+		@Html.Raw("<div class=\"row gx-5\">")
+		<div class="col-lg-4 mb-4 mb-lg-0 mt-lg-4">
+			<h1>@title</h1>
+		</div>
+		@Html.Raw("<div class=\"col-lg-8\">")
+	}
+	else if (!string.IsNullOrEmpty(title))
+	{
+			<h1 class="text-center fw-bolder">@title</h1>
 	}
 
-	<div class="@rowCls g-4 mt-4">
+	<div class="@rowCls gx-4">
 		@if (n != 0)
 		{
-			string cls;
-			string subtitle;
-			string text;
-
 			foreach (var f in features)
 			{
-				divClass.Clear();
-
-
-				align = f.cells_alignment;
-
-				if (align != null)
-				{
-					foreach (var a in align)
-					{
-						if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
-							divClass.Append(' ').Append(cls);
-					}
-
-					cls = divClass.ToString();
-				}
-				else cls = null;
 
 				title = f.title;
-				subtitle = f.subtitle;
-				text = f.text;
-
+				string subtitle = f.subtitle;
+				string text = f.text;
 				var pict = f.picture;
 			
 
 			<div class="col @cls mb-5 h-100">
 			@if (pict != null)
 			{
-				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict));
+				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "mb-4" } });
 			}
 			@if (!string.IsNullOrEmpty(title))
 			{
-					<h3>@Html.Raw(f.title)</h3>
+				<h3>@Html.Raw(f.title)</h3>
 			}
 			@if (!string.IsNullOrEmpty(subtitle))
 			{
-					<h5>@Html.Raw(f.subtitle)</h5>
+				<h5>@Html.Raw(f.subtitle)</h5>
 			}
 			@if (!string.IsNullOrEmpty(text))
 			{
-					@Html.Raw(f.text)
+				@Html.Raw(f.text)
 			}
 			</div>
 			}
 		}
 	</div>
+
+	@if (isAlternative)
+	{
+		@Html.Raw("</div></div>")
+	}
 </div>
 
 @{
@@ -153,6 +167,7 @@
 			"vertical-self-start" => $"align-self-{bp}start",
 			"vertical-self-center" => $"align-self-{bp}center",
 			"vertical-self-end" => $"align-self-{bp}end",
+			"horizontal-self-center" => "text-center",
 			"horizontal-start" => $"justify-content-{bp}start",
 			"horizontal-center" => $"justify-content-{bp}center",
 			"horizontal-end" => $"justify-content-{bp}end",

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 
@@ -11,7 +12,7 @@ namespace AleProjects.Cms.Sdk.ViewModels
 	{
 		public int Id { get; set; }
 		public int LinkId { get; set; }
-		public string DomId { get => XmlName + LinkId; }
+		public string DomId { get => GetDomId(); }
 		public int Container { get; set; }
 		public string Name { get; set; }
 		public string Icon { get; set; }
@@ -39,9 +40,9 @@ namespace AleProjects.Cms.Sdk.ViewModels
 		{
 			if (fragment != null)
 			{
-				Id = fragment.Id;
+				Id = 0;
 				LinkId = fragment.LinkId;
-				Container = fragment.Container;
+				Container = fragment.Id;
 				Name = fragment.Name;
 				Icon = fragment.Icon;
 				Shared = fragment.Shared;
@@ -74,5 +75,21 @@ namespace AleProjects.Cms.Sdk.ViewModels
 			};
 		}
 
+		private string GetDomId()
+		{
+			if (Id == 0)
+				return null;
+
+			int n = Name.Length;
+			Span<char> cId = stackalloc char[n];
+
+			for (int i = 0; i < n; i++)
+				if (Name[i] == '-' || Name[i] == '-' || char.IsLetterOrDigit(Name[i]))
+					cId[i] = Name[i];
+				else
+					cId[i] = '-';
+
+			return new string(cId);
+		}
 	}
 }

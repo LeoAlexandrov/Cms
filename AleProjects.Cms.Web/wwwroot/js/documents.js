@@ -1037,7 +1037,7 @@
 
 		},
 
-		saveFragment(forceXml) {
+		saveFragment(forceXml, apply) {
 
 			let dto = {
 				properties: this.fragment.properties,
@@ -1058,7 +1058,8 @@
 
 					if (r.ok) {
 
-						this.fragmentProps = false;
+						if (!apply)
+							this.fragmentProps = false;
 
 						let node = this.$refs.FragmentsTree.getNodeByKey(this.fragment.linkId);
 

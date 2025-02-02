@@ -43,14 +43,14 @@
 				autofocus
 				label="@Localizer["Slug"]"
 				ref="NewDocumentSlug"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidNewDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidNewDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
 			</q-input>
 
 			<q-input
 				v-model="newDocument.title"
 				label="@Localizer["Title"]"
 				ref="NewDocumentTitle"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
 			</q-input>
 
 			<q-checkbox v-model="newDocument.inheritAttributes" v-if="newDocument.parent"
@@ -160,7 +160,7 @@
 				label="@Localizer["Name"]"
 				ref="NewFragmentName"
 				:disable="newFragment.stuffSelected=='shared'"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
 			</q-input>
 		</q-card-section>
 
@@ -238,7 +238,8 @@
 
 		<q-footer class="bg-grey-1 text-dark">
 			<q-card-actions align="right">
-				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="saveFragment(false)"></q-btn>
+				<q-btn flat label="@SharedLocalizer["Apply"]" color="primary" class="q-mr-lg" @@click="saveFragment(false, true)"></q-btn>
+				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="saveFragment(false, false)"></q-btn>
 				<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
 			</q-card-actions>
 		</q-footer>
@@ -272,7 +273,7 @@
 							v-model="fragment.properties.name"
 							label="@Localizer["FragmentName"]"
 							ref="FragmentName"
-							:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
+							:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
 						</q-input>
 
 						<q-checkbox v-model="fragment.enabled"
@@ -441,7 +442,7 @@
 						</code-editor>
 						<div class="row q-mt-lg">
 							<q-space></q-space>
-							<q-btn flat label="@Localizer["SaveXml"]" color="primary" @@click="saveFragment(true)"></q-btn>
+							<q-btn flat label="@Localizer["SaveXml"]" color="primary" @@click="saveFragment(true, false)"></q-btn>
 						</div>
 					</q-tab-panel>
 				</q-tab-panels>
@@ -482,7 +483,7 @@
 				label="@Localizer["AttributeKey"]"
 				ref="AttributeKey"
 				:readonly="!!attribute.id"
-				:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]', val => !invalidAttributeKeys.includes(val) || '@Localizer["AttributeKeyAlreadyExists"]' ]">
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]', val => !invalidAttributeKeys.includes(val) || '@Localizer["AttributeKeyAlreadyExists"]' ]">
 
 				<template v-slot:after>
 					<q-btn round flat size="sm" icon="content_copy" v-if="!!attribute.id" @@click="copyToClipboard(attribute.key)">
@@ -639,7 +640,7 @@
 									label="@Localizer["Slug"]"
 									ref="Slug"
 									@@update:model-value="hasChanged=true"
-									:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
+									:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
 								</q-input>
 
 							</div>
@@ -650,7 +651,7 @@
 									label="@Localizer["Title"]"
 									ref="Title"
 									@@update:model-value="hasChanged=true"
-									:rules="[val => !!val || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
+									:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
 								</q-input>
 
 							</div>
