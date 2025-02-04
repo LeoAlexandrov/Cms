@@ -854,6 +854,38 @@ namespace AleProjects.Cms.Application.Services
 
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
+	
+		public async Task<Result<DtoDocumentRefResult>> GetReferences(int id)
+		{
+			var doc = await dbContext.Documents.FindAsync(id);
+
+			if (doc == null)
+				return Result<DtoDocumentRefResult>.NotFound();
+
+			var refs = await dbContext.References
+				.Join(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
+				.Where(r => r.r.DocumentRef == id)
+				.OrderBy(r => r.CreatedAt)
+				.Select(r => new DtoDocumentRef() { Id = r.r.ReferenceTo, Title = r.Title })
+				.ToArrayAsync();
+
+			var refdBy = await dbContext.References
+				.Join(dbContext.Documents, r => r.DocumentRef, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
+				.Where(r => r.r.ReferenceTo == id)
+				.OrderBy(r => r.CreatedAt)
+				.Select(r => new DtoDocumentRef() { Id = r.r.DocumentRef, Title = r.Title })
+				.ToArrayAsync();
+
+
+			DtoDocumentRefResult result = new()
+			{
+				References = refs,
+				ReferencedBy = refdBy
+			};
+
+			return Result<DtoDocumentRefResult>.Success(result);
+		}
+
 	}
 
 }

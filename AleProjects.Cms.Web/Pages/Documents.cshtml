@@ -585,55 +585,93 @@
 
 		<template v-slot:after>
 			<div class="row" :style="{'max-height': pageHeight}">
-				<div class="col-sm-12 col-md-8 q-pa-md" style="border-right: 1px solid gainsboro" v-if="selectedDoc!=0">
-					<div class="q-gutter-md">
+				<div class="col-sm-12 col-md-8" style="border-right: 1px solid gainsboro" v-if="selectedDoc!=0">
+					<div class="q-pa-md">
 
-						<h5>@Localizer["Properties"]</h5>
+						<h5 class="q-mt-none q-mb-lg">@Localizer["Properties"]</h5>
 
-						<table>
-							<tbody>
-								<tr>
-									<td><span class="text-caption text-grey-7">Id:</span></td>
-									<td>{{ editedDoc.properties.id }}</td>
-									<td>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="content_copy" size="sm" @@click="copyToClipboard(editedDoc.properties.id)">
-											<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
-										</q-btn>
-										<q-icon class="q-ml-sm" name="lock" color="primary" size="xs" v-if="editedDoc.properties.editorRoleRequired!=null">
-											<q-tooltip>{{ editedDoc.properties.editorRoleRequired }}</q-tooltip>
-										</q-icon>
-									</td>
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["ParentId"]:</span></td>
-									<td>{{ editedDoc.properties.parent }}</td>
-									<td>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm" @@click="startChangeParent(false)">
-											<q-tooltip>@Localizer["Hint_ChangeParent"]</q-tooltip>
-										</q-btn>
-									</td>
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["Position"]:</span></td>
-									<td>{{ editedDoc.properties.position }}</td>
-									<td>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_upward" size="sm" @@click="moveDoc(-1)">
-											<q-tooltip>@Localizer["Hint_MoveUpper"]</q-tooltip>
-										</q-btn>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_downward" size="sm" @@click="moveDoc(1)">
-											<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
-										</q-btn>
-									</td>
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["Path"]:</span></td>
-									<td colspan="2">{{ editedDoc.properties.path }}</td>
-								</tr>
-							</tbody>
-						</table>
+						<div class="row q-col-gutter-md">
+							<div class="col-sm-4 col-xs-12">
+								<table>
+									<tbody>
+										<tr>
+											<td><span class="text-caption text-grey-7">Id:</span></td>
+											<td>{{ editedDoc.properties.id }}</td>
+											<td>
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="content_copy" size="sm" @@click="copyToClipboard(editedDoc.properties.id)">
+													<q-tooltip>@SharedLocalizer["Copy"]</q-tooltip>
+												</q-btn>
+												<q-icon class="q-ml-sm" name="lock" color="primary" size="xs" v-if="editedDoc.properties.editorRoleRequired!=null">
+													<q-tooltip>{{ editedDoc.properties.editorRoleRequired }}</q-tooltip>
+												</q-icon>
+											</td>
+										</tr>
+										<tr>
+											<td><span class="text-caption text-grey-7">@Localizer["ParentId"]:</span></td>
+											<td>{{ editedDoc.properties.parent }}</td>
+											<td>
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm" @@click="startChangeParent(false)">
+													<q-tooltip>@Localizer["Hint_ChangeParent"]</q-tooltip>
+												</q-btn>
+											</td>
+										</tr>
+										<tr>
+											<td><span class="text-caption text-grey-7">@Localizer["Position"]:</span></td>
+											<td>{{ editedDoc.properties.position }}</td>
+											<td>
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_upward" size="sm" @@click="moveDoc(-1)">
+													<q-tooltip>@Localizer["Hint_MoveUpper"]</q-tooltip>
+												</q-btn>
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_downward" size="sm" @@click="moveDoc(1)">
+													<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
+												</q-btn>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="col-sm-8 col-xs-12">
+								<table>
+									<tbody>
+										<tr>
+											<td><span class="text-caption text-grey-7">@Localizer["Author"]: </span></td>
+											<td>{{ editedDoc.properties.author }}</td>
+										</tr>
+										<tr>
+											<td><span class="text-caption text-grey-7">@Localizer["CreatedAt"]: </span></td>
+											<td>{{ (new Date(editedDoc.properties.createdAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
+										</tr>
+										<tr>
+											<td><span class="text-caption text-grey-7">@Localizer["ModifiedAt"]: </span></td>
+											<td>{{ (new Date(editedDoc.properties.modifiedAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
+										</tr>
+										<tr v-if="editedDoc.references.length">
+											<td><span class="text-caption text-grey-7">@Localizer["References"]:</span></td>
+											<td>
+												<a v-for="(r, idx) in editedDoc.references" :href="`/documents/${r.id}`" target="_blank">
+													<q-badge outline color="secondary" class="q-mx-xs" :label="r.id"><q-tooltip>{{ r.title }}</q-tooltip></q-badge>
+												</a>
+											</td>
+										</tr>
+										<tr v-if="editedDoc.referencedBy.length">
+											<td><span class="text-caption text-grey-7">@Localizer["ReferencedBy"]:</span></td>
+											<td>
+												<a v-for="(r, idx) in editedDoc.referencedBy" :href="`/documents/${r.id}`" target="_blank">
+													<q-badge outline color="secondary" class="q-mx-xs" :label="r.id"><q-tooltip>{{ r.title }}</q-tooltip></q-badge>
+												</a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
 
-						<div class="row">
-							<div class="col-sm-4 col-xs-12 q-pr-md">
+						<div class="q-mt-xs q-mb-lg q-py-xs q-px-sm bg-grey-1">
+							<span class="text-caption text-grey-7">{{ editedDoc.properties.path }}</span>
+						</div>
+
+						<div class="row q-my-md q-col-gutter-y-sm q-col-gutter-x-md">
+							<div class="col-sm-4 col-xs-12">
 
 								<q-input dense outlined
 									v-model="editedDoc.properties.slug"
@@ -644,7 +682,7 @@
 								</q-input>
 
 							</div>
-							<div class="col-sm-8 col-xs-12 q-pl-md">
+							<div class="col-sm-8 col-xs-12">
 
 								<q-input dense outlined
 									v-model="editedDoc.properties.title"
@@ -657,8 +695,8 @@
 							</div>
 						</div>
 
-						<div class="row">
-							<div class="col-sm-4 col-xs-12 q-pr-md">
+						<div class="row q-my-md q-col-gutter-y-sm q-col-gutter-x-md">
+							<div class="col-sm-4 col-xs-12">
 
 								<q-input dense outlined
 									v-model="editedDoc.properties.language" 
@@ -669,7 +707,7 @@
 								</q-input>
 
 							</div>
-							<div class="col-sm-8 col-xs-12 q-pl-md">
+							<div class="col-sm-8 col-xs-12">
 								
 								<q-input dense outlined
 									v-model="editedDoc.properties.icon" 
@@ -682,10 +720,11 @@
 							</div>
 						</div>
 
-						<p class="text-caption text-grey-7 q-pt-sm">@Localizer["Summary"]</p>
+						<p class="text-caption text-grey-7 q-mb-sm">@Localizer["Summary"]</p>
 
 						<q-editor 
-							v-model="editedDoc.properties.summary" 
+							v-model="editedDoc.properties.summary"
+							class="q-mb-md"
 							ref="Summary"
 							paragraph-tag="p"
 							min-height="12rem" 
@@ -694,7 +733,7 @@
 						</q-editor>
 						
 						<q-img v-if="editedDoc.properties.coverPicture"
-							class="cursor-pointer"
+							class="q-mt-sm cursor-pointer"
 							:src="imageUrl(editedDoc.properties.coverPicture)"
 							style="max-height: 192px; max-width: 192px"
 							@@click="openImage(editedDoc.properties.coverPicture)">
@@ -706,6 +745,7 @@
 
 						<q-input dense outlined
 							v-model="editedDoc.properties.coverPicture"
+							class="q-mt-lg"
 							clearable
 							label="@Localizer["CoverPicture"]"
 							ref="Picture"
@@ -713,7 +753,8 @@
 						</q-input>
 
 						<q-input dense outlined
-							v-model="editedDoc.properties.description" 
+							v-model="editedDoc.properties.description"
+							class="q-mt-lg"
 							label="@Localizer["Description"]"
 							ref="Description"
 							@@update:model-value="hasChanged=true">
@@ -721,12 +762,14 @@
 
 						<q-input dense outlined
 							v-model="editedDoc.properties.tags"
+							class="q-mt-lg"
 							label="@Localizer["Tags"]"
 							@@update:model-value="hasChanged=true">
 						 </q-input>
 
 						<q-input dense outlined
 							v-model="editedDoc.properties.authPolicies"
+							class="q-mt-lg"
 							label="@Localizer["AuthPolicies"]"
 							ref="AuthPolicies"
 							@@update:model-value="hasChanged=true">
@@ -742,32 +785,18 @@
 
 						<p class="text-caption text-negative" v-if="editedDoc.properties.published===invalidPublishedState">@Localizer["ParentNotPublished"]</p>
 
-						<table>
-							<tbody>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["Author"]: </span></td>
-									<td>{{ editedDoc.properties.author }}</td>
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["CreatedAt"]: </span></td>
-									<td>{{ (new Date(editedDoc.properties.createdAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
-								</tr>
-								<tr>
-									<td><span class="text-caption text-grey-7">@Localizer["ModifiedAt"]: </span></td>
-									<td>{{ (new Date(editedDoc.properties.modifiedAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
-								</tr>
-							</tbody>
-						</table>
-
-						<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
-						<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+						<div class="clearfix q-gutter-x-md q-mt-lg">
+							<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
+							<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+						</div>
 					</div>
 				</div>
-				<div class="col-sm-12 col-md-4 q-pa-md" v-if="selectedDoc!=0">
-					<div class="q-gutter-md">
-						<h5>@Localizer["Content"]</h5>
+				<div class="col-sm-12 col-md-4" v-if="selectedDoc!=0">
+					<div class=" q-pa-md">
+						<h5 class="q-mt-none q-mb-lg">@Localizer["Content"]</h5>
 
 						<q-tree ref="FragmentsTree"
+							class="q-mb-lg"
 							:nodes="editedDoc.fragmentsTree"
 							v-model:selected="selectedFragment"
 							dense
@@ -803,12 +832,13 @@
 								</div>
 							</template>
 						</q-tree>
+
 						<q-btn color="secondary" label="@Localizer["AddFragment"]" @@click="startNewFragment(0)"></q-btn>
 
-						<q-separator class="hcms-mt-32"></q-separator>
+						<q-separator class="q-my-lg"></q-separator>
 
-						<h5 class="hcms-mt-32">@Localizer["Attributes"]</h5>
-						<div class="row">
+						<h5 class="q-my-lg">@Localizer["Attributes"]</h5>
+						<div class="row q-mb-lg">
 							<q-chip v-for="(a,idx) in editedDoc.attributes"
 								removable clickable
 								:color="a.enabled ? (a.private ? 'dark' : 'primary'): 'grey'"
@@ -817,7 +847,6 @@
 								@@remove="startDeleteAttribute(a, false)">{{a.attributeKey}}</q-chip>
 						</div>
 						<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute(false)"></q-btn>
-
 					</div>
 				</div>
 			</div>

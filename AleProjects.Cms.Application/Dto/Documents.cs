@@ -75,7 +75,7 @@ namespace AleProjects.Cms.Application.Dto
 				Parent = doc.Parent;
 				Position = doc.Position;
 				Slug = doc.Slug;
-				Path = doc.Path;
+				Path = string.IsNullOrEmpty(doc.Path) ? "/" : doc.Path;
 				Title = doc.Title;
 				Summary = doc.Summary;
 				CoverPicture = doc.CoverPicture;
@@ -241,6 +241,30 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("origin")]
 		[RequiredPositive]
 		public int Origin { get; set; }
+	}
+
+
+
+	[MessagePackObject]
+	public class DtoDocumentRef
+	{
+		[MessagePack.Key("id")]
+		public int Id { get; set; }
+
+		[MessagePack.Key("title")]
+		public string Title { get; set; }
+	}
+
+
+
+	[MessagePackObject]
+	public class DtoDocumentRefResult
+	{
+		[MessagePack.Key("references")]
+		public DtoDocumentRef[] References { get; set; }
+
+		[MessagePack.Key("referencedBy")]
+		public DtoDocumentRef[] ReferencedBy { get; set; }
 	}
 
 }

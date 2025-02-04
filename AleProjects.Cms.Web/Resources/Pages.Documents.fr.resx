@@ -342,4 +342,10 @@
   <data name="AttributePrivateLabel" xml:space="preserve">
     <value>Privé</value>
   </data>
+  <data name="References" xml:space="preserve">
+    <value>Se réfère à</value>
+  </data>
+  <data name="ReferencedBy" xml:space="preserve">
+    <value>Référencé par</value>
+  </data>
 </root>

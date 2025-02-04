@@ -142,7 +142,7 @@
     <value>Doit être un nombre entier positif</value>
   </data>
   <data name="Validation_Lang" xml:space="preserve">
-    <value>Le format autorisé est ´fr-FR´, ´en-US´ ou ´fr´.</value>
+    <value>Le format autorisé est ´fr-FR´, ´en-US´, ou ´fr´.</value>
   </data>
   <data name="Validation_MaxLen128" xml:space="preserve">
     <value>La longueur maximale est de 128 caractères</value>

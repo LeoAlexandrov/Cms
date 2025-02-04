@@ -153,6 +153,20 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpGet("{id:int}/refs")]
+		[Authorize("IsUser")]
+		public async Task<IActionResult> References(int id)
+		{
+			var result = await _cms.GetReferences(id);
+
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				_ => Ok(result.Value)
+			};
+		}
+
+
 		[HttpGet("attributes/{id:int}")]
 		[Authorize]
 		public async Task<IActionResult> GetAttribute(int id)

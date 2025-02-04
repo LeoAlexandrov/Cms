@@ -142,7 +142,7 @@
     <value>Must be positive integer number </value>
   </data>
   <data name="Validation_Lang" xml:space="preserve">
-    <value>Allowed format is ´en-US´, ´fr-FR´ or ´en´</value>
+    <value>Allowed format is ´en-US´, ´fr-FR´, or ´en´</value>
   </data>
   <data name="Validation_MaxLen128" xml:space="preserve">
     <value>Maximum length is 128 characters</value>

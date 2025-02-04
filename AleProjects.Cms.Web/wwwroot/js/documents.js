@@ -36,7 +36,9 @@
 				},
 				fragmentLinks: [],
 				fragmentsTree: [],
-				attributes: []
+				attributes: [],
+				references: [],
+				referencedBy: []
 			},
 
 			hasChanged: false,
@@ -233,7 +235,9 @@
 				},
 				fragmentLinks: [],
 				fragmentsTree: [],
-				attributes: []
+				attributes: [],
+				references: [],
+				referencedBy: []
 			};
 		},
 
@@ -248,6 +252,23 @@
 					}
 
 				});
+		},
+
+		getRefs(id) {
+
+			this.editedDoc.references = [];
+			this.editedDoc.referencedBy = [];
+
+			application
+				.apiCallAsync(`/api/v1/documents/${id}/refs`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.then((r) => {
+
+					if (r.ok) {
+						this.editedDoc.references = r.result.references;
+						this.editedDoc.referencedBy = r.result.referencedBy;
+					}
+				});
+
 		},
 
 		selectDoc(id, pushState, ignoreChanges, selectNode) {
@@ -306,6 +327,8 @@
 
 						if (pushState)
 							window.history.pushState({ docId: id }, "", `/documents/${id}`);
+
+						this.getRefs(id);
 
 						Vue.nextTick(() => {
 							this.$refs.FragmentsTree.expandAll();
@@ -476,6 +499,8 @@
 					Quasar.LoadingBar.stop();
 
 					if (r.ok) {
+
+						this.getRefs(r.result.id);
 
 						this.editedDoc.properties = r.result;
 						this.hasChanged = false;
@@ -1058,6 +1083,7 @@
 
 					if (r.ok) {
 
+
 						if (!apply)
 							this.fragmentProps = false;
 
@@ -1071,6 +1097,7 @@
 						if (r.result.sharedStateChanged)
 							this.loadFragmentsCreationStuff();
 
+						this.getRefs(this.editedDoc.properties.id);
 						this.editedDoc.properties.author = r.result.author;
 						this.editedDoc.properties.modifiedAt = r.result.modifiedAt;
 
@@ -1135,6 +1162,7 @@
 
 						}
 
+						this.getRefs(this.editedDoc.properties.id);
 						this.editedDoc.properties.author = r.result.author;
 						this.editedDoc.properties.modifiedAt = r.result.modifiedAt;
 
