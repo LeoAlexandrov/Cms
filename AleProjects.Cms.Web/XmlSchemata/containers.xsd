@@ -26,6 +26,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
 						<xs:enumeration value="row"/>
 						<xs:enumeration value="column"/>
 						<xs:enumeration value="container"/>

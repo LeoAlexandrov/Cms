@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Ganss.Xss;
 
+using AleProjects.Base64;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -866,14 +867,14 @@ namespace AleProjects.Cms.Application.Services
 				.Join(dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
 				.Where(r => r.r.DocumentRef == id)
 				.OrderBy(r => r.CreatedAt)
-				.Select(r => new DtoDocumentRef() { Id = r.r.ReferenceTo, Title = r.Title })
+				.Select(r => new DtoMinDocumentResult() { Id = r.r.ReferenceTo, Title = r.Title })
 				.ToArrayAsync();
 
 			var refdBy = await dbContext.References
 				.Join(dbContext.Documents, r => r.DocumentRef, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
 				.Where(r => r.r.ReferenceTo == id)
 				.OrderBy(r => r.CreatedAt)
-				.Select(r => new DtoDocumentRef() { Id = r.r.DocumentRef, Title = r.Title })
+				.Select(r => new DtoMinDocumentResult() { Id = r.r.DocumentRef, Title = r.Title })
 				.ToArrayAsync();
 
 
@@ -884,6 +885,21 @@ namespace AleProjects.Cms.Application.Services
 			};
 
 			return Result<DtoDocumentRefResult>.Success(result);
+		}
+
+		public async Task<Result<DtoMinDocumentResult[]>> GetMediaReferers(string link)
+		{
+			if (!Base64Url.TryDecode(link, out string path))
+				return Result<DtoMinDocumentResult[]>.BadParameters("Link", "Invalid base64-url format");
+
+			var result = await dbContext.References
+				.Join(dbContext.Documents, r => r.DocumentRef, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
+				.Where(r => r.r.MediaLink == path)
+				.OrderBy(r => r.CreatedAt)
+				.Select(r => new DtoMinDocumentResult() { Id = r.r.DocumentRef, Title = r.Title })
+				.ToArrayAsync();
+
+			return Result<DtoMinDocumentResult[]>.Success(result);
 		}
 
 	}

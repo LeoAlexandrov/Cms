@@ -48,9 +48,19 @@
 			</q-input>
 
 			<table class="text-caption text-grey q-pt-lg">
-				<tr v-if="opened.width+opened.height>0"><td>@Localizer["ImageSize"]</td><td>: {{ opened.width + ' x ' + opened.height }} px</td></tr>
-				<tr><td>@Localizer["MimeType"]</td><td>: {{ opened.mimeType }}</td></tr>
-				<tr><td>@Localizer["FileSize"]</td><td>: {{ opened.size }} @Localizer["Bytes"]</td></tr>
+				<tbody>
+					<tr v-if="opened.width+opened.height>0"><td>@Localizer["ImageSize"]:</td><td>{{ opened.width + ' x ' + opened.height }} px</td></tr>
+					<tr><td>@Localizer["MimeType"]:</td><td>{{ opened.mimeType }}</td></tr>
+					<tr><td>@Localizer["FileSize"]:</td><td>{{ opened.size }} @Localizer["Bytes"]</td></tr>
+					<tr v-if="opened.referencedBy.length">
+						<td>@Localizer["ReferencedBy"]:</td>
+						<td>
+							<a v-for="(r, idx) in opened.referencedBy" :href="`/documents/${r.id}`" target="_blank">
+								<q-badge outline color="secondary" class="q-mx-xs" :label="r.id"><q-tooltip>{{ r.title }}</q-tooltip></q-badge>
+							</a>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 
 		</q-card-section>

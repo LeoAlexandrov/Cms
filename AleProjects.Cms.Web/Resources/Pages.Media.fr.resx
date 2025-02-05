@@ -162,6 +162,9 @@
   <data name="Properties" xml:space="preserve">
     <value>Propriétés</value>
   </data>
+  <data name="ReferencedBy" xml:space="preserve">
+    <value>Référencé par</value>
+  </data>
   <data name="Rename" xml:space="preserve">
     <value>Renommer</value>
   </data>

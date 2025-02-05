@@ -166,6 +166,18 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpGet("mediarefs")]
+		[Authorize("IsUser")]
+		public async Task<IActionResult> MediaReferers([FromQuery] string link)
+		{
+			var result = await _cms.GetMediaReferers(link);
+
+			return result.Type switch
+			{
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
 
 		[HttpGet("attributes/{id:int}")]
 		[Authorize]

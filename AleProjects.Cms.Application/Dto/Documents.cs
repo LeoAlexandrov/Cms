@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-using AleProjects.Cms.Domain.Entities;
 using MessagePack;
+
+using AleProjects.Cms.Domain.Entities;
 
 
 namespace AleProjects.Cms.Application.Dto
@@ -109,6 +110,18 @@ namespace AleProjects.Cms.Application.Dto
 
 		[MessagePack.Key("fragmentsTree")]
 		public DtoTreeNode<int>[] FragmentsTree { get; set; }
+	}
+
+
+
+	[MessagePackObject]
+	public class DtoMinDocumentResult
+	{
+		[MessagePack.Key("id")]
+		public int Id { get; set; }
+
+		[MessagePack.Key("title")]
+		public string Title { get; set; }
 	}
 
 
@@ -246,25 +259,13 @@ namespace AleProjects.Cms.Application.Dto
 
 
 	[MessagePackObject]
-	public class DtoDocumentRef
-	{
-		[MessagePack.Key("id")]
-		public int Id { get; set; }
-
-		[MessagePack.Key("title")]
-		public string Title { get; set; }
-	}
-
-
-
-	[MessagePackObject]
 	public class DtoDocumentRefResult
 	{
 		[MessagePack.Key("references")]
-		public DtoDocumentRef[] References { get; set; }
+		public DtoMinDocumentResult[] References { get; set; }
 
 		[MessagePack.Key("referencedBy")]
-		public DtoDocumentRef[] ReferencedBy { get; set; }
+		public DtoMinDocumentResult[] ReferencedBy { get; set; }
 	}
 
 }

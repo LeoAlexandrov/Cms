@@ -12,7 +12,7 @@
 			mediaEntries: [],
 			path: [{ label: TEXT.MEDIA.get("ROOT"), link: null }],
 			selected: [],
-			opened: { name: null, link: null, hrefLink: null, width: 0, height: 0, size: 0 },
+			opened: { name: null, link: null, hrefLink: null, width: 0, height: 0, size: 0, referencedBy: [] },
 
 			maxUploadSize: 10 * 1024 * 1024,
 			safeNameRegexString: "^[\\w-]+.\\w+$",
@@ -113,6 +113,21 @@
 
 		},
 
+		getRefs(link) {
+
+			this.opened.referencedBy = [];
+
+			application
+				.apiCallAsync(`/api/v1/documents/mediarefs?link=${link}`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.then((r) => {
+
+					if (r.ok) {
+						this.opened.referencedBy = r.result;
+					}
+				});
+
+		},
+
 		getProperties(link) {
 
 			Quasar.LoadingBar.start();
@@ -126,7 +141,12 @@
 					if (r.ok) {
 						this.opened = r.result;
 						this.opened.hrefLink = `^('${r.result.link}')`;
+
+						this.getRefs(link);
+
 						this.entryProps = true;
+
+
 					} else {
 						displayMessage(`${TEXT.MEDIA.get('MESSAGE_PROPERTIES_FAIL')} (${formatHTTPStatus(r)})`, true);
 					}

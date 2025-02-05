@@ -305,7 +305,7 @@
 							<div class="row q-mb-md items-center" v-else-if="f.isAddable">
 								<q-btn color="secondary" icon="add" :label="f.annotation" @@click="addFragmentElement(idx)"></q-btn>
 							</div>
-							<div class="q-my-sm row items-center content-dialog-title" v-else-if="!f.isSimple && f.level>0">
+							<div class="row q-my-sm items-center content-dialog-title" v-else-if="!f.isSimple && f.level>0">
 								<span class="text-subtitle1">{{ f.annotation }}</span>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
@@ -634,15 +634,15 @@
 								<table>
 									<tbody>
 										<tr>
-											<td><span class="text-caption text-grey-7">@Localizer["Author"]: </span></td>
+											<td><span class="text-caption text-grey-7">@Localizer["Author"]:</span></td>
 											<td>{{ editedDoc.properties.author }}</td>
 										</tr>
 										<tr>
-											<td><span class="text-caption text-grey-7">@Localizer["CreatedAt"]: </span></td>
+											<td><span class="text-caption text-grey-7">@Localizer["CreatedAt"]:</span></td>
 											<td>{{ (new Date(editedDoc.properties.createdAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
 										</tr>
 										<tr>
-											<td><span class="text-caption text-grey-7">@Localizer["ModifiedAt"]: </span></td>
+											<td><span class="text-caption text-grey-7">@Localizer["ModifiedAt"]:</span></td>
 											<td>{{ (new Date(editedDoc.properties.modifiedAt)).toLocaleString("@SharedLocalizer["Locale"]") }}</td>
 										</tr>
 										<tr v-if="editedDoc.references.length">
