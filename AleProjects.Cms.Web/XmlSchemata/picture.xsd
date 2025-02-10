@@ -93,6 +93,18 @@
 					<xs:documentation xml:lang="fr">Tailles</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="floating" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Floating</xs:documentation>
+					<xs:documentation xml:lang="fr">Flottant</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="left"/>
+						<xs:enumeration value="right"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
 			<xs:element name="sources" type="picture.source" minOccurs="0" maxOccurs="6"/>
 		</xs:sequence>
 	</xs:complexType>

@@ -1,9 +1,17 @@
-﻿@model AleProjects.Cms.Sdk.ViewModels.Fragment
+﻿@using AleProjects.Cms.Sdk.ViewModels
+@model Fragment
 
 @{
 	string id = Model.DomId;
+	string text = Model.Props.text;
+
+	var pict = Model.Props.picture;
 }
 
 <div id="@id" class="raw-html-fragment">
-@Html.Raw(Model.Props.ToString())
+@if (pict != null)
+{
+	await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict));
+}
+@Html.Raw(text)
 </div>

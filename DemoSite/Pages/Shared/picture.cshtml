@@ -8,6 +8,7 @@
 	int? height = Model.Props.height;
 	string srcset = Model.Props.srcset;
 	string sizes = Model.Props.sizes;
+	string floating = Model.Props.floating;
 
 	var sources = Model.Props.sources;
 
@@ -16,8 +17,20 @@
 	string pictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
 	string imgClass = Model.Attributes?.GetValueOrDefault("bootstrap:img:class");
 
-	if (string.IsNullOrEmpty(imgClass) && Model.Parent != 0)
-		imgClass = "w-100";
+	if (string.IsNullOrEmpty(imgClass) && string.IsNullOrEmpty(floating) && Model.Parent != 0)
+		imgClass = "w-100"; // ???
+
+	string style = null;
+
+	switch (floating)
+	{
+		case "left":
+			style = "float: left; margin-right: 2em;";
+			break;
+		case "right":
+			style = "float: right; margin-left: 2em;";
+			break;
+	}
 }
 
 <picture class="@pictClass">
@@ -28,5 +41,5 @@
 	<source media="@s.media" srcset="@s.srcset" type="@s.type"/>
 	}
 }
-	<img id="@id" class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" />
+	<img id="@id" class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
 </picture>

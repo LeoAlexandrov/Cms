@@ -60,6 +60,9 @@
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
+	<None Update="XmlSchemata\markdown.xsd">
+	  <SubType>Designer</SubType>
+	</None>
 	<None Update="XmlSchemata\partial-view.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
@@ -84,7 +87,7 @@
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\containers.xsd">
+	<None Update="XmlSchemata\container.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>

@@ -36,19 +36,6 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<!--
-			<xs:element name="document" minOccurs="0" maxOccurs="1">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Document ID</xs:documentation>
-					<xs:documentation xml:lang="fr">ID du document</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:integer">
-						<xs:minInclusive value="1"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			-->
 			<xs:element name="pagination" type="xs:boolean">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Pagination</xs:documentation>

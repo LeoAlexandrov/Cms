@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	<!-- row with cols -->
+
+	<xs:complexType name="row.container">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Row</xs:documentation>
+			<xs:documentation xml:lang="fr">Rangée</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="alignment" type="alignment" minOccurs="0" maxOccurs="5" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="row.column">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Column</xs:documentation>
+			<xs:documentation xml:lang="fr">Colonne</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="width" type="width" minOccurs="0" maxOccurs="5" />
+			<xs:element name="alignment" type="alignment" minOccurs="0" maxOccurs="5" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="row">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Row with columns</xs:documentation>
+			<xs:documentation xml:lang="fr">Rangée avec colonnes</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="container" type="row.container"/>
+			<xs:element name="column" type="row.column" maxOccurs="12"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="row" type="row"/>
+
+</xs:schema>

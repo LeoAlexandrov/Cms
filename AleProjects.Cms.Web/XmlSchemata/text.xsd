@@ -8,27 +8,7 @@
 	xmlns:xsc="http://h-cms.net/custom">
 
 	
-	<!-- html, markdown, and raw text -->
-
-	<xs:element name="html" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Html</xs:documentation>
-			<xs:documentation xml:lang="fr">Html</xs:documentation>
-			<xs:appinfo>
-				<xsc:properties textformat="html"></xsc:properties>
-			</xs:appinfo>
-		</xs:annotation>
-	</xs:element>
-
-	<xs:element name="markdown" type="xs:string">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Markdown</xs:documentation>
-			<xs:documentation xml:lang="fr">Markdown</xs:documentation>
-			<xs:appinfo>
-				<xsc:properties textformat="markdown"></xsc:properties>
-			</xs:appinfo>
-		</xs:annotation>
-	</xs:element>
+	<!-- raw text -->
 
 	<xs:element name="text" type="xs:string">
 		<xs:annotation>

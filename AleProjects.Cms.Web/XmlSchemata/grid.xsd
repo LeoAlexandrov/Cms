@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <xs:schema
 	targetNamespace="http://h-cms.net/default.xsd"
@@ -6,47 +6,6 @@
 	xmlns="http://h-cms.net/default.xsd"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsc="http://h-cms.net/custom">
-
-
-	<!-- generic container -->
-
-	<xs:complexType name="container">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Generic container</xs:documentation>
-			<xs:documentation xml:lang="fr">Conteneur générique</xs:documentation>
-			<xs:appinfo>
-				<xsc:properties container="true"></xsc:properties>
-			</xs:appinfo>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="type">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Container type</xs:documentation>
-					<xs:documentation xml:lang="fr">Type de conteneur</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:token">
-						<xs:enumeration value="default"/>
-						<xs:enumeration value="row"/>
-						<xs:enumeration value="column"/>
-						<xs:enumeration value="container"/>
-						<xs:enumeration value="container-sm"/>
-						<xs:enumeration value="container-md"/>
-						<xs:enumeration value="container-lg"/>
-						<xs:enumeration value="container-xl"/>
-						<xs:enumeration value="container-xxl"/>
-						<xs:enumeration value="container-fluid"/>
-						<xs:enumeration value="other"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="width" type="width" minOccurs="0" maxOccurs="5" />
-			<xs:element name="alignment" type="alignment" minOccurs="0" maxOccurs="5" />
-		</xs:sequence>
-	</xs:complexType>
-
-
-	<xs:element name="container" type="container"/>
 
 
 	<!-- grid -->
