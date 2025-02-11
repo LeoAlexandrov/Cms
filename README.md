@@ -1,6 +1,6 @@
 # Headless CMS
 
-This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**AleProjects.Cms.Sdk**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
+This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**HCms**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
 
 There are also **AleProjects.Cms.Domain**, **AleProjects.Cms.Infrastructure**, **AleProjects.Cms.Infrastructure.Data**, and **AleProjects.Cms.Application** projects in the solution. These are shared core modules managing documents, visual fragments, media library, etc.
 
@@ -72,7 +72,7 @@ For example, the [card](https://getbootstrap.com/docs/5.3/components/card/) in s
 		</xs:sequence>
 	</xs:complexType>
 
-    <xs:element name="simple-card" type="simple-card"/>
+	<xs:element name="simple-card" type="simple-card"/>
 </xs:schema>
 ```
 
@@ -109,14 +109,14 @@ In appeared form set these fields as
 `Homepage Url`: https://localhost:7284  
 `Authorization callback URL`: https://localhost:7284/api/v1/auth/github
 
-Save generated ClientId and Client Secret. Specify them [in settings.json file](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms/settings.json#L35)  
+Save generated ClientId and Client Secret. Specify them [in settings.json file](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms.Web/settings.json#L35)  
 Note1: Client Secret will be displayed only once right after creation of the OAuth app.  
 Note2: Another Github OAuth app will be required for production. Microsoft and Google allow multiple Url/callbacks for a single application.
 
 ### App configuration
 
 `appsettings.[Development].json` files link external settings file `settings.json`.  
-Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms/appsettings.Development.json#L10) to **"settings.json"** value to use file from the repository. Or copy linked files to some outer folder.
+Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms.Web/appsettings.Development.json#L10) to **"settings.json"** value to use file from the repository. Or copy linked files to some outer folder.
 
 ## Demo
 

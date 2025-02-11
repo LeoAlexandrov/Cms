@@ -9,8 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using AleProjects.Cms.Sdk.ContentRepo;
-using AleProjects.Cms.Sdk.Routing;
+using HCms.ContentRepo;
+using DemoSite.Infrastructure.Middleware;
+using DemoSite.Services;
 
 
 
@@ -21,16 +22,14 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 	if (!string.IsNullOrEmpty(settingsFile))
 		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
 
-	ContentCache.WebhookSecret = configuration["WebhookSecret"];
+	CmsContentService.WebhookSecret = configuration["WebhookSecret"];
 
 	services
 		.AddMemoryCache()
-		.AddTransient<IPathTransformer, DefaultPathTransformer>()
-		.AddScoped<ContentRepo>()
+		.AddCmsContent()
 		.AddLocalization(options => options.ResourcesPath = "Resources")
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
 		.AddViewLocalization();
-
 }
 
 
@@ -67,13 +66,11 @@ void ConfigureApp(WebApplication app)
 		.UseStaticFiles()
 		.UseRouting()
 		.UseRequestLocalization(localizationOptions)
-#if !DEBUG
-		.UseContentCache()
-#endif
+		.UseCmsContent()
 		.UseAuthorization();
 
 	app.MapPost("/cms-webhook-handler",
-		async (ContentCache.Notification model, IMemoryCache cache, ContentRepo repo) => await ContentCache.Update(model, cache, repo));
+		async (CmsContentService.Notification model, IMemoryCache cache, ContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
 		
 
 	app.MapRazorPages();

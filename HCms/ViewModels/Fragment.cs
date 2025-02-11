@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 
 
-namespace AleProjects.Cms.Sdk.ViewModels
+namespace HCms.ViewModels
 {
 	public class Fragment : ITreeNode<int>
 	{

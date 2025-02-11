@@ -1,10 +1,9 @@
 ﻿@page
-@using AleProjects.Cms.Sdk.ViewModels;
+@using HCms.ViewModels;
 @model IndexModel
 
 @{
 	Layout = Model.ChooseLayout();
-	Model.SetPageLocale();
 }
 
 @if (Model.Document.Anchors != null)

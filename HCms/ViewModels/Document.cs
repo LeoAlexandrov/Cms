@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Entities = AleProjects.Cms.Domain.Entities;
 
 
-namespace AleProjects.Cms.Sdk.ViewModels
+namespace HCms.ViewModels
 {
 
 	public class Document

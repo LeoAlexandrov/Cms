@@ -60,8 +60,15 @@
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
+	<None Update="XmlSchemata\grid.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="XmlSchemata\html.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
 	<None Update="XmlSchemata\markdown.xsd">
 	  <SubType>Designer</SubType>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
 	<None Update="XmlSchemata\partial-view.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -95,10 +102,6 @@
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\expansion-item.xsd">
-	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <SubType>Designer</SubType>
-	</None>
 	<None Update="XmlSchemata\features.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
@@ -118,6 +121,12 @@
 	<None Update="XmlSchemata\picture.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
+	</None>
+	<None Update="XmlSchemata\row.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="XmlSchemata\tabs.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
 	<None Update="XmlSchemata\text.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>

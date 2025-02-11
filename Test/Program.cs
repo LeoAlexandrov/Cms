@@ -22,7 +22,7 @@ using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Media;
 
-using Sdk = AleProjects.Cms.Sdk;
+using HCms;
 
 using RazorEngineCore;
 
@@ -359,9 +359,9 @@ namespace Test
 			//var cs = dc.Database.SqlQueryRaw<int>($"select CHECKSUM_AGG(BINARY_CHECKSUM(*)) as [Value] From Documents with (Nolock)");
 			//int agg = cs.FirstOrDefault();
 
-			var rt = new Sdk.Routing.DefaultPathTransformer(config);
+			var rt = new HCms.Routing.DefaultPathTransformer(config);
 
-			var cp = new Sdk.ContentRepo.ContentRepo(rt, config);
+			var cp = new HCms.ContentRepo.ContentRepo(rt, config);
 			//var doc = cp.GetDocument("home1", null, -1, true, null).Result; //"/new4/new2"
 			var doc = cp.GetDocument(12, 0, true).Result;
 

@@ -1,21 +1,20 @@
 using System;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-using AleProjects.Cms.Sdk.ContentRepo;
-using AleProjects.Cms.Sdk.ViewModels;
+using HCms.ViewModels;
+using DemoSite.Services;
 
 
 
 namespace DemoSite.Pages
 {
-	public class IndexModel(ContentRepo repo) : PageModel
+	public class IndexModel(CmsContentService content) : PageModel
 	{
-		ContentRepo _repo = repo;
+		private readonly CmsContentService _content = content;
 
 		public Document Document { get; set; }
 
@@ -28,37 +27,26 @@ namespace DemoSite.Pages
 			return layout;
 		}
 
-		public void SetPageLocale()
+		public IActionResult OnGet()
 		{
-			string lang = this.Document.Language;
-
-			if (!lang.StartsWith(Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName))
-			{
-				var docCulture = new CultureInfo(lang);
-				Thread.CurrentThread.CurrentCulture = docCulture;
-				Thread.CurrentThread.CurrentUICulture = docCulture;
-			}
-		}
-
-		public async Task<IActionResult> OnGet()
-		{
-			if (this.Request.Path == "/666") // 500 page test
-				_repo = null;
-
-			this.Document = await _repo.GetDocument("home", this.Request.Path.Value, 0, true);
-			//this.Document = this.HttpContext.Features.Get<Document>();
-
-			if (this.Document == null)
-				return NotFound();
+			this.Document = _content.RequestedDocument;
 
 			if (this.Document.Attributes.ContainsKey("no-cache"))
 				this.HttpContext.Response.Headers.Append("Cache-Control", "max-age=0, no-store");
+
+			/*
+			if (this.Document.Attributes.TryGetValue("nav-menu", out string menu))
+				this.MainMenu = System.Text.Json.JsonSerializer.Deserialize<MainMenu>(menu);
+			else
+				this.MainMenu = new MainMenu() { Languages = [], Commands = [] };
+			*/
 
 			string lang = this.Document.Language;
 
 			if (string.IsNullOrEmpty(lang))
 				lang = "en-US";
 
+			ViewData["HomePage"] = this.Document.Breadcrumbs[0].Path;
 			ViewData["Language"] = lang;
 			ViewData["Title"] = this.Document.Title;
 

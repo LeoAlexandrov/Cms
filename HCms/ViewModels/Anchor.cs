@@ -5,7 +5,7 @@ using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 
 
-namespace AleProjects.Cms.Sdk.ViewModels
+namespace HCms.ViewModels
 {
 	public struct Anchor
 	{

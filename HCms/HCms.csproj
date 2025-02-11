@@ -5,6 +5,12 @@
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <ImplicitUsings>disable</ImplicitUsings>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>H-Cms content repository</Title>
+    <PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
+    <PackageOutputPath>C:\VSBuild\HCms\publish\nuget</PackageOutputPath>
+    <BaseOutputPath>C:\VSBuild\HCms\bin</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

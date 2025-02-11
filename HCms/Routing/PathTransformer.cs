@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 
 
-namespace AleProjects.Cms.Sdk.Routing
+namespace HCms.Routing
 {
 
 	public interface IPathTransformer
@@ -32,7 +32,6 @@ namespace AleProjects.Cms.Sdk.Routing
 
 		public (string, string) Back(string host, string path)
 		{
-			// just a stub
 			return (null, path);
 		}
 	}

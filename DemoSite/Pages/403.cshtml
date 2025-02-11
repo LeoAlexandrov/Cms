@@ -1,0 +1,16 @@
+﻿@page
+@model ForbiddenModel
+
+@{
+    ViewData["Title"] = "Forbidden";
+}
+
+<h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">Access forbidden.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}

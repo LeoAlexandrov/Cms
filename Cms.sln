@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AleProjects.Cms.Web", "AleP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{FF8136C9-F76D-4856-869D-F4594FAB28CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AleProjects.Cms.Sdk", "AleProjects.Cms.Sdk\AleProjects.Cms.Sdk.csproj", "{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCms", "HCms\HCms.csproj", "{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSite", "DemoSite\DemoSite.csproj", "{9EAC2719-7CBF-4A6A-919E-DD89966CA986}"
 EndProject

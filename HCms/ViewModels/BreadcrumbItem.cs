@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AleProjects.Cms.Sdk.ViewModels
+namespace HCms.ViewModels
 {
 	public struct BreadcrumbsItem
 	{

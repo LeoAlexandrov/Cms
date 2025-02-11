@@ -11,11 +11,12 @@ using Microsoft.Extensions.Configuration;
 using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
-using AleProjects.Cms.Sdk.Routing;
-using AleProjects.Cms.Sdk.ViewModels;
+
+using HCms.Routing;
+using HCms.ViewModels;
 
 
-namespace AleProjects.Cms.Sdk.ContentRepo
+namespace HCms.ContentRepo
 {
 
 	public partial class ContentRepo : IDisposable
