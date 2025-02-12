@@ -140,7 +140,6 @@ void ConfigureApp(WebApplication app)
 		SupportedUICultures = supportedCultures
 	};
 
-
 	if (app.Environment.IsDevelopment())
 	{
 		app.UseDeveloperExceptionPage();
@@ -163,6 +162,8 @@ void ConfigureApp(WebApplication app)
 
 
 	app.MapControllers();
+
+	app.UseStatusCodePagesWithReExecute("/{0}");
 	app.MapRazorPages();
 }
 

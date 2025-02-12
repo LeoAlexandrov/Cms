@@ -129,6 +129,18 @@
   <data name="Auth_Invalid_Token" xml:space="preserve">
     <value>Jeton invalide.</value>
   </data>
+  <data name="Error" xml:space="preserve">
+    <value>Erreur</value>
+  </data>
+  <data name="ErrorText" xml:space="preserve">
+    <value>Une erreur s'est produite lors du traitement de votre demande.</value>
+  </data>
+  <data name="PageNotFound" xml:space="preserve">
+    <value>Page non trouvée</value>
+  </data>
+  <data name="PageNotFoundText" xml:space="preserve">
+    <value>Il semble que la page que vous recherchez n'existe pas. Elle a peut-être été déplacée ou supprimée.</value>
+  </data>
   <data name="Start_InvalidAccount" xml:space="preserve">
     <value>Compte invalide</value>
   </data>

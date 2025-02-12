@@ -1,0 +1,33 @@
+﻿@page
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+
+@model AleProjects.Cms.Web.Pages.ErrorModel
+
+@{
+    Layout = "Shared/_BasicLayout.cshtml";
+    ViewData["Title"] = SharedLocalizer["Error"].Value + " - " + SharedLocalizer["AppTitle"].Value;
+}
+
+<h3>@ErrorsLocalizer["Error"]</h3>
+<h5>@ErrorsLocalizer["ErrorText"]</h5>
+
+@if (Model.ShowRequestId)
+{
+    <p class="text-body1">
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+}
+
+@section Scripts
+{
+    <script>
+        const app = Vue.createApp({ data() { return {} }});
+        app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}})
+        Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+        app.mount('#q-app')
+    </script>
+}

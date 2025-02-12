@@ -1,0 +1,26 @@
+﻿@page
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+
+@model AleProjects.Cms.Web.Pages.NotFoundModel
+
+@{
+	Layout = "Shared/_BasicLayout.cshtml";
+	ViewData["Title"] = "404 - " + SharedLocalizer["AppTitle"].Value;
+}
+
+<h3>@ErrorsLocalizer["PageNotFound"]</h3>
+<p class="text-body1">@ErrorsLocalizer["PageNotFoundText"]</p>
+
+@section Scripts
+{
+	<script>
+		const app = Vue.createApp({ data() { return {} }});
+		app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}})
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
+		app.mount('#q-app')
+	</script>
+}
