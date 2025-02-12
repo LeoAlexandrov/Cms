@@ -27,7 +27,7 @@ namespace DemoSite.Infrastructure.Middleware
 		{
 			return services
 				.AddTransient<IPathTransformer, DefaultPathTransformer>()
-				.AddScoped<ContentRepo>()
+				.AddScoped<IContentRepo, SqlContentRepo>()
 				.AddScoped<CmsContentService>();
 		}
 

@@ -9,7 +9,7 @@ using HCms.ViewModels;
 namespace DemoSite.Services
 {
 
-	public class CmsContentService(ContentRepo repo)
+	public class CmsContentService(IContentRepo repo)
 	{
 		const string EVENT_CREATE = "on_doc_create";
 		const string EVENT_CHANGE = "on_doc_change";
@@ -19,12 +19,12 @@ namespace DemoSite.Services
 		const string EVENT_ENABLED = "on_webhook_enable";
 		const string EVENT_DISABLE = "on_webhook_disable";
 
-		private readonly ContentRepo _repo = repo;
+		readonly IContentRepo _repo = repo;
 
 		public static string WebhookSecret { get; set; }
 
 		public Document RequestedDocument { get; private set; }
-		public ContentRepo Repo { get => _repo; }
+		public IContentRepo Repo { get => _repo; }
 
 
 		public class Notification
@@ -45,7 +45,7 @@ namespace DemoSite.Services
 			return doc;
 		}
 
-		public static async Task UpdateCache(Notification model, IMemoryCache cache, ContentRepo repo)
+		public static async Task UpdateCache(Notification model, IMemoryCache cache, IContentRepo repo)
 		{
 			if (model.Secret != WebhookSecret)
 				return;
@@ -56,7 +56,7 @@ namespace DemoSite.Services
 			{
 				case EVENT_XMLSCHEMA:
 
-					ContentRepo.ReloadSchemata();
+					repo.ReloadSchemata();
 					Console.WriteLine("*** Schema reloaded ***");
 					break;
 

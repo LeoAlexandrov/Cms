@@ -70,7 +70,7 @@ void ConfigureApp(WebApplication app)
 		.UseAuthorization();
 
 	app.MapPost("/cms-webhook-handler",
-		async (CmsContentService.Notification model, IMemoryCache cache, ContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
+		async (CmsContentService.Notification model, IMemoryCache cache, IContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
 		
 
 	app.MapRazorPages();
