@@ -49,8 +49,6 @@ void ConfigureApp(WebApplication app)
 	};
 
 
-	app.UseStatusCodePagesWithReExecute("/{0}");
-
 	if (app.Environment.IsDevelopment())
 	{
 		app.UseDeveloperExceptionPage();
@@ -73,9 +71,9 @@ void ConfigureApp(WebApplication app)
 		async (CmsContentService.Notification model, IMemoryCache cache, IContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
 		
 
+	app.UseStatusCodePagesWithReExecute("/{0}");
 	app.MapRazorPages();
 }
-
 
 
 var builder = WebApplication.CreateBuilder(args);

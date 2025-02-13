@@ -18,14 +18,14 @@ namespace AleProjects.Cms.Application.Services
 
 	public class UserManagementService(CmsDbContext dbContext, IAuthorizationService authService, IRoleClaimPolicies policies)
 	{
-		private readonly CmsDbContext _dbContext = dbContext;
+		private readonly CmsDbContext dbContext = dbContext;
 		private readonly IAuthorizationService _authService = authService;
 		private readonly IRoleClaimPolicies _policies = policies;
 
 
 		public bool NoUsers()
 		{
-			return !_dbContext.Users.Any(); ;
+			return !dbContext.Users.Any(); ;
 		}
 
 		public async Task<DtoUserLiteResult[]> GetList(ClaimsPrincipal user)
@@ -36,7 +36,7 @@ namespace AleProjects.Cms.Application.Services
 
 			if (authResult.Succeeded) 
 			{
-				result = await _dbContext.Users
+				result = await dbContext.Users
 					.AsNoTracking()
 					.OrderBy(u => u.Login)
 					.Select(u => new DtoUserLiteResult(u))
@@ -46,7 +46,7 @@ namespace AleProjects.Cms.Application.Services
 			{
 				string login = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-				result = await _dbContext.Users
+				result = await dbContext.Users
 					.AsNoTracking()
 					.Where(u => u.Login == login)
 					.Select(u => new DtoUserLiteResult(u))
@@ -63,7 +63,7 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoUserResult>.Forbidden();
 
-			var u = await _dbContext.Users.FindAsync(id);
+			var u = await dbContext.Users.FindAsync(id);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -73,7 +73,7 @@ namespace AleProjects.Cms.Application.Services
 
 		public async Task<Result<DtoUserResult>> GetByApiKey(string apikey)
 		{
-			var u = await _dbContext.Users.FirstOrDefaultAsync(u => u.ApiKey == apikey);
+			var u = await dbContext.Users.FirstOrDefaultAsync(u => u.ApiKey == apikey);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -111,15 +111,15 @@ namespace AleProjects.Cms.Application.Services
 				IsEnabled = true
 			};
 
-			_dbContext.Users.Add(result);
+			dbContext.Users.Add(result);
 
 			try
 			{
-				await _dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync();
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				if (dbContext.IsConflict(ex))
 					return Result<DtoUserResult>.Conflict("Login", "User with this login already exists");
 
 				throw;
@@ -136,7 +136,7 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoUserResult>.Forbidden();
 
-			var result = await _dbContext.Users.FindAsync(id);
+			var result = await dbContext.Users.FindAsync(id);
 
 			if (result == null)
 				return Result<DtoUserResult>.NotFound();
@@ -150,7 +150,7 @@ namespace AleProjects.Cms.Application.Services
 
 			if (result.Role == _policies.Roles[0] && (result.Role != dto.Role || !isEnabled))
 			{
-				var n = await _dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
 
 				if (n < 2)
 				{
@@ -180,7 +180,7 @@ namespace AleProjects.Cms.Application.Services
 			if (authResult.Succeeded)
 				result.IsDemo = false;
 
-			await _dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync();
 
 			return Result<DtoUserResult>.Success(new(result, false));
 		}
@@ -192,22 +192,22 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoDeleteUserResult>.Forbidden();
 
-			var u = await _dbContext.Users.FindAsync(id);
+			var u = await dbContext.Users.FindAsync(id);
 
 			if (u == null)
 				return Result<DtoDeleteUserResult>.NotFound();
 
 			if (u.Role == _policies.Roles[0])
 			{
-				var n = await _dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
 
 				if (n < 2)
 					return Result<DtoDeleteUserResult>.BadParameters("Id", "Can't be deleted");
 			}
 
-			_dbContext.Users.Remove(u);
+			dbContext.Users.Remove(u);
 
-			await _dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync();
 
 			return Result<DtoDeleteUserResult>.Success(
 				new()

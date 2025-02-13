@@ -1,4 +1,6 @@
 {
+	"DbEngine": "mssql",
+
 	"ConnectionStrings": {
 		"CmsDbConnection": "data source=vmi1189092.contaboserver.net;initial catalog=Cms;TrustServerCertificate=true;persist security info=True;user id=user;password=1234567890;App=EntityFramework"
 	},

@@ -393,6 +393,8 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+						this.editedDoc.references = [];
+						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
 						this.newDocumentProps = false;
 
@@ -817,6 +819,8 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+						this.editedDoc.references = [];
+						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
 
 						let node = {

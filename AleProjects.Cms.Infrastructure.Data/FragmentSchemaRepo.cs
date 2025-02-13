@@ -285,7 +285,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 				return result;
 
 #if DEBUG
-			string[] files = Directory.GetFiles("../Core/XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
+			string[] files = Directory.GetFiles("XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
 #else
 			string[] files = Directory.GetFiles("XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
 #endif

@@ -258,7 +258,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				if (dbContext.IsConflict(ex))
 					return Result<DtoFullDocumentResult>.Conflict("Slug", "Must be unique under parent document");
 
 				throw;
@@ -429,7 +429,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				if (dbContext.IsConflict(ex))
 					return Result<DtoDocumentResult>.Conflict("Slug", "Must be unique under parent document");
 
 				throw;
@@ -711,8 +711,8 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
-					return Result<DtoDocumentResult>.Conflict("Parent", "Slug must be unique under parent document");
+				if (dbContext.IsConflict(ex))
+					return Result<DtoDocumentResult>.Conflict("Parent", "Must be unique under parent document");
 
 				throw;
 			}

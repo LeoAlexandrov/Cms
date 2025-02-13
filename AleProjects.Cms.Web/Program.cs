@@ -28,6 +28,20 @@ using AleProjects.Cms.Web.Infrastructure.MediaTypeFormatters;
 
 
 
+void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager configuration)
+{
+	string dbEngine = configuration["DbEngine"];
+	string connString = configuration.GetConnectionString("CmsDbConnection");
+
+	if (string.IsNullOrEmpty(dbEngine) || dbEngine == "mssql")
+		options.UseSqlServer(connString);
+	else if (dbEngine == "postgres")
+		options.UseNpgsql(connString);
+	else
+		throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
+}
+
+
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
 
@@ -68,7 +82,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 
 	services
-		.AddDbContext<CmsDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("CmsDbConnection")))
+		.AddDbContext<CmsDbContext>(options => ConfigureDatabase(options, configuration))
 		.AddSingleton<FragmentSchemaRepo>(s =>
 			{
 				using var scope = s.CreateScope();

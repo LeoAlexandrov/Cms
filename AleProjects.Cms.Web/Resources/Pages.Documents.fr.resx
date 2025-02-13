@@ -348,4 +348,7 @@
   <data name="ReferencedBy" xml:space="preserve">
     <value>Référencé par</value>
   </data>
+  <data name="HasReferersText" xml:space="preserve">
+    <value>Il est référencé dans d’autres documents.</value>
+  </data>
 </root>

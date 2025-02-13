@@ -9,6 +9,12 @@
 	string title = Model.Props.title;
 	string look = Model.Props.look;
 	string root = Model.Document.Root.Slug;
+
+	string MoreLabel = Model.Attributes?.GetValueOrDefault("MoreButtonLabel");
+
+	if (string.IsNullOrEmpty(MoreLabel))
+		MoreLabel = SharedLocalizer["More"].Value;
+
 	Document[] docs = Model.Document.Children;
 	int n = docs.Length;
 }
@@ -46,9 +52,7 @@ else if (look == "expandable")
 							@Html.Raw(docs[i].Summary)
 						</div>
 						<div class="directory-open-doc">
-							<a class="btn btn-primary" href="@PathTransformer.Forward(docs[i].Path, false, root)">
-								@SharedLocalizer["More"]
-							</a>
+							<a class="btn btn-primary" href="@PathTransformer.Forward(docs[i].Path, false, root)">@MoreLabel</a>
 						</div>
 					</div>
 				</div>
@@ -78,9 +82,7 @@ else if (look == "grid" || look == "blog")
 							<div class="card-text">@Html.Raw(doc.Summary)</div>
 						</div>
 						<div class="mx-4 mb-4">
-							<a class="btn btn-primary" href="@PathTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">
-								@SharedLocalizer["More"]
-							</a>
+							<a class="btn btn-primary" href="@PathTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">@MoreLabel</a>
 						</div>
 					</div>
 				</div>

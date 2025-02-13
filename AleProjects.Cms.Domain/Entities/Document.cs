@@ -48,10 +48,8 @@ namespace AleProjects.Cms.Domain.Entities
 
 		public bool Published { get; set; }
 		
-		[Column(TypeName = "datetimeoffset(7)")]
 		public DateTimeOffset CreatedAt { get; set; }
 		
-		[Column(TypeName = "datetimeoffset(7)")]
 		public DateTimeOffset ModifiedAt { get; set; }
 		
 		[MaxLength(64)] 

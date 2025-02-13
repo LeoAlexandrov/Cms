@@ -38,7 +38,6 @@ namespace AleProjects.Cms.Domain.Entities
 		[MaxLength(128)]
 		public string ApiKey { get; set; }
 
-		[Column(TypeName = "datetimeoffset(7)")]
 		public DateTimeOffset? LastSignIn { get; set; }
 	}
 }

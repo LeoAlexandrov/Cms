@@ -93,7 +93,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				if (dbContext.IsConflict(ex))
 					return Result<DtoDocumentAttributeResult>.Conflict("AttributeKey", "Must be unique in this document");
 
 				throw;
@@ -161,7 +161,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				if (dbContext.IsConflict(ex))
 					return Result<DtoFragmentAttributeResult>.Conflict("AttributeKey", "Must be unique in this document");
 
 				throw;

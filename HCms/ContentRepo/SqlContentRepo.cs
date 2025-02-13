@@ -10,6 +10,7 @@ using AleProjects.Cms.Infrastructure.Data;
 
 using HCms.Routing;
 using HCms.ViewModels;
+using Microsoft.Extensions.Options;
 
 
 namespace HCms.ContentRepo
@@ -27,9 +28,20 @@ namespace HCms.ContentRepo
 
 		public SqlContentRepo(IPathTransformer pathTformer, IConfiguration configuration)
 		{
+			string dbEngine = configuration["DbEngine"];
 			string connString = configuration.GetConnectionString("CmsDbConnection");
-			var contextOptions = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString).Options;
-			dbContext = new CmsDbContext(contextOptions);
+
+			DbContextOptionsBuilder<CmsDbContext> builder;
+
+			if (string.IsNullOrEmpty(dbEngine) || dbEngine == "mssql")
+				builder = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString);
+			else if (dbEngine == "postgres")
+				builder = new DbContextOptionsBuilder<CmsDbContext>().UseNpgsql(connString);
+			else
+				throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
+
+
+			dbContext = new CmsDbContext(builder.Options);
 			pathTransformer = pathTformer;
 
 			LoadFragmentSchemaService(dbContext);

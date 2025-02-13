@@ -99,8 +99,11 @@
 		</q-card-section>
 
 		<q-card-section class="row items-center">
-			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
-			<span class="q-ml-sm">@Localizer["DeleteDocumentText"]</span>
+			<q-icon name="warning" color="warning" size="md" v-if="editedDoc.referencedBy.length"></q-icon>
+			<q-icon name="help_outline" color="secondary" size="md" v-else></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteDocumentText"]
+				<span class="text-warning" v-if="editedDoc.referencedBy.length"><br />@Localizer["HasReferersText"]</span>
+			</span>
 		</q-card-section>
 
 		<q-card-actions align="right">

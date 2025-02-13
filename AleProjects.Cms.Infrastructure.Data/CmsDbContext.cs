@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 
 using AleProjects.Cms.Domain.Entities;
 
@@ -7,7 +8,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 {
 	public class CmsDbContext : DbContext
 	{
-		private static bool maybeNotCreated = true;
+		static bool maybeNotCreated = true;
 
 		public DbSet<Document> Documents { get; set; }
 		public DbSet<DocumentPathNode> DocumentPathNodes { get; set; }
@@ -82,6 +83,17 @@ namespace AleProjects.Cms.Infrastructure.Data
 				.HasIndex(u => u.Login)
 				.IsUnique();
 
+		}
+
+		public bool IsConflict(Exception ex)
+		{
+			if (ex.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && (sqlEx.Number == 2601 || sqlEx.Number == 2627))
+				return true;
+
+			if (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")
+				return true;
+
+			return false;
 		}
 	}
 }
