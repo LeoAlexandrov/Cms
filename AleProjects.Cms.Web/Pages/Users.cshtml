@@ -10,6 +10,8 @@
 
 @{
 	Layout = "Shared/_Layout.cshtml";
+	ViewData["AppTitle"] = Localizer["SectionTitle"].Value + " - " + SharedLocalizer["AppTitle"].Value;
+	ViewData["AppBarTitle"] = SharedLocalizer["AppTitle"].Value + " - " + Localizer["SectionTitle"].Value;
 }
 
 <q-dialog v-model="newUserProps" no-backdrop-dismiss>
@@ -195,6 +197,7 @@
 
 @section Commands
 {
+	<q-space></q-space>
 	<q-btn flat round icon="add" @@click="startNewUser()">
 		<q-tooltip>@Localizer["Add"]</q-tooltip>
 	</q-btn>

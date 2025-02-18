@@ -351,4 +351,7 @@
   <data name="HasReferersText" xml:space="preserve">
     <value>Il est référencé dans d’autres documents.</value>
   </data>
+  <data name="SectionTitle" xml:space="preserve">
+    <value>Documents</value>
+  </data>
 </root>

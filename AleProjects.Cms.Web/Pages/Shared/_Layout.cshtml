@@ -6,7 +6,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>@SharedLocalizer["AppTitle"]</title>
+	<title>@ViewData["AppTitle"]</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	<link rel="icon" href="~/images/app-fav-icon.webp" type="image/webp" />
 	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
@@ -29,7 +29,7 @@
 			<q-header elevated class="bg-primary text-white">
 				<q-toolbar>
 					<q-btn flat @@click="drawer=!drawer" round dense icon="menu"></q-btn>
-					<q-toolbar-title>@SharedLocalizer["AppTitle"]</q-toolbar-title>
+					<q-toolbar-title class="mobile-hide">@ViewData["AppBarTitle"]</q-toolbar-title>
 					@RenderSection("Commands", required: false)
 				</q-toolbar>
 			</q-header>
@@ -96,7 +96,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.5/dist/quasar.umd.prod.js"></script>
 	@if (SharedLocalizer["Language"].Value != "en")
 	{
-		<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.5/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.7/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
 	}
 	<script id="auth_endpoints" type="application/json">@Json.Serialize(new { signin = "/auth", signout = "/api/v1/auth/signout", refresh = "/api/v1/auth/refresh" })</script>
 	@RenderSection("Scripts", required: false)

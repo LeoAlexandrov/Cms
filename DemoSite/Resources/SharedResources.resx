@@ -124,10 +124,10 @@
     <value>You do not have permission to access this page.</value>
   </data>
   <data name="App_Slogan" xml:space="preserve">
-    <value>Focus on driving</value>
+    <value>Demo site</value>
   </data>
   <data name="App_Title" xml:space="preserve">
-    <value>Speedtrap Alert</value>
+    <value>Demo site</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>Error</value>

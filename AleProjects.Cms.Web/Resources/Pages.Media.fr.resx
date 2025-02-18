@@ -168,6 +168,9 @@
   <data name="Rename" xml:space="preserve">
     <value>Renommer</value>
   </data>
+  <data name="SectionTitle" xml:space="preserve">
+    <value>Médias</value>
+  </data>
   <data name="UnsafeName" xml:space="preserve">
     <value>Un ou plusieurs noms de fichiers ne sont pas sécurisés. Seuls les caractères alphanumériques, `-` et `_` sont autorisés.</value>
   </data>

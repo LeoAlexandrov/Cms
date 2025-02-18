@@ -153,4 +153,7 @@
   <data name="Compile" xml:space="preserve">
     <value>Compiler et recharger</value>
   </data>
+  <data name="SectionTitle" xml:space="preserve">
+    <value>Schémas</value>
+  </data>
 </root>

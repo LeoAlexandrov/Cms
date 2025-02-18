@@ -10,6 +10,8 @@
 
 @{
 	Layout = "Shared/_Layout.cshtml";
+	ViewData["AppTitle"] = Localizer["SectionTitle"].Value + " - " + SharedLocalizer["AppTitle"].Value;
+	ViewData["AppBarTitle"] = SharedLocalizer["AppTitle"].Value + " - " + Localizer["SectionTitle"].Value;
 }
 
 <q-dialog v-model="entryProps">
@@ -179,6 +181,7 @@
 
 @section Commands
 {
+	<q-space></q-space>
 	<q-btn flat round icon="upload" @@click="startUpload()">
 		<q-tooltip>@Localizer["Upload"]</q-tooltip>
 	</q-btn>

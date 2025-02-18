@@ -162,4 +162,7 @@
   <data name="Secret" xml:space="preserve">
     <value>Secret</value>
   </data>
+  <data name="SectionTitle" xml:space="preserve">
+    <value>Webhooks</value>
+  </data>
 </root>

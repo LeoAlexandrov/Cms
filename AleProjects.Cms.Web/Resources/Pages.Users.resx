@@ -168,6 +168,9 @@
   <data name="Role" xml:space="preserve">
     <value>Role</value>
   </data>
+  <data name="SectionTitle" xml:space="preserve">
+    <value>Users</value>
+  </data>
   <data name="User" xml:space="preserve">
     <value>User</value>
   </data>

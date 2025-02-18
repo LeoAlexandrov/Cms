@@ -6,7 +6,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>@ViewData["Title"]</title>
+	<title>@ViewData["AppTitle"]</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 	<link rel="icon" href="~/images/app-fav-icon.webp" type="image/webp" />
 	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
@@ -28,7 +28,7 @@
 
 			<q-header elevated class="bg-primary text-white">
 				<q-toolbar>
-					<q-toolbar-title>@SharedLocalizer["AppTitle"]</q-toolbar-title>
+					<q-toolbar-title>@ViewData["AppBarTitle"]</q-toolbar-title>
 				</q-toolbar>
 			</q-header>
 
@@ -47,7 +47,7 @@
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.5/dist/quasar.umd.prod.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.7/dist/quasar.umd.prod.js"></script>
 	@RenderSection("Scripts", required: false)
 </body>
 </html>

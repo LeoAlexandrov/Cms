@@ -177,7 +177,7 @@ void ConfigureApp(WebApplication app)
 
 	app.MapControllers();
 
-	app.UseStatusCodePagesWithReExecute("/{0}");
+	app.UseStatusCodePagesWithReExecute("/Error/{0}");
 	app.MapRazorPages();
 }
 
