@@ -31,7 +31,7 @@ namespace HCms.ContentRepo
 			throw new NotImplementedException();
 		}
 
-		public Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings)
+		public Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, bool exactPathMatch)
 		{
 			throw new NotImplementedException();
 		}

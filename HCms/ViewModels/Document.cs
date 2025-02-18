@@ -27,6 +27,7 @@ namespace HCms.ViewModels
 		public DateTimeOffset ModifiedAt { get; set; }
 		public string Author { get; set; }
 
+		public bool ExactMatch { get; set; } = true;
 		public BreadcrumbsItem[] Breadcrumbs { get; set; }
 		public Document Parent { get; set; }
 		public Document Root { get; set; }

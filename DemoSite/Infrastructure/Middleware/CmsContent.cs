@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,62 +44,13 @@ namespace DemoSite.Infrastructure.Middleware
 
 		private static void SetCulture(string lang)
 		{
-			if (!lang.StartsWith(Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName))
+			if (!string.IsNullOrEmpty(lang) && 
+				!lang.StartsWith(Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName))
 			{
 				var docCulture = new CultureInfo(lang);
 				Thread.CurrentThread.CurrentCulture = docCulture;
 				Thread.CurrentThread.CurrentUICulture = docCulture;
 			}
-		}
-
-		private static Task<bool> Authorize(ClaimsPrincipal user, string[] policies, IAuthorizationService authorizationService, bool allMust)
-		{
-			Task<bool> taskChain = Task.FromResult(allMust);
-
-			foreach (var policy in policies)
-			{
-				taskChain = taskChain
-					.ContinueWith(async previousTask =>
-						{
-							if (previousTask.Result ^ allMust)
-								return !allMust;
-
-							bool success;
-
-							try
-							{
-								var result = await authorizationService.AuthorizeAsync(user, policy.Trim());
-								success = result.Succeeded;
-							}
-							catch
-							{
-								success = false;
-							}
-
-							return success;
-						})
-					.Unwrap();
-			}
-
-			return taskChain;
-		}
-
-		private static async Task<bool> TryToAuthorize(ClaimsPrincipal user, string policies, IAuthorizationService authorizationService)
-		{
-			int commaIdx = policies.IndexOf(',');
-			int semicolonIdx = policies.IndexOf(';');
-			bool result;
-
-			if (commaIdx == -1 && semicolonIdx == -1)
-				result = await Authorize(user, [policies], authorizationService, true);
-			else if (commaIdx == -1 || commaIdx > semicolonIdx)
-				result = await Authorize(user, policies.Split(';'), authorizationService, false);
-			else if (semicolonIdx == -1 || commaIdx < semicolonIdx)
-				result = await Authorize(user, policies.Split(','), authorizationService, true);
-			else
-				result = false;
-
-			return result;
 		}
 
 		public async Task InvokeAsync(HttpContext context, CmsContentService content, IMemoryCache cache, IAuthorizationService authService)
@@ -122,24 +72,7 @@ namespace DemoSite.Infrastructure.Middleware
 				{
 					var doc = await content.GetDocument(context.Request.Host.Value, path);
 
-					if (doc == null)
-					{
-						context.Response.StatusCode = StatusCodes.Status404NotFound; 
-						return;
-					}
-
-					SetCulture(doc.Language);
-
-					if (doc.AuthRequired)
-					{
-						bool permit = await TryToAuthorize(context.User, doc.AuthPolicies, authService);
-
-						if (!permit)
-						{
-							context.Response.StatusCode = StatusCodes.Status403Forbidden;
-							return;
-						}
-					}
+					SetCulture(doc?.Language);
 
 					var originalBody = context.Response.Body;
 					using var newBody = new MemoryStream();
@@ -150,24 +83,21 @@ namespace DemoSite.Infrastructure.Middleware
 
 					context.Response.Body = originalBody;
 
-					if (context.Response.StatusCode >= (int)HttpStatusCode.OK &&
-						context.Response.StatusCode < (int)HttpStatusCode.Ambiguous)
+					newBody.Seek(0, SeekOrigin.Begin);
+					body = new byte[newBody.Length];
+					newBody.Read(body, 0, body.Length);
+
+					if (context.Response.StatusCode == (int)HttpStatusCode.OK &&
+						!doc.AuthRequired &&
+						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store"))
 					{
-						newBody.Seek(0, SeekOrigin.Begin);
-						body = new byte[newBody.Length];
-						newBody.Read(body, 0, body.Length);
-
-						if (!doc.AuthRequired &&
-							(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store"))
-						{
 #if !DEBUG
-							cache.Set(path, body);
+						cache.Set(path, body);
 #endif
-							Console.WriteLine("*** Cache add ***");
-						}
-
-						await originalBody.WriteAsync(body);
+						Console.WriteLine("*** Cache add ***");
 					}
+
+					await originalBody.WriteAsync(body);
 				}
 			}
 			else

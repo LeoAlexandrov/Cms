@@ -13,6 +13,10 @@ body {
 	}
 }
 
+.error_page_body {
+	margin-top: 60px;
+}
+
 .breakout {
 	width: 100vw;
 	position: relative;

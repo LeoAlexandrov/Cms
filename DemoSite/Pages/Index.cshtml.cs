@@ -26,9 +26,17 @@ namespace DemoSite.Pages
 			return layout;
 		}
 
-		public IActionResult OnGet()
+		public async Task<IActionResult> OnGet()
 		{
 			this.Document = _content.RequestedDocument;
+
+			if (this.Document == null || !this.Document.ExactMatch)
+				return NotFound();
+
+			var authResult = await _content.Authorize(User);
+
+			if (authResult != CmsContentService.AuthResult.Success)
+				return new StatusCodeResult(403);
 
 			if (this.Document.Attributes.ContainsKey("no-cache"))
 				this.HttpContext.Response.Headers.Append("Cache-Control", "max-age=0, no-store");

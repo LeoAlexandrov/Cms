@@ -19,7 +19,7 @@ namespace HCms.ContentRepo
 	{
 		IPathTransformer PathTransformer { get; }
 		void ReloadSchemata();
-		Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings);
+		Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, bool exactPathMatch);
 		Task<Document> GetDocument(int id, int childrenFromPos, bool siblings);
 		Task<Document[]> Children(int docId, int childrenFromPos);
 		Task<(string, string)> IdToPath(int docId);

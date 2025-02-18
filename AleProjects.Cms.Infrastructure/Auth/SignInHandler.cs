@@ -85,7 +85,11 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 	public class SignInHandler(CmsDbContext context, IConfiguration configuration, IDistributedCache cache, IHttpClientFactory httpClientFactory)
 	{
+#if DEBUG
+		const int JWT_EXPIRES_IN = 60;
+#else
 		const int JWT_EXPIRES_IN = 300;
+#endif
 		const int REFRESH_EXPIRES_IN = 3600;
 
 		const string MS_ACCESS_TOKEN = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
@@ -95,12 +99,12 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		const string STACKOVERFLOW_ACCESS_TOKEN = "https://stackoverflow.com/oauth/access_token/json";
 		const string STACKOVERFLOW_USER = "https://api.stackexchange.com//2.3/me?order=desc&sort=reputation&site=stackoverflow&access_token={0}&key={1}";
 
-		private static readonly SemaphoreSlim _semaphore = new(1, 1);
+		static readonly SemaphoreSlim _semaphore = new(1, 1);
 
-		private readonly CmsDbContext _dbContext = context;
-		private readonly IConfiguration _configuration = configuration;
-		private readonly IDistributedCache _cache = cache;
-		private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+		readonly CmsDbContext _dbContext = context;
+		readonly IConfiguration _configuration = configuration;
+		readonly IDistributedCache _cache = cache;
+		readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
 
 		#region local
@@ -156,7 +160,6 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			public string ClientSecret { get; set; }
 		}
 
-
 		class GithubTokenResponse
 		{
 			[JsonPropertyName("token_type")]
@@ -168,7 +171,6 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			[JsonPropertyName("access_token")]
 			public string AccessToken { get; set; }
 		}
-
 
 		class GithubUser
 		{
@@ -211,7 +213,6 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			[JsonPropertyName("items")]
 			public StackOverflowUserItem[] Items { get; set; }
 		}
-
 
 		#endregion
 

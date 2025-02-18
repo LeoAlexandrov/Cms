@@ -117,7 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="AccessDeniedText" xml:space="preserve">
+    <value>You do not have permission to access this page.</value>
+  </data>
+  <data name="App_Slogan" xml:space="preserve">
+    <value>Focus on driving</value>
+  </data>
+  <data name="App_Title" xml:space="preserve">
+    <value>Speedtrap Alert</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Internal server error</value>
+  </data>
+  <data name="InternalServerErrorText" xml:space="preserve">
+    <value>An error occurred while processing your request.</value>
+  </data>
   <data name="More" xml:space="preserve">
     <value>More</value>
+  </data>
+  <data name="PageNotFound" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="PageNotFoundText" xml:space="preserve">
+    <value>It looks like the page you're looking for doesn't exist. It might have been moved or deleted.</value>
   </data>
 </root>

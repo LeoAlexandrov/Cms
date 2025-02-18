@@ -10,7 +10,6 @@ using AleProjects.Cms.Infrastructure.Data;
 
 using HCms.Routing;
 using HCms.ViewModels;
-using Microsoft.Extensions.Options;
 
 
 namespace HCms.ContentRepo
@@ -70,7 +69,7 @@ namespace HCms.ContentRepo
 			NeedsSchemataReload = 1;
 		}
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, bool exactPathMatch)
 		{
 			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
@@ -115,19 +114,44 @@ namespace HCms.ContentRepo
 
 				string pathNoSlash = path[^1] == '/' ? path[..^1] : path;
 
-				doc = docs.FirstOrDefault(d => string.Compare(d.Path, pathNoSlash, StringComparison.InvariantCultureIgnoreCase) == 0);
+				int k = pathNoSlash.Length;
+				bool exact = true;
 
-				if (doc == null)
-					return null;
+				do
+				{
+					doc = docs.FirstOrDefault(d => string.Compare(d.Path, pathNoSlash[..k], StringComparison.InvariantCultureIgnoreCase) == 0);
+
+					if (doc != null)
+						break;
+
+					if (exactPathMatch)
+						return null;
+
+					exact = false;
+					k = pathNoSlash.LastIndexOf('/', k - 1);
+				}
+				while (k > 0);
+
+				if (k <= 0)
+				{
+					doc = rootDoc;
+					slugs = [];
+				}
+				else if (!exact)
+				{
+					slugs = pathNoSlash[..k].ToLower().Split('/', StringSplitOptions.RemoveEmptyEntries);
+				}
+
 
 				Document parent = slugs.Length < 2 ? new Document(rootDoc) : null;
 				int[] ids = docs.Select(d => d.Id).ToArray();
 				int id = doc.Parent;
 
 				breadcrumbs = new BreadcrumbsItem[slugs.Length + 1];
-
 				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = rootId };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = doc.Id };
+				
+				if (slugs.Length > 0)
+					breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = doc.Id };
 
 
 				for (int i = 1; i < slugs.Length; i++)
@@ -147,7 +171,8 @@ namespace HCms.ContentRepo
 				{
 					Parent = parent,
 					Root = new(rootDoc),
-					Breadcrumbs = breadcrumbs
+					Breadcrumbs = breadcrumbs,
+					ExactMatch = exact
 				};
 
 				if (siblings)

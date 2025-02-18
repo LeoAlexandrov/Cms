@@ -60,18 +60,19 @@ void ConfigureApp(WebApplication app)
 		app.UseHsts();
 	}
 
+
 	app.UseHttpsRedirection()
 		.UseStaticFiles()
 		.UseRouting()
 		.UseRequestLocalization(localizationOptions)
-		.UseCmsContent()
-		.UseAuthorization();
+		.UseAuthentication()
+		.UseAuthorization()
+		.UseCmsContent();
 
 	app.MapPost("/cms-webhook-handler",
 		async (CmsContentService.Notification model, IMemoryCache cache, IContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
-		
 
-	app.UseStatusCodePagesWithReExecute("/{0}");
+	app.UseStatusCodePagesWithReExecute("/Error/{0}");
 	app.MapRazorPages();
 }
 
