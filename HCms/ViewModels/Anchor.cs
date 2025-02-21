@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AleProjects.Cms.Domain.Entities;
-using AleProjects.Cms.Domain.ValueObjects;
 
 
 namespace HCms.ViewModels
 {
+	/// <summary>
+	/// Represents an anchor view model.
+	/// </summary>
 	public struct Anchor
 	{
 		public string Id { get; set; }

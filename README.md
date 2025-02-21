@@ -1,6 +1,6 @@
 # Headless CMS
 
-This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**HCms**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering. **Test** project is just a playground for debugging purposes, not unit tests.
+This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**HCms**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering.
 
 There are also **AleProjects.Cms.Domain**, **AleProjects.Cms.Infrastructure**, **AleProjects.Cms.Infrastructure.Data**, and **AleProjects.Cms.Application** projects in the solution. These are shared core modules managing documents, visual fragments, media library, etc.
 

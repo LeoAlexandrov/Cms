@@ -94,7 +94,7 @@
 	background-image: url(/images/material.webp);
 	background-position: center;
 	background-repeat: no-repeat;
-	background-size: 100%;
+	background-size: cover;
 }
 
 .drawer-menu-scroller {
@@ -132,6 +132,10 @@
 	min-height: inherit;
 }
 
+.card-dialog {
+	min-width: 500px;
+}
+
 
 @media (max-width:1439px) {
 	.content-dialog {
@@ -153,6 +157,10 @@
 
 	.content-dialog-field-small {
 		min-width: 200px;
+	}
+
+	.card-dialog {
+		min-width: 400px;
 	}
 }
 

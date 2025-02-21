@@ -14,7 +14,9 @@ using HCms.ViewModels;
 
 namespace HCms.ContentRepo
 {
-
+	/// <summary>
+	/// CMS content repository querying database directly. Assumed to be a scoped service.
+	/// </summary>
 	public class SqlContentRepo : ContentRepo, IContentRepo, IDisposable
 	{
 		readonly static FragmentSchemaRepo fsr = new();
@@ -48,7 +50,7 @@ namespace HCms.ContentRepo
 
 		#region private-functions
 
-		private static void LoadFragmentSchemaService(CmsDbContext dbContext)
+		static void LoadFragmentSchemaService(CmsDbContext dbContext)
 		{
 			if (NeedsSchemataReload > 0)
 				lock (lockObject)
@@ -64,6 +66,9 @@ namespace HCms.ContentRepo
 		#endregion
 
 
+		/// <summary>
+		/// Forces to reload schemata from the database when the next instance of SqlContentRepo is created.
+		/// </summary>
 		public void ReloadSchemata()
 		{
 			NeedsSchemataReload = 1;

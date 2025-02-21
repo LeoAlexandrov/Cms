@@ -18,6 +18,9 @@ using HCms.ViewModels;
 namespace HCms.ContentRepo
 {
 
+	/// <summary>
+	/// CMS content repository querying content via Rest or Grpc. Not implemented yet.
+	/// </summary>
 	public class RemoteContentRepo : ContentRepo, IContentRepo
 	{
 

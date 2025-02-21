@@ -15,18 +15,62 @@ using HCms.ViewModels;
 namespace HCms.ContentRepo
 {
 
+	/// <summary>
+	/// Represents CMS content repository.
+	/// </summary>
 	public interface IContentRepo
 	{
+		/// <summary>
+		/// Gets the path transformer. Assumed to be injected by DI container.
+		/// </summary>
 		IPathTransformer PathTransformer { get; }
+
+		/// <summary>
+		/// Reloads or forces to reload schemata depending on repository implementation.
+		/// </summary>
 		void ReloadSchemata();
+
+		/// <summary>
+		/// Asynchronously returns a view model of the document with the specified logical path.
+		/// </summary>
+		/// <param name="root">Slug of the root document.</param>
+		/// <param name="path">Logical path of the document.</param>
+		/// <param name="childrenFromPos">The starting position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
+		/// <param name="siblings">Determine whether to include or not sibling documents.</param>
+		/// <param name="exactPathMatch">False value instructs the method to search a closest matching document if nothing is found by exact path.</param>
+		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
 		Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, bool exactPathMatch);
+
+		/// <summary>
+		/// Asynchronously returns a view model of the document with the specified id.
+		/// </summary>
+		/// <param name="id">Document id</param>
+		/// <param name="childrenFromPos">Position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
+		/// <param name="siblings">Determine whether to include or not sibling documents.</param>
+		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
 		Task<Document> GetDocument(int id, int childrenFromPos, bool siblings);
+
+		/// <summary>
+		/// Asynchronously returns a view models of the document children.
+		/// </summary>
+		/// <param name="docId">Document id</param>
+		/// <param name="childrenFromPos">The starting position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
+		/// <returns>A task that represents the asynchronous operation. The task result contains an array that contains view models of the document children.</returns>
 		Task<Document[]> Children(int docId, int childrenFromPos);
+
+		/// <summary>
+		/// Returns a tuple with the logical path and root slug of the document with the specified id.
+		/// </summary>
+		/// <param name="docId">Document id</param>
+		/// <returns>A tuple with the logical path and root document slug.</returns>
 		Task<(string, string)> IdToPath(int docId);
 	}
 
 
 
+	/// <summary>
+	/// Base class for CMS content repository implementations.
+	/// </summary>
 	public abstract partial class ContentRepo
 	{
 		protected IPathTransformer pathTransformer;
@@ -49,6 +93,9 @@ namespace HCms.ContentRepo
 		}
 
 
+		/// <summary>
+		/// Gets the path transformer. Assumed to be injected by DI container in inherited classes.
+		/// </summary>
 		public IPathTransformer PathTransformer { get => pathTransformer; }
 
 
@@ -62,8 +109,7 @@ namespace HCms.ContentRepo
 			}
 		}
 
-
-		protected static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Func<Entities.FragmentLink, Fragment> fragmentFactory)
+		static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Func<Entities.FragmentLink, Fragment> fragmentFactory)
 		{
 			if (tree.TryGetValue(fr.LinkId, out Memory<Entities.FragmentLink> children))
 			{

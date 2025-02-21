@@ -8,6 +8,9 @@ using AleProjects.Cms.Domain.ValueObjects;
 
 namespace HCms.ViewModels
 {
+	/// <summary>
+	/// Represents a fragment view model.
+	/// </summary>
 	public class Fragment : ITreeNode<int>
 	{
 		public int Id { get; set; }

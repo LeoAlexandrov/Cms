@@ -1,27 +1,64 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>H-Cms content repository</Title>
-    <PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
-    <PackageOutputPath>C:\VSBuild\HCms\publish\nuget</PackageOutputPath>
-    <BaseOutputPath>C:\VSBuild\HCms\bin</BaseOutputPath>
+	<TargetFramework>net8.0</TargetFramework>
+	<Nullable>disable</Nullable>
+	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	<ImplicitUsings>disable</ImplicitUsings>
+	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<VersionPrefix>1.0.1</VersionPrefix>	  
+	<Title>H-Cms content repository and view models</Title>
+	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
+	<PackageOutputPath>C:\VSBuild\HCms\publish\nuget</PackageOutputPath>
+	<BaseOutputPath>C:\VSBuild\HCms\bin</BaseOutputPath>
+	<Description>H-Cms content repository and view models</Description>
+	<PackageIcon>icon.png</PackageIcon>
+	<PackageTags>headless;cms;net;csharp;content-management;content-management-system</PackageTags>
+	<PackageLicenseFile>License.txt</PackageLicenseFile>
+	<PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
-    <ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj" />
+	<ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj">
+	  <IncludeAssets>compile;runtime</IncludeAssets>
+	  <PrivateAssets>all</PrivateAssets>
+		<Private></Private>
+	</ProjectReference>
+	<ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj">
+	  <IncludeAssets>compile;runtime</IncludeAssets>
+	  <PrivateAssets>all</PrivateAssets>
+		<Private></Private>
+	</ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Update="icon.png">
+	  <Pack>True</Pack>
+	  <PackagePath>\</PackagePath>
+	</None>
+	<None Update="License.txt">
+	  <Pack>True</Pack>
+	  <PackagePath>\</PackagePath>
+	</None>
+	<None Update="readme.md">
+	  <Pack>True</Pack>
+	  <PackagePath>\</PackagePath>
+	</None>
+	  <Content Include="..\AleProjects.Cms.Domain\bin\Release\net8.0\AleProjects.Cms.Domain.dll">
+		  <Pack>true</Pack>
+		  <PackagePath>lib\$(TargetFramework)</PackagePath>
+	  </Content>
+	  <Content Include="..\AleProjects.Cms.Infrastructure.Data\bin\Release\net8.0\AleProjects.Cms.Infrastructure.Data.dll">
+		  <Pack>true</Pack>
+		  <PackagePath>lib\$(TargetFramework)</PackagePath>
+	  </Content>
   </ItemGroup>
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />

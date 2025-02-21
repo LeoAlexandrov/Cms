@@ -80,7 +80,7 @@ namespace DemoSite.Services
 
 		public async ValueTask<AuthResult> Authorize(ClaimsPrincipal user)
 		{
-			if (this.RequestedDocument == null || string.IsNullOrEmpty(this.RequestedDocument.AuthPolicies))
+			if (this.RequestedDocument == null || !this.RequestedDocument.AuthRequired)
 				return AuthResult.Success;
 
 			if (user.Identity?.IsAuthenticated != true)

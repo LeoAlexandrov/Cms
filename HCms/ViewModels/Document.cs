@@ -6,7 +6,9 @@ using Entities = AleProjects.Cms.Domain.Entities;
 
 namespace HCms.ViewModels
 {
-
+	/// <summary>
+	/// Represents a document view model.
+	/// </summary>
 	public class Document
 	{
 		public int Id { get; set; }
