@@ -87,7 +87,7 @@ namespace HCms.ViewModels
 			Span<char> cId = stackalloc char[n];
 
 			for (int i = 0; i < n; i++)
-				if (Name[i] == '-' || Name[i] == '-' || char.IsLetterOrDigit(Name[i]))
+				if (Name[i] == '-' || Name[i] == '_' || char.IsLetterOrDigit(Name[i]))
 					cId[i] = Name[i];
 				else
 					cId[i] = '-';

@@ -92,6 +92,7 @@
 					xmlSchema: null
 				},
 				linkId: 0,
+				containerRef: 0,
 				enabled: true,
 				anchor: false,
 				lockShare: false,
@@ -102,6 +103,11 @@
 
 			deleteFragmentElementConfirm: false,
 			fragmentElementToDelete: null,
+
+			newContainer: 0,
+			newContainerProps: false,
+			invalidContainers: [],
+
 
 			attributeProps: false,
 			attribute: {
@@ -254,6 +260,22 @@
 				});
 		},
 
+		getFragments(id) {
+			Quasar.LoadingBar.start();
+
+			application
+				.apiCallAsync(`/api/v1/documents/${id}/fragments`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.then((r) => {
+
+					Quasar.LoadingBar.stop();
+
+					if (r.ok) {
+						this.editedDoc.fragmentLinks = r.result.fragmentLinks;
+						this.editedDoc.fragmentsTree = r.result.fragmentsTree;
+					}
+				});
+		},
+
 		getRefs(id) {
 
 			this.editedDoc.references = [];
@@ -287,6 +309,7 @@
 				this.invalidNewDocSlugs = [];
 				this.invalidParents = [];
 				this.invalidDocSlugs = [];
+				this.invalidContainers = [];
 				this.invalidAttributeKeys = [];
 				this.invalidPublishedState = null;
 				this.newFragment.stuffSelected = "new";
@@ -315,6 +338,7 @@
 						this.invalidNewDocSlugs = [];
 						this.invalidParents = [];
 						this.invalidDocSlugs = [];
+						this.invalidContainers = [];
 						this.invalidAttributeKeys = [];
 						this.invalidPublishedState = null;
 						this.selectedFragment = 0;
@@ -935,6 +959,8 @@
 
 					if (r.ok) {
 
+						this.invalidContainers = [];
+
 						this.fragmentPropsTab = "content";
 						this.fragmentProps = true;
 						this.fragment = r.result;
@@ -1112,6 +1138,71 @@
 					}
 
 				});
+		},
+
+		startChangeContainer() {
+			this.newContainer = 0;
+			this.newContainerProps = true;
+		},
+
+		changeContainer() {
+
+			let dto = {
+				linkId: this.newContainer
+			};
+
+			Quasar.LoadingBar.start();
+
+			application
+				.apiCallAsync(`/api/v1/fragments/${this.fragment.linkId}/container`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.then((r) => {
+
+					Quasar.LoadingBar.stop();
+
+					if (r.ok) {
+
+						this.newContainerProps = false;
+
+						if (this.newContainer != this.fragment.containerRef) {
+
+							this.fragment.containerRef = this.newContainer;
+							this.editedDoc.properties.author = r.result.author;
+							this.editedDoc.properties.modifiedAt = r.result.modifiedAt;
+
+							this.getFragments(this.selectedDoc);
+
+							this.selectedFragment = this.fragment.linkId;
+						}
+
+						displayMessage(TEXT.DOCS.get('MESSAGE_UPDATE_SUCCESS'), false);
+
+					} else {
+
+						displayMessage(`${TEXT.DOCS.get('MESSAGE_UPDATE_FAIL')} (${formatHTTPStatus(r)})`, true);
+
+						if (r.status == 400 || r.status == 409) {
+
+							if (r.result.errors) {
+
+								if (r.result.errors.Container) {
+
+									if (/^[0-9]+$/.test(dto.linkId))
+										this.invalidContainers.push(dto.linkId);
+
+									this.$refs.NewContainer.validate();
+								}
+
+							} else {
+
+								this.$refs.NewContainer.validate();
+
+							}
+
+						}
+
+					}
+				});
+
 		},
 
 		startDeleteFragment(id) {

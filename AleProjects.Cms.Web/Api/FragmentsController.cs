@@ -134,6 +134,22 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpPost("{id:int}/container")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> SetContainer(int id, [Required] DtoSetFragmentContainer dto)
+		{
+			var result = await _cms.SetFragmentContainer(id, dto.LinkId.Value, this.HttpContext.User);
+
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
+
 
 		[HttpPost("reloadschema")]
 		[Authorize("IsAdmin")]

@@ -354,4 +354,16 @@
   <data name="SectionTitle" xml:space="preserve">
     <value>Documents</value>
   </data>
+  <data name="ChangeContainer" xml:space="preserve">
+    <value>Changer de conteneur</value>
+  </data>
+  <data name="Hint_ChangeContainer" xml:space="preserve">
+    <value>Changer de conteneur</value>
+  </data>
+  <data name="ContainerId" xml:space="preserve">
+    <value>Id du fragment</value>
+  </data>
+  <data name="ContainerIsNotValid" xml:space="preserve">
+    <value>Le fragment avec cet identifiant n'est pas trouvé ou ne peut pas être défini comme conteneur</value>
+  </data>
 </root>

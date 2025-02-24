@@ -259,17 +259,26 @@
 							<tbody>
 								<tr>
 									<td><span class="text-caption text-grey-7">Id:</span></td>
-									<td>{{ fragment.properties.id }}</td>
-									@* <td></td> *@
+									<td>{{ fragment.linkId }}</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td><span class="text-caption text-grey-7">Container:</span></td>
+									<td>{{ fragment.containerRef }}</td>
+									<td>
+										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm" @@click="startChangeContainer()">
+											<q-tooltip>@Localizer["Hint_ChangeContainer"]</q-tooltip>
+										</q-btn>
+									</td>
 								</tr>
 								<tr>
 									<td><span class="text-caption text-grey-7">@Localizer["FragmentDocument"]:</span></td>
 									<td>{{ editedDoc.properties.id }}</td>
-									@* <td>
-										<q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
+									<td>
+										@* <q-btn round flat class="q-ml-sm" color="secondary" icon="edit" size="sm">
 											<q-tooltip>@Localizer["Hint_ChangeDocument"]</q-tooltip>
-										</q-btn>
-									</td> *@
+										</q-btn> *@
+									</td>
 								</tr>
 							</tbody>
 						</table>
@@ -454,6 +463,30 @@
 			</q-page>
 		</q-page-container>
 	</q-layout>
+</q-dialog>
+
+<q-dialog v-model="newContainerProps" no-backdrop-dismiss>
+	<q-card class="card-dialog">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["ChangeContainer"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model.number="newContainer"
+					 autofocus
+					 label="@Localizer["ContainerId"]"
+					 type="number"
+					 ref="NewContainer"
+					 :rules="[val => /^[0-9]+$/.test(val) || '@ErrorsLocalizer["Validation_Int"]', val => !invalidContainers.includes(val) || '@Localizer["ContainerIsNotValid"]' ]">
+			</q-input>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" @@click="changeContainer()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
 </q-dialog>
 
 <q-dialog v-model="deleteFragmentElementConfirm" no-backdrop-dismiss>

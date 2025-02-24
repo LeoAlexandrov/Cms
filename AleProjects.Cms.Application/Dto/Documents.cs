@@ -127,6 +127,18 @@ namespace AleProjects.Cms.Application.Dto
 
 
 	[MessagePackObject]
+	public class DtoDocumentFragmentsResult
+	{
+		[MessagePack.Key("fragmentLinks")]
+		public DtoFragmentLinkResult[] FragmentLinks { get; set; }
+
+		[MessagePack.Key("fragmentsTree")]
+		public DtoTreeNode<int>[] FragmentsTree { get; set; }
+	}
+
+
+
+	[MessagePackObject]
 	public class DtoDocumentChangeResult
 	{
 		[MessagePack.Key("author")]

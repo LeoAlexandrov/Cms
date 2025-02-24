@@ -104,6 +104,10 @@ namespace AleProjects.Cms.Application.Dto
 	[MessagePackObject]
 	public class DtoFullFragmentResult : DtoFullFragment
 	{
+		[MessagePack.Key("containerRef")]
+		[RequiredPositive]
+		public int ContainerRef { get; set; }
+
 		[MessagePack.Key("lockShare")]
 		public bool LockShare { get; set; }
 
@@ -305,5 +309,16 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("oldPosition")]
 		public int OldPosition { get; set; }
 	}
+
+
+
+	[MessagePackObject]
+	public class DtoSetFragmentContainer
+	{
+		[MessagePack.Key("linkId")]
+		[Required]
+		public int? LinkId { get; set; }
+	}
+
 
 }

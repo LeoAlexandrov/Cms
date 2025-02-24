@@ -354,4 +354,16 @@
   <data name="SectionTitle" xml:space="preserve">
     <value>Documents</value>
   </data>
+  <data name="ChangeContainer" xml:space="preserve">
+    <value>Change container</value>
+  </data>
+  <data name="Hint_ChangeContainer" xml:space="preserve">
+    <value>Change container</value>
+  </data>
+  <data name="ContainerId" xml:space="preserve">
+    <value>Fragment Id</value>
+  </data>
+  <data name="ContainerIsNotValid" xml:space="preserve">
+    <value>Fragment with this Id is not found or can´t be set as the container</value>
+  </data>
 </root>

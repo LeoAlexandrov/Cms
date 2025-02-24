@@ -551,6 +551,7 @@ namespace AleProjects.Cms.Application.Services
 				Anchor = link.Anchor,
 				LockShare = useCount > 0,  
 				LinkId = link.Id,
+				ContainerRef = link.ContainerRef,
 				Attributes = attrs.Select(a => new DtoFragmentAttributeResult(a)).ToArray(),
 				RawXml = fragment.Data
 			};
@@ -1045,12 +1046,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await _notifier.Notify("on_doc_update", doc.Id);
 
-			return Result<DtoDocumentChangeResult>.Success(
-				new DtoDocumentChangeResult() 
-				{ 
-					Author = doc.Author, 
-					ModifiedAt = doc.ModifiedAt 
-				});
+			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}
 
 		public async Task<Result<DtoMoveFragmentResult>> MoveFragment(int id, int posIncrement, ClaimsPrincipal user)
@@ -1186,6 +1182,104 @@ namespace AleProjects.Cms.Application.Services
 					Author = doc.Author,
 					ModifiedAt = doc.ModifiedAt
 				});
+		}
+
+		public async Task<Result<DtoDocumentChangeResult>> SetFragmentContainer(int id, int linkId, ClaimsPrincipal user)
+		{
+			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageFragment");
+
+			if (!authResult.Succeeded)
+				return Result<DtoDocumentChangeResult>.Forbidden();
+
+			var link = await dbContext.FragmentLinks.FindAsync(id);
+
+			if (link == null)
+				return Result<DtoDocumentChangeResult>.NotFound();
+
+			int containerRef = link.ContainerRef;
+			int docId = link.DocumentRef;
+
+			var doc = await dbContext.Documents.FindAsync(docId);
+
+			if (containerRef == linkId)
+				return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
+
+
+			if (linkId != 0)
+			{
+				var newLink = await dbContext.FragmentLinks
+					.AsNoTracking()
+					.Include(l => l.Fragment)
+					.Where(l => l.Id == linkId)
+					.FirstOrDefaultAsync();
+
+				if (newLink == null)
+					return Result<DtoDocumentChangeResult>.BadParameters("Container", "New container not found");
+
+				if (newLink.DocumentRef != docId)
+					return Result<DtoDocumentChangeResult>.BadParameters("Container", "New container must be in the same document");
+
+				// check if the new container is "self-nested"
+
+				if (newLink.ContainerRef != 0)
+				{
+					var docLinks = await dbContext.FragmentLinks
+						.AsNoTracking()
+						.Where(l => l.DocumentRef == docId)
+						.OrderBy(l => l.Id)
+						.Select(l => new { l.Id, l.ContainerRef })
+						.ToArrayAsync();
+
+					int newLinkIdx = Array.FindIndex(docLinks, l => l.Id == linkId);
+
+					if (newLinkIdx >= 0)
+					{
+						int cRef = docLinks[newLinkIdx].ContainerRef;
+
+						do
+						{
+							if (cRef == id)
+								return Result<DtoDocumentChangeResult>.BadParameters("Container", "New container is invalid");
+
+							newLinkIdx = Array.FindIndex(docLinks, l => l.Id == cRef);
+							cRef = newLinkIdx < 0 ? cRef = 0 : docLinks[newLinkIdx].ContainerRef;
+						}
+						while (cRef != 0);
+					}
+				}
+
+				XSElement xse;
+
+				if ((xse = _schemaRepo.Find(newLink.Fragment.XmlSchema + ":" + newLink.Fragment.XmlName)) != null && !xse.RepresentsContainer)
+					return Result<DtoDocumentChangeResult>.BadParameters("Container", "New container is invalid");
+			}
+
+
+			int oldPosition = link.Position;
+
+			var siblings = await dbContext.FragmentLinks
+				.Where(l => l.ContainerRef == containerRef && l.DocumentRef == docId && l.Position > oldPosition)
+				.OrderBy(d => d.Position)
+				.ToArrayAsync();
+
+			foreach (var s in siblings)
+				s.Position--;
+
+			int newPosition = await dbContext.FragmentLinks
+				.CountAsync(l => l.ContainerRef == linkId && l.DocumentRef == docId);
+
+
+			link.Position = newPosition;
+			link.ContainerRef = linkId;
+
+			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.Author = user.Identity.Name;
+
+			await dbContext.SaveChangesAsync();
+
+			await _notifier.Notify("on_doc_update", doc.Id);
+
+			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}
 
 		public static IReadOnlyList<DtoFragmentElement> NewFragmentElementValue(string path, string lang, IDictionary<string, XSElement> index)

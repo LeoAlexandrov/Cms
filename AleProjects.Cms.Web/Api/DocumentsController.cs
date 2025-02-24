@@ -90,6 +90,15 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpGet("{id:int}/fragments")]
+		[Authorize]
+		public async Task<IActionResult> Fragments(int id)
+		{
+			var result = await _cms.GetDocumentFragments(id);
+			return Ok(result);
+		}
+
+
 		[HttpPost("{id:int}/lock")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]

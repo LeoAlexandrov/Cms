@@ -123,19 +123,14 @@ namespace AleProjects.Cms.Application.Services
 			return result;
 		}
 
-		public async Task<DtoFullDocumentResult> GetDocument(int id)
+		public async Task<DtoDocumentFragmentsResult> GetDocumentFragments(int docId)
 		{
-			Document doc = await dbContext.Documents.FindAsync(id);
-
-			if (doc == null)
-				return null;
-
 			FragmentLink[] links = await dbContext.FragmentLinks
 				.AsNoTracking()
-				.Include(b => b.Fragment)
-				.Where(b => b.DocumentRef == id)
-				.OrderBy(b => b.ContainerRef)
-				.ThenBy(b => b.Position)
+				.Include(l => l.Fragment)
+				.Where(l => l.DocumentRef == docId)
+				.OrderBy(l => l.ContainerRef)
+				.ThenBy(l => l.Position)
 				.ToArrayAsync();
 
 			XSElement xse;
@@ -143,6 +138,23 @@ namespace AleProjects.Cms.Application.Services
 			for (int i = 0; i < links.Length; i++)
 				if ((xse = _schemaRepo.Find(links[i].Fragment.XmlSchema + ":" + links[i].Fragment.XmlName)) != null && xse.RepresentsContainer)
 					links[i].Data = "container";
+
+			DtoDocumentFragmentsResult result = new() {
+				FragmentLinks = links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
+				FragmentsTree = CreateTree<int, FragmentLink>(links)
+			};
+
+			return result;
+		}
+
+		public async Task<DtoFullDocumentResult> GetDocument(int id)
+		{
+			Document doc = await dbContext.Documents.FindAsync(id);
+
+			if (doc == null)
+				return null;
+
+			var fragments = await GetDocumentFragments(id);
 
 			DocumentAttribute[] attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
@@ -153,9 +165,9 @@ namespace AleProjects.Cms.Application.Services
 			DtoFullDocumentResult result = new()
 			{ 
 				Properties = new(doc), 
-				FragmentLinks = links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
-				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray(),
-				FragmentsTree = CreateTree<int, FragmentLink>(links)
+				FragmentLinks = fragments.FragmentLinks, // links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
+				FragmentsTree = fragments.FragmentsTree, //CreateTree<int, FragmentLink>(links),
+				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray()
 			};
 
 			return result;
