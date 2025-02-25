@@ -42,8 +42,11 @@
 	}
 	else cls = null;
 
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
+}
 
-<div id="@id" class="container py-4 g-0">
+
+<div id="@id" class="container grid-fragment py-4 g-0 @extraFragmentClass">
 	<div class="@rowCls g-4">
 
 	@if (Model.Children != null)
@@ -58,7 +61,6 @@
 
 	</div>
 </div>
-}
 
 @{
 	string rowDivClass(string breakpoint, string span)

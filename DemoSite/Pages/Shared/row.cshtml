@@ -3,7 +3,7 @@
 @{
 	string id = Model.DomId;
 
-	System.Text.StringBuilder divClass = new("row");
+	System.Text.StringBuilder divClass = new("row row-fragment");
 	string cls;
 
 	var al = Model.Props.container.alignment;
@@ -14,6 +14,9 @@
 			if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
 				divClass.Append(' ').Append(cls);
 		}
+
+	if (!string.IsNullOrEmpty(cls = Model.Attributes?.GetValueOrDefault("bootstrap:class")))
+		divClass.Append(' ').Append(cls);
 
 	cls = divClass.ToString();
 

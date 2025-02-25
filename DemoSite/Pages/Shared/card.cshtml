@@ -53,13 +53,13 @@
 	</style>
 }
 
-<div id="@id" class="card @fullHeightCls @isOverCardCls @textOnImgCls @featuredCls @yMarginCls">
+<div id="@id" class="card card-fragment @fullHeightCls @isOverCardCls @textOnImgCls @featuredCls @yMarginCls">
 	@if (horizontal && !isOver && pict != null)
 	{
 		<div class="row gx-4">
 			<div class="col-md-6 @(layout == "end" ? "order-md-last" : null)">
 				@{
-					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded-start" } });
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "img-fluid rounded-start" } });
 				}
 			</div>
 			<div class="col-md-6 @(layout == "end" ? "order-md-first" : null)">
@@ -93,7 +93,7 @@
 	{
 		if (layout == "start" && pict != null)
 		{
-			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "card-img-top" } });
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "card-img-top" } });
 		}
 		<div class="card-body">
 			@if (!string.IsNullOrEmpty(title))
@@ -111,7 +111,7 @@
 		</div>
 		@if (layout == "end" && pict != null)
 		{
-			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", Model.Props.picture) { Attributes = { ["bootstrap:img:class"] = "card-img-bottom" } });
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", Model.Props.picture) { Attributes = new() { ["bootstrap:class"] = "card-img-bottom" } });
 		}
 
 		@if (actions != null)

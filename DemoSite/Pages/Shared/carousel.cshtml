@@ -10,9 +10,11 @@
 	string sInterval = interval == 0 ? "false" : interval.ToString();
 
 	var items = Model.Props.item;
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
+<div id="@id" class="carousel carousel-fragment slide carousel-fade breakout @extraFragmentClass" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
 	<div class="carousel-indicators">
 		@foreach (var item in items)
@@ -34,7 +36,7 @@
 		{
 			<div class="carousel-item @(i++ == activeIdx ? "active" : null)">
 				@{
-					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = { ["bootstrap:img:class"] = "d-block w-100" } });
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", item.picture) { Attributes = new() { ["bootstrap:class"] = "d-block w-100" } });
 				}
 				<div class="carousel-caption d-md-block">
 					<div>

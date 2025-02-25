@@ -44,6 +44,8 @@
 
 	if (Model.Props.appearance.visibility && !string.IsNullOrEmpty(col2Cls))
 		col2Cls += " d-none";
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
 @if (bkPict != null)
@@ -69,7 +71,7 @@
 	</style>
 }
 
-<header id="@id" class="py-4 @breakoutCls @featuredCls @bkPictCls @textOnDarkCls">
+<header id="@id" class="hero-fragment py-4 @breakoutCls @featuredCls @bkPictCls @textOnDarkCls @extraFragmentClass">
 	<div class="container-md">
 		<div class="row gx-5 align-items-center justify-content-center">
 			<div class="@col1Cls">
@@ -109,7 +111,7 @@
 			{
 				<div class="@col2Cls">
 					@if (pict != null) {
-						await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "img-fluid rounded img-hero-stretched" } });
+						await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "img-fluid rounded img-hero-stretched" } });
 					}
 					else
 					{

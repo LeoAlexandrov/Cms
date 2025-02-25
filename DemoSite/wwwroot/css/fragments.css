@@ -1,0 +1,51 @@
+﻿.metadata-breadcrumbs-fragment {
+	margin-top: 24px;
+}
+
+.metadata-title-fragment {
+	margin-top: 24px;
+	margin-bottom: 48px;
+	font-family: 'Montserrat', sans-serif;
+}
+
+.features-default-fragment {
+	margin-top: 48px;
+}
+
+.img-hero-stretched {
+}
+
+@media (max-width: 991px) {
+
+	.img-hero-stretched {
+		width: 100%;
+	}
+}
+
+.breakout {
+	width: 100vw;
+	position: relative;
+	left: 50%;
+	right: 50%;
+	margin-left: -50vw;
+	margin-right: -50vw;
+}
+
+.breakout2 {
+	margin: 0em -100%; /* old browsers fallback */
+	margin: 0em calc(50% - 50vw);
+}
+
+
+.carousel-item-body {
+	position: absolute;
+	top: 2rem;
+	left: 15%;
+	right: 15%;
+	bottom: 2rem;
+	padding-top: 1.25rem;
+	padding-bottom: 1.25rem;
+	color: white;
+}
+
+

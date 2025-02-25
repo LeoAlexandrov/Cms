@@ -109,6 +109,23 @@ namespace HCms.ContentRepo
 			}
 		}
 
+		static string GetDomId(string name)
+		{
+			if (string.IsNullOrEmpty(name))
+				return null;
+
+			int n = name.Length;
+			Span<char> cId = stackalloc char[n];
+
+			for (int i = 0; i < n; i++)
+				if (name[i] == '-' || name[i] == '_' || char.IsLetterOrDigit(name[i]))
+					cId[i] = name[i];
+				else
+					cId[i] = '-';
+
+			return new string(cId);
+		}
+
 		static void SetChildren(Fragment fr, Dictionary<int, Memory<Entities.FragmentLink>> tree, Func<Entities.FragmentLink, Fragment> fragmentFactory)
 		{
 			if (tree.TryGetValue(fr.LinkId, out Memory<Entities.FragmentLink> children))
@@ -173,7 +190,9 @@ namespace HCms.ContentRepo
 			{
 				if (links[linkIdx].Anchor)
 				{
-					anchors.Add(new Anchor() { Id = links[linkIdx].Fragment.XmlName + links[linkIdx].Id, Name = links[linkIdx].Fragment?.Name, Level = level });
+					string name = links[linkIdx].Fragment?.Name;
+
+					anchors.Add(new Anchor() { Id = GetDomId(name), Name = name, Level = level });
 
 					int i = Array.FindIndex(links, linkIdx, l => l.ContainerRef == links[linkIdx].Id && l.Anchor);
 

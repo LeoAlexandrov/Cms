@@ -23,11 +23,12 @@
 		_ => "btn btn-link"
 	};
 
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
 @if (jsAction)
 {
-	<button id="@id" type="button" class="@cls" onclick="@Html.Raw(action)">
+<button id="@id" type="button" class="action-fragment @cls @extraFragmentClass" onclick="@Html.Raw(action)">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title
@@ -41,11 +42,11 @@
 	{
 		@title <i class="fa fa-fw @icon"></i>
 	}
-	</button>
+</button>
 }
 else
 {
-	<a id="@id" class="@cls" href="@action" alt="@altText" target="@target">
+<a id="@id" class="action-fragment @cls @extraFragmentClass" href="@action" alt="@altText" target="@target">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title
@@ -58,5 +59,5 @@ else
 	{
 		@title <i class="fa fa-fw @icon"></i>
 	}
-	</a>
+</a>
 }

@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization;
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 @using HCms.ViewModels
 @inject HCms.Routing.IPathTransformer PathTransformer
 @inject IHtmlLocalizer<SharedResources> SharedLocalizer
@@ -17,9 +17,11 @@
 
 	Document[] docs = Model.Document.Children;
 	int n = docs.Length;
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div class="directory-@look my-4" id="@id">
+<div id="@id" class="directory-@look-fragment @extraFragmentClass">
 
 @if (n != 0 && !string.IsNullOrEmpty(title))
 {
@@ -41,7 +43,7 @@ else if (look == "expandable")
 		@for (int i = 0; i < n; i++)
 		{
 			<div class="accordion-item">
-				<h2 class="accordion-header" id="@id-heading-@i">
+				<h2 id="@id-heading-@i" class="accordion-header">
 					<button data-mdb-collapse-init class="accordion-button" type="button" data-mdb-target="#@id-body-@i">
 						@docs[i].Title
 					</button>
@@ -63,7 +65,7 @@ else if (look == "expandable")
 else if (look == "grid" || look == "blog")
 {
 	<div class="container g-0">
-		<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4 my-2">
+		<div class="row row-cols-lg-3 row-cols-md-2 row-cols-1 g-4">
 			@foreach (var doc in docs)
 			{
 				<div class="col">
@@ -92,31 +94,3 @@ else if (look == "grid" || look == "blog")
 }
 
 </div>
-
-@*
-If you don't want to use SharedLocalizer, you can use the following code instead:
-Write
-
-@LearnMore(docs[i].Language)
-instead of @SharedLocalizer["More"]
-
-@{
-	string LearnMore(string lang)
-	{
-		int i = lang.IndexOf('-');
-		string prefix = i > 0 ? lang.Substring(0, i) : lang;
-
-		switch (prefix.ToLower())
-		{
-			case "en":
-				return "Learn more";
-
-			case "fr":
-				return "En savoir +";
-
-			default:
-				return "Learn more";
-		}
-	}
-}
-*@

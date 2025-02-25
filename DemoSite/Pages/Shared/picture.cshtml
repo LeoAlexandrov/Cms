@@ -11,15 +11,6 @@
 	string floating = Model.Props.floating;
 
 	var sources = Model.Props.sources;
-
-	bool isPicture = sources != null;
-
-	string pictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
-	string imgClass = Model.Attributes?.GetValueOrDefault("bootstrap:img:class");
-
-	if (string.IsNullOrEmpty(imgClass) && string.IsNullOrEmpty(floating) && Model.Parent != 0)
-		imgClass = "w-100"; // ???
-
 	string style = null;
 
 	switch (floating)
@@ -31,9 +22,12 @@
 			style = "float: right; margin-left: 2em;";
 			break;
 	}
+
+	string extraPictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<picture class="@pictClass">
+<picture class="@extraPictClass">
 @if (sources != null)
 {
 	foreach (var s in sources)
@@ -41,5 +35,5 @@
 	<source media="@s.media" srcset="@s.srcset" type="@s.type"/>
 	}
 }
-	<img id="@id" class="@imgClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
+	<img id="@id" class="picture-fragment @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
 </picture>

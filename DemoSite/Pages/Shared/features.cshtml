@@ -55,9 +55,11 @@
 	}
 
 	bool isAlternative = look == "alternative" && !string.IsNullOrEmpty(title);
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div class="features-@look my-4" id="@id">
+<div id="@id" class="features-@look-fragment @extraFragmentClass">
 	@if (isAlternative)
 	{
 		@Html.Raw("<div class=\"row gx-5\">")
@@ -86,7 +88,7 @@
 			<div class="col @cls mb-5 h-100">
 			@if (pict != null)
 			{
-				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = { ["bootstrap:img:class"] = "mb-4" } });
+				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "mb-4" } });
 			}
 			@if (!string.IsNullOrEmpty(title))
 			{

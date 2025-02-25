@@ -12,6 +12,8 @@
 
 	int n = items.Length;
 	int m = Model.Children != null ? Model.Children.Length : 0;
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
 
@@ -24,7 +26,7 @@
 }
 </style>
 
-<div id="@id" class="carousel slide carousel-fade breakout" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
+<div id="@id" class="carousel carousel-plus-fragment slide carousel-fade breakout @extraFragmentClass" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
 	<div class="carousel-indicators">
 		@for (int i = 0; i < n; i++)

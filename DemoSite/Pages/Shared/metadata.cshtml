@@ -9,12 +9,12 @@
 
 @if (cover && !string.IsNullOrEmpty(Model.Document.CoverPicture))
 {
-	<img src="@Model.Document.CoverPicture" class="img-fluid" alt="@Model.Document.Title" />
+	<img src="@Model.Document.CoverPicture" class="img-fluid metadata-cover-picture-fragment" alt="@Model.Document.Title" />
 }
 
 @if (breadcrumbs && Model.Document.Breadcrumbs.Length > 1)
 {
-	<nav class="mt-4">
+	<nav class="metadata-breadcrumbs-fragment">
 		<ol class="breadcrumb">
 
 			<li class="breadcrumb-item"><a href="@Model.Document.Breadcrumbs[0].Path"><i class="fas fa-house"></i></a></li>
@@ -31,9 +31,9 @@
 
 @if (title)
 {
-	<h1>@Model.Document.Title</h1>
+	<h1 class="metadata-title-fragment">@Model.Document.Title</h1>
 }
 @if (summary)
 {
-	<div>@Html.Raw(Model.Document.Summary)</div>
+	<div class="metadata-summary-fragment">@Html.Raw(Model.Document.Summary)</div>
 }

@@ -78,9 +78,9 @@ namespace HCms.ViewModels
 			};
 		}
 
-		private string GetDomId()
+		string GetDomId()
 		{
-			if (Id == 0)
+			if (Id == 0 || string.IsNullOrEmpty(Name))
 				return null;
 
 			int n = Name.Length;

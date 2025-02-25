@@ -6,13 +6,14 @@
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<VersionPrefix>1.0.2</VersionPrefix>	  
+	<VersionPrefix>1.0.3</VersionPrefix>	  
 	<Title>H-Cms content repository and view models</Title>
 	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
 	<PackageOutputPath>C:\VSBuild\HCms\publish\nuget</PackageOutputPath>
 	<BaseOutputPath>C:\VSBuild\HCms\bin</BaseOutputPath>
 	<Description>H-Cms content repository and view models</Description>
+	<Authors>h-cms.net</Authors>
 	<PackageIcon>icon.png</PackageIcon>
 	<PackageTags>headless;cms;net;csharp;content-management;content-management-system</PackageTags>
 	<PackageLicenseFile>License.txt</PackageLicenseFile>

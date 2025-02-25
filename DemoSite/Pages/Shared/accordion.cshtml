@@ -13,7 +13,6 @@
 		n = m;
 
 	bool alwaysOpen = Model.Props.appearance.always_open;
-
 	string look = Model.Props.appearance.look;
 	string cls;
 
@@ -29,9 +28,11 @@
 			cls = null;
 			break;
 	}
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div class="accordion-fragment my-4" id="@id">
+<div id="@id" class="accordion-fragment @extraFragmentClass">
 @if (n != 0 && !string.IsNullOrEmpty(title))
 {
 	<h3>@title</h3>
@@ -40,7 +41,7 @@
 		@for(int i = 0; i < n; i++)
 		{
 			<div class="accordion-item">
-				<h2 class="accordion-header" id="@id-heading-@i">
+				<h2 id="@id-heading-@i" class="accordion-header">
 					<button data-mdb-collapse-init class="accordion-button" type="button" data-mdb-target="#@id-body-@i">
 						@if (!string.IsNullOrEmpty(items[i].icon))
 						{

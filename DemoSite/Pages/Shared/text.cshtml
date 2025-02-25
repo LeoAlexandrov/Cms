@@ -2,8 +2,9 @@
 
 @{
 	string id = Model.DomId;
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="raw-text-fragment">
+<div id="@id" class="text-fragment @extraFragmentClass">
 @Html.Raw(Model.Props.ToString())
 </div>

@@ -14,56 +14,58 @@
 	int activeIdx = -1;
 	int i = 0;
 	bool isActive;
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div class="tabs-fragment my-4" id="@id">
-<ul class="nav nav-tabs" role="tablist">
-	@foreach (var tab in tabs)
-	{
-		isActive = tab.active && activeIdx < 0;
-
-		if (isActive)
+<div id="@id" class="tabs-fragment @extraFragmentClass">
+	<ul class="nav nav-tabs" role="tablist">
+		@foreach (var tab in tabs)
 		{
-			activeIdx = i;
+			isActive = tab.active && activeIdx < 0;
+	
+			if (isActive)
+			{
+				activeIdx = i;
+			}
+	
+			<li class="nav-item" role="presentation">
+				<a data-mdb-tab-init
+					id="@id-tab-@i"
+					class="nav-link @(isActive ? "active" : null)"
+					href="#@id-tabs-@i" role="tab">
+					@if (!string.IsNullOrEmpty(tab.icon))
+					{
+						<i class="fas @tab.icon fa-fw me-2"></i>
+					}
+					@tab.title</a>
+			</li>
+	
+			i++;
+	
+			if (i >= n)
+				break;
 		}
-
-		<li class="nav-item" role="presentation">
-			<a data-mdb-tab-init 
-				class="nav-link @(isActive ? "active" : null)" 
-				id="@id-tab-@i"
-				href="#@id-tabs-@i" role="tab">
-				@if (!string.IsNullOrEmpty(tab.icon))
-				{
-					<i class="fas @tab.icon fa-fw me-2"></i>
-				}
-				@tab.title</a>
-		</li>
-
-		i++;
-
-		if (i >= n)
-			break;
-	}
-</ul>
+	</ul>
 
 @{
 	i = 0;
 }
 
 <!-- Tabs content -->
-<div class="tab-content mt-4" id="@id-content">
-	@foreach (var f in Model.Children)
-	{
-		<div class="tab-pane fade show @(i == activeIdx ? "active" : null)" id="@id-tabs-@i" role="tabpanel">
-			@{
-				await Html.RenderPartialAsync(f.XmlName, f);
-			}
-		</div>
-
-		i++;
-
-		if (i >= m)
-			break;
-	}
-</div>
+	<div id="@id-content" class="tab-content mt-4">
+		@foreach (var f in Model.Children)
+		{
+			<div id="@id-tabs-@i" class="tab-pane fade show @(i == activeIdx ? "active" : null)" role="tabpanel">
+				@{
+					await Html.RenderPartialAsync(f.XmlName, f);
+				}
+			</div>
+	
+			i++;
+	
+			if (i >= m)
+				break;
+		}
+	</div>
 </div>

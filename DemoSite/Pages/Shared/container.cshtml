@@ -24,13 +24,13 @@
 		}
 
 	if (Model.Parent == 0)
-		divClass.Append(" my-5");
+		divClass.Append(" my-4");
 
 	cls = divClass.ToString();
 }
 
 
-	<div id="@id" class="@cls">
+<div id="@id" class="container-fragment @cls">
 @if (Model.Children != null)
 {
 	foreach (var f in Model.Children)
@@ -38,7 +38,7 @@
 		await Html.RenderPartialAsync(f.XmlName, f);
 	}
 }
-	</div>
+</div>
 
 @{
 	string mainDivClass(string type)

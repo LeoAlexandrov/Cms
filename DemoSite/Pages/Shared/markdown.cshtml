@@ -8,9 +8,11 @@
 	string text = Markdown.ToHtml(md);
 
 	var pict = Model.Props.picture;
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="raw-html-fragment">
+<div id="@id" class="html-fragment @extraFragmentClass">
 	@if (pict != null)
 	{
 		await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict));
