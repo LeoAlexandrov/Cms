@@ -65,7 +65,7 @@ namespace DemoSite.Infrastructure.Middleware
 
 				if (cache.TryGetValue(path, out byte[] body))
 				{
-					Console.WriteLine("*** Cache hit ***");
+					Console.WriteLine($"*** Cache hit '{path}' ***");
 					await context.Response.Body.WriteAsync(body);
 				}
 				else
@@ -94,7 +94,7 @@ namespace DemoSite.Infrastructure.Middleware
 #if !DEBUG
 						cache.Set(path, body);
 #endif
-						Console.WriteLine("*** Cache add ***");
+						Console.WriteLine($"*** Cache add '{path}' ***");
 					}
 
 					await originalBody.WriteAsync(body);

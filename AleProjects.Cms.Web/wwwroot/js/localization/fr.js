@@ -116,11 +116,11 @@ var DICTIONARY_USERS = {
 	"MESSAGE_INVALID_ROLE_UPDATE": "Ne peut pas être modifié ou doit figurer sur l\'un des éléments suivants: %s1.",
 };
 
-var DICTIONARY_WEBHOOKS = {
-	"MESSAGE_CREATE_SUCCESS": "L\'webhook a été créé avec succès.",
-	"MESSAGE_CREATE_FAIL": "Échec de la création de l\'webhook.",
-	"MESSAGE_UPDATE_SUCCESS": "L\'webhook a été mis à jour avec succès.",
-	"MESSAGE_UPDATE_FAIL": "Échec de la mise à jour de l\'webhook.",
-	"MESSAGE_DELETE_SUCCESS": "L\'webhook a été supprimé avec succès.",
-	"MESSAGE_DELETE_FAIL": "Échec de la suppression de l\'webhook.",
+var DICTIONARY_EVENT_DESTINATIONS = {
+	"MESSAGE_CREATE_SUCCESS": "La destination de l'événement a été créée avec succès.",
+	"MESSAGE_CREATE_FAIL":    "Échec de la création de la destination de l'événement.",
+	"MESSAGE_UPDATE_SUCCESS": "La destination de l'événement a été mise à jour avec succès.",
+	"MESSAGE_UPDATE_FAIL":    "Échec de la mise à jour de la destination de l'événement.",
+	"MESSAGE_DELETE_SUCCESS": "La destination de l'événement a été supprimée avec succès.",
+	"MESSAGE_DELETE_FAIL":    "Échec de la suppression de la destination de l'événement.",
 };

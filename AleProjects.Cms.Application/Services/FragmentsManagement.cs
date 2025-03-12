@@ -200,12 +200,12 @@ namespace AleProjects.Cms.Application.Services
 				.Append('<')
 				.Append(decomposition[0].Name)
 				.AppendLine()
-				.AppendFormat("\txmlns=\"{0}\"", decomposition[0].Namespace);
+				.Append($"\txmlns=\"{decomposition[0].Namespace}\"");
 
 			if (NamespacesPrefixes.Count > 1)
 				foreach (var ns in NamespacesPrefixes)
 					if (!string.IsNullOrEmpty(ns.Value))
-						result.AppendLine().AppendFormat("\txmlns:{0}=\"{1}\"", ns.Value, ns.Key);
+						result.AppendLine().Append($"\txmlns:{ns.Value}=\"{ns.Key}\"");
 
 			result.Append('>');
 
@@ -233,14 +233,14 @@ namespace AleProjects.Cms.Application.Services
 
 							result
 								.Append('\t', level)
-								.AppendFormat(fmt, string.Format("</{0}>", tag))
+								.Append($"</{tag}>")
 								.AppendLine();
 						} while (level > decomposition[i].Level);
 					}
 
 					result
 						.AppendLine("<!-- Do not remove the comment below -->")
-						.AppendLine(string.Format("<!-- {0} -->", decomposition[i].Path));
+						.AppendLine($"<!-- {decomposition[i].Path} -->");
 				}
 				else if (decomposition[i].IsSimple)
 				{
@@ -253,7 +253,7 @@ namespace AleProjects.Cms.Application.Services
 
 							result
 								.Append('\t', level)
-								.AppendFormat(fmt, string.Format("</{0}>", tag))
+								.Append($"</{tag}>")
 								.AppendLine();
 						} while (level > decomposition[i].Level);
 					}
@@ -265,7 +265,7 @@ namespace AleProjects.Cms.Application.Services
 
 					result
 						.Append('\t', decomposition[i].Level)
-						.Append(string.Format("<{0}>", tag));
+						.Append($"<{tag}>");
 
 					switch (decomposition[i].Value)
 					{
@@ -275,19 +275,19 @@ namespace AleProjects.Cms.Application.Services
 								s = sanitizer.Sanitize(s);
 
 							if (s.Any(c => c == '<' || c == '>' || c == '"' || c == '\'' || c == '&' || c == '\r' || c == '\n' || c == '\t'))
-								result.AppendLine(string.Format("<![CDATA[{0}]]></{1}>", s, tag));
+								result.AppendLine($"<![CDATA[{s}]]></{tag}>");
 							else
-								result.AppendLine(string.Format("{0}</{1}>", s, tag));
+								result.AppendLine($"{s}</{tag}>");
 
 							break;
 
 						case bool b:
-							result.AppendLine(string.Format("{0}</{1}>", b ? "true" : "false", tag));
+							result.AppendLine($"{(b ? "true" : "false")}</{tag}>");
 							break;
 
 						default:
 							result
-								.AppendFormat(fmt, string.Format("{0}</{1}>", decomposition[i].Value, tag))
+								.AppendFormat(fmt, "{0}</{1}>", decomposition[i].Value, tag)
 								.AppendLine();
 							break;
 					}
@@ -301,7 +301,7 @@ namespace AleProjects.Cms.Application.Services
 
 						result
 							.Append('\t', level)
-							.AppendFormat(fmt, string.Format("</{0}>", tag))
+							.Append($"</{tag}>")
 							.AppendLine();
 					} while (level > decomposition[i].Level);
 
@@ -312,7 +312,7 @@ namespace AleProjects.Cms.Application.Services
 
 					result
 						.Append('\t', decomposition[i].Level)
-						.AppendFormat(fmt, string.Format("<{0}>", tag))
+						.Append($"<{tag}>")
 						.AppendLine();
 
 					closeTags.Push(tag);
@@ -326,7 +326,7 @@ namespace AleProjects.Cms.Application.Services
 
 					result
 						.Append('\t', decomposition[i].Level)
-						.AppendFormat(fmt, string.Format("<{0}>", tag))
+						.Append($"<{tag}>")
 						.AppendLine();
 
 					closeTags.Push(tag);
@@ -352,7 +352,7 @@ namespace AleProjects.Cms.Application.Services
 							val = sanitizer.Sanitize(val);
 
 						if (val.Any(c => c == '<' || c == '>' || c == '"' || c == '\'' || c == '&' || c == '\r' || c == '\n' || c == '\t'))
-							result.Append(string.Format("<![CDATA[{0}]]>", val));
+							result.Append($"<![CDATA[{val}]]>");
 						else
 							result.Append(val);
 					}
@@ -360,7 +360,7 @@ namespace AleProjects.Cms.Application.Services
 
 				result
 					.Append('\t', level)
-					.AppendFormat(fmt, string.Format("</{0}>", tag))
+					.Append($"</{tag}>")
 					.AppendLine();
 			}
 
@@ -382,9 +382,9 @@ namespace AleProjects.Cms.Application.Services
 				{
 					result
 						.AppendLine("<!-- Do not remove or change the comment below -->")
-						.AppendLine(string.Format("<!-- {0} -->", e.Path));
+						.AppendLine($"<!-- {e.Path} -->");
 
-					return; // n = 1;
+					return;
 				}
 
 				if (NamespacesPrefixes.TryGetValue(e.Namespace, out string prefix) && !string.IsNullOrEmpty(prefix))
@@ -414,7 +414,7 @@ namespace AleProjects.Cms.Application.Services
 						result.Append(indent);
 					}
 
-					result.AppendLine(string.Format("</{0}{1}>", prefix, e.Name));
+					result.AppendLine($"</{prefix}{e.Name}>");
 				}
 			}
 
@@ -422,12 +422,12 @@ namespace AleProjects.Cms.Application.Services
 				.Append('<')
 				.Append(xse.Name)
 				.AppendLine()
-				.AppendFormat("\txmlns=\"{0}\"", xse.Namespace);
+				.Append($"\txmlns=\"{xse.Namespace}\"");
 
 			if (NamespacesPrefixes.Count > 1)
 				foreach (var ns in NamespacesPrefixes)
 					if (!string.IsNullOrEmpty(ns.Value))
-						result.AppendLine().AppendFormat("\txmlns:{0}=\"{1}\"", ns.Value, ns.Key);
+						result.AppendLine().Append($"\txmlns:{ns.Value}=\"{ns.Key}\"");
 
 			result.Append('>');
 
@@ -441,7 +441,7 @@ namespace AleProjects.Cms.Application.Services
 			else
 				result.Append(xse.DefaultXmlValue());
 
-			result.AppendLine(string.Format("</{0}>", xse.Name));
+			result.AppendLine($"</{xse.Name}>");
 
 			return result;
 		}
@@ -792,7 +792,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()
@@ -944,7 +944,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()
@@ -1044,7 +1044,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 
 			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}
@@ -1099,7 +1099,7 @@ namespace AleProjects.Cms.Application.Services
 
 				await dbContext.SaveChangesAsync();
 
-				await _notifier.Notify("on_doc_update", doc.Id);
+				await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 			}
 
 			return Result<DtoMoveFragmentResult>.Success(
@@ -1157,6 +1157,7 @@ namespace AleProjects.Cms.Application.Services
 				ContainerRef = containerRef,
 				Position = pos,
 				Enabled = link.Enabled,
+				Anchor = link.Anchor,
 				Fragment = newFragment
 			};
 
@@ -1172,7 +1173,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 
 			return Result<DtoFragmentChangeResult>.Success(
 				new DtoFragmentChangeResult()
@@ -1277,7 +1278,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_update", doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
 
 			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}

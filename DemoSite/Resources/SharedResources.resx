@@ -124,10 +124,10 @@
     <value>You do not have permission to access this page.</value>
   </data>
   <data name="App_Slogan" xml:space="preserve">
-    <value>Demo site</value>
+    <value>H-Cms demo site</value>
   </data>
   <data name="App_Title" xml:space="preserve">
-    <value>Demo site</value>
+    <value>Demo</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>Error</value>

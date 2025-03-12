@@ -12,11 +12,11 @@ namespace HCms.Routing
 		/// <summary>
 		/// Transforms logical path of the CMS object (document or media content item) to the URL path.
 		/// </summary>
+		/// <param name="root">Slug of the root document.</param>
 		/// <param name="path">Document or media content item path.</param>
 		/// <param name="isMedia">true for media content, false for documents. </param>
-		/// <param name="root">Slug of the root document.</param>
 		/// <returns>URL path of the object.</returns>
-		string Forward(string path, bool isMedia, string root);
+		string Forward(string root, string path, bool isMedia);
 
 		/// <summary>
 		/// Transforms URL path to the logical path of the CMS document.
@@ -36,7 +36,7 @@ namespace HCms.Routing
 	{
 		readonly Uri mediaHost = new(configuration["MediaHost"] ?? "/");
 
-		public string Forward(string path, bool isMedia, string root)
+		public string Forward(string root, string path, bool isMedia)
 		{
 			if (isMedia && 
 				string.Compare(path, 0, "https://", 0, "https://".Length, StringComparison.OrdinalIgnoreCase) != 0 &&

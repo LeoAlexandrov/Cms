@@ -4,12 +4,12 @@ using System.IO;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using HCms.ContentRepo;
 using DemoSite.Infrastructure.Middleware;
 using DemoSite.Services;
 
@@ -22,14 +22,15 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 	if (!string.IsNullOrEmpty(settingsFile))
 		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
 
-	CmsContentService.WebhookSecret = configuration["WebhookSecret"];
 
 	services
 		.AddMemoryCache()
 		.AddCmsContent()
 		.AddLocalization(options => options.ResourcesPath = "Resources")
+		.AddHostedService<EventSubscriptionService>()
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
 		.AddViewLocalization();
+
 }
 
 
@@ -70,7 +71,13 @@ void ConfigureApp(WebApplication app)
 		.UseCmsContent();
 
 	app.MapPost("/cms-webhook-handler",
-		async (CmsContentService.Notification model, IMemoryCache cache, IContentRepo repo) => await CmsContentService.UpdateCache(model, cache, repo));
+		(HCms.Dto.EventPayload model, CmsContentService cmsService, IConfiguration configuration, HttpRequest request) =>
+		{
+			string secret = configuration["Webhook:Secret"];
+
+			if (secret == request.Headers["X-Secret"])
+				cmsService.UpdateCache(model);
+		});
 
 	app.UseStatusCodePagesWithReExecute("/Error/{0}");
 	app.MapRazorPages();

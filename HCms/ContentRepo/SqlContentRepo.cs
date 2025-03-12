@@ -95,7 +95,7 @@ namespace HCms.ContentRepo
 			if (string.IsNullOrEmpty(path) || path == "/")
 			{
 				doc = rootDoc;
-				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = rootId }];
+				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = rootId }];
 				allDocsIds = [rootId];
 
 				result = new(doc)
@@ -153,10 +153,10 @@ namespace HCms.ContentRepo
 				int id = doc.Parent;
 
 				breadcrumbs = new BreadcrumbsItem[slugs.Length + 1];
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = rootId };
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = rootId };
 				
 				if (slugs.Length > 0)
-					breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = doc.Id };
+					breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, doc.Path, false), Title = doc.Title, Document = doc.Id };
 
 
 				for (int i = 1; i < slugs.Length; i++)
@@ -164,7 +164,7 @@ namespace HCms.ContentRepo
 					int j = Array.BinarySearch(ids, id);
 
 					id = docs[j].Parent;
-					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[j].Path, false, rootKey), Title = docs[j].Title, Document = docs[j].Id };
+					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, docs[j].Path, false), Title = docs[j].Title, Document = docs[j].Id };
 
 					if (i == 1)
 						parent = new Document(docs[j]);
@@ -309,7 +309,7 @@ namespace HCms.ContentRepo
 			if (doc.Parent <= 0)
 			{
 				rootKey = doc.Slug;
-				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = id }];
+				breadcrumbs = [new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = id }];
 				allDocsIds = [id];
 
 				result = new(doc)
@@ -331,11 +331,11 @@ namespace HCms.ContentRepo
 				rootKey= docs[0].Slug;
 				breadcrumbs = new BreadcrumbsItem[docs.Length + 1];
 
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward("/", false, rootKey), Title = string.Empty, Document = docs[0].Id };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(doc.Path, false, rootKey), Title = doc.Title, Document = id };
+				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = docs[0].Id };
+				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, doc.Path, false), Title = doc.Title, Document = id };
 
 				for (int i = 1; i < docs.Length; i++)
-					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(docs[i].Path, false, rootKey), Title = docs[i].Title, Document = docs[i].Id };
+					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, docs[i].Path, false), Title = docs[i].Title, Document = docs[i].Id };
 
 				result = new(doc)
 				{

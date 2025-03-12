@@ -33,7 +33,7 @@
 	<ul class="list-group list-group-light">
 		@foreach (var doc in docs)
 		{
-			<li class="list-group-item"><a href="@PathTransformer.Forward(doc.Path, false, root)">@doc.Title</a></li>
+			<li class="list-group-item"><a href="@PathTransformer.Forward(root, doc.Path, false)">@doc.Title</a></li>
 		}
 	</ul>
 }
@@ -54,7 +54,7 @@ else if (look == "expandable")
 							@Html.Raw(docs[i].Summary)
 						</div>
 						<div class="directory-open-doc">
-							<a class="btn btn-primary" href="@PathTransformer.Forward(docs[i].Path, false, root)">@MoreLabel</a>
+							<a class="btn btn-primary" href="@PathTransformer.Forward(root, docs[i].Path, false)">@MoreLabel</a>
 						</div>
 					</div>
 				</div>
@@ -73,8 +73,8 @@ else if (look == "grid" || look == "blog")
 						@if (!string.IsNullOrEmpty(doc.CoverPicture))
 						{
 							<div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
-								<img src="@PathTransformer.Forward(doc.CoverPicture, true, root)" class="img-fluid" alt="@doc.Title" />
-								<a href="@PathTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">
+								<img src="@PathTransformer.Forward(root, doc.CoverPicture, true)" class="img-fluid" alt="@doc.Title" />
+								<a href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">
 									<div class="mask" style="background-color: rgba(251, 251, 251, 0.15)"></div>
 								</a>
 							</div>
@@ -84,7 +84,7 @@ else if (look == "grid" || look == "blog")
 							<div class="card-text">@Html.Raw(doc.Summary)</div>
 						</div>
 						<div class="mx-4 mb-4">
-							<a class="btn btn-primary" href="@PathTransformer.Forward(doc.Path, false, root)" alt="@doc.Title">@MoreLabel</a>
+							<a class="btn btn-primary" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">@MoreLabel</a>
 						</div>
 					</div>
 				</div>

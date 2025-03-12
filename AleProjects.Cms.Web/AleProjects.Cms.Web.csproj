@@ -31,10 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Content Update="Pages\Webhooks.cshtml">
-	  <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-	  <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	</Content>
 	<Content Update="settings.json">
 	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	</Content>

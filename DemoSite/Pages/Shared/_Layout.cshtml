@@ -1,9 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+<!DOCTYPE html>
 <html lang="@ViewData["Language"]" class="h-100">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>@ViewData["Title"]</title>
+	<link rel="icon" href="~/images/app-fav-icon.webp" type="image/webp" />
+	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
 	<!-- Font Awesome -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 	<!-- Google Fonts -->
@@ -17,11 +21,17 @@
 	<header>
 		<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
 			<div class="container">
-				<a class="navbar-brand" asp-area="" asp-page="/Index">DemoSite</a>
+
+				<a id="logo" href="@ViewData["HomePage"]">
+					<div class="logo-title">@SharedLocalizer["App_Title"]</div>
+					<div class="logo-slogan">@SharedLocalizer["App_Slogan"]</div>
+				</a>
+
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
 						aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
+
 				<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 					<ul class="navbar-nav flex-grow-1">
 						<li class="nav-item">

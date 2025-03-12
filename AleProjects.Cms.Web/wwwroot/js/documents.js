@@ -427,7 +427,7 @@
 							parent: this.editedDoc.properties.parent,
 							label: this.editedDoc.properties.title,
 							icon: this.editedDoc.properties.icon,
-							iconColor: "blue-grey",
+							iconColor: this.editedDoc.enabled ? "blue-grey" : "blue-grey-2",
 							expandable: false,
 							selectable: true
 						};
@@ -1033,7 +1033,7 @@
 							id: r.result.link.id,
 							parent: parent,
 							label: r.result.fragment.name,
-							label2: r.result.fragment.xmlName,
+							label2: `${r.result.fragment.xmlName} (${r.result.link.id})`,
 							data: r.result.link.data,
 							icon: r.result.link.icon,
 							iconColor: "blue-grey",
@@ -1340,7 +1340,7 @@
 							id: r.result.link.id,
 							parent: parent,
 							label: r.result.fragment.name,
-							label2: r.result.fragment.xmlName,
+							label2: `${r.result.fragment.xmlName} (${r.result.link.id})`,
 							data: r.result.link.data,
 							icon: r.result.link.icon,
 							iconColor: "blue-grey",

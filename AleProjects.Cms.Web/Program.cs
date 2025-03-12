@@ -88,13 +88,13 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				using var scope = s.CreateScope();
 				return new(scope.ServiceProvider.GetRequiredService<CmsDbContext>());
 			})
-		.AddScoped<IWebhookNotifier, WebhookNotifier>()
+		.AddScoped<IEventNotifier, EventNotifier>()
 		.AddScoped<ContentManagementService>()
 		.AddTransient<IMediaStorage, LocalMediaStorage>()
 		.AddTransient<MediaManagementService>()
 		.AddTransient<SchemaManagementService>()
 		.AddScoped<UserManagementService>()
-		.AddScoped<WebhooksManagementService>()
+		.AddScoped<EventDestinationsManagementService>()
 		.AddScoped<SignInHandler>()
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
 		.AddScoped<IAuthorizationHandler, CanManageDocumentHandler>()

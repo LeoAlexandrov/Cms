@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 
 using AleProjects.Cms.Application.Services;
+using AleProjects.Random;
 
 
 namespace AleProjects.Cms.Web.Pages.Auth
@@ -69,7 +70,7 @@ namespace AleProjects.Cms.Web.Pages.Auth
 			if (string.IsNullOrEmpty(error) && success)
 				PopupSuccess = true;
 
-			CurrentSite = string.Format("https://{0}", this.Request.Host.Value);
+			CurrentSite = $"https://{this.Request.Host.Value}";
 			GoogleClientId = _configuration.GetValue<string>("Auth:Google:ClientId");
 			MicrosoftClientId = _configuration.GetValue<string>("Auth:Microsoft:ClientId");
 			GithubClientId = _configuration.GetValue<string>("Auth:Github:ClientId");

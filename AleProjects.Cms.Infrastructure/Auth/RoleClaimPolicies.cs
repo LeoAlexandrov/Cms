@@ -17,27 +17,12 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 
 
-	public class RoleClaimPolicies : IRoleClaimPolicies
+	public class RoleClaimPolicies(IConfiguration config) : IRoleClaimPolicies
 	{
-		protected readonly Dictionary<string, string[]> _policies;
-		protected readonly string[] _roles;
+		protected readonly Dictionary<string, string[]> _policies = Create(config);
+		protected readonly string[] _roles = config.GetSection("Auth:OrderedRoles")?.Get<string[]>().Reverse().ToArray() ?? [];
 
 		public string[] Roles { get => _roles; }
-
-		public RoleClaimPolicies(IConfiguration config)
-		{
-			var orderedRoles = config.GetSection("Auth:OrderedRoles")?.AsEnumerable();
-
-			_roles = orderedRoles != null ?
-				orderedRoles
-					.OrderByDescending(r => int.TryParse(r.Key[(r.Key.LastIndexOf(':') + 1)..], out int idx) ? idx : -1)
-					.Select(s => s.Value)
-					.Where(s => !string.IsNullOrEmpty(s))
-					.ToArray() :
-				[];
-
-			_policies = Create(config);
-		}
 
 		public bool ConformsPolicy(ClaimsPrincipal user, string requiredRole)
 		{
@@ -49,16 +34,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 		private static Dictionary<string, string[]> Create(IConfiguration config)
 		{
-			var cfgPolicies = config.GetSection("Auth:RoleClaimPolicies")?.GetChildren();
-			var policies = new Dictionary<string, string[]>();
-
-			if (cfgPolicies != null)
-				foreach (var policy in cfgPolicies)
-					policies[policy.Key] = policy
-						.AsEnumerable()
-						.Select(s => s.Value)
-						.Where(s => !string.IsNullOrEmpty(s))
-						.ToArray();
+			var policies = config.GetSection("Auth:RoleClaimPolicies").Get<Dictionary<string, string[]>>();
 
 			return policies;
 		}

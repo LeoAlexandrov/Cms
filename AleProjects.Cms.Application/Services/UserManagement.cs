@@ -11,6 +11,7 @@ using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Auth;
+using AleProjects.Random;
 
 
 namespace AleProjects.Cms.Application.Services

@@ -19,12 +19,12 @@ using AleProjects.Cms.Infrastructure.Notification;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public partial class ContentManagementService(CmsDbContext dbContext, FragmentSchemaRepo schemaRepo, IAuthorizationService authService, IWebhookNotifier notifier)
+	public partial class ContentManagementService(CmsDbContext dbContext, FragmentSchemaRepo schemaRepo, IAuthorizationService authService, IEventNotifier notifier)
 	{
 		private readonly CmsDbContext dbContext = dbContext;
 		private readonly FragmentSchemaRepo _schemaRepo = schemaRepo;
 		private readonly IAuthorizationService _authService = authService;
-		private readonly IWebhookNotifier _notifier = notifier;
+		private readonly IEventNotifier _notifier = notifier;
 
 
 		#region private-functions
@@ -196,7 +196,6 @@ namespace AleProjects.Cms.Application.Services
 
 			string language;
 			string icon;
-			bool published;
 			string path;
 			string rootSlug;
 			string authPolicies;
@@ -218,7 +217,6 @@ namespace AleProjects.Cms.Application.Services
 				rootSlug = parent.RootSlug;
 				language = parent.Language;
 				icon = "article";
-				published = parent.Published;
 				authPolicies = parent.AuthPolicies;
 				pathNodes = new(parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
@@ -234,7 +232,6 @@ namespace AleProjects.Cms.Application.Services
 				rootSlug = slug;
 				language = "en-US";
 				icon = "home";
-				published = true;
 				pathNodes = null;
 				authPolicies = null;
 				newAttrs = null;
@@ -254,7 +251,6 @@ namespace AleProjects.Cms.Application.Services
 				Language = language,
 				Icon = icon,
 				AuthPolicies = authPolicies,
-				Published = published,
 				Author = user.Identity.Name,
 				CreatedAt = now,
 				ModifiedAt = now,
@@ -276,7 +272,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_create", doc.Id);
+			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id);
 
 			DtoFullDocumentResult result = new()
 			{
@@ -356,6 +352,10 @@ namespace AleProjects.Cms.Application.Services
 			}
 
 
+			string originalRoot = doc.RootSlug;
+			string originalPath = doc.Path;
+
+
 			if (doc.Published != dto.Published)
 				if (published)
 				{
@@ -377,8 +377,7 @@ namespace AleProjects.Cms.Application.Services
 
 					pathItems[^1] = slug;
 
-					string oldPath = doc.Path;
-					int l = oldPath.Length;
+					int l = originalPath.Length;
 					string newPath = string.Join("/", pathItems);
 
 					doc.Slug = slug;
@@ -447,7 +446,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_change", doc.Id);
+			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id);
 
 			return Result<DtoDocumentResult>.Success(new(doc)); ;
 		}
@@ -519,7 +518,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_delete", id);
+			await _notifier.Notify("on_doc_delete", doc.RootSlug, doc.Path, id);
 
 			return Result<bool>.Success(true);
 		}
@@ -613,7 +612,8 @@ namespace AleProjects.Cms.Application.Services
 			int newPosition = await dbContext.Documents
 				.CountAsync(d => d.Parent == parentId);
 
-			string oldPath = doc.Path;
+			string originalRoot = doc.RootSlug;
+			string originalPath = doc.Path;
 			string newPath = newParent != null ? newParent.Path + "/" + doc.Slug : "";
 			string newRootSlug = newParent != null ? newParent.RootSlug : doc.Slug;
 
@@ -672,7 +672,7 @@ namespace AleProjects.Cms.Application.Services
 
 
 			var childrenD = children.ToDictionary(c => c.Id, c => c);
-			int l = oldPath.Length;
+			int l = originalPath.Length;
 			int n = docPathNodes.Count;
 
 			for (int i = 0; i < children.Length; i++)
@@ -729,7 +729,7 @@ namespace AleProjects.Cms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_change", doc.Id);
+			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id);
 
 			return Result<DtoDocumentResult>.Success(new(doc));
 		}
@@ -780,7 +780,7 @@ namespace AleProjects.Cms.Application.Services
 
 				await dbContext.SaveChangesAsync();
 
-				await _notifier.Notify("on_doc_change", doc.Id);
+				await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
 			}
 
 			return Result<DtoMoveDocumentResult>.Success(
@@ -814,7 +814,7 @@ namespace AleProjects.Cms.Application.Services
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent);
 
 			string[] pathItems = origin.Path.Split('/');
-			string newSlug = string.Format("{0}-{1}", origin.Slug, now.Ticks);
+			string newSlug = $"{origin.Slug}-{now.Ticks}";
 
 			if (origin.Parent > 0)
 				pathItems[^1] = newSlug;
@@ -824,7 +824,7 @@ namespace AleProjects.Cms.Application.Services
 				Slug = newSlug,
 				Path = string.Join('/', pathItems),
 				RootSlug = origin.RootSlug,
-				Title = string.Format("{0}-copy", origin.Title),
+				Title = $"{origin.Title}-copy",
 				Parent = origin.Parent,
 				Position = position,
 				Summary = origin.Summary,
@@ -853,7 +853,7 @@ namespace AleProjects.Cms.Application.Services
 
 			await dbContext.SaveChangesAsync();
 
-			await _notifier.Notify("on_doc_create", doc.Id);
+			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id);
 
 
 			DtoFullDocumentResult result = new()

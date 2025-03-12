@@ -195,4 +195,7 @@
   <data name="Error" xml:space="preserve">
     <value>Erreur</value>
   </data>
+  <data name="Nav_Events" xml:space="preserve">
+    <value>Événements</value>
+  </data>
 </root>

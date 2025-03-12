@@ -477,7 +477,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (XmlSchemaException ex)
 			{
-				return Result<Schema>.BadParameters("Data", [string.Format("{0} Line {1}, position {2}.", ex.Message, ex.LineNumber, ex.LinePosition)]);
+				return Result<Schema>.BadParameters("Data", [$"{ex.Message} Line {ex.LineNumber}, position {ex.LinePosition}."]);
 			}
 			catch (System.Xml.XmlException ex)
 			{
@@ -515,7 +515,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (Exception ex)
 			{
-				return Result<bool>.BadParameters("Id", [string.Format("This schema can't be deleted: {0}", ex.Message)]);
+				return Result<bool>.BadParameters("Id", [$"This schema can't be deleted: {ex.Message}"]);
 			}
 
 			dbContext.Schemata.Remove(schema);
@@ -540,7 +540,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (Exception ex)
 			{
-				return Result<bool>.BadParameters("Data", [string.Format("Compilation error: {0}", ex.Message)]);
+				return Result<bool>.BadParameters("Data", [$"Compilation error: {ex.Message}"]);
 			}
 
 			Reload(schemaSet, fragments);

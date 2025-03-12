@@ -29,7 +29,7 @@ namespace AleProjects.Cms.Web.Pages.Auth
 			}
 
 			var login = await _signInHandler.Stackoverflow(code,
-				string.Format("https://{0}/auth/stackoverflow", this.Request.Host.Value),
+				$"https://{this.Request.Host.Value}/auth/stackoverflow",
 				this.Request.Headers.UserAgent.First().ToString());
 
 			switch (login.Status)

@@ -1,0 +1,292 @@
+﻿@page "{id:int?}"
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using AleProjects.Cms.Web;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
+@inject IViewLocalizer Localizer
+
+@model AleProjects.Cms.Web.Pages.EventsModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+	ViewData["AppTitle"] = Localizer["SectionTitle"].Value + " - " + SharedLocalizer["AppTitle"].Value;
+	ViewData["AppBarTitle"] = SharedLocalizer["AppTitle"].Value + " - " + Localizer["SectionTitle"].Value;
+}
+
+<q-dialog v-model="newDestinationProps" no-backdrop-dismiss>
+	<q-card class="card-dialog">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["NewWebhook"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+
+			<q-input v-model="newDestination.name"
+				autofocus
+				label="@Localizer["Name"]"
+				ref="NewDestinationName"
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]']">
+			</q-input>
+
+			<q-select v-model="newDestination.type" 
+				:options="destinationTypes" 
+				label="@Localizer["Type"]"
+				ref="NewDestinationType"
+				emit-value 
+				map-options>
+			</q-select>
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="!newDestination.name" @@click="createDestination()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="editedDestinationProps" no-backdrop-dismiss>
+	<q-card class="card-dialog">
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["Destination"]</div>
+		</q-card-section>
+
+		<q-card-section class="q-pt-none">
+			@* <div class="text-caption text-grey-7">Id : {{ editedDestination.id }}</div> *@
+
+			<q-select v-model="editedDestination.type"
+				:options="destinationTypes"
+				label="@Localizer["Type"]"
+				ref="DestinationType"
+				disabled
+				readonly
+				emit-value
+				map-options>
+			</q-select>
+
+			<q-input v-model="editedDestination.name"
+				class="q-py-md"
+				autofocus
+				label="@Localizer["Name"]"
+				ref="DestinationName"
+				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 128 || '@ErrorsLocalizer["Validation_MaxLen128"]']">
+			</q-input>
+
+			<q-checkbox v-model="editedDestination.enabled"
+				class="q-py-md"
+				label="@Localizer["EnabledLabel"]"
+				ref="DestinationEnabled">
+			</q-checkbox>
+
+			<div class="text-caption text-grey-7">@Localizer["PathLabel"]</div>
+
+			<div class="row q-mb-lg q-col-gutter-x-lg">
+				<div class="col-sm-6 col-xs-12">
+					<q-input v-model="editedDestination.triggeringPath"
+						label="@Localizer["Path"]"
+						ref="DestinationPath">
+					</q-input>
+				</div>
+				<div class="col-sm-6 col-xs-12">
+					<q-input v-model="editedDestination.triggeringPathAux"
+						label="@Localizer["PathAux"]"
+						ref="DestinationPathAux">
+					</q-input>
+				</div>
+			</div>
+
+			<div v-if="editedDestination.webhook!=null">
+
+				<q-input v-model="editedDestination.webhook.endpoint"
+					class="q-mb-md" dense
+					label="@Localizer["Endpoint"]"
+					ref="DestinationWebhookEndpoint"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+
+				<q-input v-model="editedDestination.webhook.secret"
+					readonly
+					class="q-mb-md" dense
+					label="@Localizer["Secret"]"
+					ref="DestinationWebhookSecret">
+				</q-input>
+
+				<q-checkbox v-model="editedDestination.webhook.resetSecret"
+					class="q-pb-md"
+					label="@Localizer["ResetSecret"]"
+					ref="DestinationWebhookResetSecret">
+				</q-checkbox>
+			</div>
+
+			<div v-else-if="editedDestination.redis!=null">
+
+				<q-input v-model="editedDestination.redis.endpoint"
+					class="q-mb-md" dense
+					label="@Localizer["Endpoint"]"
+					ref="DestinationRedisEndpoint"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+
+				<div class="row q-my-md q-col-gutter-x-lg">
+					<div class="col-sm-6 col-xs-12">
+						<q-input v-model="editedDestination.redis.user"
+							class="q-mb-md" dense
+							label="@Localizer["User"]"
+							ref="DestinationRedisUser">
+						</q-input>
+					</div>
+					<div class="col-sm-6 col-xs-12">
+						<q-input v-model="editedDestination.redis.password"
+							class="q-mb-md" dense
+							label="@Localizer["Password"]"
+							:type="revealPassword ? 'text' : 'password'"
+							ref="DestinationRedisPassword">
+							<template v-slot:append>
+								<q-icon class="cursor-pointer" :name="revealPassword ? 'visibility' : 'visibility_off'" @@click="revealPassword=!revealPassword" />
+							</template>
+						</q-input>
+					</div>
+				</div>
+
+				<q-input v-model="editedDestination.redis.channel"
+					class="q-mb-md" dense
+					label="@Localizer["Channel"]"
+					ref="DestinationRedisChannel"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+			</div>
+
+			<div v-else-if="editedDestination.rabbitMq!=null">
+
+				<q-input v-model="editedDestination.rabbitMq.hostName"
+					class="q-mb-md" dense
+					label="@Localizer["HostName"]"
+					ref="DestinationRabbitMQEndpoint"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+
+				<div class="row q-my-md q-col-gutter-x-lg">
+					<div class="col-sm-6 col-xs-12">
+						<q-input v-model="editedDestination.rabbitMq.user"
+							class="q-mb-md" dense
+							label="@Localizer["User"]"
+							ref="DestinationRabbitMQUser">
+						</q-input>
+					</div>
+					<div class="col-sm-6 col-xs-12">
+						<q-input v-model="editedDestination.rabbitMq.password"
+							class="q-mb-md" dense
+							label="@Localizer["Password"]"
+							:type="revealPassword ? 'text' : 'password'"
+							ref="DestinationRabbitMQPassword">
+							<template v-slot:append>
+								<q-icon class="cursor-pointer" :name="revealPassword ? 'visibility' : 'visibility_off'" @@click="revealPassword=!revealPassword" />
+							</template>
+						</q-input>
+					</div>
+				</div>
+
+				<q-input v-model="editedDestination.rabbitMq.exchange"
+					class="q-mb-md" dense
+					label="@Localizer["Exchange"]"
+					ref="DestinationRabbitMQExchange"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+
+				<q-input v-model="editedDestination.rabbitMq.exchangeType"
+					class="q-mb-md" dense
+					label="@Localizer["ExchangeType"]"
+					ref="DestinationRabbitMQExchangeType"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
+				</q-input>
+
+				<q-input v-model="editedDestination.rabbitMq.routingKey"
+					class="q-mb-md" dense
+					label="@Localizer["RoutingKey"]"
+					ref="DestinationRabbitMQRoutingKey">
+				</q-input>
+			</div>
+
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="destinationIsNotOk()" @@click="updateDestination()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+<q-dialog v-model="deleteDestinationConfirm" no-backdrop-dismiss>
+	<q-card>
+		<q-card-section class="row items-center">
+			<div class="text-h6">@Localizer["DeleteDestination"]</div>
+		</q-card-section>
+
+		<q-card-section class="row items-center">
+			<q-icon name="help_outline" color="secondary" size="md"></q-icon>
+			<span class="q-ml-sm">@Localizer["DeleteDestinationText"]</span>
+		</q-card-section>
+
+		<q-card-actions align="right">
+			<q-btn flat label="@SharedLocalizer["Yes"]" color="primary" @@click="deleteDestination()"></q-btn>
+			<q-btn flat label="@SharedLocalizer["No"]" color="primary" v-close-popup></q-btn>
+		</q-card-actions>
+	</q-card>
+</q-dialog>
+
+
+<div class="q-gutter-md q-pa-md" :style="{'max-height': pageHeight}">
+	<h5>@Localizer["Destinations"]</h5>
+	<div class="text-body2 text-grey-7" v-if="!destinations.length">@Localizer["NoDestinations"]</div>
+
+	<q-list>
+		<q-separator></q-separator>
+
+		<div v-for="(d,idx) in destinations">
+
+			<q-item clickable v-ripple @@click="startUpdateDestination(d.id)">
+				<q-item-section top avatar>
+					<q-avatar rounded size="lg">
+						<img :src="typeIcon(d.type)">
+					</q-avatar>
+				</q-item-section>
+				<q-item-section>
+					<q-item-label lines="1">
+						{{ d.name }} <q-badge align="middle" color="red" v-if="!d.enabled"><q-icon name="block" color="white" /></q-badge>
+					</q-item-label>
+					<q-item-label caption lines="1">@Localizer["Path"]: {{ d.triggeringPath }}</q-item-label>
+				</q-item-section>
+
+				<q-item-section side>
+					<q-btn size="md" flat dense round icon="delete" v-on:click.stop="startDeleteDestination(d.id)">
+						<q-tooltip>@Localizer["DeleteDestination"]</q-tooltip>
+					</q-btn>
+				</q-item-section>
+			</q-item>
+
+			<q-separator></q-separator>
+		</div>
+
+	</q-list>
+</div>
+
+@section Commands
+{
+	<q-space></q-space>
+	<q-btn flat round icon="add" @@click="startNewDestination()">
+		<q-tooltip>@Localizer["Add"]</q-tooltip>
+	</q-btn>
+}
+
+@section Scripts
+	{
+	<script src="~/js/events.js"></script>
+	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}});
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]));
+		app.mount('#q-app')
+	</script>
+}

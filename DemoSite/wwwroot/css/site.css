@@ -3,6 +3,34 @@ body {
 	overflow-x: hidden;
 }
 
+nav .top-site-header {
+	height: 100px;
+}
+
+header #logo {
+	display: block;
+	overflow: auto;
+	text-indent: 72px;
+	height: 64px;
+	background-image: url('/images/demo-logo-small.webp');
+	background-repeat: no-repeat;
+	background-position: left bottom;
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 400;
+}
+
+	header #logo .logo-title {
+		margin-top: 4px;
+		color: dimgray;
+		font-size: 20px;
+	}
+
+	header #logo .logo-slogan {
+		color: darkgray;
+		font-size: 16px;
+	}
+
+
 .error_page_body {
 	margin-top: 60px;
 }

@@ -25,15 +25,16 @@
 
 	string extraPictClass = Model.Attributes?.GetValueOrDefault("bootstrap:picture:class");
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
+	string imgClass = string.IsNullOrEmpty(extraFragmentClass) && string.IsNullOrEmpty(floating) && Model.Parent != 0 ? "w-100" : null;
 }
 
 <picture class="@extraPictClass">
-@if (sources != null)
-{
-	foreach (var s in sources)
+	@if (sources != null)
 	{
-	<source media="@s.media" srcset="@s.srcset" type="@s.type"/>
+		foreach (var s in sources)
+		{
+			<source media="@s.media" srcset="@s.srcset" type="@s.type" />
+		}
 	}
-}
-	<img id="@id" class="picture-fragment @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
+	<img id="@id" class="picture-fragment @imgClass @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
 </picture>

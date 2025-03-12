@@ -6,7 +6,7 @@ namespace AleProjects.Cms.Web.Pages
 {
 
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-	public class WebhooksModel : PageModel
+	public class EventsModel : PageModel
 	{
 		public IActionResult OnGet()
 		{

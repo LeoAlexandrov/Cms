@@ -15,12 +15,13 @@ using AleProjects.Base64;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Media;
+using AleProjects.Cms.Infrastructure.Notification;
 
 
 namespace AleProjects.Cms.Application.Services
 {
 
-	public class MediaManagementService(IMediaStorage mediaStorage, IAuthorizationService authService, IConfiguration configuration)
+	public class MediaManagementService(IMediaStorage mediaStorage, IAuthorizationService authService, IConfiguration configuration, IEventNotifier notifier)
 	{
 		const int DEFAULT_MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
 		const string DEFAULT_SAFENAME_REGEX = ".+";
@@ -28,6 +29,7 @@ namespace AleProjects.Cms.Application.Services
 		private readonly IMediaStorage _mediaStorage = mediaStorage;
 		private readonly IAuthorizationService _authService = authService;
 		private readonly IConfiguration _configuration = configuration;
+		private readonly IEventNotifier _notifier = notifier;
 
 
 		public int MaxUploadSize
@@ -153,6 +155,8 @@ namespace AleProjects.Cms.Application.Services
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Failed to save file");
 
+			await _notifier.Notify("on_media_create", [entry.FullName]);
+
 			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 
@@ -169,10 +173,10 @@ namespace AleProjects.Cms.Application.Services
 				else
 					return Result<string[]>.BadParameters(links[i], "Invalid base64 format");
 
-			var deleted = await _mediaStorage.Delete(entries);
+			var list = await _mediaStorage.Delete(entries);
+			var deleted = list.Select(Base64Url.Encode).ToArray();
 
-			for (int i = 0; i < deleted.Length; i++)
-				deleted[i] = Base64Url.Encode(deleted[i]);
+			await _notifier.Notify("on_media_delete", list);
 
 			return Result<string[]>.Success(deleted);
 		}

@@ -5,39 +5,34 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 
 using HCms.ContentRepo;
+using HCms.Dto;
 using HCms.ViewModels;
 
 
 namespace DemoSite.Services
 {
 
-	public class CmsContentService(IContentRepo repo, IAuthorizationService authorizationService)
+	public class CmsContentService(IContentRepo repo, IMemoryCache cache, IAuthorizationService authorizationService)
 	{
-		const string EVENT_CREATE = "on_doc_create";
-		const string EVENT_CHANGE = "on_doc_change";
-		const string EVENT_UPDATE = "on_doc_update";
-		const string EVENT_DELETE = "on_doc_delete";
-		const string EVENT_XMLSCHEMA = "on_xmlschema_change";
-		const string EVENT_ENABLED = "on_webhook_enable";
-		const string EVENT_DISABLE = "on_webhook_disable";
+		public const string EVENT_DOC_CREATE = "on_doc_create";
+		public const string EVENT_DOC_CHANGE = "on_doc_change";
+		public const string EVENT_DOC_UPDATE = "on_doc_update";
+		public const string EVENT_DOC_DELETE = "on_doc_delete";
+		public const string EVENT_MEDIA_CREATE = "on_media_create";
+		public const string EVENT_MEDIA_DELETE = "on_media_delete";
+		public const string EVENT_XMLSCHEMA = "on_xmlschema_change";
+		public const string EVENT_ENABLE = "on_destination_enable";
+		public const string EVENT_DISABLE = "on_destination_disable";
 
 		const string DEFAULT_ROOT = "home";
 
 		readonly IContentRepo _repo = repo;
+		readonly IMemoryCache _cache = cache;
 		readonly IAuthorizationService _authorizationService = authorizationService;
 
 		public Document RequestedDocument { get; set; }
 		public IContentRepo Repo { get => _repo; }
 
-		public static string WebhookSecret { get; set; }
-
-
-		public class Notification
-		{
-			public string Event { get; set; }
-			public int AffectedDocument { get; set; }
-			public string Secret { get; set; }
-		}
 
 		public enum AuthResult
 		{
@@ -103,7 +98,6 @@ namespace DemoSite.Services
 			return result ? AuthResult.Success : AuthResult.Forbidden;
 		}
 
-
 		public async Task<Document> GetDocument(string host, string path)
 		{
 			var (cmsRoot, cmsPath) = _repo.PathTransformer.Back(host, path);
@@ -114,25 +108,32 @@ namespace DemoSite.Services
 			return doc;
 		}
 
-		public static async Task UpdateCache(Notification model, IMemoryCache cache, IContentRepo repo)
+		public void UpdateCache(EventPayload model)
 		{
-			if (model.Secret != WebhookSecret)
-				return;
-
-			string cacheKey = null;
-
 			switch (model.Event)
 			{
 				case EVENT_XMLSCHEMA:
 
-					repo.ReloadSchemata();
+					_repo.ReloadSchemata();
 					Console.WriteLine("*** Schema reloaded ***");
 					break;
 
-				case EVENT_UPDATE:
+				case EVENT_DOC_UPDATE:
 
-					var (root, path) = await repo.IdToPath(model.AffectedDocument);
-					cacheKey = repo.PathTransformer.Forward(path, false, root);
+					string cacheKey;
+
+					if (model.AffectedContent != null)
+					{
+						foreach (var con in model.AffectedContent)
+						{
+							cacheKey = _repo.PathTransformer.Forward(con.Root, con.Path, false);
+							_cache.Remove(cacheKey);
+							Console.WriteLine($"*** Cache record '{cacheKey}' removed ***");
+						}
+
+						return;
+					}
+
 					break;
 
 				default:
@@ -140,18 +141,13 @@ namespace DemoSite.Services
 			}
 
 
-			if (!string.IsNullOrEmpty(cacheKey))
-			{
-				cache.Remove(cacheKey);
-				Console.WriteLine("*** Entry '{0}' is removed ***", cacheKey);
-			}
-			else if (cache is MemoryCache memoryCache)
+			if (_cache is MemoryCache memoryCache)
 			{
 				memoryCache.Clear();
 				Console.WriteLine("*** Entire cache cleared ***");
 			}
-
 		}
+
 	}
 
 }

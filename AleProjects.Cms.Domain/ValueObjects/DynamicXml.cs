@@ -79,7 +79,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
 			string bName = binder.Name;
-			string name = string.IsNullOrEmpty(_ns) ? bName : string.Format("{{{0}}}{1}", _ns, bName);
+			string name = string.IsNullOrEmpty(_ns) ? bName : $"{{{_ns}}}{bName}";
 
 			var attr = _root.Attribute(name);
 
@@ -95,7 +95,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			if (n == 0 && bName.Contains('_'))
 			{
 				bName = bName.Replace('_', '-');
-				name = string.IsNullOrEmpty(_ns) ? bName : string.Format("{{{0}}}{1}", _ns, bName);
+				name = string.IsNullOrEmpty(_ns) ? bName : $"{{{_ns}}}{bName}";
 				nodes = _root.Elements(name);
 				n = nodes.Count();
 			}

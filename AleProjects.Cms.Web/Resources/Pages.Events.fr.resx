@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Add" xml:space="preserve">
-    <value>Ajouter un webhook</value>
+    <value>Ajouter une destination d'événement</value>
   </data>
-  <data name="DeleteWebhook" xml:space="preserve">
-    <value>Supprimer l'webhook</value>
+  <data name="DeleteDestination" xml:space="preserve">
+    <value>Supprimer la destination de l'événement</value>
   </data>
-  <data name="DeleteWebhookText" xml:space="preserve">
-    <value>Êtes-vous sûr de vouloir supprimer cet webhook ?</value>
+  <data name="DeleteDestinationText" xml:space="preserve">
+    <value>Êtes-vous sûr de vouloir supprimer cette destination d'événement ?</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Description</value>
@@ -132,37 +132,64 @@
   <data name="EnabledLabel" xml:space="preserve">
     <value>Activé</value>
   </data>
-  <data name="WebhookAlreadyExists" xml:space="preserve">
-    <value>Un utilisateur avec cet identifiant existe déjà</value>
-  </data>
-  <data name="ModifiedAt" xml:space="preserve">
-    <value>Modifié à</value>
-  </data>
   <data name="Name" xml:space="preserve">
     <value>Nom</value>
   </data>
   <data name="NewWebhook" xml:space="preserve">
-    <value>Nouvel webhook</value>
+    <value>Nouvelle destination événementielle</value>
   </data>
   <data name="ResetSecret" xml:space="preserve">
     <value>Réinitialiser l'secrète</value>
   </data>
-  <data name="Webhooks" xml:space="preserve">
-    <value>Webhooks</value>
+  <data name="Destinations" xml:space="preserve">
+    <value>Destinations événementielles</value>
   </data>
   <data name="Endpoint" xml:space="preserve">
     <value>Endpoint</value>
   </data>
-  <data name="RootDocument" xml:space="preserve">
-    <value>Document racine</value>
-  </data>
-  <data name="Webhook" xml:space="preserve">
-    <value>Webhook</value>
+  <data name="Destination" xml:space="preserve">
+    <value>Destination événementielle</value>
   </data>
   <data name="Secret" xml:space="preserve">
     <value>Secrète</value>
   </data>
   <data name="SectionTitle" xml:space="preserve">
-    <value>Webhooks</value>
+    <value>Destinations événementielles</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Utilisateur</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Canal</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Préfixe du chemin</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Taper</value>
+  </data>
+  <data name="PathAux" xml:space="preserve">
+    <value>Préfixe du chemin auxiliaire</value>
+  </data>
+  <data name="Exchange" xml:space="preserve">
+    <value>Exchange</value>
+  </data>
+  <data name="ExchangeType" xml:space="preserve">
+    <value>Exchange type</value>
+  </data>
+  <data name="HostName" xml:space="preserve">
+    <value>Nom d'hôte</value>
+  </data>
+  <data name="RoutingKey" xml:space="preserve">
+    <value>Routing key</value>
+  </data>
+  <data name="PathLabel" xml:space="preserve">
+    <value>Préfixes de chemin de document ou de média qui activent cette destination d'événement en cas de correspondance.</value>
+  </data>
+  <data name="NoDestinations" xml:space="preserve">
+    <value>Aucune destination</value>
   </data>
 </root>

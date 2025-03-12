@@ -118,13 +118,13 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Add" xml:space="preserve">
-    <value>Add webhook</value>
+    <value>Add event destination</value>
   </data>
-  <data name="DeleteWebhook" xml:space="preserve">
-    <value>Delete webhook</value>
+  <data name="DeleteDestination" xml:space="preserve">
+    <value>Delete event destination</value>
   </data>
-  <data name="DeleteWebhookText" xml:space="preserve">
-    <value>Are you sure you want to delete this webhook?</value>
+  <data name="DeleteDestinationText" xml:space="preserve">
+    <value>Are you sure you want to delete this event destination?</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Description</value>
@@ -132,37 +132,64 @@
   <data name="EnabledLabel" xml:space="preserve">
     <value>Enabled</value>
   </data>
-  <data name="WebhookAlreadyExists" xml:space="preserve">
-    <value>User with this login already exists</value>
-  </data>
-  <data name="ModifiedAt" xml:space="preserve">
-    <value>Modified at</value>
-  </data>
   <data name="Name" xml:space="preserve">
     <value>Name</value>
   </data>
   <data name="NewWebhook" xml:space="preserve">
-    <value>New webhook</value>
+    <value>New event destination</value>
   </data>
   <data name="ResetSecret" xml:space="preserve">
     <value>Reset secret</value>
   </data>
-  <data name="Webhooks" xml:space="preserve">
-    <value>Webhooks</value>
+  <data name="Destinations" xml:space="preserve">
+    <value>Event destinations</value>
   </data>
   <data name="Endpoint" xml:space="preserve">
     <value>Endpoint</value>
   </data>
-  <data name="RootDocument" xml:space="preserve">
-    <value>Root document</value>
-  </data>
-  <data name="Webhook" xml:space="preserve">
-    <value>Webhook</value>
+  <data name="Destination" xml:space="preserve">
+    <value>Event destination</value>
   </data>
   <data name="Secret" xml:space="preserve">
     <value>Secret</value>
   </data>
   <data name="SectionTitle" xml:space="preserve">
-    <value>Webhooks</value>
+    <value>Events</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="Path" xml:space="preserve">
+    <value>Path prefix</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="PathAux" xml:space="preserve">
+    <value>Aux path prefix</value>
+  </data>
+  <data name="Exchange" xml:space="preserve">
+    <value>Exchange</value>
+  </data>
+  <data name="ExchangeType" xml:space="preserve">
+    <value>Exchange type</value>
+  </data>
+  <data name="HostName" xml:space="preserve">
+    <value>Host name</value>
+  </data>
+  <data name="RoutingKey" xml:space="preserve">
+    <value>Routing key</value>
+  </data>
+  <data name="PathLabel" xml:space="preserve">
+    <value>Document or media path prefixes that enable this event destination when match.</value>
+  </data>
+  <data name="NoDestinations" xml:space="preserve">
+    <value>No destinations</value>
   </data>
 </root>

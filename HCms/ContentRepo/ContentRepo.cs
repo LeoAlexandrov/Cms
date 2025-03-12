@@ -88,8 +88,8 @@ namespace HCms.ContentRepo
 		{
 			public string Pattern { get; set; } = pattern;
 			public string Replacement { get; set; } = string.IsNullOrEmpty(mediaLink) ?
-					pathTransformer.Forward(docPath, false, root) :
-					pathTransformer.Forward(mediaLink, true, root);
+					pathTransformer.Forward(root, docPath, false) :
+					pathTransformer.Forward(root, mediaLink, true);
 		}
 
 

@@ -18,7 +18,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 		public DbSet<Fragment> Fragments { get; set; }
 		public DbSet<FragmentAttribute> FragmentAttributes { get; set; }
 		public DbSet<Schema> Schemata { get; set; }
-		public DbSet<Webhook> Webhooks { get; set; }
+		public DbSet<EventDestination> EventDestinations { get; set; }
 		public DbSet<User> Users { get; set; }
 
 

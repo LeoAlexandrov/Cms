@@ -54,7 +54,8 @@ namespace AleProjects.Cms.Web.Api
 				//new() { Id = "templates", Label = _sharedLocalizer.GetString("Nav_Templates"), Url = "/templates", Icon = "dynamic_form" },
 				new() { Id = "schemata", Label = _sharedLocalizer.GetString("Nav_Schemata"), Url = "/schemata", Icon = "code" },
 				new() { Id = "users", Label = _sharedLocalizer.GetString("Nav_Users"), Url = "/users", Icon = "people" },
-				new() { Id = "webhooks", Label = _sharedLocalizer.GetString("Nav_Webhooks"), Url = "/webhooks", Icon = "webhook" },
+				new() { Id = "events", Label = _sharedLocalizer.GetString("Nav_Events"), Url = "/events", Icon = "bolt" },
+				//new() { Id = "webhooks", Label = _sharedLocalizer.GetString("Nav_Webhooks"), Url = "/webhooks", Icon = "webhook" },
 				//new() { Id = "settings", Label = _sharedLocalizer.GetString("Nav_Settings"), Url = "/settings", Icon = "settings" }
 			];
 

@@ -19,9 +19,9 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class WebhooksController(WebhooksManagementService wms) : ControllerBase
+	public class EventDestinationsController(EventDestinationsManagementService eds) : ControllerBase
 	{
-		private readonly WebhooksManagementService _wms = wms;
+		private readonly EventDestinationsManagementService _eds = eds;
 
 		[HttpGet("{id:int?}")]
 		[Authorize]
@@ -29,12 +29,12 @@ namespace AleProjects.Cms.Web.Api
 		{
 			if (!id.HasValue)
 			{
-				var list = await _wms.GetList();
+				var list = await _eds.GetList();
 
 				return Ok(list);
 			}
 
-			var result = await _wms.GetById(id.Value, this.HttpContext.User);
+			var result = await _eds.GetById(id.Value, this.HttpContext.User);
 
 			if (result == null)
 				return NotFound();
@@ -45,9 +45,9 @@ namespace AleProjects.Cms.Web.Api
 		[HttpPost]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateWebhook dto)
+		public async Task<IActionResult> Post([Required] DtoCreateEventDestination dto)
 		{
-			var result = await _wms.CreateWebhook(dto, this.HttpContext.User);
+			var result = await _eds.CreateDestination(dto, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -61,9 +61,9 @@ namespace AleProjects.Cms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateWebhook dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateEventDestination dto)
 		{
-			var result = await _wms.UpdateWebhook(id, dto, this.HttpContext.User);
+			var result = await _eds.UpdateDestination(id, dto, this.HttpContext.User);
 
 			return result.Type switch
 			{
@@ -79,7 +79,7 @@ namespace AleProjects.Cms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Delete(int id)
 		{
-			var result = await _wms.DeleteWebhook(id, this.HttpContext.User);
+			var result = await _eds.DeleteDestination(id, this.HttpContext.User);
 
 			return result.Type switch
 			{
