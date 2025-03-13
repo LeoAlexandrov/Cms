@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using RabbitMQ.Client;
 
 using AleProjects.Cms.Domain.ValueObjects;
+using AleProjects.Endpoints;
+using System.Net;
 
 
 namespace AleProjects.Cms.Infrastructure.Notification
@@ -14,7 +16,35 @@ namespace AleProjects.Cms.Infrastructure.Notification
 	{
 		public static async Task Publish(RabbitMQDestination destination, EventPayload payload)
 		{
-			var factory = new ConnectionFactory() { HostName = destination.HostName };
+			string host;
+			int port;
+
+			if (EndPoints.TryParse(destination.HostName, out EndPoint endpoint))
+			{
+				if (endpoint is IPEndPoint ipEndPoint)
+				{
+					host = ipEndPoint.Address.ToString();
+					port = ipEndPoint.Port;
+				}
+				else if (endpoint is DnsEndPoint dnsEndPoint)
+				{
+					host = dnsEndPoint.Host;
+					port = dnsEndPoint.Port;
+				}
+				else
+				{
+					host = destination.HostName;
+					port = AmqpTcpEndpoint.UseDefaultPort;
+				}
+			}
+			else
+			{
+				host = destination.HostName;
+				port = AmqpTcpEndpoint.UseDefaultPort;
+			}
+
+
+			var factory = new ConnectionFactory() { HostName = host, Port = port };
 
 			if (!string.IsNullOrEmpty(destination.User))
 			{

@@ -12,6 +12,7 @@ using RabbitMQ.Client.Events;
 
 using AleProjects.Endpoints;
 using HCms.Dto;
+using System.Net;
 
 
 namespace DemoSite.Services
@@ -26,7 +27,9 @@ namespace DemoSite.Services
 		readonly string redisPassword = configuration["Redis:Password"];
 		readonly RedisChannel redisChannel = RedisChannel.Literal(configuration["Redis:Channel"]);
 		
-		readonly string rabbitHostName = configuration["Rabbit:HostName"];
+		readonly string rabbitHost = configuration["Rabbit:Host"];
+		readonly string rabbitUser = configuration["Rabbit:User"];
+		readonly string rabbitPassword = configuration["Rabbit:Password"];
 		readonly string rabbitExchange = configuration["Rabbit:Exchange"];
 		readonly string rabbitExchangeType = configuration["Rabbit:ExchangeType"];
 		readonly string rabbitRoutingKey = configuration["Rabbit:RoutingKey"];
@@ -62,7 +65,43 @@ namespace DemoSite.Services
 
 		async Task SubscribeRabbit()
 		{
-			var factory = new ConnectionFactory { HostName = rabbitHostName };
+			string host;
+			int port;
+
+			if (EndPoints.TryParse(rabbitHost, out EndPoint endpoint))
+			{
+				if (endpoint is IPEndPoint ipEndPoint)
+				{
+					host = ipEndPoint.Address.ToString();
+					port = ipEndPoint.Port;
+				}
+				else if (endpoint is DnsEndPoint dnsEndPoint)
+				{
+					host = dnsEndPoint.Host;
+					port = dnsEndPoint.Port;
+				}
+				else
+				{
+					host = rabbitHost;
+					port = AmqpTcpEndpoint.UseDefaultPort;
+				}
+			}
+			else
+			{
+				host = rabbitHost;
+				port = AmqpTcpEndpoint.UseDefaultPort;
+			}
+
+
+			var factory = new ConnectionFactory { HostName = host, Port = port };
+
+			if (!string.IsNullOrEmpty(rabbitUser))
+			{
+				factory.UserName = rabbitUser;
+
+				if (!string.IsNullOrEmpty(rabbitPassword))
+					factory.Password = rabbitPassword;
+			}
 
 			rabbitConnection = await factory.CreateConnectionAsync();
 			rabbitChannel = await rabbitConnection.CreateChannelAsync();
@@ -87,7 +126,7 @@ namespace DemoSite.Services
 			if (!string.IsNullOrEmpty(redisEndpoints))
 				SubscribeRedis();
 			
-			if (!string.IsNullOrEmpty(rabbitHostName))
+			if (!string.IsNullOrEmpty(rabbitHost))
 				await SubscribeRabbit();
 
 			return;
