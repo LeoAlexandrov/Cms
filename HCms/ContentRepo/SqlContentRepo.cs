@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Infrastructure.Data;
+using AleProjects.Hashing.MurmurHash3;
 
 using HCms.Routing;
 using HCms.ViewModels;
@@ -63,6 +65,7 @@ namespace HCms.ContentRepo
 				}
 		}
 
+
 		#endregion
 
 
@@ -107,70 +110,52 @@ namespace HCms.ContentRepo
 			}
 			else
 			{
-				string[] slugs = path.ToLower().Split('/', StringSplitOptions.RemoveEmptyEntries);
+				if (path.Contains("//") || path[0] != '/')
+					throw new ArgumentException("Invalid format.", nameof(path));
+
+				string pathNoSlash = path[^1] == '/' ? path[..^1] : path;
+				int k = pathNoSlash.Length;
+				int n = pathNoSlash.Count(c => c == '/');
+
+				long[] hashes = new long[n];
+				string[] pathes = new string[n];
+
+				for (int i = 0; i < n; i++)
+				{
+					pathes[i] = pathNoSlash[..k];
+					hashes[i] = MurmurHash3.Hash32(pathes[i]);
+					k = pathNoSlash.LastIndexOf('/', k - 1);
+				}
 
 				var docs = await dbContext.Documents
 					.AsNoTracking()
 					.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
-					.Where(dn => dn.n.Parent == rootId && slugs.Contains(dn.d.Slug) && dn.d.Published)
+					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && dn.d.Published)
 					.Select(dn => dn.d)
-					.OrderBy(d => d.Id)
-					.ToArrayAsync();
+					.ToListAsync();
 
-				string pathNoSlash = path[^1] == '/' ? path[..^1] : path;
-
-				int k = pathNoSlash.Length;
-				bool exact = true;
-
-				do
-				{
-					doc = docs.FirstOrDefault(d => string.Compare(d.Path, pathNoSlash[..k], StringComparison.InvariantCultureIgnoreCase) == 0);
-
-					if (doc != null)
-						break;
-
-					if (exactPathMatch)
-						return null;
-
-					exact = false;
-					k = pathNoSlash.LastIndexOf('/', k - 1);
-				}
-				while (k > 0);
-
-				if (k <= 0)
-				{
-					doc = rootDoc;
-					slugs = [];
-				}
-				else if (!exact)
-				{
-					slugs = pathNoSlash[..k].ToLower().Split('/', StringSplitOptions.RemoveEmptyEntries);
-				}
-
-
-				Document parent = slugs.Length < 2 ? new Document(rootDoc) : null;
-				int[] ids = docs.Select(d => d.Id).ToArray();
-				int id = doc.Parent;
-
-				breadcrumbs = new BreadcrumbsItem[slugs.Length + 1];
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = rootId };
 				
-				if (slugs.Length > 0)
-					breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, doc.Path, false), Title = doc.Title, Document = doc.Id };
+				docs.RemoveAll(d => !pathes.Contains(d.Path)); // if hash collisions
+
+				docs.Sort((d1, d2) => string.Compare(d1.Path, d2.Path, StringComparison.InvariantCultureIgnoreCase));
+				doc = docs.Count != 0 ? docs[^1] : rootDoc;
+
+				bool exact = docs.Count == n;
+
+				n = docs.Count;
 
 
-				for (int i = 1; i < slugs.Length; i++)
+				breadcrumbs = new BreadcrumbsItem[n + 1];
+				breadcrumbs[0] = new() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = rootId };
+
+				for (int i = 0; i < n; i++)
 				{
-					int j = Array.BinarySearch(ids, id);
-
-					id = docs[j].Parent;
-					breadcrumbs[^(i + 1)] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, docs[j].Path, false), Title = docs[j].Title, Document = docs[j].Id };
-
-					if (i == 1)
-						parent = new Document(docs[j]);
+					breadcrumbs[i + 1] = new() { Path = pathTransformer.Forward(rootKey, docs[i].Path, false), Title = docs[i].Title, Document = docs[i].Id };
 				}
 
-				allDocsIds = [doc.Id, parent.Id];
+				Document parent = new(n > 1 ? docs[^2] : rootDoc);
+
+				allDocsIds = [.. breadcrumbs.Select(b => b.Document)];
 
 				result = new(doc)
 				{
@@ -181,20 +166,16 @@ namespace HCms.ContentRepo
 				};
 
 				if (siblings)
-				{
 					result.Siblings = await Children(doc.Parent, -1);
-					allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
-				}
 				else
 					result.Siblings = [];
 			}
 
 
-			var pathDocs = breadcrumbs.Select(b => b.Document).ToArray();
-			
+		
 			var attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
-				.Where(a => pathDocs.Contains(a.DocumentRef) && a.Enabled)
+				.Where(a => allDocsIds.Contains(a.DocumentRef) && a.Enabled)
 				.OrderBy(a => a.DocumentRef)
 				.ToArrayAsync();
 
@@ -202,8 +183,7 @@ namespace HCms.ContentRepo
 
 			int aIdx;
 
-			foreach (int docId in pathDocs)
-			{
+			foreach (int docId in allDocsIds)
 				if ((aIdx = Array.FindIndex(attrs, a => a.DocumentRef == docId)) >= 0)
 				{
 					while (aIdx < attrs.Length)
@@ -214,7 +194,6 @@ namespace HCms.ContentRepo
 						aIdx++;
 					}
 				}
-			}
 
 			if (childrenFromPos >= 0)
 			{
@@ -224,7 +203,11 @@ namespace HCms.ContentRepo
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
+			{
 				result.Children = [];
+			}
+
+			allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
 
 
 			var refsList = await dbContext.References
@@ -241,6 +224,7 @@ namespace HCms.ContentRepo
 
 			foreach (var r in refsList)
 				refs.TryAdd(r.Pattern, r.Replacement);
+
 
 			result.Summary = ReplaceRefs(result.Summary, refs);
 			result.CoverPicture = ReplaceRefs(result.CoverPicture, refs);
@@ -265,6 +249,10 @@ namespace HCms.ContentRepo
 			foreach (var link in links)
 				link.Fragment.Data = ReplaceRefs(link.Fragment.Data, refs);
 
+			foreach (var key in result.Attributes.Keys)
+				result.Attributes[key] = ReplaceRefs(result.Attributes[key], refs);
+
+
 			foreach (var s in result.Siblings)
 			{
 				s.Summary = ReplaceRefs(s.Summary, refs);
@@ -277,6 +265,7 @@ namespace HCms.ContentRepo
 				c.CoverPicture = ReplaceRefs(c.CoverPicture, refs);
 			}
 
+
 			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -284,6 +273,9 @@ namespace HCms.ContentRepo
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
+
+			foreach (var f in fAttrs)
+				f.Value = ReplaceRefs(f.Value, refs);
 
 			result.Fragments = CreateFragmentsTree(links, result, fAttrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 
@@ -314,6 +306,7 @@ namespace HCms.ContentRepo
 
 				result = new(doc)
 				{
+					Root = new(doc),
 					Breadcrumbs = breadcrumbs,
 					Siblings = []
 				};
@@ -326,15 +319,17 @@ namespace HCms.ContentRepo
 					.Where(dn => dn.n.DocumentRef == id)
 					.Select(dn => dn.d)
 					.OrderBy(d => d.Id)
-					.ToArrayAsync();
+					.ToListAsync();
 
-				rootKey= docs[0].Slug;
-				breadcrumbs = new BreadcrumbsItem[docs.Length + 1];
+				docs.Sort((d1, d2) => string.Compare(d1.Path, d2.Path, StringComparison.InvariantCultureIgnoreCase));
 
+				rootKey = docs[0].Slug;
+
+				breadcrumbs = new BreadcrumbsItem[docs.Count + 1];
 				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, "/", false), Title = string.Empty, Document = docs[0].Id };
 				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, doc.Path, false), Title = doc.Title, Document = id };
 
-				for (int i = 1; i < docs.Length; i++)
+				for (int i = 1; i < docs.Count; i++)
 					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathTransformer.Forward(rootKey, docs[i].Path, false), Title = docs[i].Title, Document = docs[i].Id };
 
 				result = new(doc)
@@ -349,18 +344,16 @@ namespace HCms.ContentRepo
 				if (siblings)
 				{
 					result.Siblings = await Children(doc.Parent, -1);
-					allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
+					//allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
 				}
 				else
 					result.Siblings = [];
 			}
 
 
-			var pathDocs = breadcrumbs.Select(b => b.Document).ToArray();
-
 			var attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
-				.Where(a => pathDocs.Contains(a.DocumentRef) && a.Enabled)
+				.Where(a => allDocsIds.Contains(a.DocumentRef) && a.Enabled)
 				.OrderBy(a => a.DocumentRef)
 				.ToArrayAsync();
 
@@ -368,8 +361,7 @@ namespace HCms.ContentRepo
 
 			int aIdx;
 
-			foreach (int docId in pathDocs)
-			{
+			foreach (int docId in allDocsIds)
 				if ((aIdx = Array.FindIndex(attrs, a => a.DocumentRef == docId)) >= 0)
 				{
 					while (aIdx < attrs.Length)
@@ -380,8 +372,7 @@ namespace HCms.ContentRepo
 						aIdx++;
 					}
 				}
-			}
-
+			
 
 			if (childrenFromPos >= 0)
 			{
@@ -391,7 +382,12 @@ namespace HCms.ContentRepo
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
+			{
 				result.Children = [];
+			}
+
+			allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
+
 
 			var refsList = await dbContext.References
 				.AsNoTracking()
@@ -407,6 +403,7 @@ namespace HCms.ContentRepo
 
 			foreach (var r in refsList)
 				refs.TryAdd(r.Pattern, r.Replacement);
+
 
 			result.Summary = ReplaceRefs(result.Summary, refs);
 			result.CoverPicture = ReplaceRefs(result.CoverPicture, refs);
@@ -431,6 +428,9 @@ namespace HCms.ContentRepo
 			foreach (var link in links)
 				link.Fragment.Data = ReplaceRefs(link.Fragment.Data, refs);
 
+			foreach (var key in result.Attributes.Keys)
+				result.Attributes[key] = ReplaceRefs(result.Attributes[key], refs);
+
 			foreach (var s in result.Siblings)
 			{
 				s.Summary = ReplaceRefs(s.Summary, refs);
@@ -443,6 +443,7 @@ namespace HCms.ContentRepo
 				c.CoverPicture = ReplaceRefs(c.CoverPicture, refs);
 			}
 
+
 			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -450,6 +451,9 @@ namespace HCms.ContentRepo
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
+
+			foreach (var f in fAttrs)
+				f.Value = ReplaceRefs(f.Value, refs);
 
 			result.Fragments = CreateFragmentsTree(links, result, fAttrs.ToLookup(a => a.FragmentRef, a => a), fsr.Fragments);
 

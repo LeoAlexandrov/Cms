@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Base64Url.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EndPoints.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MurmurHash3.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RandomString.cs" />
   </ItemGroup>
 </Project>

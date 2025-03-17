@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using HCms.ViewModels;
 using DemoSite.Services;
-
+using DemoSite.ViewModels;
 
 
 namespace DemoSite.Pages
@@ -16,6 +16,9 @@ namespace DemoSite.Pages
 		private readonly CmsContentService _content = content;
 
 		public Document Document { get; set; }
+		public MainMenu MainMenu { get; set; }
+		public NavigationMenu NavigationMenu { get; set; }
+		public Footer Footer { get; set; }
 
 		public string ChooseLayout()
 		{
@@ -25,6 +28,15 @@ namespace DemoSite.Pages
 
 			return layout;
 		}
+
+		void InitializeFooter()
+		{
+			if (this.Document.Attributes.TryGetValue("footer", out string footer))
+				this.Footer = System.Text.Json.JsonSerializer.Deserialize<Footer>(footer);
+			else
+				this.Footer = new Footer() { Links = [] };
+		}
+
 
 		public async Task<IActionResult> OnGet()
 		{
@@ -48,6 +60,8 @@ namespace DemoSite.Pages
 				this.MainMenu = new MainMenu() { Languages = [], Commands = [] };
 			*/
 
+			InitializeFooter();
+
 			string lang = this.Document.Language;
 
 			if (string.IsNullOrEmpty(lang))
@@ -56,6 +70,7 @@ namespace DemoSite.Pages
 			ViewData["HomePage"] = this.Document.Breadcrumbs[0].Path;
 			ViewData["Language"] = lang;
 			ViewData["Title"] = this.Document.Title;
+			ViewData["Theme"] = this.Request.Cookies["Theme"] ?? "light";
 
 			return Page();
 		}

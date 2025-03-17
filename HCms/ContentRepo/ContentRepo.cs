@@ -98,6 +98,36 @@ namespace HCms.ContentRepo
 		/// </summary>
 		public IPathTransformer PathTransformer { get => pathTransformer; }
 
+		/// <summary>
+		/// Prepares path that comes in http request for further use. Removes double slashes, converts to lower case, adds slash to the beginning.
+		/// </summary>
+		/// <param name="path">Path from http request.</param>
+		/// <returns>Updated path.</returns>
+		public static string CleanPath(string path)
+		{
+			if (string.IsNullOrEmpty(path) || path.All(c => c == '/'))
+				return "/";
+
+			var result = new StringBuilder(path.Length + 1);
+			char prevChar = '\0';
+
+			if (path[0] != '/')
+				result.Append('/');
+
+			foreach (var c in path)
+			{
+				if (c != '/' || prevChar != '/')
+					result.Append(char.ToLower(c));
+
+				prevChar = c;
+			}
+
+			if (result[^1] == '/')
+				result.Length--;
+
+			return result.ToString();
+		}
+
 
 		#region internal-functions
 

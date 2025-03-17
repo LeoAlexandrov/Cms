@@ -70,6 +70,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 		public async Task Notify(string eventType, string root, string path, int id)
 		{
 			var all = await _dbContext.EventDestinations
+				.AsNoTracking()
 				.Where(d => d.Enabled)
 				.ToArrayAsync();
 
@@ -98,6 +99,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 		public async Task Notify(string eventType, string[] fullPaths)
 		{
 			var all = await _dbContext.EventDestinations
+				.AsNoTracking()
 				.Where(d => d.Enabled)
 				.ToArrayAsync();
 
@@ -125,8 +127,8 @@ namespace AleProjects.Cms.Infrastructure.Notification
 		public async Task Notify(string eventType, int destinationId = 0)
 		{
 			var dests = destinationId != 0 ?
-				await _dbContext.EventDestinations.Where(d => d.Id == destinationId).ToArrayAsync() :
-				await _dbContext.EventDestinations.Where(d => d.Enabled).ToArrayAsync();
+				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Id == destinationId).ToArrayAsync() :
+				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Enabled).ToArrayAsync();
 
 			var httpClient = dests.Any(d => d.Type == "webhook") ? _httpClientFactory.CreateClient() : null;
 

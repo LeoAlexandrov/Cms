@@ -8,7 +8,7 @@
 
 @if (Model.Document.Anchors != null)
 {
-	@Html.Raw("<div data-mdb-scrollspy-init data-mdb-target=\"#scrollspy\" data-mdb-offset=\"0\" class=\"scrollspy-example\">")
+	@Html.Raw("<div data-mdb-scrollspy-init data-mdb-target=\"#scrollspy\" data-mdb-offset=\"0\">")
 }
 
 @foreach (var f in Model.Document.Fragments)
@@ -21,13 +21,20 @@
 	@Html.Raw("</div>")
 }
 
+@section Footer
+{
+	@{
+		await Html.RenderPartialAsync("_Footer", Model.Footer);
+	}
+}
+
 @section ScrollSpy
 {
 	@if (Model.Document.Anchors != null)
 	{
 		int level = -1;
 
-		<div id="scrollspy" class="sticky-top">
+		<div id="scrollspy" class="scrollspy sticky-top border-start">
 			<ul class="nav flex-column nav-pills menu-sidebar">
 
 			@foreach (var item in Model.Document.Anchors)

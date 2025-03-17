@@ -1,0 +1,31 @@
+﻿@model DemoSite.ViewModels.NavigationMenu
+
+<div class="navigation-menu">
+	@if (!string.IsNullOrEmpty(Model.Title))
+	{
+		<h5>@Model.Title</h5>
+	}
+	<div class="list-group list-group-light border mt-4">
+		@foreach (var cmd in Model.Commands)
+		{
+			if (cmd.Active)
+			{
+				<div class="list-group-item list-group-item-action px-3 border-0">@cmd.Label</div>
+
+				@if (cmd.Submenu != null)
+				{
+					<div class="list-group list-group-light ms-3 small">
+					@foreach (var smCmd in cmd.Submenu)
+					{
+						<a href="@smCmd.Link" class="list-group-item list-group-item-action px-3 border-0">@smCmd.Label</a>
+					}
+					</div>
+				}
+			}
+			else
+			{
+				<a href="@cmd.Link" class="list-group-item list-group-item-action px-3 border-0">@cmd.Label</a>
+			}
+		}
+	</div>
+</div>

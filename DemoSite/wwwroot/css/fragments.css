@@ -12,6 +12,11 @@
 	margin-top: 48px;
 }
 
+.html-fragment {
+	display: block;
+	clear: both;
+}
+
 .img-hero-stretched {
 }
 
@@ -48,4 +53,10 @@
 	color: white;
 }
 
+.carousel-indicators button {
+	background-color: white!important;
+}
 
+.carousel-control-prev-icon, .carousel-control-next-icon {
+	filter: none!important;
+}

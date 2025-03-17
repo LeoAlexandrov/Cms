@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@model ViewModels.Footer
+
+@{
+	string icon = (string)(ViewData["Theme"] ?? "light") == "dark" ? "moon" : "sun";
+}
+
+
+<div class="container d-flex">
+	<div>© 2025 - h-cms.net</div>
+	@if (Model.Links != null)
+	{
+		foreach (var link in Model.Links)
+		{
+			<div class="px-md-4">
+				<a href="@link.Link">@link.Label</a>
+			</div>
+
+		}
+	}
+	<div class="ms-auto px-md-4">
+		<a id="theme-switcher" role="button" data-mdb-tooltip-init title="@SharedLocalizer["SwitchTheme"]" onclick="switchTheme()">
+			<i class="fa-solid fa-@icon"></i>
+		</a>
+	</div>
+</div>

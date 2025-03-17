@@ -278,12 +278,12 @@
 
 		getRefs(id) {
 
-			this.editedDoc.references = [];
-			this.editedDoc.referencedBy = [];
-
 			application
 				.apiCallAsync(`/api/v1/documents/${id}/refs`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
+
+					this.editedDoc.references = [];
+					this.editedDoc.referencedBy = [];
 
 					if (r.ok) {
 						this.editedDoc.references = r.result.references;
@@ -1718,6 +1718,8 @@
 							this.editedDoc.attributes.push(r.result);
 						}
 
+						this.getRefs(this.editedDoc.properties.id);
+
 						displayMessage(TEXT.DOCS.get('MESSAGE_CREATE_ATTR_SUCCESS'), false);
 
 					} else {
@@ -1799,6 +1801,7 @@
 								}
 						}
 
+						this.getRefs(this.editedDoc.properties.id);
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_UPDATE_ATTR_SUCCESS'), false);
 
@@ -1856,6 +1859,8 @@
 									break;
 								}
 						}
+
+						this.getRefs(this.editedDoc.properties.id);
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_DELETE_ATTR_SUCCESS'), false);
 

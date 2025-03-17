@@ -13,6 +13,12 @@ namespace AleProjects.Cms.Infrastructure.Notification
 	{
 		public static async Task Send(HttpClient client, WebhookDestination destination, EventPayload payload)
 		{
+			if (client == null)
+			{
+				Console.WriteLine($"HttpClient for webhook destination '{destination.Endpoint}' is null");
+				return;
+			}
+
 			using HttpRequestMessage request = new()
 			{
 				Method = HttpMethod.Post,

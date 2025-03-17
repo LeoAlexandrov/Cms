@@ -42,12 +42,12 @@
 
 	<main role="main" class="pb-3 flex-shrink-0">
 		<div class="container">
-			<div class="row">
+			<div class="row gx-md-5">
+				<div class="col-12 col-lg-3">
+					@await RenderSectionAsync("Navigation", required: false)
+				</div>
 				<div class="col-12 col-lg-9">
 					@RenderBody()
-				</div>
-				<div class="col-3 d-none d-lg-block">
-					@await RenderSectionAsync("ScrollSpy", required: false)
 				</div>
 			</div>
 		</div>
@@ -56,6 +56,10 @@
 	<footer class="border-top footer text-muted mt-auto py-3">
 		@await RenderSectionAsync("Footer", required: false)
 	</footer>
+
+	@{
+		IgnoreSection("ScrollSpy");
+	}
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/8.0.0/mdb.umd.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>

@@ -147,4 +147,7 @@
   <data name="PageNotFoundText" xml:space="preserve">
     <value>It looks like the page you're looking for doesn't exist. It might have been moved or deleted.</value>
   </data>
+  <data name="SwitchTheme" xml:space="preserve">
+    <value>Switch between light and dark theme</value>
+  </data>
 </root>

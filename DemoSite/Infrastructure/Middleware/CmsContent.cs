@@ -40,9 +40,10 @@ namespace DemoSite.Infrastructure.Middleware
 	
 	public class CmsContentMiddleware(RequestDelegate next)
 	{
-		private readonly RequestDelegate _next = next;
+		readonly RequestDelegate _next = next;
 
-		private static void SetCulture(string lang)
+
+		static void SetCulture(string lang)
 		{
 			if (!string.IsNullOrEmpty(lang) && 
 				!lang.StartsWith(Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName))
@@ -53,6 +54,11 @@ namespace DemoSite.Infrastructure.Middleware
 			}
 		}
 
+		static string Theme(HttpContext context)
+		{
+			return context.Request.Cookies["Theme"] ?? "light";
+		}
+
 		public async Task InvokeAsync(HttpContext context, CmsContentService content, IMemoryCache cache, IAuthorizationService authService)
 		{
 			var routeData = context.GetRouteData();
@@ -61,9 +67,11 @@ namespace DemoSite.Infrastructure.Middleware
 				routeData.Values.TryGetValue("page", out object val) &&
 				val.ToString() == "/Index")
 			{
-				string path = context.Request.Path.Value;
+				string path = ContentRepo.CleanPath(context.Request.Path.Value);
+				string theme = Theme(context);
+				string cacheKey = $"{theme}-{path}";
 
-				if (cache.TryGetValue(path, out byte[] body))
+				if (cache.TryGetValue(cacheKey, out byte[] body))
 				{
 					Console.WriteLine($"*** Cache hit '{path}' ***");
 					await context.Response.Body.WriteAsync(body);
@@ -92,9 +100,9 @@ namespace DemoSite.Infrastructure.Middleware
 						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store"))
 					{
 #if !DEBUG
-						cache.Set(path, body);
+						cache.Set(cacheKey, body);
 #endif
-						Console.WriteLine($"*** Cache add '{path}' ***");
+						Console.WriteLine($"*** Cache add '{cacheKey}' ***");
 					}
 
 					await originalBody.WriteAsync(body);

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Ganss.Xss;
 
 using AleProjects.Base64;
+using AleProjects.Hashing.MurmurHash3;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -247,6 +248,7 @@ namespace AleProjects.Cms.Application.Services
 				Slug = slug,
 				RootSlug = rootSlug,
 				Path = path,
+				PathHash = MurmurHash3.Hash32(path),
 				Title = title,
 				Language = language,
 				Icon = icon,
@@ -382,15 +384,20 @@ namespace AleProjects.Cms.Application.Services
 
 					doc.Slug = slug;
 					doc.Path = newPath;
+					doc.PathHash = MurmurHash3.Hash32(newPath);
 
 					for (int i = 0; i < children.Length; i++)
+					{
 						children[i].Path = newPath + children[i].Path[l..];
+						children[i].PathHash = MurmurHash3.Hash32(children[i].Path);
+					}
 				}
 				else
 				{
 					doc.Slug = slug;
 					doc.RootSlug = slug;
 					doc.Path = "";
+					doc.PathHash = MurmurHash3.Hash32("");
 
 					for (int i = 0; i < children.Length; i++)
 						children[i].RootSlug = slug;
@@ -421,9 +428,22 @@ namespace AleProjects.Cms.Application.Services
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
 			ReferencesHelper.GetReferencesChanges(id,
 				existingRefs,
-				ReferencesHelper.Extract([summary, picture, .. xmlData]), 
+				ReferencesHelper.Extract([summary, picture, .. xmlData, .. attrData, .. fAttrData]), 
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -618,6 +638,7 @@ namespace AleProjects.Cms.Application.Services
 			string newRootSlug = newParent != null ? newParent.RootSlug : doc.Slug;
 
 			doc.Path = newPath;
+			doc.PathHash = MurmurHash3.Hash32(newPath);
 			doc.RootSlug = newRootSlug;
 			doc.Parent = parentId;
 			doc.Position = newPosition;
@@ -680,6 +701,7 @@ namespace AleProjects.Cms.Application.Services
 				var child = children[i];
 
 				child.Path = newPath + child.Path[l..];
+				child.PathHash = MurmurHash3.Hash32(child.Path);
 				child.RootSlug = newRootSlug;
 
 				if (diff > 0)
@@ -819,10 +841,13 @@ namespace AleProjects.Cms.Application.Services
 			if (origin.Parent > 0)
 				pathItems[^1] = newSlug;
 
+			string newPath = string.Join('/', pathItems);
+
 			Document doc = new()
 			{
 				Slug = newSlug,
-				Path = string.Join('/', pathItems),
+				Path = newPath,
+				PathHash = MurmurHash3.Hash32(newPath),
 				RootSlug = origin.RootSlug,
 				Title = $"{origin.Title}-copy",
 				Parent = origin.Parent,

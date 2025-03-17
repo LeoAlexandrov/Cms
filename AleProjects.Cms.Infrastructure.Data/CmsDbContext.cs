@@ -38,6 +38,10 @@ namespace AleProjects.Cms.Infrastructure.Data
 				.IsUnique();
 
 			modelBuilder.Entity<Document>()
+				.HasIndex(d => d.PathHash);
+			
+
+			modelBuilder.Entity<Document>()
 				.HasMany(d => d.DocumentPathNodes)
 				.WithOne(n => n.Document)
 				.HasForeignKey(n => n.DocumentRef)

@@ -11,6 +11,8 @@ using Ganss.Xss;
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Newtonsoft.Json.Linq;
 
 
 namespace AleProjects.Cms.Application.Services
@@ -87,6 +89,45 @@ namespace AleProjects.Cms.Application.Services
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
 
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+				existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
+
 			try
 			{
 				await dbContext.SaveChangesAsync();
@@ -155,6 +196,45 @@ namespace AleProjects.Cms.Application.Services
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
 
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+				existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
+
 			try
 			{
 				await dbContext.SaveChangesAsync();
@@ -212,6 +292,45 @@ namespace AleProjects.Cms.Application.Services
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
 
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Id != id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+				existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
+
 			await dbContext.SaveChangesAsync();
 
 			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
@@ -265,6 +384,45 @@ namespace AleProjects.Cms.Application.Services
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
 
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled && a.Id != id)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+				existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
+
 			await dbContext.SaveChangesAsync();
 
 			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
@@ -291,6 +449,45 @@ namespace AleProjects.Cms.Application.Services
 
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
+
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Id != id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+			existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
 
 			dbContext.DocumentAttributes.Remove(attr);
 
@@ -328,6 +525,45 @@ namespace AleProjects.Cms.Application.Services
 
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
+
+
+			var existingRefs = await dbContext.References
+				.Where(r => r.DocumentRef == doc.Id)
+				.OrderBy(r => r.ReferenceTo)
+				.ThenBy(r => r.MediaLink)
+				.ToListAsync();
+
+			string[] xmlData = await dbContext.Fragments
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Select(f => f.Data)
+				.ToArrayAsync();
+
+			string[] attrData = await dbContext.DocumentAttributes
+				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			string[] fAttrData = await dbContext.FragmentLinks
+				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+				.Where(a => a.Enabled && a.Id != id)
+				.Select(a => a.Value)
+				.ToArrayAsync();
+
+			ReferencesHelper.GetReferencesChanges(doc.Id,
+				existingRefs,
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
+				out List<Reference> toAdd,
+				out List<Reference> toRemove);
+
+			if (toAdd != null)
+				dbContext.References.AddRange(toAdd);
+
+			if (toRemove != null)
+				dbContext.References.RemoveRange(toRemove);
+
 
 			dbContext.FragmentAttributes.Remove(attr);
 

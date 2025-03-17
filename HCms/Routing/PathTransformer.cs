@@ -46,6 +46,9 @@ namespace HCms.Routing
 				return mediaUri.ToString();
 			}
 
+			if (string.IsNullOrEmpty(path))
+				return "/";
+
 			return path;
 		}
 

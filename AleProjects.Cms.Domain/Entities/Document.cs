@@ -27,6 +27,8 @@ namespace AleProjects.Cms.Domain.Entities
 		[Required(AllowEmptyStrings = false)] 
 		public string Path { get; set; }
 
+		public long PathHash { get; set; }
+
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Title { get; set; }
 		

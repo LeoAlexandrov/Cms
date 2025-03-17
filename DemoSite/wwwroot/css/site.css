@@ -12,6 +12,7 @@ header #logo {
 	overflow: auto;
 	text-indent: 72px;
 	height: 64px;
+	color: var(--mdb-heading-color);
 	background-image: url('/images/demo-logo-small.webp');
 	background-repeat: no-repeat;
 	background-position: left bottom;
@@ -21,7 +22,6 @@ header #logo {
 
 	header #logo .logo-title {
 		margin-top: 4px;
-		color: dimgray;
 		font-size: 20px;
 	}
 
@@ -31,6 +31,71 @@ header #logo {
 	}
 
 
+div .main-menu {
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 400;
+}
+
+ul.cmd-menu {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	float: right;
+}
+
+li.cmd-menu-item, li.lang-menu-item {
+	float: left;
+	padding: 4px 0px 4px 24px;
+}
+
+	li.cmd-menu-item a {
+		display: block;
+		text-align: center;
+		text-decoration: none;
+		font-size: larger;
+		font-weight: 500;
+		padding: 4px;
+	}
+
+		li.cmd-menu-item a:hover {
+			background-color: gainsboro;
+		}
+
+	li.lang-menu-item a {
+		display: block;
+		text-align: center;
+		text-decoration: none;
+		padding: 4px;
+	}
+
+
+
+
+.navigation-menu {
+}
+
+@media (min-width: 992px) {
+
+	.navigation-menu {
+		margin-top: 80px;
+	}
+}
+
+.scrollspy {
+	padding-top: 32px;
+}
+
 .error_page_body {
 	margin-top: 60px;
+}
+
+
+
+.mt-5 {
+	margin-top: 3rem !important;
+}
+
+.mt-6 {
+	margin-top: 4rem !important;
 }

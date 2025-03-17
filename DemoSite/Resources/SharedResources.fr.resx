@@ -147,4 +147,7 @@
   <data name="PageNotFoundText" xml:space="preserve">
     <value>Il semble que la page que vous recherchez n'existe pas. Elle a peut-être été déplacée ou supprimée.</value>
   </data>
+  <data name="SwitchTheme" xml:space="preserve">
+    <value>Basculer entre le thème clair et le thème sombre</value>
+  </data>
 </root>

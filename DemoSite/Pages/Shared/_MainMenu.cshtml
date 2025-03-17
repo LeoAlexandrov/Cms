@@ -1,0 +1,18 @@
+﻿@model ViewModels.MainMenu
+
+<div>
+	<ul class="cmd-menu">
+	@foreach (var menu in Model.Languages)
+	{
+		<li class="lang-menu-item"><a href="@menu.Link">@menu.Label</a></li>
+	}
+	</ul>
+</div>
+<div>
+	<ul class="cmd-menu">
+	@foreach (var menu in Model.Commands)
+	{
+		<li class="cmd-menu-item"><a href="@menu.Link">@menu.Label</a></li>
+	}
+	</ul>
+</div>
