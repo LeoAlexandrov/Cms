@@ -282,12 +282,12 @@
 				.apiCallAsync(`/api/v1/documents/${id}/refs`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
-					this.editedDoc.references = [];
-					this.editedDoc.referencedBy = [];
-
 					if (r.ok) {
 						this.editedDoc.references = r.result.references;
 						this.editedDoc.referencedBy = r.result.referencedBy;
+					} else {
+						this.editedDoc.references = [];
+						this.editedDoc.referencedBy = [];
 					}
 				});
 
@@ -334,6 +334,8 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+						this.editedDoc.references = [];
+						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
 						this.invalidNewDocSlugs = [];
 						this.invalidParents = [];
