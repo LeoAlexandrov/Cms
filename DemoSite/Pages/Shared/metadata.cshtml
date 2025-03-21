@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	bool cover = Model.Props.cover;
@@ -9,12 +10,12 @@
 
 @if (cover && !string.IsNullOrEmpty(Model.Document.CoverPicture))
 {
-	<img src="@Model.Document.CoverPicture" class="img-fluid metadata-cover-picture-fragment" alt="@Model.Document.Title" />
+	<img src="@Model.Document.CoverPicture" class="img-fluid metadata-cover-picture @Model.CssClass()" alt="@Model.Document.Title" />
 }
 
 @if (breadcrumbs && Model.Document.Breadcrumbs.Length > 1)
 {
-	<nav class="metadata-breadcrumbs-fragment">
+	<nav class="metadata-breadcrumbs @Model.CssClass()">
 		<ol class="breadcrumb">
 
 			<li class="breadcrumb-item"><a href="@Model.Document.Breadcrumbs[0].Path"><i class="fas fa-house"></i></a></li>
@@ -31,9 +32,9 @@
 
 @if (title)
 {
-	<h1 class="metadata-title-fragment">@Model.Document.Title</h1>
+	<h1 class="metadata-title @Model.CssClass()">@Model.Document.Title</h1>
 }
 @if (summary)
 {
-	<div class="metadata-summary-fragment">@Html.Raw(Model.Document.Summary)</div>
+	<div class="metadata-summary @Model.CssClass()">@Html.Raw(Model.Document.Summary)</div>
 }

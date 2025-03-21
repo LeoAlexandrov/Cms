@@ -94,6 +94,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="picture" type="picture" minOccurs="0"/>
+			<xs:element name="action" type="action" minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 

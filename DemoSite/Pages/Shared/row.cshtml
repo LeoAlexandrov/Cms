@@ -1,9 +1,10 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
 
-	System.Text.StringBuilder divClass = new("row row-fragment g-4");
+	System.Text.StringBuilder divClass = new("row gx-4");
 	string cls;
 
 	var al = Model.Props.container.alignment;
@@ -14,9 +15,6 @@
 			if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
 				divClass.Append(' ').Append(cls);
 		}
-
-	if (!string.IsNullOrEmpty(cls = Model.Attributes?.GetValueOrDefault("bootstrap:class")))
-		divClass.Append(' ').Append(cls);
 
 	cls = divClass.ToString();
 
@@ -29,9 +27,10 @@
 	else if (m < n)
 		n = m;
 
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="@cls">
+<div id="@id" class="@cls @Model.CssClass() @extraFragmentClass">
 	@for(int i = 0; i < n; i++)
 	{
 		cls = colDivClass(columns[i]);

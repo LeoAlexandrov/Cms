@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Localization
+@using DemoSite.ViewModels
 @using HCms.ViewModels
 @inject HCms.Routing.IPathTransformer PathTransformer
 @inject IHtmlLocalizer<SharedResources> SharedLocalizer
@@ -21,7 +22,7 @@
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="directory-@look-fragment @extraFragmentClass">
+<div id="@id" class="directory-@look @Model.CssClass() @extraFragmentClass">
 
 @if (n != 0 && !string.IsNullOrEmpty(title))
 {
@@ -83,8 +84,8 @@ else if (look == "grid" || look == "blog")
 							<h3 class="card-title>">@doc.Title</h3>
 							<div class="card-text">@Html.Raw(doc.Summary)</div>
 						</div>
-						<div class="mx-4 mb-4">
-							<a class="btn btn-primary" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">@MoreLabel</a>
+							<div class="mx-4 mb-4">
+								<a class="btn btn-primary stretched-link" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">@MoreLabel</a>
 						</div>
 					</div>
 				</div>

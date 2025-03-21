@@ -1,18 +1,34 @@
 ﻿@model ViewModels.MainMenu
 
-<div>
-	<ul class="cmd-menu">
-	@foreach (var menu in Model.Languages)
-	{
-		<li class="lang-menu-item"><a href="@menu.Link">@menu.Label</a></li>
-	}
-	</ul>
-</div>
-<div>
-	<ul class="cmd-menu">
+<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 	@foreach (var menu in Model.Commands)
 	{
-		<li class="cmd-menu-item"><a href="@menu.Link">@menu.Label</a></li>
+		if (menu.Inactive)
+		{
+			<li class="nav-item nav-link top-site-header-menuitem">@menu.Label</li>
+		}
+		else if (menu.Submenu != null)
+		{
+			<li class="nav-item dropdown top-site-header-menuitem">
+				<a class="nav-link dropdown-toggle" data-mdb-dropdown-init data-mdb-ripple-init href="#" role="button" data-mdb-toggle="dropdown" aria-expanded="false">@menu.Label</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					@foreach (var sm in menu.Submenu)
+					{
+						if (sm.Inactive)
+						{
+							<li class="nav-item nav-link">@menu.Label</li>
+						}
+						else
+						{
+							<li><a class="dropdown-item" href="@sm.Link">@sm.Label</a></li>
+						}
+					}
+				</ul>
+			</li>
+		}
+		else
+		{
+			<li class="nav-item top-site-header-menuitem"><a class="nav-link" href="@menu.Link">@menu.Label</a></li>
+		}
 	}
-	</ul>
-</div>
+</ul>

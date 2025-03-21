@@ -3,72 +3,36 @@ body {
 	overflow-x: hidden;
 }
 
-nav .top-site-header {
+nav.top-site-header {
 	height: 100px;
+}
+
+.top-site-header-menuitem:nth-of-type(n+2) {
+	margin-left: 16px;
 }
 
 header #logo {
 	display: block;
 	overflow: auto;
-	text-indent: 72px;
-	height: 64px;
+	text-indent: 80px;
+	height: 80px;
 	color: var(--mdb-heading-color);
 	background-image: url('/images/demo-logo-small.webp');
 	background-repeat: no-repeat;
-	background-position: left bottom;
+	background-position: left center;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
 }
 
 	header #logo .logo-title {
-		margin-top: 4px;
-		font-size: 20px;
+		margin-top: 6px;
+		font-size: 24px;
 	}
 
 	header #logo .logo-slogan {
 		color: darkgray;
 		font-size: 16px;
 	}
-
-
-div .main-menu {
-	font-family: 'Montserrat', sans-serif;
-	font-weight: 400;
-}
-
-ul.cmd-menu {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	float: right;
-}
-
-li.cmd-menu-item, li.lang-menu-item {
-	float: left;
-	padding: 4px 0px 4px 24px;
-}
-
-	li.cmd-menu-item a {
-		display: block;
-		text-align: center;
-		text-decoration: none;
-		font-size: larger;
-		font-weight: 500;
-		padding: 4px;
-	}
-
-		li.cmd-menu-item a:hover {
-			background-color: gainsboro;
-		}
-
-	li.lang-menu-item a {
-		display: block;
-		text-align: center;
-		text-decoration: none;
-		padding: 4px;
-	}
-
 
 
 

@@ -1,10 +1,11 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="text-fragment @extraFragmentClass">
+<div id="@id" class="@Model.CssClass() @extraFragmentClass">
 @Html.Raw(Model.Props.ToString())
 </div>

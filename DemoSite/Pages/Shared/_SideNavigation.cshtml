@@ -1,0 +1,44 @@
+﻿@using HCms.ViewModels;
+@model ViewModels.CmsPageModel
+
+@{
+	var wideFragmentsFirst = Model.Document.Fragments
+		.TakeWhile(f => f.XmlName == "hero" || f.XmlName.StartsWith("carousel"))
+		.ToArray();
+
+	var wideFragmentsLast = Model.Document.Fragments
+		.Reverse()
+		.TakeWhile(f => f.XmlName == "hero" || f.XmlName.StartsWith("carousel"))
+		.Reverse()
+		.ToArray();
+
+	Range midRange = new Range(wideFragmentsFirst.Length, Model.Document.Fragments.Length - wideFragmentsLast.Length);
+
+	var midFragments = Model.Document.Fragments
+		.Take(midRange)
+		.ToArray();
+}
+
+<div class="container">
+	@foreach (var f in wideFragmentsFirst)
+	{
+		await Html.RenderPartialAsync(f.XmlName, f);
+	}
+	<div class="row gx-md-5">
+		<div class="col-12 col-lg-3">
+			@{
+				await Html.RenderPartialAsync("_NavigationMenu", Model.NavigationMenu);
+			}
+		</div>
+		<div class="col-12 col-lg-9">
+			@foreach (var f in midFragments)
+			{
+				await Html.RenderPartialAsync(f.XmlName, f);
+			}
+		</div>
+	</div>
+	@foreach (var f in wideFragmentsLast)
+	{
+		await Html.RenderPartialAsync(f.XmlName, f);
+	}
+</div>

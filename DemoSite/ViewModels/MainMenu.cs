@@ -8,7 +8,8 @@ namespace DemoSite.ViewModels
 	{
 		public string Label { get; set; }
 		public string Link { get; set; }
-		public bool Active { get; set; }
+		public bool Inactive { get; set; }
+		public MainMenuItem[] Submenu { get; set; }
 	}
 
 

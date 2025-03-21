@@ -1,0 +1,82 @@
+﻿@model ViewModels.CmsPageModel
+
+@{
+	var wideFragmentsFirst = Model.Document.Fragments
+		.TakeWhile(f => f.XmlName == "hero" || f.XmlName.StartsWith("carousel"))
+		.ToArray();
+
+	var wideFragmentsLast = Model.Document.Fragments
+		.Reverse()
+		.TakeWhile(f => f.XmlName == "hero" || f.XmlName.StartsWith("carousel"))
+		.Reverse()
+		.ToArray();
+
+	Range midRange = new Range(wideFragmentsFirst.Length, Model.Document.Fragments.Length - wideFragmentsLast.Length);
+
+	var midFragments = Model.Document.Fragments
+		.Take(midRange)
+		.ToArray();
+
+	int level = -1;
+}
+
+<div class="container">
+	@foreach (var f in wideFragmentsFirst)
+	{
+		await Html.RenderPartialAsync(f.XmlName, f);
+	}
+	<div class="row">
+		<div class="col-12 col-lg-3">
+			@{
+				await Html.RenderPartialAsync("_NavigationMenu", Model.NavigationMenu);
+			}
+		</div>
+		<div class="col-12 col-lg-6">
+			<div data-mdb-scrollspy-init data-mdb-target="#scrollspy" data-mdb-offset="0">
+				@foreach (var f in midFragments)
+				{
+					await Html.RenderPartialAsync(f.XmlName, f);
+				}
+			</div>
+		</div>
+		<div class="col-3 d-none d-lg-block">
+			<div id="scrollspy" class="scrollspy sticky-top border-start">
+				<ul class="nav flex-column nav-pills menu-sidebar">
+
+					@foreach (var item in Model.Document.Anchors)
+					{
+						if (level < item.Level && level >= 0)
+						{
+							@Html.Raw("<ul class=\"nav flex-column ps-3\"><li class=\"nav-item\">")
+							level = item.Level;
+						}
+						else if (level > item.Level)
+						{
+							@Html.Raw("</li>")
+							for (int i = level; i > item.Level; i--)
+								@Html.Raw("</ul>")
+
+							@Html.Raw("</li><li class=\"nav-item\">")
+							level = item.Level;
+						}
+						else if (level >= 0)
+						{
+							@Html.Raw("</li><li class=\"nav-item\">")
+						}
+						else
+						{
+							@Html.Raw("<li class=\"nav-item\">")
+							level = 0;
+						}
+
+						<a class="nav-link ms-3 my-1" href="#@item.Id">@item.Name</a>
+					}
+				</ul>
+			</div>
+		</div>
+	</div>
+	@foreach (var f in wideFragmentsLast)
+	{
+		await Html.RenderPartialAsync(f.XmlName, f);
+	}
+</div>

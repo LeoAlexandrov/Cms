@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
@@ -46,7 +47,7 @@
 }
 
 
-<div id="@id" class="container grid-fragment py-4 g-0 @extraFragmentClass">
+<div id="@id" class="container g-0 @Model.CssClass() @extraFragmentClass">
 	<div class="@rowCls g-4">
 
 	@if (Model.Children != null)

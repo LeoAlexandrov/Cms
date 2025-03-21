@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
@@ -18,7 +19,7 @@
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="tabs-fragment @extraFragmentClass">
+<div id="@id" class="@Model.CssClass() @extraFragmentClass">
 	<ul class="nav nav-tabs" role="tablist">
 		@foreach (var tab in tabs)
 		{
@@ -36,7 +37,7 @@
 					href="#@id-tabs-@i" role="tab">
 					@if (!string.IsNullOrEmpty(tab.icon))
 					{
-						<i class="fas @tab.icon fa-fw me-2"></i>
+						<i class="@tab.icon fa-fw me-2"></i>
 					}
 					@tab.title</a>
 			</li>
@@ -53,7 +54,7 @@
 }
 
 <!-- Tabs content -->
-	<div id="@id-content" class="tab-content mt-4">
+	<div id="@id-content" class="tab-content mt-3">
 		@foreach (var f in Model.Children)
 		{
 			<div id="@id-tabs-@i" class="tab-pane fade show @(i == activeIdx ? "active" : null)" role="tabpanel">

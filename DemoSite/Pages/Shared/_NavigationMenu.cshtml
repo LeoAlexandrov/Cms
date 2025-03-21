@@ -8,7 +8,7 @@
 	<div class="list-group list-group-light border mt-4">
 		@foreach (var cmd in Model.Commands)
 		{
-			if (cmd.Active)
+			if (cmd.Inactive)
 			{
 				<div class="list-group-item list-group-item-action px-3 border-0">@cmd.Label</div>
 

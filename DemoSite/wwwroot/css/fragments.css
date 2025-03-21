@@ -1,11 +1,15 @@
-﻿.metadata-breadcrumbs-fragment {
+﻿.metadata-breadcrumbs {
 	margin-top: 24px;
 }
 
-.metadata-title-fragment {
+.metadata-title {
 	margin-top: 24px;
 	margin-bottom: 48px;
 	font-family: 'Montserrat', sans-serif;
+}
+
+.row-fragment {
+	margin-top: 12px;
 }
 
 .features-default-fragment {
@@ -15,6 +19,7 @@
 .html-fragment {
 	display: block;
 	clear: both;
+	margin-top: 24px;
 }
 
 .img-hero-stretched {
@@ -59,4 +64,33 @@
 
 .carousel-control-prev-icon, .carousel-control-next-icon {
 	filter: none!important;
+}
+
+.tabs-fragment {
+	margin-top: 32px;
+}
+
+.card-fragment {
+	margin: 24px 0 24px 0;
+}
+
+.directory-fragment {
+	margin-top: 48px;
+}
+
+.directory-grid > h3 {
+	margin-bottom: 24px;
+}
+
+.row.container-fragment {
+	margin-top: 32px;
+	margin-bottom: 32px;
+}
+
+.carousel-fragment:nth-of-type(n+2) {
+	margin-top: 32px;
+}
+
+.action-inner-fragment:nth-of-type(n+2) {
+	margin-left: 8px;
 }

@@ -1,4 +1,5 @@
-﻿@using HCms.ViewModels
+﻿@using DemoSite.ViewModels
+@using HCms.ViewModels
 @model Fragment
 
 @{
@@ -20,13 +21,18 @@
 <style>
 @for (int i = 0; i < n; i++)
 {
-	<text>.carousel-item:nth-child(@(i+1)) {
+<text>.carousel-item:nth-child(@(i+1)) {
 	background: no-repeat center / cover url('@items[i].picture.source');
-}</text>
+	@if (items[i].picture.height != null)
+	{
+	<text>min-height: @(items[i].picture.height)px;</text>
+	}
+}
+</text>
 }
 </style>
 
-<div id="@id" class="carousel carousel-plus-fragment slide carousel-fade breakout @extraFragmentClass" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
+<div id="@id" class="carousel slide carousel-fade breakout @Model.CssClass() @extraFragmentClass" data-mdb-ride="carousel" data-mdb-interval="@sInterval" data-mdb-carousel-init>
 
 	<div class="carousel-indicators">
 		@for (int i = 0; i < n; i++)
@@ -49,7 +55,7 @@
 		@for (int i = 0; i < n; i++)
 		{
 			<div class="carousel-item @(i == activeIdx ? "active" : null)">
-				<div class="d-flex justify-content-center align-items-center text-white h-100">
+				<div class="container text-white h-100">
 				@if (i < m) 
 				{
 					await Html.RenderPartialAsync(Model.Children[i].XmlName, Model.Children[i]);

@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
@@ -17,10 +18,11 @@
 
 	string cls = category switch
 	{
-		"default" => jsAction ? "btn" : null,
-		"primary" => "btn btn-primary",
-		"secondary" => "btn btn-secondary",
-		_ => "btn btn-link"
+		"default" => jsAction ? "btn btn-lg" : null,
+		"primary" => "btn btn-primary btn-lg",
+		"secondary" => "btn btn-secondary btn-lg",
+		"stretched" => "stretched-link",
+		_ => "btn btn-link btn-lg"
 	};
 
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
@@ -28,7 +30,7 @@
 
 @if (jsAction)
 {
-<button id="@id" type="button" class="action-fragment @cls @extraFragmentClass" onclick="@Html.Raw(action)">
+<button id="@id" type="button" class="@Model.CssClass() @cls @extraFragmentClass" onclick="@Html.Raw(action)">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title
@@ -46,7 +48,7 @@
 }
 else
 {
-<a id="@id" class="action-fragment @cls @extraFragmentClass" href="@action" alt="@altText" target="@target">
+<a id="@id" class="@Model.CssClass() @cls @extraFragmentClass" href="@action" alt="@altText" target="@target">
 	@if (string.IsNullOrEmpty(icon))
 	{
 		@title

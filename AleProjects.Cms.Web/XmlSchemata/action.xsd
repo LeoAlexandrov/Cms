@@ -69,6 +69,7 @@
 						<xs:enumeration value="primary"/>
 						<xs:enumeration value="secondary"/>
 						<xs:enumeration value="tertiary"/>
+						<xs:enumeration value="stretched"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

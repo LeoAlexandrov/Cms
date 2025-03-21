@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
@@ -23,14 +24,11 @@
 				divClass.Append(' ').Append(cls);
 		}
 
-	if (Model.Parent == 0)
-		divClass.Append(" my-4");
-
 	cls = divClass.ToString();
 }
 
 
-<div id="@id" class="container-fragment @cls">
+<div id="@id" class="@cls @Model.CssClass()">
 @if (Model.Children != null)
 {
 	foreach (var f in Model.Children)

@@ -1,4 +1,5 @@
-﻿@using HCms.ViewModels
+﻿@using DemoSite.ViewModels
+@using HCms.ViewModels
 @model Fragment
 
 @{
@@ -10,7 +11,7 @@
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
 
-<div id="@id" class="html-fragment @extraFragmentClass">
+<div id="@id" class="@Model.CssClass() @extraFragmentClass">
 @if (pict != null)
 {
 	await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict));

@@ -1,4 +1,5 @@
-﻿@using HCms.ViewModels
+﻿@using DemoSite.ViewModels
+@using HCms.ViewModels
 @model Fragment
 
 @{
@@ -26,7 +27,7 @@
 	if (pict == null && Model.Children == null)
 	{
 		col1Cls = "col-12";
-		col1ContentCls = "m-4";
+		col1ContentCls = "m-4 text-center";
 		col2Cls = null;
 	}
 	else if (layout == "start")
@@ -55,6 +56,10 @@
 	<style>
 		.@bkPictCls {
 		background: no-repeat center / cover url("@bkPict.source");
+		@if (bkPict.height != null)
+		{
+		<text>min-height: @(bkPict.height)px</text>
+		}
 		}
 
 		@if (bkPictSources != null)
@@ -71,8 +76,8 @@
 	</style>
 }
 
-<header id="@id" class="hero-fragment py-4 @breakoutCls @featuredCls @bkPictCls @textOnDarkCls @extraFragmentClass">
-	<div class="container-md">
+<header id="@id" class="py-4 @Model.CssClass() @breakoutCls @featuredCls @bkPictCls @textOnDarkCls @extraFragmentClass">
+	<div class="container">
 		<div class="row gx-5 align-items-center justify-content-center">
 			<div class="@col1Cls">
 				<div class="@col1ContentCls">

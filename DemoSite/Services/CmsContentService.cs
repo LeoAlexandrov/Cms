@@ -127,6 +127,8 @@ namespace DemoSite.Services
 						foreach (var con in model.AffectedContent)
 						{
 							cacheKey = _repo.PathTransformer.Forward(con.Root, con.Path, false);
+							_cache.Remove($"dark-{cacheKey}");
+							_cache.Remove($"light-{cacheKey}");
 							_cache.Remove(cacheKey);
 							Console.WriteLine($"*** Cache record '{cacheKey}' removed ***");
 						}

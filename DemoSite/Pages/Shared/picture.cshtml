@@ -1,4 +1,5 @@
-﻿@model HCms.ViewModels.Fragment
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
 
 @{
 	string id = Model.DomId;
@@ -36,5 +37,5 @@
 			<source media="@s.media" srcset="@s.srcset" type="@s.type" />
 		}
 	}
-	<img id="@id" class="picture-fragment @imgClass @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
+	<img id="@id" class="@Model.CssClass() @imgClass @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
 </picture>

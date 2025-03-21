@@ -3,41 +3,76 @@
 @model IndexModel
 
 @{
-	Layout = Model.ChooseLayout();
+	string layout = Model.ChooseLayout();
+
+	await Html.RenderPartialAsync(layout, Model.CmsPage);
+
+	//bool scrollspy = Layout == "_NavScrollSpyLayout" || Layout == "_ScrollSpyLayout";
 }
 
-@if (Model.Document.Anchors != null)
+@*
+@if (scrollspy)
 {
 	@Html.Raw("<div data-mdb-scrollspy-init data-mdb-target=\"#scrollspy\" data-mdb-offset=\"0\">")
 }
 
-@foreach (var f in Model.Document.Fragments)
+@foreach (var f in Model.Page.Document.Fragments)
 {
 	await Html.RenderPartialAsync(f.XmlName, f);
 }
 
-@if (Model.Document.Anchors != null)
+@if (scrollspy)
 {
 	@Html.Raw("</div>")
+}
+
+@section Navigation 
+{
+	@{
+		await Html.RenderPartialAsync("_NavigationMenu", Model.CmsPage.NavigationMenu);
+	}
+}
+*@
+
+@section MainMenu
+{
+	@{
+		await Html.RenderPartialAsync("_MainMenu", Model.CmsPage.MainMenu);
+	}
 }
 
 @section Footer
 {
 	@{
-		await Html.RenderPartialAsync("_Footer", Model.Footer);
+		await Html.RenderPartialAsync("_Footer", Model.CmsPage.Footer);
 	}
 }
 
+@if (Model.CmsPage.Document.Attributes.ContainsKey("highlight-code"))
+{
+	@section Css
+	{
+	<link rel="stylesheet" href="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/styles/vs2015.min.css">
+	}
+	@section Scripts
+	{
+	<script src="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/highlight.min.js"></script>
+	<script>hljs.highlightAll();</script>
+	}
+}
+
+
+@*
 @section ScrollSpy
 {
-	@if (Model.Document.Anchors != null)
+	@if (scrollspy)
 	{
 		int level = -1;
 
 		<div id="scrollspy" class="scrollspy sticky-top border-start">
 			<ul class="nav flex-column nav-pills menu-sidebar">
 
-			@foreach (var item in Model.Document.Anchors)
+				@foreach (var item in Model.Page.Document.Anchors)
 			{
 				if (level < item.Level && level >= 0)
 				{
@@ -69,3 +104,4 @@
 		</div>
 	}
  }
+ *@
