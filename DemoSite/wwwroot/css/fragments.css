@@ -83,8 +83,7 @@
 }
 
 .row.container-fragment {
-	margin-top: 32px;
-	margin-bottom: 32px;
+	margin-top: 24px;
 }
 
 .carousel-fragment:nth-of-type(n+2) {

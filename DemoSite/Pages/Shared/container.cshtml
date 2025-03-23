@@ -3,12 +3,29 @@
 
 @{
 	string id = Model.DomId;
-
-	System.Text.StringBuilder divClass = new(mainDivClass(Model.Props.type));
-	string cls;
-
+	string type = Model.Props.type;
 	var width = Model.Props.width;
-	var al = Model.Props.alignment;
+
+	System.Text.StringBuilder divClass = new();
+
+	string cls = type switch
+	{
+		"row" => "row",
+		"column" => width != null ? string.Empty : "col",
+		"container" => "container",
+		"container-sm" => "container-sm",
+		"container-md" => "container-md",
+		"container-lg" => "container-lg",
+		"container-xl" => "container-xl",
+		"container-xxl" => "container-xxl",
+		"container-fluid" => "container-fluid",
+		_ => null
+	};
+
+	divClass.Append(cls);
+
+	if (Model.Children != null && Model.Children.Any(c => c.XmlName == "container" && c.Props.type == "column"))
+		divClass.Append(" g-4");
 
 	if (width != null)
 		foreach (var w in width)
@@ -16,6 +33,8 @@
 			if (!string.IsNullOrEmpty(cls = widthDivClass(w.breakpoint, w.span)))
 				divClass.Append(' ').Append(cls);
 		}
+
+	var al = Model.Props.alignment;
 
 	if (al != null)
 		foreach (var a in al)
@@ -39,23 +58,6 @@
 </div>
 
 @{
-	string mainDivClass(string type)
-	{
-		return type switch
-		{
-			"row" => "row",
-			"column" => "col",
-			"container" => "container",
-			"container-sm" => "container-sm",
-			"container-md" => "container-md",
-			"container-lg" => "container-lg",
-			"container-xl" => "container-xl",
-			"container-xxl" => "container-xxl",
-			"container-fluid" => "container-fluid",
-			_ => null
-		};
-	}
-
 	string widthDivClass(string breakpoint, string span)
 	{
 		if (string.IsNullOrEmpty(breakpoint) || string.IsNullOrEmpty(span))

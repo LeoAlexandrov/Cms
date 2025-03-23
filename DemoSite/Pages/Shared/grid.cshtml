@@ -25,9 +25,10 @@
 		}
 
 	rowCls = divClass.ToString();
-	divClass.Clear();
 
-	string cls;
+	divClass.Clear().Append("col");
+
+	string colCls;
 
 	align = Model.Props.cells.cells_alignment;
 
@@ -35,13 +36,13 @@
 	{
 		foreach (var a in align)
 		{
-			if (!string.IsNullOrEmpty(cls = alignDivClass(a.breakpoint, a.align)))
-				divClass.Append(' ').Append(cls);
+			if (!string.IsNullOrEmpty(colCls = alignDivClass(a.breakpoint, a.align)))
+				divClass.Append(' ').Append(colCls);
 		}
 
-		cls = divClass.ToString();
+		colCls = divClass.ToString();
 	}
-	else cls = null;
+	else colCls = null;
 
 	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
 }
@@ -53,7 +54,7 @@
 	@if (Model.Children != null)
 		foreach (var f in Model.Children)
 		{
-			<div class="col @cls">
+			<div class="@colCls">
 			@{ 
 				await Html.RenderPartialAsync(f.XmlName, f); 
 			}

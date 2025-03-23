@@ -4,7 +4,7 @@ body {
 }
 
 nav.top-site-header {
-	height: 100px;
+	min-height: 100px;
 }
 
 .top-site-header-menuitem:nth-of-type(n+2) {
