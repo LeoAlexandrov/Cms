@@ -1,0 +1,118 @@
+﻿@using DemoSite.ViewModels
+@model HCms.ViewModels.Fragment
+
+@functions {
+	struct map_params {
+		public string Title { get; set; }
+		public double Lon { get; set; }
+		public double Lat { get; set; }
+		public int Zoom { get; set; }
+		public string Height { get; set; }
+	}
+}
+
+@{
+	map_params mapParams;
+
+	string id = Model.DomId;
+	string args = Model.Props.args;
+
+	if (!string.IsNullOrEmpty(args))
+		mapParams = System.Text.Json.JsonSerializer.Deserialize<map_params>(args);
+	else
+		mapParams = new() { Lon = 0, Lat = 0, Zoom = 15, Height = "300px" };
+
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
+}
+
+<style>
+	#@id-container {
+	height: @mapParams.Height;
+	}
+
+	.@id-cross {
+	position: absolute;
+	top: 50%; left: 50%; 
+	transform: translate(-50%, -50%);
+	z-index: 1990;
+	pointer-events: none;
+	}
+</style>
+
+
+<div id="@id" class="@Model.CssClass() @extraFragmentClass">
+@if (!string.IsNullOrEmpty(mapParams.Title))
+{
+	<h3>@mapParams.Title</h3>
+}
+	<div id="@id-way-name"><strong>QuadKey</strong> = -1 <strong>Way name</strong> = </div>
+	<div id="@id-container">
+		<img src="/images/map-cross.png" class="@id-cross"/>
+	</div>
+</div>
+
+<script>
+	let containerId = '@id-container';
+	let wayNameId = '@id-way-name'
+	let mymap = null;
+	let lon = @mapParams.Lon;
+	let lat = @mapParams.Lat;
+	let zoom = @mapParams.Zoom;
+	let hasMoved = false;
+	let gjLayer = null;
+
+	mymap = L.map(containerId, { center: [lat, lon], zoom: zoom });
+	L.tileLayer('https://api.speedtrap-alert.cc/v1/tiles/osm/{z}/{x}/{y}',
+		{
+			maxZoom: 19,
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			tileSize: 256,
+			tap: true
+		}).addTo(mymap);
+
+	mymap.on('moveend', onMapMoveZoomEnd);
+	mymap.on('zoomend', onMapMoveZoomEnd);
+	//mymap.on('move', onMapMoveZoomEnd);
+
+
+	async function onMapMoveZoomEnd() {
+		hasMoved = true;
+		let center = this.getCenter();
+		lon = center.lng;
+		lat = center.lat;
+		zoom = this.getZoom();
+
+		if (gjLayer) {
+			mymap.removeLayer(gjLayer);
+			gjLayer = null;
+		}
+
+		let wayName = document.getElementById(wayNameId);
+
+		response = await fetch(`https://api.speedtrap-alert.cc/v1/rn/querylite?lat=${lat}&lon=${lon}&level=${zoom}`, { method: "GET" });
+
+		if (response.ok) {
+			let gjson = await response.json();
+
+			if (gjLayer) {
+				mymap.removeLayer(gjLayer);
+			}
+
+			gjLayer = L.geoJSON(gjson.features);
+			gjLayer.addTo(mymap);
+
+			if (wayName)
+				if (gjson.features.length > 0) {
+					let wIdx = gjson.features[0].properties.wayIndex + 1;
+					let name = wIdx > 0 ? gjson.features[wIdx].properties.name : "";
+					wayName.innerHTML = `<strong>QuadKey</strong> = ${gjson.features[0].properties.quadKey} <strong>Way name</strong> = ${name}`;
+
+				} else {
+					wayName.innerHTML = "API response is wrong";
+				}
+		} else if (wayName) {
+			wayName.innerHTML = "API response is not OK";
+		}
+
+	};
+</script>

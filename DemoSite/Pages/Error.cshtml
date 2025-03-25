@@ -4,31 +4,39 @@
 @model ErrorModel
 
 @{
-	ViewData["HomePage"] = "/";
 	ViewData["Title"] = SharedLocalizer["Error"].Value;
 }
 
-<div class="error_page_body">
-
-	@if (Model.Code == 404)
-	{
-		<h3>@SharedLocalizer["PageNotFound"]</h3>
-		<p class="text-body1">@SharedLocalizer["PageNotFoundText"]</p>
-	}
-	else if (Model.Code == 403)
-	{
-		<h3>@SharedLocalizer["AccessDenied"]</h3>
-		<p class="text-body1">@SharedLocalizer["AccessDeniedText"]</p>
-	}
-	else
-	{
-		<h3 class="text-danger">@SharedLocalizer["InternalServerError"]</h3>
-		<p class="text-body1">@SharedLocalizer["InternalServerErrorText"]</p>
-		@if (Model.ShowRequestId)
+<div class="container">
+	<div class="error_page_body">
+	
+		@if (Model.Code == 404)
 		{
-			<p>
-				<strong>Request ID:</strong> <code>@Model.RequestId</code>
-			</p>
+			<h3>@SharedLocalizer["PageNotFound"]</h3>
+			<p class="text-body1">@SharedLocalizer["PageNotFoundText"]</p>
 		}
-	}
+		else if (Model.Code == 403)
+		{
+			<h3>@SharedLocalizer["AccessDenied"]</h3>
+			<p class="text-body1">@SharedLocalizer["AccessDeniedText"]</p>
+		}
+		else
+		{
+			<h3 class="text-danger">@SharedLocalizer["InternalServerError"]</h3>
+			<p class="text-body1">@SharedLocalizer["InternalServerErrorText"]</p>
+			@if (Model.ShowRequestId)
+			{
+				<p>
+					<strong>Request ID:</strong> <code>@Model.RequestId</code>
+				</p>
+			}
+		}
+	</div>
 </div>
+
+@section Footer
+{
+	@{
+		await Html.RenderPartialAsync("_Footer", new DemoSite.ViewModels.Footer());
+	}
+}

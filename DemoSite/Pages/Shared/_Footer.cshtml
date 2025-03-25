@@ -7,7 +7,7 @@
 }
 
 
-<div class="container d-flex">
+<div class="container d-md-flex">
 	<div>© 2025 - h-cms.net</div>
 	@if (Model.Links != null)
 	{
@@ -19,6 +19,9 @@
 
 		}
 	}
+	<div class="px-md-4">
+		<a href="/privacy">Privacy policy</a>
+	</div>
 	<div class="ms-auto px-md-4">
 		<a id="theme-switcher" role="button" data-mdb-tooltip-init title="@SharedLocalizer["SwitchTheme"]" onclick="switchTheme()">
 			<i class="fa-solid fa-@icon"></i>

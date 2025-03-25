@@ -1,9 +1,29 @@
 ﻿@page
+@using DemoSite.ViewModels
 @model PrivacyModel
 
-@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container my-4">
+
+	<h1>@ViewData["Title"]</h1>
+	<p>This razor page is defined in the demo site project, not taken from the CMS database. 
+		Such pages override CMS documents, however they can use database context.
+		Main text is stored in the document <strong>misc-docs/privacy</strong></p>
+	<hr id="divider" class="hr divider-fragment">
+
+	@Html.Raw(Model.HtmlContent)
+</div>
+
+@section MainMenu
+{
+	@{
+		await Html.RenderPartialAsync("_MainMenu", new MainMenu() { Commands = [] });
+	}
+}
+
+@section Footer
+{
+	@{
+		await Html.RenderPartialAsync("_Footer", new Footer());
+	}
+}

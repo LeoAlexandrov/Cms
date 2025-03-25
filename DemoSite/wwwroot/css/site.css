@@ -7,8 +7,11 @@ nav.top-site-header {
 	min-height: 100px;
 }
 
-.top-site-header-menuitem:nth-of-type(n+2) {
-	margin-left: 16px;
+@media (min-width: 992px) {
+
+	.top-site-header-menuitem:nth-of-type(n+2) {
+		margin-left: 16px;
+	}
 }
 
 header #logo {
@@ -37,6 +40,7 @@ header #logo {
 
 
 .navigation-menu {
+	margin-top: 24px;
 }
 
 @media (min-width: 992px) {

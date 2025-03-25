@@ -1028,7 +1028,7 @@ namespace AleProjects.Cms.Application.Services
 
 			int idx = Array.FindIndex(links, l => l.Id == id);
 
-			if (idx > 0)
+			if (idx >= 0)
 				while (idx < links.Length && links[idx].ContainerRef == containerRef)
 					links[idx++].Position--;
 

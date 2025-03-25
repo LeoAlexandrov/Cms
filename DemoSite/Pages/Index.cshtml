@@ -6,33 +6,8 @@
 	string layout = Model.ChooseLayout();
 
 	await Html.RenderPartialAsync(layout, Model.CmsPage);
-
-	//bool scrollspy = Layout == "_NavScrollSpyLayout" || Layout == "_ScrollSpyLayout";
 }
 
-@*
-@if (scrollspy)
-{
-	@Html.Raw("<div data-mdb-scrollspy-init data-mdb-target=\"#scrollspy\" data-mdb-offset=\"0\">")
-}
-
-@foreach (var f in Model.Page.Document.Fragments)
-{
-	await Html.RenderPartialAsync(f.XmlName, f);
-}
-
-@if (scrollspy)
-{
-	@Html.Raw("</div>")
-}
-
-@section Navigation 
-{
-	@{
-		await Html.RenderPartialAsync("_NavigationMenu", Model.CmsPage.NavigationMenu);
-	}
-}
-*@
 
 @section MainMenu
 {
@@ -48,60 +23,32 @@
 	}
 }
 
-@if (Model.CmsPage.Document.Attributes.ContainsKey("highlight-code"))
-{
+@{
+	var attrs = Model.CmsPage.Document.Attributes;
+
 	@section Css
 	{
-	<link rel="stylesheet" href="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/styles/vs2015.min.css">
+	@if (attrs.ContainsKey("highlight-code"))
+	{
+		<link rel="stylesheet" href="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/styles/vs2015.min.css">
 	}
+	@if (attrs.ContainsKey("leaflet"))
+	{
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.css"
+			integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+			crossorigin="" />
+		<script src="https://unpkg.com/leaflet@@1.9.4/dist/leaflet.js"
+			integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+			crossorigin=""></script>
+	}
+	}
+
 	@section Scripts
 	{
-	<script src="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/highlight.min.js"></script>
-	<script>hljs.highlightAll();</script>
+	@if (attrs.ContainsKey("highlight-code"))
+	{
+		<script src="https://unpkg.com/@@highlightjs/cdn-assets@@11.9.0/highlight.min.js"></script>
+		<script>hljs.highlightAll();</script>
+	}
 	}
 }
-
-
-@*
-@section ScrollSpy
-{
-	@if (scrollspy)
-	{
-		int level = -1;
-
-		<div id="scrollspy" class="scrollspy sticky-top border-start">
-			<ul class="nav flex-column nav-pills menu-sidebar">
-
-				@foreach (var item in Model.Page.Document.Anchors)
-			{
-				if (level < item.Level && level >= 0)
-				{
-					@Html.Raw("<ul class=\"nav flex-column ps-3\"><li class=\"nav-item\">")
-					level = item.Level;
-				}
-				else if (level > item.Level)
-				{
-					@Html.Raw("</li>")
-					for (int i = level; i > item.Level; i--)
-						@Html.Raw("</ul>")
-
-					@Html.Raw("</li><li class=\"nav-item\">")
-					level = item.Level;
-				}
-				else if (level >= 0)
-				{
-					@Html.Raw("</li><li class=\"nav-item\">")
-				}
-				else 
-				{
-					@Html.Raw("<li class=\"nav-item\">")
-					level = 0;
-				}
-
-				<a class="nav-link ms-3 my-1" href="#@item.Id">@item.Name</a>
-			}
-			</ul>
-		</div>
-	}
- }
- *@

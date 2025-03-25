@@ -21,6 +21,7 @@ namespace DemoSite.Pages
 			Code = code ?? 500;
 			RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
 
+			ViewData["HomePage"] = "/";
 			ViewData["Theme"] = this.Request.Cookies["Theme"] ?? "light";
 		}
 	}

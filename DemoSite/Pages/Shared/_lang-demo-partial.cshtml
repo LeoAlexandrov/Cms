@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization;
+@using System.Globalization;
+@using DemoSite.ViewModels
+@inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@model HCms.ViewModels.Fragment
+
+@{
+	double halfPi = Math.PI / 2;
+	decimal sum = 100.45m;
+	DateTime date = new(1789, 7, 14, 11, 32, 0);
+	
+	string id = Model.DomId;
+	string extraFragmentClass = Model.Attributes?.GetValueOrDefault("bootstrap:class");
+}
+
+<div id="@id" class="@Model.CssClass() @extraFragmentClass" style="font-family: Roboto">
+	<table class="table">
+		<thead>
+			<tr>
+				<th></th>
+				<th>Output with current thread culture format provider</th>
+				<th>Output with invariant format provider</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Float number</td>
+				<td>@halfPi</td>
+				<td>@string.Format(new NumberFormatInfo(), "{0}", halfPi)</td>
+			</tr>
+			<tr>
+				<td>Money</td>
+				<td>@string.Format("{0:C}", sum)</td>
+				<td>@string.Format(new NumberFormatInfo(), "{0:C}", sum)</td>
+			</tr>
+			<tr>
+				<td>Date</td>
+				<td>@string.Format("{0:f}", date)</td>
+				<td>@string.Format(new DateTimeFormatInfo(), "{0:f}", date)</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<p>Label of the button below is taken from the app resources using injected <strong>IHtmlLocalizer&lt;SharedResources&gt;</strong></p>
+	<a class="btn btn-primary btn-lg" href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/formatting-types" target="_blank">
+		@SharedLocalizer["More"]<i class="fa fa-fw fa-solid fa-arrow-up-right-from-square"></i>
+	</a>
+</div>
+

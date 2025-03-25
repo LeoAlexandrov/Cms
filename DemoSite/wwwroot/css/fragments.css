@@ -9,7 +9,7 @@
 }
 
 .row-fragment {
-	margin-top: 12px;
+	margin-top: 0px;
 }
 
 .features-default-fragment {
@@ -93,3 +93,9 @@
 .action-inner-fragment:nth-of-type(n+2) {
 	margin-left: 8px;
 }
+
+@media (max-width: 991px) {
+
+	.action-inner-fragment {
+		margin-top: 12px;
+	}
