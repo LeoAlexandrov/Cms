@@ -48,6 +48,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		
 		public string PreviousRefreshToken { get; set; }
 
+		public string Provider { get; set; }
+
 		[MessagePack.IgnoreMember]
 		public LoginStatus Status { get; set; }
 
@@ -60,10 +62,35 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		[MessagePack.IgnoreMember]
 		public string Locale { get; set; }
 
+		[MessagePack.IgnoreMember]
+		public IEnumerable<Claim> Claims { get; set; }
+
+		public string AuthenticationType => Provider switch
+		{
+			"google" or "microsoft" or 
+			"github" or "stackoverflow" or
+			"amazon" or "facebook" => "AuthenticationTypes.Federation",
+			_ => "jwt"
+		};
+
 		public static UserLogin WithStatus(LoginStatus status) => new() { Status = status };
 
-		public static UserLogin Success(int userId, DateTime loginTime, string jwt, string refresh, string locale) => 
-			new() { UserId = userId, LoginTime = loginTime, Status = LoginStatus.Success, Jwt = jwt, Refresh = refresh, Locale = locale };
+		public static UserLogin Success(int userId, DateTime loginTime, JwtSecurityToken token, string refresh, string provider)
+		{
+			var claims = token.Claims;
+
+			return new()
+			{
+				UserId = userId,
+				LoginTime = loginTime,
+				Status = LoginStatus.Success,
+				Jwt = new JwtSecurityTokenHandler().WriteToken(token),
+				Claims = claims,
+				Refresh = refresh,
+				Locale = claims.FirstOrDefault(c => c.Type == "locale")?.Value,
+				Provider = provider
+			};
+		}
 	}
 
 
@@ -217,7 +244,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 		#endregion
 
-		private string CreateJwt(User user)
+
+		private static List<Claim> UserClaims(User user)
 		{
 			var claims = new List<Claim>()
 			{
@@ -235,6 +263,11 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			if (!string.IsNullOrEmpty(user.Avatar))
 				claims.Add(new Claim("avt", user.Avatar));
 
+			return claims;
+		}
+
+		public JwtSecurityToken CreateJwt(IEnumerable<Claim> claims)
+		{
 			DateTime now = DateTime.UtcNow;
 			byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("Auth:SecurityKey"));
 
@@ -242,13 +275,11 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				issuer: _configuration.GetValue<string>("Auth:JwtIssuer"),
 				audience: _configuration.GetValue<string>("Auth:JwtAudience"),
 				notBefore: now,
-				claims: [.. claims],
+				claims: claims,
 				expires: now.Add(TimeSpan.FromSeconds(JWT_EXPIRES_IN)),
 				signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
 
-			string jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-			return jwt;
+			return token;
 		}
 
 
@@ -298,7 +329,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			await _dbContext.SaveChangesAsync();
 
-			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(user), RandomString.Create(32), user.Locale);
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "google");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
@@ -393,7 +425,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			await _dbContext.SaveChangesAsync();
 
-			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(user), RandomString.Create(32), user.Locale);
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "microsoft");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
@@ -469,7 +502,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			await _dbContext.SaveChangesAsync();
 
-			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(user), RandomString.Create(32), user.Locale);
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "github");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
@@ -544,7 +578,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			await _dbContext.SaveChangesAsync();
 
-			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(user), RandomString.Create(32), user.Locale);
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "stackoverflow");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
@@ -596,11 +631,10 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				return login;
 			}
 
-			login.LoginTime = now;
-			login.PreviousRefreshToken = refresh;
-			login.Jwt = CreateJwt(user);
-			login.Refresh = RandomString.Create(32);
+			IEnumerable<Claim> claims = UserClaims(user);
+			var token = CreateJwt(claims);
 
+			login = UserLogin.Success(user.Id, now, token, RandomString.Create(32), login.Provider);
 			bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });

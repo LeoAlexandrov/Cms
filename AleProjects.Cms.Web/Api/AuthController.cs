@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
@@ -17,12 +19,13 @@ namespace AleProjects.Cms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]/{action}")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class AuthController(SignInHandler signInHandler) : ControllerBase
+	public class AuthController(SignInHandler signInHandler, IAntiforgery antiforgery) : ControllerBase
 	{
-		private readonly SignInHandler _signInHandler = signInHandler;
+		readonly SignInHandler _signInHandler = signInHandler;
+		readonly IAntiforgery _antiforgery = antiforgery;
 
 
-		private void SetAuthCookies(string jwt, string refresh, string locale)
+		void SetAuthCookies(string jwt, string refresh, string locale)
 		{
 			this.Response.Cookies.Append("X-JWT", jwt, new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Lax });
 			this.Response.Cookies.Append("X-Refresh", refresh, new CookieOptions() { HttpOnly = true, Secure = true, SameSite = SameSiteMode.Strict });
@@ -70,7 +73,12 @@ namespace AleProjects.Cms.Web.Api
 
 			SetAuthCookies(login.Jwt, login.Refresh, login.Locale);
 
-			return Ok();
+			ClaimsIdentity identity = new(login.Claims, login.AuthenticationType);
+			this.HttpContext.User = new(identity);
+
+			var tokens = _antiforgery.GetAndStoreTokens(this.HttpContext);
+
+			return Ok(new { CsrfToken = tokens.RequestToken });
 		}
 
 	}

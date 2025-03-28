@@ -62,6 +62,9 @@
 		let fetchParams = { method: requestMethod, mode: "same-origin", headers: { ...headers } };
 		let authEndpoints = this.authEndpoints();
 		let cType = null;
+		let csrf_input = null;
+		let csrf_token = null;
+
 
 		if (requestMethod != "GET") {
 
@@ -70,7 +73,15 @@
 				fetchParams.headers["Content-Type"] = cType;
 			}
 
-			let csrf_token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+			csrf_input = document.querySelector('input[name="__RequestVerificationToken"]');
+
+			if (!csrf_input) {
+				await this.delay(50);
+				csrf_input = document.querySelector('input[name="__RequestVerificationToken"]');
+			}
+
+			if (csrf_input)
+				csrf_token = csrf_input.value;
 
 			fetchParams.headers["X-RequestVerificationToken"] = csrf_token;
 
@@ -141,22 +152,27 @@
 					this._refreshInProgress = false;
 					this._bcRefresh.postMessage(0);
 
-					if (!refreshResponse.ok) 
+					if (refreshResponse.ok) {
+						result = await refreshResponse.json();
+						csrf_token = result.csrfToken;
+						sessionStorage.setItem("csrf_token", csrf_token);
+					} else {
 						refreshFailed = true;
+					}
 
 				} else {
 
 					let maxWaitCycles = 20;
-					let resolver = (resolve) => setTimeout(() => resolve(), 1000);
-					let refreshing;
 
 					while (this._refreshInProgress && maxWaitCycles-- > 0) {
-						refreshing = new Promise(resolver);
-						await refreshing;
+						await this.delay(1000);
 					}
 
-					if (this._refreshInProgress)
+					if (this._refreshInProgress) {
 						refreshFailed = true;
+					} else {
+						csrf_token = sessionStorage.getItem("csrf_token");
+					}
 
 				}
 
@@ -177,6 +193,14 @@
 
 					return { ok: false, status: 401, result: null, contentType: null, totalItems: 0, link: null };
 				}
+
+				if (fetchParams.headers.hasOwnProperty("X-RequestVerificationToken"))
+					fetchParams.headers["X-RequestVerificationToken"] = csrf_token;
+
+				csrf_input = document.querySelector('input[name="__RequestVerificationToken"]');
+
+				if (csrf_input)
+					csrf_input.value = csrf_token;
 
 			} else {
 
@@ -213,6 +237,10 @@
 		} while (count401 != 0);
 
 		return { ok: requestResponse.status >= 200 && requestResponse.status < 300, status: requestResponse.status, result: result, contentType: cType, totalItems: totalItems, link: link };
+	},
+
+	delay: function (ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));
 	},
 
 	getCookie: function (name) {
