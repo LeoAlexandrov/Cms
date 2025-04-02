@@ -98,7 +98,7 @@ else if (look == "grid" || look == "blog")
 	int visibleLinks = Model.Props.visible_links;
 	var pagination = Model.Document.CreatePagination(visibleLinks, PathTransformer.Forward(root, Model.Document.Path, false));
 
-	if (pagination.Links != null)
+	if (pagination.Links != null && Model.Document.TotalChildrenCount > Model.Document.ChildrenTaken)
 	{
 	<ul class="pagination pagination-lg justify-content-center mt-4">
 		@foreach (var link in pagination.Links)
@@ -116,7 +116,5 @@ else if (look == "grid" || look == "blog")
 		}
 	</ul>
 	}
-	
 }
-
 </div>

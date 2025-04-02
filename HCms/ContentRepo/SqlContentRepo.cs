@@ -340,13 +340,10 @@ namespace HCms.ContentRepo
 					Breadcrumbs = breadcrumbs
 				};
 
-				allDocsIds = new(docs.Select(d => d.Id)) { doc.Id };
+				allDocsIds = [.. docs.Select(d => d.Id), doc.Id];
 
 				if (siblings)
-				{
 					result.Siblings = await Children(doc.Parent, -1, -1);
-					//allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
-				}
 				else
 					result.Siblings = [];
 			}
