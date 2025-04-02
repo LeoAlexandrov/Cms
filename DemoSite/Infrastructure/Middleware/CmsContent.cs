@@ -67,11 +67,13 @@ namespace DemoSite.Infrastructure.Middleware
 				routeData.Values.TryGetValue("page", out object val) &&
 				val.ToString() == "/Index")
 			{
+				bool allowCaching = string.IsNullOrEmpty(context.Request.QueryString.Value);
+
 				string path = ContentRepo.CleanPath(context.Request.Path.Value);
 				string theme = Theme(context);
 				string cacheKey = $"{theme}-{path}";
 
-				if (cache.TryGetValue(cacheKey, out byte[] body))
+				if (allowCaching && cache.TryGetValue(cacheKey, out byte[] body))
 				{
 					Console.WriteLine($"*** Cache hit '{path}' ***");
 					await context.Response.Body.WriteAsync(body);
@@ -102,10 +104,11 @@ namespace DemoSite.Infrastructure.Middleware
 					body = new byte[newBody.Length];
 					newBody.Read(body, 0, body.Length);
 
-					if (context.Response.StatusCode == (int)HttpStatusCode.OK &&
+					allowCaching &= context.Response.StatusCode == (int)HttpStatusCode.OK &&
 						!doc.AuthRequired &&
-						string.IsNullOrEmpty(context.Request.QueryString.Value) &&
-						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store"))
+						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store");
+
+					if (allowCaching)
 					{
 #if !DEBUG
 						cache.Set(cacheKey, body);
