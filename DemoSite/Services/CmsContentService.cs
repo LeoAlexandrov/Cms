@@ -98,10 +98,10 @@ namespace DemoSite.Services
 			return result ? AuthResult.Success : AuthResult.Forbidden;
 		}
 
-		public async Task<Document> GetDocument(string host, string path)
+		public async Task<Document> GetDocument(string host, string path, int childPos, int takeChildren)
 		{
 			var (cmsRoot, cmsPath) = _repo.PathTransformer.Back(host, path);
-			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, 0, true, false);
+			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, childPos, takeChildren, true, false);
 
 			RequestedDocument = doc;
 

@@ -78,7 +78,14 @@ namespace DemoSite.Infrastructure.Middleware
 				}
 				else
 				{
-					var doc = await content.GetDocument(context.Request.Host.Value, path);
+					int pageSize = 5;
+
+					int position = context.Request.Query.TryGetValue("p", out var qp) && 
+						int.TryParse(qp, out int p) && 
+						p > 0 ? (p-1) * pageSize : 0;
+
+
+					var doc = await content.GetDocument(context.Request.Host.Value, path, position, pageSize);
 
 					SetCulture(doc?.Language);
 
@@ -97,6 +104,7 @@ namespace DemoSite.Infrastructure.Middleware
 
 					if (context.Response.StatusCode == (int)HttpStatusCode.OK &&
 						!doc.AuthRequired &&
+						string.IsNullOrEmpty(context.Request.QueryString.Value) &&
 						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store"))
 					{
 #if !DEBUG

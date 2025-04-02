@@ -77,7 +77,7 @@ namespace HCms.ContentRepo
 			NeedsSchemataReload = 1;
 		}
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, bool siblings, bool exactPathMatch)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, bool exactPathMatch)
 		{
 			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
@@ -166,7 +166,7 @@ namespace HCms.ContentRepo
 				};
 
 				if (siblings)
-					result.Siblings = await Children(doc.Parent, -1);
+					result.Siblings = await Children(doc.Parent, -1, -1);
 				else
 					result.Siblings = [];
 			}
@@ -197,9 +197,10 @@ namespace HCms.ContentRepo
 
 			if (childrenFromPos >= 0)
 			{
-				result.ChildrenPosition = childrenFromPos;
-				result.TotalChildCount = await dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
-				result.Children = await Children(doc.Id, childrenFromPos);
+				result.ChildrenTakePosition = childrenFromPos;
+				result.ChildrenTaken = takeChildren;
+				result.TotalChildrenCount = await dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
+				result.Children = await Children(doc.Id, childrenFromPos, takeChildren);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
@@ -282,7 +283,7 @@ namespace HCms.ContentRepo
 			return result;
 		}
 
-		public async Task<Document> GetDocument(int id, int childrenFromPos, bool siblings)
+		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings)
 		{
 			var doc = await dbContext.Documents
 				.AsNoTracking()
@@ -343,7 +344,7 @@ namespace HCms.ContentRepo
 
 				if (siblings)
 				{
-					result.Siblings = await Children(doc.Parent, -1);
+					result.Siblings = await Children(doc.Parent, -1, -1);
 					//allDocsIds.AddRange(result.Siblings.Where(d => d.Id != doc.Id).Select(d => d.Id));
 				}
 				else
@@ -376,9 +377,10 @@ namespace HCms.ContentRepo
 
 			if (childrenFromPos >= 0)
 			{
-				result.ChildrenPosition = childrenFromPos;
-				result.TotalChildCount = await dbContext.Documents.Where(d => d.Parent == id).CountAsync();
-				result.Children = await Children(id, childrenFromPos);
+				result.ChildrenTakePosition = childrenFromPos;
+				result.ChildrenTaken = takeChildren;
+				result.TotalChildrenCount = await dbContext.Documents.Where(d => d.Parent == id).CountAsync();
+				result.Children = await Children(id, childrenFromPos, takeChildren);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
@@ -460,13 +462,16 @@ namespace HCms.ContentRepo
 			return result;
 		}
 
-		public Task<Document[]> Children(int docId, int childrenFromPos)
+		public Task<Document[]> Children(int docId, int childrenFromPos, int take)
 		{
+			if (take < 0)
+				take = 1000;
+
 			var qry = dbContext.Documents
 				.AsNoTracking()
 				.Where(d => d.Parent == docId && d.Published && d.Position >= childrenFromPos)
 				.OrderBy(d => d.Position)
-				.Take(PageSize);
+				.Take(take);
 
 			return qry.Select(d => new Document(d)).ToArrayAsync();
 		}

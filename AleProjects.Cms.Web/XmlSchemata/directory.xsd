@@ -36,11 +36,17 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-			<xs:element name="pagination" type="xs:boolean">
+			<xs:element name="visible-links" default="5">
 				<xs:annotation>
-					<xs:documentation xml:lang="en">Pagination</xs:documentation>
-					<xs:documentation xml:lang="fr">Pagination</xs:documentation>
+					<xs:documentation xml:lang="en">Visible pagination links</xs:documentation>
+					<xs:documentation xml:lang="fr">Liens de pagination visibles</xs:documentation>
 				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:minInclusive value="0"/>
+						<xs:maxInclusive value="10"/>
+					</xs:restriction>
+				</xs:simpleType>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>

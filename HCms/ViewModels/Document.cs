@@ -35,8 +35,10 @@ namespace HCms.ViewModels
 		public Document Root { get; set; }
 		public Document[] Siblings { get; set; }
 		public Document[] Children { get; set; }
-		public int ChildrenPosition { get; set; } = -1;
-		public int TotalChildCount { get; set; }
+
+		public int ChildrenTakePosition { get; set; } = -1;
+		public int ChildrenTaken { get; set; }
+		public int TotalChildrenCount { get; set; }
 
 		public Fragment[] Fragments { get; set; }
 		public Dictionary<string, string> Attributes { get; set; }

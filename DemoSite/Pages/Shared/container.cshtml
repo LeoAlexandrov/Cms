@@ -43,6 +43,8 @@
 				divClass.Append(' ').Append(cls);
 		}
 
+	divClass.Append(Model.Attributes?.GetValueOrDefault("bootstrap:class"));
+
 	cls = divClass.ToString();
 }
 

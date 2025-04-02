@@ -13,7 +13,7 @@ namespace DemoSite.Pages
 {
 	public class IndexModel(CmsContentService content) : PageModel
 	{
-		private readonly CmsContentService _content = content;
+		readonly CmsContentService _content = content;
 
 		public CmsPageModel CmsPage { get; set; }
 

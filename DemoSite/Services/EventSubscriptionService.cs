@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ using RabbitMQ.Client.Events;
 
 using AleProjects.Endpoints;
 using HCms.Dto;
-using System.Net;
 
 
 namespace DemoSite.Services
