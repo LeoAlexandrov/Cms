@@ -55,10 +55,10 @@
 				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]']">
 			</q-input>
 
-			<q-checkbox v-model="newDocument.inheritAttributes" v-if="newDocument.parent"
+			<q-checkbox v-model="newDocument.copyAttributes" v-if="newDocument.parent"
 				class="q-py-lg"
-				label="@Localizer["InheritAttributes"]"
-				ref="InheritAttributes">
+				label="@Localizer["CopyAttributes"]"
+				ref="CopyAttributes">
 			</q-checkbox>
 
 		</q-card-section>

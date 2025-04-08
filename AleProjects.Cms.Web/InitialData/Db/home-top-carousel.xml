@@ -1,0 +1,43 @@
+﻿<carousel-plus
+	xmlns="http://h-cms.net/default.xsd">
+	<appearance>
+		<interval>30000</interval>
+		<buttons>false</buttons>
+	</appearance>
+	<item>
+		<picture>
+			<source>https://media.h-cms.net/banner-bk0.webp</source>
+			<alt></alt>
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+			<height>320</height>
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+		</picture>
+		<active>true</active>
+	</item>
+	<item>
+		<picture>
+			<source>https://media.h-cms.net/banner-bk1.webp</source>
+			<alt></alt>
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+			<height>320</height>
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+		</picture>
+		<active>false</active>
+	</item>
+</carousel-plus>

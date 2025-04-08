@@ -50,7 +50,7 @@
 				parent: 0,
 				slug: null,
 				title: null,
-				inheritAttributes: false
+				copyAttributes: false
 			},
 			invalidNewDocSlugs: [],
 
@@ -388,7 +388,7 @@
 				parent: parentId,
 				slug: TEXT.DOCS.get('SLUG_NEW_DOCUMENT'),
 				title: null,
-				inheritAttributes: false
+				copyAttributes: false
 			}
 
 			this.newDocumentProps = true;
@@ -405,7 +405,7 @@
 				parent: this.newDocument.parent,
 				slug: this.newDocument.slug,
 				title: this.newDocument.title,
-				inheritAttributes: this.newDocument.inheritAttributes
+				copyAttributes: this.newDocument.copyAttributes
 			};
 
 			Quasar.LoadingBar.start();

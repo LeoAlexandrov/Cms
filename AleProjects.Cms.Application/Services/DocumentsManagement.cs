@@ -223,8 +223,8 @@ namespace AleProjects.Cms.Application.Services
 
 				pathNodes.Add(new() { Parent = dto.Parent, Position = pathNodes.Count });
 
-				newAttrs = dto.InheritAttributes ?
-					new(parent.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled })) :
+				newAttrs = dto.CopyAttributes ?
+					new(parent.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled, Private = a.Private })) :
 					null;
 			}
 			else
@@ -252,6 +252,7 @@ namespace AleProjects.Cms.Application.Services
 				Title = title,
 				Language = language,
 				Icon = icon,
+				Published = dto.Published,
 				AuthPolicies = authPolicies,
 				Author = user.Identity.Name,
 				CreatedAt = now,

@@ -271,6 +271,10 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("schema")]
 		[/*Required(AllowEmptyStrings = false),*/ MaxLength(256)]
 		public string Schema { get; set; }
+
+		[MessagePack.Key("rawXml")]
+		public string RawXml { get; set; }
+
 	}
 
 

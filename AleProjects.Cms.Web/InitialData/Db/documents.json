@@ -1,0 +1,92 @@
+[
+	{
+		"Slug": "home",
+		"Title": "Home page",
+		"Fragments": [
+			{
+				"Name": "top-carousel",
+				"RawXml": "home-top-carousel.xml",
+				"Children": [
+					{
+						"Name": "welcome page",
+						"RawXml": "home-top-carousel-welcome-page.xml"
+					},
+					{
+						"Name": "example page",
+						"RawXml": "home-top-carousel-example-page.xml"
+					}
+				]
+			},
+			{
+				"Name": "hero section",
+				"RawXml": "home-hero-section.xml"
+			},
+			{
+				"Name": "horizontal card",
+				"RawXml": "home-horizontal-card.xml"
+			},
+			{
+				"Name": "tabs",
+				"RawXml": "home-tabs.xml",
+				"Children": [
+					{
+						"Name": "tab#1 container",
+						"RawXml": "home-tabs-tab1container.xml",
+						"Children": [
+							{
+								"Name": "Lorem Ipsum",
+								"RawXml": "home-tabs-tab1container-lorem-ipsum.xml"
+							},
+							{
+								"Name": "Freddie Mercury Windows 11",
+								"RawXml": "home-tabs-tab1container-freddie-mercury.xml"
+							}
+						]
+					},
+					{
+						"Name": "Qui quisquam",
+						"RawXml": "home-tabs-quiquisquam.xml"
+					}
+				]
+			}
+		],
+		"Attributes": [
+		],
+		"Children": [
+			{
+				"Slug": "about",
+				"Title": "About",
+				"Fragments": [
+					{
+						"Name": "header",
+						"RawXml": "about-header.xml"
+					},
+					{
+						"Name": "accordion",
+						"RawXml": "about-accordion.xml",
+						"Children": [
+							{
+								"Name": "expansion item #1",
+								"RawXml": "about-accordion-expansion-item1.xml"
+							},
+							{
+								"Name": "expansion item #2",
+								"RawXml": "about-accordion-expansion-item2.xml"
+							},
+							{
+								"Name": "expansion item #3",
+								"RawXml": "about-accordion-expansion-item3.xml"
+							}
+						]
+					}
+				],
+				"Attributes": [
+					{
+						"Key": "layout",
+						"Value": "navigation-left"
+					}
+				]
+			}
+		]
+	}
+]

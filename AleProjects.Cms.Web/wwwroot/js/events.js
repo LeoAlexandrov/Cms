@@ -317,6 +317,7 @@
 			.then((r) => {
 
 				if (r.ok) {
+					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
 				}
 

@@ -251,7 +251,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			{
 				new(ClaimTypes.NameIdentifier, user.Login),
 				new(ClaimTypes.Name, user.Name),
-				new(ClaimTypes.Role, user.Role),
+				new(ClaimTypes.Role, user.Role)
 			};
 
 			if (!string.IsNullOrEmpty(user.Email))

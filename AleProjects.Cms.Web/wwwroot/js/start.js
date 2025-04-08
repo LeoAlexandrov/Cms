@@ -2,7 +2,8 @@
 
 	data() {
 		return {
-			account: null
+			account: null,
+			addDemoData: true
 		}
 	},
 

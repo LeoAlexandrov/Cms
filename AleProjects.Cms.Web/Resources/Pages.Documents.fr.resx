@@ -336,8 +336,8 @@
   <data name="Anchor" xml:space="preserve">
     <value>Ancre</value>
   </data>
-  <data name="InheritAttributes" xml:space="preserve">
-    <value>Hériter des attributs</value>
+  <data name="CopyAttributes" xml:space="preserve">
+    <value>Copier les attributs</value>
   </data>
   <data name="AttributePrivateLabel" xml:space="preserve">
     <value>Privé</value>

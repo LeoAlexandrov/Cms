@@ -1,0 +1,47 @@
+﻿<hero
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Welcome to the H-Cms demo site</title>
+		<subtitle></subtitle>
+		<text><![CDATA[<p>Hi, this is the demonstration site for our newly developed, open-source headless CMS, built from the ground up in C# / .Net to streamline content management with precision and ease. Discover a platform that combines power, flexibility, and simplicity, tailored for creators and developers alike!</p>]]></text>
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture -->
+	</content>
+	<appearance>
+		<layout>start</layout>
+		<featured>false</featured>
+		<visibility>false</visibility>
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:appearance\http://h-cms.net/default.xsd:background -->
+	</appearance>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://github.com/LeoAlexandrov/Cms</action>
+		<title>Github</title>
+		<altText></altText>
+		<icon>fa-brands fa-github</icon>
+		<icon-left>true</icon-left>
+		<category>primary</category>
+		<target>new_window</target>
+	</action>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://h-cms.net</action>
+		<title>Site</title>
+		<altText></altText>
+		<icon></icon>
+		<icon-left>false</icon-left>
+		<category>secondary</category>
+		<target>new_window</target>
+	</action>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://admin.h-cms.net</action>
+		<title>Backend</title>
+		<altText></altText>
+		<icon></icon>
+		<icon-left>false</icon-left>
+		<category>secondary</category>
+		<target>new_window</target>
+	</action>
+</hero>

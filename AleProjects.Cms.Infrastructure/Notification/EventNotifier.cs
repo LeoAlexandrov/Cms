@@ -92,7 +92,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 				AffectedContent = [new() { Id = id, Root = root, Path = path }]
 			};
 
-			_ = Task.Run(() => PublishEvent(dests, payload, httpClient))
+			_ = PublishEvent(dests, payload, httpClient)
 				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
@@ -120,7 +120,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 				AffectedContent = fullPaths.Select(p => new EventPayloadContentEntry() { Path = p }).ToArray()
 			};
 
-			_ = Task.Run(() => PublishEvent(dests, payload, httpClient))
+			_ = PublishEvent(dests, payload, httpClient)
 				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
@@ -134,7 +134,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 			var payload = new EventPayload() { Event = eventType };
 
-			_ = Task.Run(() => PublishEvent(dests, payload, httpClient))
+			_ = PublishEvent(dests, payload, httpClient)
 				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
 		}
 	}

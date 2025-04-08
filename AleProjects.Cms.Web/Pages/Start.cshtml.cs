@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.DependencyInjection;
 
-using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
 
 
@@ -13,12 +13,10 @@ namespace AleProjects.Cms.Web.Pages
 
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	[IgnoreAntiforgeryToken(Order = 1001)]
-	public class StartModel(UserManagementService ums, IHtmlLocalizer<SharedErrors> localizer) : PageModel
+	public class StartModel(IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
-		private static readonly object _lockObj = new();
-
-		private readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
-		private readonly UserManagementService _ums = ums;
+		readonly static object _lockObj = new();
+		readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
 
 		public string ErrorMessage {get; private set;}
 
@@ -26,16 +24,20 @@ namespace AleProjects.Cms.Web.Pages
 		[Required]
 		public string Account { get; set; }
 
-		public void OnGet()
+		[BindProperty]
+		public bool AddDemoData { get; set; }
+
+
+		public void OnGet([FromServices] UserManagementService ums)
 		{
-			if (!_ums.NoUsers())
+			if (!ums.NoUsers())
 			{
 				this.Response.Redirect("/auth");
 				return;
 			}
 		}
 
-		public void OnPost()
+		public void OnPost([FromServices] IServiceScopeFactory serviceScopeFactory)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -45,19 +47,13 @@ namespace AleProjects.Cms.Web.Pages
 
 			lock (_lockObj)
 			{
-				if (!_ums.NoUsers())
+				var result = InitializationHelper.Initialize(serviceScopeFactory, this.Account, this.AddDemoData).Result;
+
+				if (result == InitializationHelper.InitResult.UsersExist)
 				{
 					this.ErrorMessage = (string)_errorsLocalizer.GetString("Start_LoginExists");
 					return;
 				}
-
-				var user = new DtoCreateUser()
-				{
-					Login = this.Account,
-					Role = "Developer"
-				};
-
-				var _ = _ums.CreateUser(user, null).Result;
 			}
 
 			this.Response.Redirect("/auth");

@@ -1,0 +1,38 @@
+﻿<card
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Card fragment</title>
+		<subtitle>Card subtitle</subtitle>
+		<text><![CDATA[<p>Card is a rectangular or modular container used to visually group and display content, such as text, images, buttons, or links, in an organized and easily digestible format. Cards are often used for showcasing information in grids or lists, making them popular for modern UI design.</p><p><span style="color: var(--q-dark);">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?</span></p>]]></text>
+	</content>
+	<appearance>
+		<layout>end</layout>
+		<horizontal>true</horizontal>
+		<featured>false</featured>
+	</appearance>
+	<picture>
+		<source>https://media.h-cms.net/abstract1.webp</source>
+		<alt></alt>
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+	</picture>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://h-cms.net</action>
+		<title>External link</title>
+		<altText></altText>
+		<icon>fa-solid fa-arrow-up-right-from-square</icon>
+		<icon-left>false</icon-left>
+		<category>primary</category>
+		<target>new_window</target>
+	</action>
+</card>
+

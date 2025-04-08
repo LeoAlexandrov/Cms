@@ -49,7 +49,16 @@
 		</q-card-section>
 		}
 
-		<q-separator class="q-mt-lg"></q-separator>
+		<q-card-section class="q-pt-md">
+			<q-checkbox v-model="addDemoData"
+				label="@Localizer["AddDemoData"]"
+				name="addDemoData"
+				ref="AddDemoData">
+			</q-checkbox>
+		</q-card-section>
+
+
+		<q-separator></q-separator>
 
 		<q-card-actions vertical align="right">
 			<q-btn flat color="primary" :disabled="!account" type="submit">@SharedLocalizer["Continue"]</q-btn>

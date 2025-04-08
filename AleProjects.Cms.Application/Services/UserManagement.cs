@@ -26,7 +26,7 @@ namespace AleProjects.Cms.Application.Services
 
 		public bool NoUsers()
 		{
-			return !dbContext.Users.Any(); ;
+			return !dbContext.Users.Any();
 		}
 
 		public async Task<DtoUserLiteResult[]> GetList(ClaimsPrincipal user)

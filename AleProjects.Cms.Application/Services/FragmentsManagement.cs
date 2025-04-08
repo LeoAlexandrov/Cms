@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -564,78 +565,20 @@ namespace AleProjects.Cms.Application.Services
 			using XmlReader reader = XmlReader.Create(xmlStream, settings);
 
 
-			/*
-			XPathDocument xpathDoc = new(reader);
-			XPathNavigator xpathNav = xpathDoc.CreateNavigator();
-			XmlNamespaceManager manager = new(xpathNav.NameTable);
-
-			manager.AddNamespace("t", fragment.XmlSchema);
-			*/
-
 			try
 			{
 				XmlDocument document = new();
 				document.Load(reader);
 
-				var root = document.DocumentElement;
+				var root = document.DocumentElement ?? throw new XmlException();
 
-				if (root != null)
-				{
-					dto.Decomposition = TraverseElement(root, 0, null, lang, [], _schemaRepo.Index);
-				}
-				else
-				{
-					throw new XmlException();
-				}
+				dto.Decomposition = TraverseElement(root, 0, null, lang, [], _schemaRepo.Index);
 			}
 			catch (Exception ex)
 			{
 				dto.Decomposition = [];
 				dto.ValidationError = ex.Message;
 			}
-
-			/*
-			List<DtoFragmentElement> decomposition = [];
-
-			int callback(XSElement e, int level, int parentIdx)
-			{
-				var nodes = xpathNav.Select(e.XmlPath("t"), manager);
-
-				if (nodes.Count != 0)
-				{
-					if (nodes.Count > 1)
-					{
-						Console.WriteLine("aaaa");
-					}
-
-					Console.WriteLine(e.XmlPath("t") + " | " + level.ToString() + " | " + parentIdx.ToString());
-
-					decomposition.Add(new()
-					{
-						Level = level,
-						ParentIndex = parentIdx,
-						Path = e.Path,
-					});
-
-					return 0;
-				}
-				else
-				{
-					decomposition.Add(new() 
-					{ 
-						IsEmptyHolder = true,
-						Level = level,
-						ParentIndex = parentIdx,
-						Path = e.Path,
-					});
-
-					return 1;
-				}
-
-			}
-
-			_schemaService.Traverse(fragment.XmlName, callback);
-			*/
 
 			return Result<DtoFullFragmentResult>.Success(dto);
 		}
@@ -647,18 +590,27 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoFragmentChangeResult>.Forbidden();
 
+			if (!string.IsNullOrEmpty(dto.RawXml))
+			{
+				authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
+
+				if (!authResult.Succeeded)
+					return Result<DtoFragmentChangeResult>.Forbidden();
+			}
+
 			string name;
+			HtmlSanitizer sanitizer;
 
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
 			if (!authResult.Succeeded)
 			{
-				var sanitizer = new HtmlSanitizer();
-
+				sanitizer = new HtmlSanitizer();
 				name = sanitizer.Sanitize(dto.Name);
 			}
 			else
 			{
+				sanitizer = null;
 				name = dto.Name;
 			}
 
@@ -694,6 +646,7 @@ namespace AleProjects.Cms.Application.Services
 			FragmentLink fl;
 			string content;
 			string xmlName;
+			string xmlSchema;
 
 			if (dto.SharedFragment != null)
 			{
@@ -723,17 +676,41 @@ namespace AleProjects.Cms.Application.Services
 				sharedFragment = null;
 				content = null;
 				xmlName = null;
+				xmlSchema = null;
 
-				for (int i = 0; i < _schemaRepo.Fragments.Count; i++)
-					if (_schemaRepo.Fragments[i].Name == dto.TemplateName &&
-						_schemaRepo.Fragments[i].Namespace == dto.Schema)
+				if (string.IsNullOrEmpty(dto.RawXml))
+				{
+					xmlSchema = dto.Schema;
+
+					for (int i = 0; i < _schemaRepo.Fragments.Count; i++)
+						if (_schemaRepo.Fragments[i].Name == dto.TemplateName &&
+							_schemaRepo.Fragments[i].Namespace == xmlSchema)
+						{
+							var sb = GetDefaultValue(_schemaRepo.Fragments[i]);
+							content = sb.ToString();
+							xmlName = _schemaRepo.Fragments[i].Name;
+							sb.Clear();
+							break;
+						}
+				}
+				else
+				{
+					content = sanitizer?.Sanitize(dto.RawXml) ?? dto.RawXml;
+
+					XElement root;
+
+					try
 					{
-						var sb = GetDefaultValue(_schemaRepo.Fragments[i]);
-						content = sb.ToString();
-						xmlName = _schemaRepo.Fragments[i].Name;
-						sb.Clear();
-						break;
+						root = XDocument.Parse(content).Root ?? throw new XmlException();
 					}
+					catch
+					{
+						return Result<DtoFragmentChangeResult>.BadParameters("RawXml", "Bad xml content");
+					}
+
+					xmlName = root.Name?.LocalName;
+					xmlSchema = root.Attribute("xmlns")?.Value;
+				}
 
 				fl = new()
 				{
@@ -748,7 +725,7 @@ namespace AleProjects.Cms.Application.Services
 					Name = name,
 					Data = content,
 					XmlName = xmlName,
-					XmlSchema = dto.Schema,
+					XmlSchema = xmlSchema,
 					DocumentLinks = [fl]
 				};
 

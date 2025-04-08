@@ -1,0 +1,23 @@
+﻿<accordion
+	xmlns="http://h-cms.net/default.xsd">
+	<title>This is the accordion</title>
+	<appearance>
+		<look>default</look>
+		<always-open>true</always-open>
+	</appearance>
+	<item>
+		<title>expansion item #1</title>
+		<icon>fa-question-circle</icon>
+		<opened>true</opened>
+	</item>
+	<item>
+		<title>expansion item #2</title>
+		<icon>fa-question-circle</icon>
+		<opened>false</opened>
+	</item>
+	<item>
+		<title>expansion item #3</title>
+		<icon>fa-question-circle</icon>
+		<opened>false</opened>
+	</item>
+</accordion>

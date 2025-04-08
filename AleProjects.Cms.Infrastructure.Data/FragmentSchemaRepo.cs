@@ -21,6 +21,12 @@ namespace AleProjects.Cms.Infrastructure.Data
 	{
 		public const string W3_2001_XMLSCHEMA = "http://www.w3.org/2001/XMLSchema";
 
+#if DEBUG
+		const string XSD_PATH = "InitialData/XmlSchemata";
+#else
+		const string XSD_PATH = "InitialData/XmlSchemata";
+#endif
+
 		public List<XSElement> Fragments { get; private set; }
 		public XmlSchemaSet SchemaSet { get; private set; }
 		public Dictionary<string, XSElement> Index { get; private set; }
@@ -284,11 +290,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			if (dbContext.Schemata.Any())
 				return result;
 
-#if DEBUG
-			string[] files = Directory.GetFiles("XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
-#else
-			string[] files = Directory.GetFiles("XmlSchemata", "*.xsd", SearchOption.TopDirectoryOnly);
-#endif
+			string[] files = Directory.GetFiles(XSD_PATH, "*.xsd", SearchOption.TopDirectoryOnly);
 
 			foreach (string file in files)
 			{
@@ -297,10 +299,8 @@ namespace AleProjects.Cms.Infrastructure.Data
 					var xml = File.ReadAllText(file);
 					var schema = ReadXsd(xml);
 					var ns = schema.TargetNamespace;
-
 					var sch = new Schema() { Data = xml, Description = Path.GetFileName(file) + " (default)", Namespace = ns };
 
-					dbContext.Schemata.Add(sch);
 					result.Add(sch);
 				}
 				catch (Exception ex)
@@ -309,6 +309,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 				}
 			}
 
+			dbContext.Schemata.AddRange(result);
 			dbContext.SaveChanges();
 
 			return result;
@@ -316,7 +317,9 @@ namespace AleProjects.Cms.Infrastructure.Data
 
 		private static (XmlSchemaSet, List<XSElement>) ReadSchemata(CmsDbContext dbContext)
 		{
-			IReadOnlyList<Schema> schemata = dbContext.Schemata.AsNoTracking().ToArray();
+			IReadOnlyList<Schema> schemata = dbContext.Schemata
+				.AsNoTracking()
+				.ToArray();
 
 			if (schemata.Count == 0)
 				schemata = CreateDefault(dbContext);

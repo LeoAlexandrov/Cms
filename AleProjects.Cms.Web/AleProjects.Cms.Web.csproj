@@ -31,6 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Content Update="InitialData\Db\documents.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
 	<Content Update="settings.json">
 	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	</Content>
@@ -53,79 +56,124 @@
   </ItemGroup>
 
   <ItemGroup>
-	<None Update="XmlSchemata\carousel-plus.xsd">
+	<None Update="InitialData\Db\about-accordion-expansion-item1.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\about-accordion-expansion-item2.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\about-accordion-expansion-item3.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\about-accordion.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\about-header.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-hero-section.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-horizontal-card.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-tabs-quiquisquam.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-tabs-tab1container-freddie-mercury.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-tabs-tab1container-lorem-ipsum.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-tabs-tab1container.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-tabs.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-top-carousel-example-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-top-carousel-welcome-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Db\home-top-carousel.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\carousel-plus.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\grid.xsd">
+	<None Update="InitialData\XmlSchemata\grid.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="XmlSchemata\html.xsd">
+	<None Update="InitialData\XmlSchemata\html.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="XmlSchemata\markdown.xsd">
+	<None Update="InitialData\XmlSchemata\markdown.xsd">
 	  <SubType>Designer</SubType>
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="XmlSchemata\partial-view.xsd">
+	<None Update="InitialData\XmlSchemata\partial-view.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\directory.xsd">
+	<None Update="InitialData\XmlSchemata\directory.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\action.xsd">
+	<None Update="InitialData\XmlSchemata\action.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\card.xsd">
+	<None Update="InitialData\XmlSchemata\card.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\carousel.xsd">
+	<None Update="InitialData\XmlSchemata\carousel.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\common.xsd">
+	<None Update="InitialData\XmlSchemata\common.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\container.xsd">
+	<None Update="InitialData\XmlSchemata\container.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\accordion.xsd">
+	<None Update="InitialData\XmlSchemata\accordion.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\features.xsd">
+	<None Update="InitialData\XmlSchemata\features.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\hero.xsd">
+	<None Update="InitialData\XmlSchemata\hero.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\divider.xsd">
+	<None Update="InitialData\XmlSchemata\divider.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\metadata.xsd">
+	<None Update="InitialData\XmlSchemata\metadata.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\picture.xsd">
+	<None Update="InitialData\XmlSchemata\picture.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>
-	<None Update="XmlSchemata\row.xsd">
+	<None Update="InitialData\XmlSchemata\row.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="XmlSchemata\tabs.xsd">
+	<None Update="InitialData\XmlSchemata\tabs.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="XmlSchemata\text.xsd">
+	<None Update="InitialData\XmlSchemata\text.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>
 	</None>

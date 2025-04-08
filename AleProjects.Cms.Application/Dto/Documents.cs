@@ -168,8 +168,12 @@ namespace AleProjects.Cms.Application.Dto
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Title { get; set; }
 
-		[MessagePack.Key("inheritAttributes")]
-		public bool InheritAttributes { get; set; }
+		[MessagePack.Key("published")]
+		public bool Published { get; set; }
+
+
+		[MessagePack.Key("copyAttributes")]
+		public bool CopyAttributes { get; set; }
 	}
 
 

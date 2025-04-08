@@ -1,0 +1,13 @@
+﻿<tabs
+	xmlns="http://h-cms.net/default.xsd">
+	<tab>
+		<title>Tab #1</title>
+		<icon></icon>
+		<active>true</active>
+	</tab>
+	<tab>
+		<title>Tab #2</title>
+		<icon></icon>
+		<active>false</active>
+	</tab>
+</tabs>
