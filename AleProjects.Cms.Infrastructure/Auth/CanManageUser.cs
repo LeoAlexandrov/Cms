@@ -23,11 +23,14 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		{
 			var user = await _dbContext.Users.FindAsync(resource);
 
-			if (user == null
-				|| (_policies.Roles.Length > 0 && context.User.IsInRole(_policies.Roles[0])) // context.User is a developer
+			if (user == null 
+				// context.User is a developer
+				|| (_policies.Roles.Length > 0 && context.User.IsInRole(_policies.Roles[0]))
+				// context.User tries to manage himself, and he is not an anonymous user
 				|| (string.Compare(context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, user.Login) == 0 && 
-					user.IsEnabled) // context.User try to manages himself
-				|| (_policies.Roles.Length > 1 && context.User.IsInRole(_policies.Roles[1]) && _policies.ConformsPolicy(context.User, user.Role))) // context.User is an admin
+					user.IsEnabled && user.Login != "demo")
+				// context.User is an admin
+				|| (_policies.Roles.Length > 1 && context.User.IsInRole(_policies.Roles[1]) && _policies.ConformsPolicy(context.User, user.Role))) 
 			{
 				context.Succeed(requirement);
 			}

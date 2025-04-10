@@ -193,6 +193,11 @@
 	</q-btn>
 }
 
+@section InfoLine
+{
+	<span class="text-grey-5" v-if="appVersion">v{{ appVersion }}</span>
+}
+
 @section StatusLine
 {
 	<span>{{ statusLine }} </span>

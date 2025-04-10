@@ -29,6 +29,11 @@ namespace AleProjects.Cms.Application.Services
 			return !dbContext.Users.Any();
 		}
 
+		public bool HasUser(string login, string role)
+		{
+			return dbContext.Users.Any(u => u.Login == login && u.Role == role && u.IsEnabled);
+		}
+
 		public async Task<DtoUserLiteResult[]> GetList(ClaimsPrincipal user)
 		{
 			DtoUserLiteResult[] result;

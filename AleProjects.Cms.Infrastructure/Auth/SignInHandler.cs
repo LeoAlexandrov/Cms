@@ -126,6 +126,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		const string GITHUB_USER = "https://api.github.com/user";
 		const string STACKOVERFLOW_ACCESS_TOKEN = "https://stackoverflow.com/oauth/access_token/json";
 		const string STACKOVERFLOW_USER = "https://api.stackexchange.com//2.3/me?order=desc&sort=reputation&site=stackoverflow&access_token={0}&key={1}";
+		const string CLOUDFLARE_TURNSTILE = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+
 
 		static readonly SemaphoreSlim _semaphore = new(1, 1);
 
@@ -240,6 +242,12 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		{
 			[JsonPropertyName("items")]
 			public StackOverflowUserItem[] Items { get; set; }
+		}
+
+		class CloudflareTurnstileResponse
+		{
+			[JsonPropertyName("success")]
+			public bool Success { get; set; }
 		}
 
 		#endregion
@@ -587,6 +595,59 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			return login;
 		}
 
+		public async Task<UserLogin> Anonymous(string cfToken, string cfConnectingIp)
+		{
+			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+
+			if (!demoMode)
+				return UserLogin.WithStatus(LoginStatus.Forbidden);
+
+			if (string.IsNullOrEmpty(cfToken))
+				return UserLogin.WithStatus(LoginStatus.InvalidToken);
+
+
+			Dictionary<string, string> cfVerification = new()
+			{
+				{ "secret" , _configuration.GetValue<string>("Auth:CloudflareTT:SecretKey") },
+				{ "response", cfToken },
+				{ "remoteip", cfConnectingIp }
+			};
+
+			HttpClient client = _httpClientFactory.CreateClient();
+
+			using (HttpRequestMessage request = new() { Method = HttpMethod.Post, RequestUri = new Uri(CLOUDFLARE_TURNSTILE), Content = new FormUrlEncodedContent(cfVerification) })
+			{
+				using HttpResponseMessage response = await client.SendAsync(request);
+
+				response.EnsureSuccessStatusCode();
+
+				var cfResponse = await response.Content.ReadFromJsonAsync<CloudflareTurnstileResponse>();
+
+				if (!cfResponse.Success)
+					return UserLogin.WithStatus(LoginStatus.Forbidden);
+			}
+
+
+			string role = this._configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+
+			var user = _dbContext.Users.FirstOrDefault(u => u.Login == "demo" && u.Role == role && u.IsEnabled);
+
+			if (user == null)
+				return UserLogin.WithStatus(LoginStatus.Forbidden);
+
+			user.IsDemo = true;
+			user.LastSignIn = DateTimeOffset.UtcNow;
+
+			await _dbContext.SaveChangesAsync();
+
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "anonymous");
+			byte[] bLogin = MessagePackSerializer.Serialize(login);
+
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+
+			return login;
+		}
 
 		public async Task<UserLogin> Refresh(string refresh)
 		{

@@ -120,6 +120,9 @@
   <data name="PopupSuccess" xml:space="preserve">
     <value>You have successfully authorized. You can close this window and continue with the Headless CMS.</value>
   </data>
+  <data name="SignInAnonymously" xml:space="preserve">
+    <value>Sign in as anonymous guest</value>
+  </data>
   <data name="SignInWithGithub" xml:space="preserve">
     <value>Sign in with Github</value>
   </data>

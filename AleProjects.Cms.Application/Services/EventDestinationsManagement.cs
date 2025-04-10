@@ -52,13 +52,13 @@ namespace AleProjects.Cms.Application.Services
 
 			if (!authResult.Succeeded)
 			{
-				if (result.Webhook != null)
+				if (result.Webhook != null && !string.IsNullOrEmpty(result.Webhook.Secret))
 					result.Webhook.Secret = new string('*', 32);
 
-				if (result.Redis != null)
+				if (result.Redis != null && !string.IsNullOrEmpty(result.Redis.Password))
 					result.Redis.Password = new string('*', 16);
 
-				if (result.RabbitMQ != null)
+				if (result.RabbitMQ != null && !string.IsNullOrEmpty(result.RabbitMQ.Password))
 					result.RabbitMQ.Password = new string('*', 16);
 			}
 

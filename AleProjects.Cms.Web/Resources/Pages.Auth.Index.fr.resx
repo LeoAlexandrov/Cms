@@ -120,6 +120,9 @@
   <data name="PopupSuccess" xml:space="preserve">
     <value>Vous avez autorisé avec succès. Vous pouvez fermer cette fenêtre et continuer avec le Headless CMS.</value>
   </data>
+  <data name="SignInAnonymously" xml:space="preserve">
+    <value>Connectez-vous en tant qu'invité anonyme</value>
+  </data>
   <data name="SignInWithGithub" xml:space="preserve">
     <value>Se connecter avec Github</value>
   </data>

@@ -7,6 +7,7 @@
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "schemata",
+			appVersion: null,
 			splitter: 20,
 
 			schemata: [],
@@ -395,6 +396,7 @@
 				if (r.ok) {
 					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
+					this.appVersion = r.result.status.version;
 				}
 
 			});

@@ -17,12 +17,31 @@
 		<script src="https://accounts.google.com/gsi/client" async defer></script>
 	}
 
+	@if (Model.AllowAnonymous)
+	{
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+		<script id="cf_sitekey" type="application/json">@Json.Serialize(Model.CfSiteKey)</script>
+	}
+
 	<script src="~/js/auth.js"></script>
 	<script>
 		const app = Vue.createApp(vueAppOptions)
 		app.use(Quasar)
 		app.mount('#q-app')
 	</script>
+}
+
+@if (Model.AllowAnonymous)
+{
+	<q-dialog v-model="cfTurnstile" no-backdrop-dismiss>
+		<q-card>
+			<q-card-section class="row items-center">
+				<form id="cf_turnstile_form" method="post">
+					<div id="cf_turnstile"></div>
+				</form>
+			</q-card-section>
+		</q-card>
+	</q-dialog>
 }
 
 @if (!string.IsNullOrEmpty(Model.AuthError))
@@ -38,63 +57,75 @@
 	{
 		@if (!string.IsNullOrEmpty(Model.GoogleClientId))
 		{
-		<div id="g_id_onload"
-			data-client_id="@Model.GoogleClientId"
-			data-context="signin"
-			data-ux_mode="redirect"
-			data-login_uri="@Model.CurrentSite/auth/google"
-			data-auto_prompt="false">
-		</div>
-		<div class="g_id_signin"
-			data-type="standard"
-			data-shape="rectangular"
-			data-theme="outline"
-			data-text="signin_with"
-			data-size="large"
-			data-logo_alignment="left"
-			data-width="400px">
-		</div>
+			<div id="g_id_onload"
+				data-client_id="@Model.GoogleClientId"
+				data-context="signin"
+				data-ux_mode="redirect"
+				data-login_uri="@Model.CurrentSite/auth/google"
+				data-auto_prompt="false">
+			</div>
+			<div class="g_id_signin"
+				data-type="standard"
+				data-shape="rectangular"
+				data-theme="outline"
+				data-text="signin_with"
+				data-size="large"
+				data-logo_alignment="left"
+				data-width="400px">
+			</div>
 		}
 
 		@if (!string.IsNullOrEmpty(Model.MicrosoftClientId))
 		{
-		<div>
-			<q-btn outline
-				align="left"
-				icon="img:@Model.CurrentSite/images/microsoft.svg"
-				href="https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=@Model.MicrosoftClientId&scope=User.Read&&response_type=code&state=@Model.MicrosoftState&redirect_uri=@Model.CurrentSite/auth/microsoft"
-				label="@Localizer["SignInWithMicrosoft"]"
-				class="q-mt-md full-width">
-			</q-btn>
-		</div>
+			<div>
+				<q-btn outline
+					align="left"
+					icon="img:@Model.CurrentSite/images/microsoft.svg"
+					href="https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=@Model.MicrosoftClientId&scope=User.Read&&response_type=code&state=@Model.MicrosoftState&redirect_uri=@Model.CurrentSite/auth/microsoft"
+					label="@Localizer["SignInWithMicrosoft"]"
+					class="q-mt-md full-width">
+				</q-btn>
+			</div>
 		}
 
 		@if (!string.IsNullOrEmpty(Model.GithubClientId))
 		{
-		<div>
-			<q-btn outline
-				align="left"
-				icon="img:@Model.CurrentSite/images/github.svg"
-				href="https://github.com/login/oauth/authorize?client_id=@Model.GithubClientId&scope=user&state=@Model.GithubState"
-				label="@Localizer["SignInWithGithub"]"
-				class="q-mt-md full-width">
-			</q-btn>
-		</div>
+			<div>
+				<q-btn outline
+					align="left"
+					icon="img:@Model.CurrentSite/images/github.svg"
+					href="https://github.com/login/oauth/authorize?client_id=@Model.GithubClientId&scope=user&state=@Model.GithubState"
+					label="@Localizer["SignInWithGithub"]"
+					class="q-mt-md full-width">
+				</q-btn>
+			</div>
 		}
 
 		@if (!string.IsNullOrEmpty(Model.StackOverflowClientId))
 		{
-		<div>
-			<q-btn outline
-				align="left"
-				icon="img:@Model.CurrentSite/images/stack-overflow.svg"
-				href="https://stackoverflow.com/oauth/?client_id=@Model.StackOverflowClientId&state=@Model.StackOverflowState&redirect_uri=@Model.CurrentSite/auth/stackoverflow"
-				label="@Localizer["SignInWithStackOverflow"]"
-				class="q-mt-md full-width">
-			</q-btn>
-		</div>
+			<div>
+				<q-btn outline
+					align="left"
+					icon="img:@Model.CurrentSite/images/stack-overflow.svg"
+					href="https://stackoverflow.com/oauth/?client_id=@Model.StackOverflowClientId&state=@Model.StackOverflowState&redirect_uri=@Model.CurrentSite/auth/stackoverflow"
+					label="@Localizer["SignInWithStackOverflow"]"
+					class="q-mt-md full-width">
+				</q-btn>
+			</div>
 		}
 
+		@if (Model.AllowAnonymous)
+		{
+			<div>
+				<q-btn flat 
+					color="primary"
+					label="@Localizer["SignInAnonymously"]"
+					class="q-mt-md full-width"
+					@@click="showTurnstile()">
+				</q-btn>
+
+			</div>
+		}
 	}
 	else
 	{

@@ -8,12 +8,14 @@ using Microsoft.Extensions.Configuration;
 
 using AleProjects.Cms.Application.Services;
 using AleProjects.Random;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace AleProjects.Cms.Web.Pages.Auth
 {
 
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+	[IgnoreAntiforgeryToken(Order = 1001)]
 	public class AuthModel(IConfiguration configuration, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
 		private readonly IConfiguration _configuration = configuration;
@@ -30,6 +32,17 @@ namespace AleProjects.Cms.Web.Pages.Auth
 		public string StackOverflowState { get; set; }
 		public string AuthError { get; set; }
 		public bool PopupSuccess { get; set; }
+
+		public bool AllowAnonymous { get; set; }
+		public string CfSiteKey { get; set; }
+
+
+		public class AnonymousSignIn
+		{
+			[BindProperty(Name = "cf-turnstile-response")]
+			[Required(AllowEmptyStrings = false)]
+			public string CfTurnstileResponse { get; set; }
+		}
 
 
 		public static void SetAuthCookies(HttpResponse response, string jwt, string refresh, string locale)
@@ -93,7 +106,21 @@ namespace AleProjects.Cms.Web.Pages.Auth
 				StackOverflowState = RandomString.Create(32);
 				this.Response.Cookies.Append("stackoverflow_auth_state", StackOverflowState);
 			}
+
+			this.AllowAnonymous = this._configuration.GetValue<bool>("Auth:DemoMode") &&
+				ums.HasUser("demo", this._configuration.GetValue<string>("Auth:DefaultDemoModeRole"));
+
+			if (this.AllowAnonymous)
+				this.CfSiteKey = this._configuration.GetValue<string>("Auth:CloudflareTT:SiteKey");
 		}
 
+
+		public IActionResult OnPost([Required] [FromForm] AnonymousSignIn model)
+		{
+			if (!ModelState.IsValid)
+				return BadRequest();
+
+			return Redirect($"/auth/anonymous?token={model.CfTurnstileResponse}");
+		}
 	}
 }

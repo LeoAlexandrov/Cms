@@ -7,6 +7,7 @@
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "events",
+			appVersion: null,
 
 			destinations: [],
 			destinationTypes: [
@@ -319,6 +320,7 @@
 				if (r.ok) {
 					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
+					this.appVersion = r.result.status.version;
 				}
 
 			});

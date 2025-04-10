@@ -68,7 +68,7 @@ namespace AleProjects.Cms.Web.Api
 		}
 
 		[HttpPut("{id:int}")]
-		[Authorize]
+		[Authorize("IsUser")]
 		[CsrAntiforgery]
 		public async Task<IActionResult> Put(int id, [Required] DtoUpdateUser dto)
 		{

@@ -7,6 +7,7 @@
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "documents",
+			appVersion: null,
 			splitter: 25,
 
 			docTree: [],
@@ -1915,6 +1916,7 @@
 				if (r.ok) {
 					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
+					this.appVersion = r.result.status.version;
 				}
 
 			});

@@ -163,7 +163,7 @@ namespace AleProjects.Cms.Web.Api
 		}
 
 		[HttpGet("{id:int}/refs")]
-		[Authorize("IsUser")]
+		[Authorize]
 		public async Task<IActionResult> References(int id)
 		{
 			var result = await _cms.GetReferences(id);
@@ -176,7 +176,7 @@ namespace AleProjects.Cms.Web.Api
 		}
 
 		[HttpGet("mediarefs")]
-		[Authorize("IsUser")]
+		[Authorize]
 		public async Task<IActionResult> MediaReferers([FromQuery] string link)
 		{
 			var result = await _cms.GetMediaReferers(link);

@@ -7,6 +7,7 @@
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "media",
+			appVersion: null,
 
 			folderLink: "",
 			mediaEntries: [],
@@ -348,6 +349,7 @@
 				if (r.ok) {
 					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
+					this.appVersion = r.result.status.version;
 				}
 
 			});
