@@ -97,6 +97,9 @@ namespace AleProjects.Cms.Infrastructure.Data
 			if (ex.InnerException is Npgsql.PostgresException pgEx && pgEx.SqlState == "23505")
 				return true;
 
+			if (ex.InnerException is MySql.Data.MySqlClient.MySqlException myEx && myEx.Number == 1062)
+				return true;
+
 			return false;
 		}
 	}

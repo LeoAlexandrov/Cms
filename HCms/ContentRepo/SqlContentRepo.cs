@@ -40,6 +40,8 @@ namespace HCms.ContentRepo
 				builder = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString);
 			else if (dbEngine == "postgres")
 				builder = new DbContextOptionsBuilder<CmsDbContext>().UseNpgsql(connString);
+			else if (dbEngine == "mysql")
+				builder = new DbContextOptionsBuilder<CmsDbContext>().UseMySQL(connString);
 			else
 				throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
 

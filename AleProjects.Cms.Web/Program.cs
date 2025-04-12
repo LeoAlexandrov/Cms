@@ -27,7 +27,6 @@ using AleProjects.Cms.Web.Infrastructure.Middleware;
 using AleProjects.Cms.Web.Infrastructure.MediaTypeFormatters;
 
 
-
 void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager configuration)
 {
 	string dbEngine = configuration["DbEngine"];
@@ -37,6 +36,8 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 		options.UseSqlServer(connString);
 	else if (dbEngine == "postgres")
 		options.UseNpgsql(connString);
+	else if (dbEngine == "mysql")
+		options.UseMySQL(connString);
 	else
 		throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
 }
