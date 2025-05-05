@@ -1980,7 +1980,7 @@
 function iterateNodes(node, f) {
 	f(node);
 
-	if (node.hasOwnProperty("children")) {
+	if (node.hasOwnProperty("children") && node.children) {
 		for (const n of node.children) {
 			iterateNodes(n, f);
 		}
