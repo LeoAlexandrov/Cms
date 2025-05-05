@@ -18,6 +18,7 @@ docker run -p 8083:8080 --name HeadlessCmsDemo -h HeadlessCmsDemo --restart=alwa
 
 <# chown -R leo:leo /home/leo/Cms; #>
 
+<# 
 Write-Host "============== ContaboVPS ==============\r\n"
 
 ssh ContaboVPS $prepCommands
@@ -37,13 +38,33 @@ else
   Write-Host "Error"
 }
 
+#>
 
-<# 
+
+Write-Host "============== MiniPC ===============\r\n"
+
+ssh MiniPC $prepCommands
+scp C:\VSBuild\Cms.Demo\publish.tar MiniPC:/home/leo/Cms.Demo
+scp C:\OneDrive\Projects\Cms\DemoSite\Dockerfile MiniPC:/home/leo/Cms.Demo
+
+ssh MiniPC $commands 
+
+$winscpResult = $LastExitCode
+
+if ($winscpResult -eq 0)
+{
+  Write-Host "Success"
+}
+else
+{
+  Write-Host "Error"
+}
+
 
 Write-Host "============== MiniAir11 ===============\r\n"
 
 ssh MiniAir11 $prepCommands
-scp C:\VSBuild\Cms\publish.tar MiniAir11:/home/leo/Cms.Demo
+scp C:\VSBuild\Cms.Demo\publish.tar MiniAir11:/home/leo/Cms.Demo
 scp C:\OneDrive\Projects\Cms\DemoSite\Dockerfile MiniAir11:/home/leo/Cms.Demo
 
 ssh MiniAir11 $commands 
@@ -59,7 +80,7 @@ else
   Write-Host "Error"
 }
 
-#>
+
 
 Write-Host "========================================"
 

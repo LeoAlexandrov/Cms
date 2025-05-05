@@ -113,8 +113,10 @@ namespace HCms.ContentRepo
 			if (path[0] != '/')
 				result.Append('/');
 
-			foreach (var c in path)
+			for (int i = 0; i < path.Length; i++)
 			{
+				var c = path[i];
+
 				if (c != '/' || prevChar != '/')
 					result.Append(char.ToLower(c));
 

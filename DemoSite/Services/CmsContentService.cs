@@ -7,6 +7,8 @@ using Microsoft.Extensions.Caching.Memory;
 using HCms.ContentRepo;
 using HCms.Dto;
 using HCms.ViewModels;
+using System.Threading;
+using System.Collections.Concurrent;
 
 
 namespace DemoSite.Services
@@ -26,6 +28,8 @@ namespace DemoSite.Services
 
 		const string DEFAULT_ROOT = "home";
 
+		public readonly static ConcurrentDictionary<string, AwaitedResult> AwaitedResults = new();
+
 		readonly IContentRepo _repo = repo;
 		readonly IMemoryCache _cache = cache;
 		readonly IAuthorizationService _authorizationService = authorizationService;
@@ -40,6 +44,13 @@ namespace DemoSite.Services
 			Unauthorized,
 			Forbidden
 		}
+
+		public class AwaitedResult
+		{
+			public CancellationTokenSource Cts { get; set; }
+			public byte[] Result { get; set; }
+		}
+
 
 		static Task<bool> Authorize(ClaimsPrincipal user, string[] policies, IAuthorizationService authorizationService, bool all)
 		{
