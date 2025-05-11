@@ -29,17 +29,17 @@ namespace HCms.ContentRepo
 			throw new NotImplementedException();
 		}
 
-		public Task<Document[]> Children(int docId, int childrenFromPos, int take)
+		public Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, bool exactPathMatch)
+		public Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
 			throw new NotImplementedException();
 		}
 
-		public Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings)
+		public Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
 		{
 			throw new NotImplementedException();
 		}

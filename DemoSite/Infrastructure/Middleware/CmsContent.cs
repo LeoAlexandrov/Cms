@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,18 +86,33 @@ namespace DemoSite.Infrastructure.Middleware
 				string theme = Theme(context);
 				string cacheKey = $"{theme}-{path}";
 
+				/* We disabled in-process gzipping of cached content for Cloudflare
+				 * because it requires presense of Content-Length header in the response.
+				 * This header may be removed by Nginx or other reverse proxy server, so
+				 * Cloudflare will return 502 http status code.
+				 * If you configure your reverse proxy to keep Content-Length header, 
+				 * then you can set gzipCache to true.
+				 */
+
+				bool gzipCache = context.Request.Headers.All(h => !h.Key.StartsWith("cf-"));
+
+
 				if (allowCaching && cache.TryGetValue(cacheKey, out byte[] body))
 				{
 					/* If the cache contains rendered body of the entire page,
 					 * we return it immediately without calling the next middleware.
-					 * Cached body is gzipped.
+					 * Cached body may be gzipped.
 					 */
 #if DEBUG
 					Console.WriteLine($"*** Cache hit '{path}' ***");
 #endif
-					context.Response.Headers.ContentEncoding = "gzip";
-					context.Response.Headers.ContentType = "text/html";
-					context.Response.Headers.Vary = "Accept-Encoding";
+					if (gzipCache)
+					{
+						context.Response.Headers.ContentEncoding = "gzip";
+						context.Response.Headers.ContentLength = body.Length;
+						context.Response.Headers.ContentType = "text/html";
+						context.Response.Headers.Vary = "Accept-Encoding";
+					}
 
 					await context.Response.Body.WriteAsync(body);
 				}
@@ -123,18 +139,24 @@ namespace DemoSite.Infrastructure.Middleware
 
 						var ar = CmsContentService.AwaitedResults.GetOrAdd(cacheKey, awaitedResult);
 
-						if (ar.Result != null)
+						if (ar.Body != null)
 						{
 							/* The page has been rendered by another thread, 
-							 * because GetOrAdd above returned definitely different element with the 'Result' already set.
+							 * because GetOrAdd above returned definitely different element with the 'Body' already set.
 							 * No need to await, we can return it immediately. 
 							 */
 
 							awaitedResult.Cts.Dispose();
-							context.Response.Headers.ContentEncoding = "gzip";
-							context.Response.Headers.ContentType = "text/html";
-							context.Response.Headers.Vary = "Accept-Encoding";
-							await context.Response.Body.WriteAsync(ar.Result);
+
+							if (gzipCache)
+							{
+								context.Response.Headers.ContentEncoding = "gzip";
+								context.Response.Headers.ContentLength = ar.Body.Length;
+								context.Response.Headers.ContentType = "text/html";
+								context.Response.Headers.Vary = "Accept-Encoding";
+							}
+
+							await context.Response.Body.WriteAsync(ar.Body);
 							return;
 						}
 
@@ -156,18 +178,23 @@ namespace DemoSite.Infrastructure.Middleware
 							catch (TaskCanceledException)
 							{
 								/* The CancellationToken was cancelled by another thread.
-								 * We check if the page has been cached testing the 'ar.Result' against null.
-								 * 'ar.Result's and cached values are the same.
+								 * We check if the page has been cached testing the 'ar.Body' against null.
+								 * 'ar.Body's and cached values are the same.
 								 */
 
-								if (ar.Result != null)
+								if (ar.Body != null)
 								{
 									// Return rendered body immediately.
 
-									context.Response.Headers.ContentEncoding = "gzip";
-									context.Response.Headers.ContentType = "text/html";
-									context.Response.Headers.Vary = "Accept-Encoding";
-									await context.Response.Body.WriteAsync(ar.Result);
+									if (gzipCache)
+									{
+										context.Response.Headers.ContentEncoding = "gzip";
+										context.Response.Headers.ContentLength = ar.Body.Length;
+										context.Response.Headers.ContentType = "text/html";
+										context.Response.Headers.Vary = "Accept-Encoding";
+									}
+
+									await context.Response.Body.WriteAsync(ar.Body);
 									return;
 								}
 							}
@@ -188,7 +215,7 @@ namespace DemoSite.Infrastructure.Middleware
 						p > 0 ? (p-1) * pageSize : 0;
 
 
-					var doc = await content.GetDocument(context.Request.Host.Value, path, position, pageSize);
+					var doc = await content.GetDocument(context.Request.Host.Value, path, position, pageSize, context.User);
 
 					SetCulture(doc?.Language);
 
@@ -210,23 +237,25 @@ namespace DemoSite.Infrastructure.Middleware
 					 * and cached if possible.
 					 * Caching is possible if:
 					 * - the response status code is 200 OK,
+					 * - the document is published (PublishStatus == 1),
 					 * - the document is not protected by authorization,
 					 * - the response does not contain Cache-Control header prohibiting caching.
 					 */
 
 					allowCaching &= context.Response.StatusCode == (int)HttpStatusCode.OK &&
+						doc.PublishStatus == 1 &&
 						!doc.AuthRequired &&
 						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store");
 
 					if (allowCaching)
 					{
-						/* GZipping and saving the body to the cache.
-						 * Setting 'Result' for other threads awaiting for the page to be rendered.
+						/* GZipping (if allowed) and saving the body to the cache.
+						 * Setting 'Body' for other threads awaiting for the page to be rendered.
 						 */
 
-						var gzipped = GZip(body);
+						var gzipped = gzipCache ? GZip(body) : body;
 
-						cache.Set(cacheKey, awaitedResult.Result = gzipped);
+						cache.Set(cacheKey, awaitedResult.Body = gzipped);
 #if DEBUG
 						Console.WriteLine($"*** Cache add '{cacheKey}' ***");
 #endif

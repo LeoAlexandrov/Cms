@@ -51,8 +51,8 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("authPolicies")]
 		public string AuthPolicies { get; set; }
 
-		[MessagePack.Key("published")]
-		public bool Published { get; set; }
+		[MessagePack.Key("publishStatus")]
+		public int PublishStatus { get; set; }
 
 		[MessagePack.Key("createdAt")]
 		public DateTimeOffset CreatedAt { get; set; }
@@ -85,7 +85,7 @@ namespace AleProjects.Cms.Application.Dto
 				Icon = doc.Icon;
 				Tags = doc.Tags;
 				AuthPolicies = doc.AuthPolicies;
-				Published = doc.Published;
+				PublishStatus = doc.PublishStatus;
 				CreatedAt = doc.CreatedAt;
 				ModifiedAt = doc.ModifiedAt;
 				EditorRoleRequired = doc.EditorRoleRequired;
@@ -168,8 +168,8 @@ namespace AleProjects.Cms.Application.Dto
 		[Required(AllowEmptyStrings = false), MaxLength(256)]
 		public string Title { get; set; }
 
-		[MessagePack.Key("published")]
-		public bool Published { get; set; }
+		[MessagePack.Key("publishStatus")]
+		public int PublishStatus { get; set; }
 
 
 		[MessagePack.Key("copyAttributes")]
@@ -215,9 +215,9 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("authPolicies")]
 		public string AuthPolicies { get; set; }
 
-		[MessagePack.Key("published")]
+		[MessagePack.Key("publishStatus")]
 		[Required]
-		public bool? Published { get; set; }
+		public int? PublishStatus { get; set; }
 	}
 
 

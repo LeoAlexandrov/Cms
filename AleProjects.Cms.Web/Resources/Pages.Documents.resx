@@ -291,8 +291,8 @@
   <data name="Properties" xml:space="preserve">
     <value>Properties</value>
   </data>
-  <data name="Published" xml:space="preserve">
-    <value>Published</value>
+  <data name="PublishStatus" xml:space="preserve">
+    <value>Publication status</value>
   </data>
   <data name="Slug" xml:space="preserve">
     <value>Slug</value>
@@ -365,5 +365,8 @@
   </data>
   <data name="ContainerIsNotValid" xml:space="preserve">
     <value>Fragment with this Id is not found or can´t be set as the container</value>
+  </data>
+  <data name="InvalidPublishStatus" xml:space="preserve">
+    <value>Status is inconsistent with status of parent document </value>
   </data>
 </root>

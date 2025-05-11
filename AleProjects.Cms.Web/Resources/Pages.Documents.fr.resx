@@ -291,8 +291,8 @@
   <data name="Properties" xml:space="preserve">
     <value>Propriétés</value>
   </data>
-  <data name="Published" xml:space="preserve">
-    <value>Publié</value>
+  <data name="PublishStatus" xml:space="preserve">
+    <value>Statut de publication</value>
   </data>
   <data name="Slug" xml:space="preserve">
     <value>Nom</value>
@@ -365,5 +365,8 @@
   </data>
   <data name="ContainerIsNotValid" xml:space="preserve">
     <value>Le fragment avec cet identifiant n'est pas trouvé ou ne peut pas être défini comme conteneur</value>
+  </data>
+  <data name="InvalidPublishStatus" xml:space="preserve">
+    <value>Le statut est incompatible avec le statut du document parent</value>
   </data>
 </root>

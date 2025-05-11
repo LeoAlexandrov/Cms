@@ -18,7 +18,8 @@ docker run -p 8083:8080 --name HeadlessCmsDemo -h HeadlessCmsDemo --restart=alwa
 
 <# chown -R leo:leo /home/leo/Cms; #>
 
-<# 
+<##>
+
 Write-Host "============== ContaboVPS ==============\r\n"
 
 ssh ContaboVPS $prepCommands
@@ -38,8 +39,7 @@ else
   Write-Host "Error"
 }
 
-#>
-
+<#
 
 Write-Host "============== MiniPC ===============\r\n"
 
@@ -60,7 +60,6 @@ else
   Write-Host "Error"
 }
 
-
 Write-Host "============== MiniAir11 ===============\r\n"
 
 ssh MiniAir11 $prepCommands
@@ -80,6 +79,7 @@ else
   Write-Host "Error"
 }
 
+#>
 
 
 Write-Host "========================================"

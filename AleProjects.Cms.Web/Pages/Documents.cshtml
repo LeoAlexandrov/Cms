@@ -813,13 +813,17 @@
 							@@update:model-value="hasChanged=true">
 						 </q-input>
 
-						<q-checkbox 
-							v-model="editedDoc.properties.published"
+						<q-select dense outlined
+							v-model="editedDoc.properties.publishStatus"
+							:options="publishStates"
+							emit-value
+							map-options
 							class="q-pt-lg"
-							label="@Localizer["Published"]"
-							ref="Published"
-							@@update:model-value="hasChanged=true">
-						</q-checkbox>
+							label="@Localizer["PublishStatus"]"
+							ref="PublishStatus"
+							@@update:model-value="hasChanged=true"
+							:rules="[val => !invalidPublishedState.includes(val) || '@Localizer["InvalidPublishStatus"]' ]">
+						</q-select>
 
 						<p class="text-caption text-negative" v-if="editedDoc.properties.published===invalidPublishedState">@Localizer["ParentNotPublished"]</p>
 

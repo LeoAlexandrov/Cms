@@ -24,7 +24,7 @@ namespace HCms.ViewModels
 		public string[] Tags { get; set; }
 
 		public string AuthPolicies { get; set; }
-		public bool Published { get; set; }
+		public int PublishStatus { get; set; }
 		public DateTimeOffset CreatedAt { get; set; }
 		public DateTimeOffset ModifiedAt { get; set; }
 		public string Author { get; set; }
@@ -64,7 +64,7 @@ namespace HCms.ViewModels
 				Icon = doc.Icon;
 				Tags = doc.Tags?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 				AuthPolicies = doc.AuthPolicies;
-				Published = doc.Published;
+				PublishStatus = doc.PublishStatus;
 				CreatedAt = doc.CreatedAt;
 				ModifiedAt = doc.ModifiedAt;
 				Author = doc.Author;

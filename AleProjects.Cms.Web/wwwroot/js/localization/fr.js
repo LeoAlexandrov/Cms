@@ -71,6 +71,10 @@ var DICTIONARY_DOCS = {
 	"VALIDATION_MINLEN": "La longueur minimale est de %s1.",
 	"VALIDATION_MAXLEN": "La longueur maximale est de %s1",
 	"VALIDATION_REGEX": "Format invalide ou caractère invalide.",
+
+	"PUBLISH_STATUS_UNPUBLISHED": "Non publié",
+	"PUBLISH_STATUS_PUBLISHED": "Publié",
+	"PUBLISH_STATUS_INREVIEW": "En cours de révision"
 };
 
 var DICTIONARY_MEDIA = {

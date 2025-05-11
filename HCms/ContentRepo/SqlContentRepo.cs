@@ -79,12 +79,13 @@ namespace HCms.ContentRepo
 			NeedsSchemataReload = 1;
 		}
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, bool exactPathMatch)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
+			allowedStatus ??= [(int)Entities.Document.Status.Published];
+
 			var rootDoc = await dbContext.Documents
 				.AsNoTracking()
-				.Where(d => d.Parent == 0 && d.Slug == root && d.Published)
-				.FirstOrDefaultAsync();
+				.FirstOrDefaultAsync(d => d.Parent == 0 && d.Slug == root && allowedStatus.Contains(d.PublishStatus));
 
 			if (rootDoc == null)
 				return null;
@@ -132,7 +133,7 @@ namespace HCms.ContentRepo
 				var docs = await dbContext.Documents
 					.AsNoTracking()
 					.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
-					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && dn.d.Published)
+					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && allowedStatus.Contains(dn.d.PublishStatus))
 					.Select(dn => dn.d)
 					.ToListAsync();
 
@@ -168,7 +169,7 @@ namespace HCms.ContentRepo
 				};
 
 				if (siblings)
-					result.Siblings = await Children(doc.Parent, -1, -1);
+					result.Siblings = await Children(doc.Parent, -1, -1, allowedStatus);
 				else
 					result.Siblings = [];
 			}
@@ -202,7 +203,7 @@ namespace HCms.ContentRepo
 				result.ChildrenTakePosition = childrenFromPos;
 				result.ChildrenTaken = takeChildren;
 				result.TotalChildrenCount = await dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
-				result.Children = await Children(doc.Id, childrenFromPos, takeChildren);
+				result.Children = await Children(doc.Id, childrenFromPos, takeChildren, allowedStatus);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
@@ -285,12 +286,13 @@ namespace HCms.ContentRepo
 			return result;
 		}
 
-		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings)
+		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
 		{
+			allowedStatus ??= [(int)Entities.Document.Status.Published];
+
 			var doc = await dbContext.Documents
 				.AsNoTracking()
-				.Where(d => d.Id == id && d.Published)
-				.FirstOrDefaultAsync();
+				.FirstOrDefaultAsync(d => d.Id == id && allowedStatus.Contains(d.PublishStatus));
 
 			if (doc == null)
 				return null;
@@ -345,7 +347,7 @@ namespace HCms.ContentRepo
 				allDocsIds = [.. docs.Select(d => d.Id), doc.Id];
 
 				if (siblings)
-					result.Siblings = await Children(doc.Parent, -1, -1);
+					result.Siblings = await Children(doc.Parent, -1, -1, allowedStatus);
 				else
 					result.Siblings = [];
 			}
@@ -379,7 +381,7 @@ namespace HCms.ContentRepo
 				result.ChildrenTakePosition = childrenFromPos;
 				result.ChildrenTaken = takeChildren;
 				result.TotalChildrenCount = await dbContext.Documents.Where(d => d.Parent == id).CountAsync();
-				result.Children = await Children(id, childrenFromPos, takeChildren);
+				result.Children = await Children(id, childrenFromPos, takeChildren, allowedStatus);
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
 			else
@@ -461,26 +463,34 @@ namespace HCms.ContentRepo
 			return result;
 		}
 
-		public Task<Document[]> Children(int docId, int childrenFromPos, int take)
+		public Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus)
 		{
 			if (take < 0)
 				take = 1000;
 
-			var qry = dbContext.Documents
-				.AsNoTracking()
-				.Where(d => d.Parent == docId && d.Published && d.Position >= childrenFromPos)
-				.OrderBy(d => d.Position)
-				.Take(take);
+			IQueryable<Entities.Document> query;
 
-			return qry.Select(d => new Document(d)).ToArrayAsync();
+			if (allowedStatus != null)
+				query = dbContext.Documents
+					.AsNoTracking()
+					.Where(d => d.Parent == docId && allowedStatus.Contains(d.PublishStatus) && d.Position >= childrenFromPos)
+					.OrderBy(d => d.Position)
+					.Take(take);
+			else
+				query = dbContext.Documents
+					.AsNoTracking()
+					.Where(d => d.Parent == docId && d.PublishStatus == (int)Entities.Document.Status.Published && d.Position >= childrenFromPos)
+					.OrderBy(d => d.Position)
+					.Take(take);
+
+			return query.Select(d => new Document(d)).ToArrayAsync();
 		}
 
 		public async Task<(string, string)> IdToPath(int docId)
 		{
 			var doc = await dbContext.Documents
 				.AsNoTracking()
-				.Where(d => d.Id == docId && d.Published)
-				.FirstOrDefaultAsync();
+				.FirstOrDefaultAsync(d => d.Id == docId);
 
 			if (doc == null)
 				return (null, null);

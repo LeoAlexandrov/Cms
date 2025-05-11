@@ -252,7 +252,7 @@ namespace AleProjects.Cms.Application.Services
 				Title = title,
 				Language = language,
 				Icon = icon,
-				Published = dto.Published,
+				PublishStatus = dto.PublishStatus,
 				AuthPolicies = authPolicies,
 				Author = user.Identity.Name,
 				CreatedAt = now,
@@ -302,7 +302,7 @@ namespace AleProjects.Cms.Application.Services
 			string icon;
 			string tags;
 			string description;
-			bool published = dto.Published.Value;
+			int publishStatus = dto.PublishStatus.Value;
 
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -336,7 +336,7 @@ namespace AleProjects.Cms.Application.Services
 				return Result<DtoDocumentResult>.NotFound();
 
 			bool slugChanged = doc.Slug != slug;
-			bool needsChildrenUpdate = slugChanged || (!published && doc.Published);
+			bool needsChildrenUpdate = slugChanged || (publishStatus != doc.PublishStatus);
 
 			Document[] children = needsChildrenUpdate ?
 				await dbContext.Documents
@@ -359,18 +359,31 @@ namespace AleProjects.Cms.Application.Services
 			string originalPath = doc.Path;
 
 
-			if (doc.Published != dto.Published)
-				if (published)
+			if (doc.PublishStatus != dto.PublishStatus)
+				if (publishStatus != (int)Document.Status.Unpublished)
 				{
 					var parent = await dbContext.Documents.FindAsync(doc.Parent);
 
-					if (parent != null && !parent.Published)
-						return Result<DtoDocumentResult>.BadParameters("Published", "Parent document is not published");
+					if (publishStatus == (int)Document.Status.Published)
+					{
+						if (parent != null && parent.PublishStatus != (int)Document.Status.Published)
+							return Result<DtoDocumentResult>.BadParameters("PublishStatus", "Parent document is not published or in review");
+					}
+					else
+					{
+						if (parent != null && parent.PublishStatus == (int)Document.Status.Unpublished)
+							return Result<DtoDocumentResult>.BadParameters("PublishStatus", "Parent document is not published or in review");
+
+						for (int i = 0; i < children.Length; i++)
+							if (children[i].PublishStatus == (int)Document.Status.Published)
+								children[i].PublishStatus = (int)Document.Status.InReview;
+
+					}
 				}
 				else
 				{
 					for (int i = 0; i < children.Length; i++)
-						children[i].Published = false;
+						children[i].PublishStatus = (int)Document.Status.Unpublished;
 				}
 
 			if (slugChanged)
@@ -413,7 +426,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Icon = NullIfEmpty(icon);
 			doc.Tags = NullIfEmpty(tags);
 			doc.AuthPolicies = NullIfEmpty(dto.AuthPolicies);
-			doc.Published = published;
+			doc.PublishStatus = publishStatus;
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 
@@ -859,7 +872,7 @@ namespace AleProjects.Cms.Application.Services
 				Description = origin.Description,
 				Icon = origin.Icon,
 				AuthPolicies = origin.AuthPolicies,
-				Published = origin.Published,
+				PublishStatus = origin.PublishStatus,
 				CreatedAt = now,
 				ModifiedAt = now,
 				EditorRoleRequired = origin.EditorRoleRequired,

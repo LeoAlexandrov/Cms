@@ -11,6 +11,14 @@ namespace AleProjects.Cms.Domain.Entities
 
 	public class Document : ITreeNode<int>
 	{
+		public enum Status
+		{
+			Unpublished = 0,
+			Published = 1,
+			InReview = 2
+		}
+
+
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
 
@@ -48,7 +56,7 @@ namespace AleProjects.Cms.Domain.Entities
 
 		public string AuthPolicies { get; set; }
 
-		public bool Published { get; set; }
+		public int PublishStatus { get; set; }
 		
 		public DateTimeOffset CreatedAt { get; set; }
 		
@@ -77,6 +85,6 @@ namespace AleProjects.Cms.Domain.Entities
 		public string Data { get; set; }
 
 		[NotMapped]
-		public bool Enabled => Published;
+		public bool Enabled => PublishStatus == (int)Status.Published;
 	}
 }

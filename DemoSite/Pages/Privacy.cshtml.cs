@@ -13,7 +13,7 @@ namespace DemoSite.Pages
 
 		public async Task<IActionResult> OnGet()
 		{
-			var doc = await _content.Repo.GetDocument("misc-docs", "/privacy", 0, -1, false, true);
+			var doc = await _content.Repo.GetDocument("misc-docs", "/privacy", 0, -1, false, null, true);
 
 			if (doc == null)
 				return NotFound();

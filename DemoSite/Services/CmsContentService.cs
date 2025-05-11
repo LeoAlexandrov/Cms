@@ -48,7 +48,7 @@ namespace DemoSite.Services
 		public class AwaitedResult
 		{
 			public CancellationTokenSource Cts { get; set; }
-			public byte[] Result { get; set; }
+			public byte[] Body { get; set; }
 		}
 
 
@@ -109,10 +109,16 @@ namespace DemoSite.Services
 			return result ? AuthResult.Success : AuthResult.Forbidden;
 		}
 
-		public async Task<Document> GetDocument(string host, string path, int childPos, int takeChildren)
+		ValueTask<AuthResult> AuthorizeEditor(ClaimsPrincipal user)
+		{
+			return ValueTask.FromResult(AuthResult.Forbidden);
+		}
+
+		public async Task<Document> GetDocument(string host, string path, int childPos, int takeChildren, ClaimsPrincipal user)
 		{
 			var (cmsRoot, cmsPath) = _repo.PathTransformer.Back(host, path);
-			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, childPos, takeChildren, true, false);
+			int[] allowedStatus = await AuthorizeEditor(user) == AuthResult.Success ? [1, 2] : [1];
+			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, childPos, takeChildren, true, allowedStatus, false);
 
 			RequestedDocument = doc;
 

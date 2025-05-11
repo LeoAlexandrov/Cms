@@ -37,9 +37,10 @@ namespace HCms.ContentRepo
 		/// <param name="path">Logical path of the document.</param>
 		/// <param name="childrenFromPos">The starting position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
 		/// <param name="siblings">Determine whether to include or not sibling documents.</param>
+		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <param name="exactPathMatch">False value instructs the method to search a closest matching document if nothing is found by exact path.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
-		Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, bool exactPathMatch);
+		Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch);
 
 		/// <summary>
 		/// Asynchronously returns a view model of the document with the specified id.
@@ -47,16 +48,18 @@ namespace HCms.ContentRepo
 		/// <param name="id">Document id</param>
 		/// <param name="childrenFromPos">Position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
 		/// <param name="siblings">Determine whether to include or not sibling documents.</param>
+		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
-		Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings);
+		Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus);
 
 		/// <summary>
 		/// Asynchronously returns a view models of the document children.
 		/// </summary>
 		/// <param name="docId">Document id</param>
 		/// <param name="childrenFromPos">The starting position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
+		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains an array that contains view models of the document children.</returns>
-		Task<Document[]> Children(int docId, int childrenFromPos, int take);
+		Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus);
 
 		/// <summary>
 		/// Returns a tuple with the logical path and root slug of the document with the specified id.

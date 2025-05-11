@@ -30,7 +30,7 @@
 					description: null,
 					editorRoleRequired: null,
 					authPolicies: null,
-					published: false,
+					publishStatus: 0,
 					author: null,
 					createdAt: null,
 					modifiedAt: null
@@ -44,7 +44,12 @@
 
 			hasChanged: false,
 			invalidDocSlugs: [],
-			invalidPublishedState: null,
+			invalidPublishedState: [],
+			publishStates: [
+				{ label: TEXT.DOCS.get('PUBLISH_STATUS_UNPUBLISHED'), value: 0 },
+				{ label: TEXT.DOCS.get('PUBLISH_STATUS_PUBLISHED'), value: 1 },
+				{ label: TEXT.DOCS.get('PUBLISH_STATUS_INREVIEW'), value: 2 }
+			],
 
 			newDocumentProps: false,
 			newDocument: {
@@ -235,7 +240,7 @@
 					summary: null,
 					coverPicture: null,
 					description: null,
-					published: true,
+					publishStatus: 1,
 					author: this.profile.name,
 					createdAt: null,
 					modifiedAt: null
@@ -312,7 +317,7 @@
 				this.invalidDocSlugs = [];
 				this.invalidContainers = [];
 				this.invalidAttributeKeys = [];
-				this.invalidPublishedState = null;
+				this.invalidPublishedState = [];
 				this.newFragment.stuffSelected = "new";
 				this.newFragment.templateSelected = null;
 				this.newFragment.sharedFragmentSelected = null;
@@ -343,7 +348,7 @@
 						this.invalidDocSlugs = [];
 						this.invalidContainers = [];
 						this.invalidAttributeKeys = [];
-						this.invalidPublishedState = null;
+						this.invalidPublishedState = [];
 						this.selectedFragment = 0;
 						this.newFragment.stuffSelected = "new";
 						this.newFragment.templateSelected = null;
@@ -516,7 +521,7 @@
 				coverPicture: this.editedDoc.properties.coverPicture,
 				description: this.editedDoc.properties.description,
 				authPolicies: this.editedDoc.properties.authPolicies,
-				published: this.editedDoc.properties.published,
+				publishStatus: this.editedDoc.properties.publishStatus,
 			};
 
 			Quasar.LoadingBar.start();
@@ -540,7 +545,7 @@
 							node.label = this.editedDoc.properties.title;
 							node.icon = this.editedDoc.properties.icon;
 
-							if (!this.editedDoc.properties.published) {
+							if (this.editedDoc.properties.publishStatus != 1) {
 								iterateNodes(node, (n) => n.iconColor = "blue-grey-2");
 							} else {
 								node.iconColor = "blue-grey";
@@ -578,8 +583,9 @@
 								if (r.result.errors.Icon)
 									this.$refs.Icon.validate();
 
-								if (r.result.errors.Published) {
-									this.invalidPublishedState = dto.published;
+								if (r.result.errors.PublishStatus) {
+									this.invalidPublishedState.push(dto.publishStatus);
+									this.$refs.PublishStatus.validate();
 								}
 
 							} else {
