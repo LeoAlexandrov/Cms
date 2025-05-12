@@ -13,7 +13,7 @@ namespace AleProjects.Cms.Web.Pages
 		public IActionResult OnGet([FromRoute] int? id)
 		{
 			if (!User.Identity.IsAuthenticated && !this.Request.Cookies.ContainsKey("X-JWT"))
-				return Redirect("/auth");
+				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
 
 			SchemaId = id ?? 0;
 

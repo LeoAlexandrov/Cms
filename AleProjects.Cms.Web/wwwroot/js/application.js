@@ -188,8 +188,8 @@
 						}
 					}
 
-					if (authEndpoints) 
-						window.location = authEndpoints.signin;
+					if (authEndpoints)
+						window.location = `${authEndpoints.signin}/?backUrl=${window.location.pathname}`;
 
 					return { ok: false, status: 401, result: null, contentType: null, totalItems: 0, link: null };
 				}

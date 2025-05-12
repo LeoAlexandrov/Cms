@@ -112,6 +112,19 @@ namespace AleProjects.Cms.Web.Pages.Auth
 
 			if (this.AllowAnonymous)
 				this.CfSiteKey = this._configuration.GetValue<string>("Auth:CloudflareTT:SiteKey");
+
+			if (this.Request.Query.ContainsKey("backUrl"))
+				this.Response.Cookies.Append(
+					"backUrl",
+					this.Request.Query["backUrl"].ToString(),
+					new CookieOptions()
+					{
+						HttpOnly = true,
+						Secure = true,
+						SameSite = SameSiteMode.Lax
+					});
+			else
+				this.Response.Cookies.Delete("backUrl");
 		}
 
 

@@ -25,7 +25,7 @@ namespace AleProjects.Cms.Web.Pages
 		public async Task<IActionResult> OnGet([FromRoute] string link)
 		{
 			if (!User.Identity.IsAuthenticated && !this.Request.Cookies.ContainsKey("X-JWT"))
-				return Redirect("/auth");
+				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
 
 			Link = link ?? "";
 			MaxUploadSize = _mms.MaxUploadSize;

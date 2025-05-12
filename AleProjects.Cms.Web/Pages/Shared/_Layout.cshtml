@@ -36,10 +36,14 @@
 
 			<q-drawer v-model="drawer"
 				show-if-above
-				:width="200"
-				:breakpoint="1440"
+				mini-to-overlay
 				bordered
-				:class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'">
+				:mini="drawerMiniState"
+				width="200"
+				breakpoint="1440"
+				:class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
+				@@mouseenter="drawerMiniState=false"
+				@@mouseleave="drawerMiniState=true">
 
 				<q-scroll-area class="drawer-menu-scroller">
 					<q-list>
@@ -66,10 +70,10 @@
 
 				<div class="absolute-top drawer-header">
 					<div class="absolute-bottom bg-transparent q-ma-md">
-						<q-avatar size="64px" class="q-mb-sm">
+						<q-avatar :size="drawerMiniState ? '24px' : '64px'" :class="drawerMiniState ? 'q-mb-lg' : 'q-mb-sm'">
 							<img :src="profile.avatar" no-spinner loading="eager">
 						</q-avatar>
-						<div class="text-weight-medium text-white">{{ profile.name }}</div>
+						<div class="text-caption text-white ellipsis">{{ profile.name }}</div>
 					</div>
 				</div>
 

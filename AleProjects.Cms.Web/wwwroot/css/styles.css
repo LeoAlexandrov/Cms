@@ -90,7 +90,7 @@
 }
 
 .drawer-header {
-	height: 150px;
+	height: 128px;
 	background-image: url(/images/material.webp);
 	background-position: center;
 	background-repeat: no-repeat;
@@ -98,8 +98,8 @@
 }
 
 .drawer-menu-scroller {
-	height: calc(100% - 150px);
-	margin-top: 150px;
+	height: calc(100% - 140px);
+	margin-top: 140px;
 	border-right: 1px solid #ddd
 }
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,8 +9,6 @@ using Microsoft.Extensions.Caching.Memory;
 using HCms.ContentRepo;
 using HCms.Dto;
 using HCms.ViewModels;
-using System.Threading;
-using System.Collections.Concurrent;
 
 
 namespace DemoSite.Services

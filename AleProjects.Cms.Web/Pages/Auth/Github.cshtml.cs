@@ -51,7 +51,10 @@ namespace AleProjects.Cms.Web.Pages.Auth
 				return Redirect("/auth");
 			}
 
-			return Redirect("/");
+			string backUrl = this.Request.Cookies["backUrl"] ?? "/";
+			this.Response.Cookies.Delete("backUrl");
+
+			return Redirect(backUrl.StartsWith('/') ? backUrl : "/");
 		}
 
 	}

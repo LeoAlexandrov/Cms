@@ -4,6 +4,7 @@
 		return {
 			pageHeight: "",
 			drawer: true,
+			drawerMiniState: true,
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "media",
@@ -108,6 +109,10 @@
 						if (pushState)
 							window.history.pushState({ folderLink: link }, "", `/media/${link}`);
 					} else {
+
+						if (!this.mediaEntries.length)
+							this.path = [{ label: TEXT.MEDIA.get("ROOT"), link: "" }, { label: "?", link: null }];
+
 						displayMessage(`${TEXT.MEDIA.get('MESSAGE_READFOLDER_FAIL')} (${formatHTTPStatus(r)})`, true);
 					}
 				});

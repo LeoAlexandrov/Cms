@@ -4,6 +4,7 @@
 		return {
 			pageHeight: "",
 			drawer: true,
+			drawerMiniState: true,
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
 			activeNavSection: "users",

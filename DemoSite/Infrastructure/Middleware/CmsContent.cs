@@ -126,7 +126,7 @@ namespace DemoSite.Infrastructure.Middleware
 					{
 						/* This branch of code prevents/minimizes 'cache stampede'.
 						 * If some thread has already started rendering the page requested, 
-						 * the 'CmsContentService.AwaitedResults' concurrent dictionary
+						 * the 'CmsContentService.AwaitedResults' static concurrent dictionary
 						 * will contain an element with the 'cacheKey' key.
 						 * This element has CancellationToken which will be cancelled by that thread, 
 						 * and byte array with the rendered page body.
@@ -208,7 +208,7 @@ namespace DemoSite.Infrastructure.Middleware
 					 * - and we are the first thread to render the page.
 					 */
 
-					int pageSize = 5;
+					int pageSize = 5; // hardcoded for now, better to move it to the config file or to take it from query params
 
 					int position = context.Request.Query.TryGetValue("p", out var qp) && 
 						int.TryParse(qp, out int p) && 

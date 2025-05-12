@@ -48,7 +48,6 @@
 	},
 
 	"Media": {
-		"StorageHost": "https://media.h-cms.net/",
 		"StoragePath": "M:\\Cms-media\\",
 		"CacheFolder": ".cache",
 		"MaxUploadSize": 10485760,

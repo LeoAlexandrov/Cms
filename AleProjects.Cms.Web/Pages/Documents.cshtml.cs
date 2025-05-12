@@ -20,7 +20,7 @@ namespace AleProjects.Cms.Web.Pages
 		public async Task<IActionResult> OnGet([FromRoute] string sId)
 		{
 			if (!User.Identity.IsAuthenticated && !this.Request.Cookies.ContainsKey("X-JWT"))
-				return Redirect("/auth");
+				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
 
 			if (int.TryParse(sId, out int id))
 			{

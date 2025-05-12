@@ -121,7 +121,7 @@
     <value>Ajouter</value>
   </data>
   <data name="AppTitle" xml:space="preserve">
-    <value>Le Headless CMS</value>
+    <value>H-Cms</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Annuler</value>
@@ -184,7 +184,7 @@
     <value>Webhooks</value>
   </data>
   <data name="Welcome" xml:space="preserve">
-    <value>Bienvenue dans le Headless CMS !</value>
+    <value>Bienvenue dans le H-Cms !</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Oui</value>
