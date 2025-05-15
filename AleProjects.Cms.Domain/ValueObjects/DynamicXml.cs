@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
@@ -8,7 +9,7 @@ using System.Xml.Linq;
 namespace AleProjects.Cms.Domain.ValueObjects
 {
 
-	public class DynamicXml : DynamicObject
+	public class DynamicXml : DynamicObject, IReadOnlyDictionary<string, object>
 	{
 		private readonly string _ns;
 		private readonly XSElement _xse;
@@ -76,34 +77,54 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			return result;
 		}
 
-		public override bool TryGetMember(GetMemberBinder binder, out object result)
+
+		private string[] GetKeys()
 		{
-			string bName = binder.Name;
-			string name = string.IsNullOrEmpty(_ns) ? bName : $"{{{_ns}}}{bName}";
+			if (_root == null)
+				return [];
 
-			var attr = _root.Attribute(name);
+			var all = _root.Elements();
 
-			if (attr != null)
+			string[] result;
+
+			if (string.IsNullOrEmpty(_ns))
 			{
-				result = attr.Value;
-				return true;
+				result = all.Select(e => e.Name.ToString())
+					.Distinct()
+					.ToArray();
+			}
+			else
+			{
+				string prefix = $"{{{_ns}}}";
+
+				result = all.Select(e => e.Name.ToString())
+					.Where(name => name.StartsWith(prefix))
+					.Select(name => name[prefix.Length..])
+					.Distinct()
+					.ToArray();
 			}
 
+			return result;
+		}
+
+		public bool TryGetMember(string memberName, out object result)
+		{
+			string name = string.IsNullOrEmpty(_ns) ? memberName : $"{{{_ns}}}{memberName}";
 			var nodes = _root.Elements(name);
-			var n = nodes.Count();
+			var any = nodes.Any();
 
-			if (n == 0 && bName.Contains('_'))
+			if (!any && memberName.Contains('_'))
 			{
-				bName = bName.Replace('_', '-');
-				name = string.IsNullOrEmpty(_ns) ? bName : $"{{{_ns}}}{bName}";
+				memberName = memberName.Replace('_', '-');
+				name = string.IsNullOrEmpty(_ns) ? memberName : $"{{{_ns}}}{memberName}";
 				nodes = _root.Elements(name);
-				n = nodes.Count();
+				any = nodes.Any();
 			}
 
-			if (n == 0)
+			if (!any)
 			{
 				result = null;
-				return true;
+				return false;
 			}
 
 			XSElement newXse = null;
@@ -113,7 +134,7 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			if (_xse != null)
 			{
 				for (int i = 0; i < _xse.Elements.Count; i++)
-					if (_xse.Elements[i].Name == bName)
+					if (_xse.Elements[i].Name == memberName)
 					{
 						newXse = _xse.Elements[i];
 						isArray = newXse.MaxOccurs > 1;
@@ -153,11 +174,89 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			return true;
 		}
 
+		public override bool TryGetMember(GetMemberBinder binder, out object result)
+		{
+			this.TryGetMember(binder.Name, out result);
+
+			return true;
+		}
+
 		public override string ToString()
 		{
-			return _root.Value;
+			return _root?.Value;
+		}
+
+
+		// IReadOnlyDictionary<string, object> implementation
+
+		IEnumerable<string> IReadOnlyDictionary<string, object>.Keys => this.GetKeys();
+
+		IEnumerable<object> IReadOnlyDictionary<string, object>.Values
+		{
+			get
+			{
+				var keys = this.GetKeys();
+				var result = new List<object>(keys.Length);
+
+				foreach (var key in keys)
+					if (this.TryGetMember(key, out object value))
+						result.Add(value);
+					else
+						result.Add(null);
+
+				return result;
+			}
+		}
+
+		int IReadOnlyCollection<KeyValuePair<string, object>>.Count => _root?.Elements()?.Count() ?? 0;
+
+		object IReadOnlyDictionary<string, object>.this[string key]
+		{
+			get
+			{
+				bool result = this.TryGetMember(key, out object value);
+
+				if (result)
+					return value;
+
+				throw new KeyNotFoundException($"Key '{key}' not found.");
+			}
+		}
+
+		bool IReadOnlyDictionary<string, object>.ContainsKey(string key)
+		{
+			string name = string.IsNullOrEmpty(_ns) ? key : $"{{{_ns}}}{key}";
+			var nodes = _root.Elements(name);
+			var result = nodes.Any();
+
+			if (!result && key.Contains('_'))
+			{
+				key = key.Replace('_', '-');
+				name = string.IsNullOrEmpty(_ns) ? key : $"{{{_ns}}}{key}";
+				nodes = _root.Elements(name);
+				result = nodes.Any();
+			}
+
+			return result;
+		}
+
+		bool IReadOnlyDictionary<string, object>.TryGetValue(string key, out object value) => this.TryGetMember(key, out value);
+
+		IEnumerator<KeyValuePair<string, object>> IEnumerable<KeyValuePair<string, object>>.GetEnumerator()
+		{
+			var keys = this.GetKeys();
+
+			foreach (var key in keys)
+				if (this.TryGetMember(key, out object value))
+					yield return new KeyValuePair<string, object>(key, value);
+				else
+					yield return new KeyValuePair<string, object>(key, null);
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return ((IEnumerable<KeyValuePair<string, object>>)this).GetEnumerator();
 		}
 	}
-
 
 }

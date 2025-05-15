@@ -10,13 +10,17 @@ cd /home/leo/Cms.Demo;
 tar -xf publish.tar --directory publish
 rm -f publish.tar
 chmod -R a+x publish; 
-docker rm -f HeadlessCmsDemo;
-docker rmi headlesscmsdemo:latest;
-docker build --tag headlesscmsdemo .;
-docker run -p 8083:8080 --name HeadlessCmsDemo -h HeadlessCmsDemo --restart=always --network external -v /etc/HeadlessCms.Demo:/etc/HeadlessCms.Demo -d headlesscmsdemo:latest
+docker rm -f H-Cms-Demo;
+docker rmi h-cms-demo:latest;
+docker build --tag h-cms-demo .;
+
+docker run -p 8083:8080 --name H-Cms-Demo -h H-Cms-Demo --restart=always --network external \
+	-e SETTINGS=/etc/HCms.Demo/settings.json \
+	-v /etc/HCms.Demo:/etc/HCms.Demo \
+	-d h-cms-demo:latest
 "@
 
-<# chown -R leo:leo /home/leo/Cms; #>
+<# chown -R leo:leo /home/leo/Cms.Demo; #>
 
 <##>
 

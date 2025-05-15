@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -25,16 +26,26 @@ namespace HCms.ViewModels
 		public string XmlSchema { get; set; }
 		public dynamic Props { get; set; }
 		public Dictionary<string, string> Attributes { get; set; }
+
+		[JsonIgnore]
 		public Document Document { get; set; }
+
 		public Fragment[] Children { get; set; }
 
 		// ITreeNode<int> implementation
 
+		[JsonIgnore]
 		public int Parent => Container;
+
+		[JsonIgnore]
 		public string Title => Name;
+
+		[JsonIgnore]
 		public string Caption => null;
+
 		public string Data { get; set; }
 
+		[JsonIgnore]
 		public bool Enabled => true;
 
 		public Fragment() { }

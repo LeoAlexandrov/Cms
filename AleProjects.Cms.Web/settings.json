@@ -43,6 +43,11 @@
 			"ClientId": "12345",
 			"ClientSecret": "abcdefghijklmnopqrstuv((",
 			"Key": "rl_1234567890NFWk4xg5JVCXjhT"
+		},
+
+		"CloudflareTT": {
+			"SiteKey": "0x1234567890abcdefghijkl",
+			"SecretKey": "0x1234567890abcdefghijklVatqVpgx0dY"
 		}
 
 	},

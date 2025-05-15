@@ -45,11 +45,10 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
-
-	string settingsFile = configuration["Settings"];
+	string settingsFile = Environment.GetEnvironmentVariable("SETTINGS") ?? configuration["Settings"];
 
 	if (!string.IsNullOrEmpty(settingsFile))
-		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
+		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile, true);
 
 
 	services
@@ -183,10 +182,10 @@ void ConfigureApp(WebApplication app)
 }
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 ConfigureServices(builder.Services, builder.Configuration);
+
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,9 +110,19 @@ namespace DemoSite.Services
 			return result ? AuthResult.Success : AuthResult.Forbidden;
 		}
 
-		ValueTask<AuthResult> AuthorizeEditor(ClaimsPrincipal user)
+		async ValueTask<AuthResult> AuthorizeEditor(ClaimsPrincipal user)
 		{
-			return ValueTask.FromResult(AuthResult.Forbidden);
+			if (!user.Identity.IsAuthenticated)
+				return AuthResult.Unauthorized;
+
+			string login = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+			if (string.IsNullOrEmpty(login))
+				return AuthResult.Forbidden;
+
+			string role = await _repo.UserRole(login);
+
+			return string.IsNullOrEmpty(login) ? AuthResult.Forbidden : AuthResult.Success;
 		}
 
 		public async Task<Document> GetDocument(string host, string path, int childPos, int takeChildren, ClaimsPrincipal user)

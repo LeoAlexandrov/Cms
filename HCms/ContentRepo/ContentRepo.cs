@@ -55,11 +55,11 @@ namespace HCms.ContentRepo
 		/// <summary>
 		/// Asynchronously returns a view models of the document children.
 		/// </summary>
-		/// <param name="docId">Document id</param>
+		/// <param name="id">Document id</param>
 		/// <param name="childrenFromPos">The starting position of the document child to start selection from. Used for paginated children output. When negative no children are selected.</param>
 		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains an array that contains view models of the document children.</returns>
-		Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus);
+		Task<Document[]> Children(int id, int childrenFromPos, int take, int[] allowedStatus);
 
 		/// <summary>
 		/// Returns a tuple with the logical path and root slug of the document with the specified id.
@@ -67,6 +67,13 @@ namespace HCms.ContentRepo
 		/// <param name="docId">Document id</param>
 		/// <returns>A tuple with the logical path and root document slug.</returns>
 		Task<(string, string)> IdToPath(int docId);
+
+		/// <summary>
+		/// Asynchronously returns a role of CMS user with specified login or null if no user found.
+		/// </summary>
+		/// <param name="login">User login</param>
+		/// <returns>User role or null.</returns>
+		Task<string> UserRole(string login);
 	}
 
 
@@ -101,7 +108,7 @@ namespace HCms.ContentRepo
 		public IPathTransformer PathTransformer { get => pathTransformer; }
 
 		/// <summary>
-		/// Prepares path that comes in http request for further use. Removes double slashes, converts to lower case, adds slash to the beginning.
+		/// Prepares path that comes in http request for further use. Removes double slashes, converts to lower case, adds slash at the beginning.
 		/// </summary>
 		/// <param name="path">Path from http request.</param>
 		/// <returns>Updated path.</returns>

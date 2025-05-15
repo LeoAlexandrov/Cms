@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 using Entities = AleProjects.Cms.Domain.Entities;
 
@@ -31,8 +32,13 @@ namespace HCms.ViewModels
 
 		public bool ExactMatch { get; set; } = true;
 		public BreadcrumbsItem[] Breadcrumbs { get; set; }
+
+		[JsonIgnore]
 		public Document Parent { get; set; }
+
+		[JsonIgnore]
 		public Document Root { get; set; }
+
 		public Document[] Siblings { get; set; }
 		public Document[] Children { get; set; }
 

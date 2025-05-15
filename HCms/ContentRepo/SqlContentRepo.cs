@@ -463,7 +463,7 @@ namespace HCms.ContentRepo
 			return result;
 		}
 
-		public Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus)
+		public Task<Document[]> Children(int id, int childrenFromPos, int take, int[] allowedStatus)
 		{
 			if (take < 0)
 				take = 1000;
@@ -473,24 +473,24 @@ namespace HCms.ContentRepo
 			if (allowedStatus != null)
 				query = dbContext.Documents
 					.AsNoTracking()
-					.Where(d => d.Parent == docId && allowedStatus.Contains(d.PublishStatus) && d.Position >= childrenFromPos)
+					.Where(d => d.Parent == id && allowedStatus.Contains(d.PublishStatus) && d.Position >= childrenFromPos)
 					.OrderBy(d => d.Position)
 					.Take(take);
 			else
 				query = dbContext.Documents
 					.AsNoTracking()
-					.Where(d => d.Parent == docId && d.PublishStatus == (int)Entities.Document.Status.Published && d.Position >= childrenFromPos)
+					.Where(d => d.Parent == id && d.PublishStatus == (int)Entities.Document.Status.Published && d.Position >= childrenFromPos)
 					.OrderBy(d => d.Position)
 					.Take(take);
 
 			return query.Select(d => new Document(d)).ToArrayAsync();
 		}
 
-		public async Task<(string, string)> IdToPath(int docId)
+		public async Task<(string, string)> IdToPath(int id)
 		{
 			var doc = await dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == docId);
+				.FirstOrDefaultAsync(d => d.Id == id);
 
 			if (doc == null)
 				return (null, null);
@@ -501,7 +501,7 @@ namespace HCms.ContentRepo
 			var root = await dbContext.Documents
 				.AsNoTracking()
 				.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.Parent, (d, n) => new { d, n })
-				.Where(dn => dn.n.DocumentRef == docId && dn.d.Parent == 0)
+				.Where(dn => dn.n.DocumentRef == id && dn.d.Parent == 0)
 				.Select(dn => dn.d)
 				.OrderBy(d => d.Id)
 				.FirstOrDefaultAsync();
@@ -509,6 +509,14 @@ namespace HCms.ContentRepo
 			return (root.Slug, doc.Path);
 		}
 
+		public async Task<string> UserRole(string login)
+		{
+			var user = await dbContext.Users
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.Login == login);
+
+			return user?.Role;
+		}
 
 		#region IDisposable-implementation
 

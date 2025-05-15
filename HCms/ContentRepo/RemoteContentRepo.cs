@@ -29,7 +29,7 @@ namespace HCms.ContentRepo
 			throw new NotImplementedException();
 		}
 
-		public Task<Document[]> Children(int docId, int childrenFromPos, int take, int[] allowedStatus)
+		public Task<Document[]> Children(int id, int childrenFromPos, int take, int[] allowedStatus)
 		{
 			throw new NotImplementedException();
 		}
@@ -44,10 +44,16 @@ namespace HCms.ContentRepo
 			throw new NotImplementedException();
 		}
 
-		public Task<(string, string)> IdToPath(int docId)
+		public Task<(string, string)> IdToPath(int id)
 		{
 			throw new NotImplementedException();
 		}
+
+		public Task<string> UserRole(string login)
+		{
+			throw new NotImplementedException();
+		}
+
 	}
 
 }

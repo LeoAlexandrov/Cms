@@ -16,10 +16,10 @@ using DemoSite.Services;
 
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
-	string settingsFile = configuration["Settings"];
+	string settingsFile = Environment.GetEnvironmentVariable("SETTINGS") ?? configuration["Settings"];
 
 	if (!string.IsNullOrEmpty(settingsFile))
-		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile);
+		configuration.AddJsonFile(settingsFile.StartsWith("../") ? Path.GetFullPath(settingsFile) : settingsFile, true);
 
 
 	services
@@ -29,7 +29,6 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddHostedService<EventSubscriptionService>()
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
 		.AddViewLocalization();
-
 }
 
 

@@ -10,13 +10,20 @@ cd /home/leo/Cms;
 tar -xf publish.tar --directory publish
 rm -f publish.tar
 chmod -R a+x publish; 
-docker rm -f HeadlessCms;
-docker rmi headlesscms:latest;
-docker build --tag headlesscms .;
-docker run -p 8082:8080 --name HeadlessCms -h HeadlessCms --restart=always --network external -v /etc/HeadlessCms:/etc/HeadlessCms -v /var/www/cms-media:/var/www/cms-media -d headlesscms:latest
+docker rm -f H-Cms;
+docker rmi h-cms:latest;
+docker build --tag h-cms .;
+
+docker run -p 8082:8080 --name H-Cms -h H-Cms --restart=always --network external \
+	-e SETTINGS=/etc/HCms/settings.json \
+	-v /etc/HCms:/etc/HCms \
+	-v /var/www/cms-media:/var/www/cms-media \
+	-d h-cms:latest
 "@
 
 <# chown -R leo:leo /home/leo/Cms; #>
+
+<#
 
 Write-Host "============== ContaboVPS ==============\r\n"
 
@@ -25,6 +32,27 @@ scp C:\VSBuild\Cms\publish.tar ContaboVPS:/home/leo/Cms
 scp C:\OneDrive\Projects\Cms\AleProjects.Cms.Web\Dockerfile ContaboVPS:/home/leo/Cms
 
 ssh ContaboVPS $commands 
+
+$winscpResult = $LastExitCode
+
+if ($winscpResult -eq 0)
+{
+  Write-Host "Success"
+}
+else
+{
+  Write-Host "Error"
+}
+
+#>
+
+Write-Host "============== MiniPC ===============\r\n"
+
+ssh MiniPC $prepCommands
+scp C:\VSBuild\Cms\publish.tar MiniPC:/home/leo/Cms
+scp C:\OneDrive\Projects\Cms\AleProjects.Cms.Web\Dockerfile MiniPC:/home/leo/Cms
+
+ssh MiniPC $commands 
 
 $winscpResult = $LastExitCode
 
