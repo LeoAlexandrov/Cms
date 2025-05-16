@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
@@ -86,7 +87,11 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddSingleton<FragmentSchemaRepo>(s =>
 			{
 				using var scope = s.CreateScope();
-				return new(scope.ServiceProvider.GetRequiredService<CmsDbContext>());
+				var serviceProvider = scope.ServiceProvider;
+
+				return new(
+					serviceProvider.GetRequiredService<CmsDbContext>(), 
+					serviceProvider.GetRequiredService<ILoggerFactory>());
 			})
 		.AddScoped<IEventNotifier, EventNotifier>()
 		.AddScoped<ContentManagementService>()

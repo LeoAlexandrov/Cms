@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -27,6 +28,8 @@ namespace AleProjects.Cms.Infrastructure.Data
 		const string XSD_PATH = "InitialData/XmlSchemata";
 #endif
 
+		readonly ILogger<FragmentSchemaRepo> _logger = null;
+
 		public List<XSElement> Fragments { get; private set; }
 		public XmlSchemaSet SchemaSet { get; private set; }
 		public Dictionary<string, XSElement> Index { get; private set; }
@@ -34,11 +37,13 @@ namespace AleProjects.Cms.Infrastructure.Data
 
 		public FragmentSchemaRepo() { }
 
-		public FragmentSchemaRepo(CmsDbContext dbContext)
+		public FragmentSchemaRepo(CmsDbContext dbContext, ILoggerFactory loggerFactory)
 		{
 			ArgumentNullException.ThrowIfNull(dbContext);
 
-			(SchemaSet, Fragments) = ReadSchemata(dbContext);
+			_logger = loggerFactory.CreateLogger<FragmentSchemaRepo>();
+
+			(SchemaSet, Fragments) = ReadSchemata(dbContext, _logger);
 			Index = [];
 
 			foreach (var f in Fragments)
@@ -283,12 +288,14 @@ namespace AleProjects.Cms.Infrastructure.Data
 			return e;
 		}
 
-		private static List<Schema> CreateDefault(CmsDbContext dbContext)
+		private static List<Schema> CreateDefault(CmsDbContext dbContext, ILogger<FragmentSchemaRepo> logger)
 		{
 			List<Schema> result = [];
 
 			if (dbContext.Schemata.Any())
 				return result;
+
+			logger?.LogInformation("Creating default schema db records...");
 
 			string[] files = Directory.GetFiles(XSD_PATH, "*.xsd", SearchOption.TopDirectoryOnly);
 
@@ -305,7 +312,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine(ex.Message);
+					logger?.LogError(ex, "Error reading or processing schema file: {File}", file);
 				}
 			}
 
@@ -315,14 +322,14 @@ namespace AleProjects.Cms.Infrastructure.Data
 			return result;
 		}
 
-		private static (XmlSchemaSet, List<XSElement>) ReadSchemata(CmsDbContext dbContext)
+		private static (XmlSchemaSet, List<XSElement>) ReadSchemata(CmsDbContext dbContext, ILogger<FragmentSchemaRepo> logger)
 		{
 			IReadOnlyList<Schema> schemata = dbContext.Schemata
 				.AsNoTracking()
 				.ToArray();
 
 			if (schemata.Count == 0)
-				schemata = CreateDefault(dbContext);
+				schemata = CreateDefault(dbContext, logger);
 
 			return ReadSchemata(schemata);
 		}
@@ -357,7 +364,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 
 			try
 			{
-				var (schemaSet, fragments) = ReadSchemata(dbContext);
+				var (schemaSet, fragments) = ReadSchemata(dbContext, _logger);
 				var index = new Dictionary<string, XSElement>();
 
 				foreach (var f in fragments)
@@ -367,13 +374,15 @@ namespace AleProjects.Cms.Infrastructure.Data
 				Fragments = fragments;
 				Index = index;
 
+				_logger?.LogInformation("Schema repo is (re)loaded: {Count} items", Fragments.Count);
 				result = true;
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
 				result = false;
+				_logger?.LogError(ex, "Error (re)loading schemata: {Message}", ex.Message);
 			}
+
 
 			return result;
 		}
@@ -388,6 +397,8 @@ namespace AleProjects.Cms.Infrastructure.Data
 			SchemaSet = schemaSet;
 			Fragments = fragments;
 			Index = index;
+
+			_logger?.LogInformation("Schema repo is (re)loaded: {Count} items", Fragments.Count);
 
 			return true;
 		}

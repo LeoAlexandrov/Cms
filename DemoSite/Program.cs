@@ -75,6 +75,8 @@ void ConfigureApp(WebApplication app)
 
 			if (secret == request.Headers["X-Secret"])
 				cmsService.UpdateCache(model);
+
+			return Results.NoContent();
 		});
 
 	app.UseStatusCodePagesWithReExecute("/Error/{0}");

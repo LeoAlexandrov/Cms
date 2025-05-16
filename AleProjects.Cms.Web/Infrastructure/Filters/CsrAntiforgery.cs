@@ -23,6 +23,7 @@ namespace AleProjects.Cms.Web.Infrastructure.Filters
 			{
 				// debugging
 
+				/*
 				bool valid;
 
 				try
@@ -36,8 +37,9 @@ namespace AleProjects.Cms.Web.Infrastructure.Filters
 					Console.WriteLine(ex.Message);
 					Console.WriteLine(ex.StackTrace);
 				}
+				*/
 
-				//bool valid = await _antiforgery.IsRequestValidAsync(context.HttpContext);
+				bool valid = await _antiforgery.IsRequestValidAsync(context.HttpContext);
 
 				if (!valid)
 				{

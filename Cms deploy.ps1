@@ -23,7 +23,7 @@ docker run -p 8082:8080 --name H-Cms -h H-Cms --restart=always --network externa
 
 <# chown -R leo:leo /home/leo/Cms; #>
 
-<#
+<##>
 
 Write-Host "============== ContaboVPS ==============\r\n"
 
@@ -44,7 +44,7 @@ else
   Write-Host "Error"
 }
 
-#>
+
 
 Write-Host "============== MiniPC ===============\r\n"
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -18,11 +19,12 @@ using AleProjects.Cms.Domain.ValueObjects;
 
 namespace AleProjects.Cms.Infrastructure.Media
 {
-	public class LocalMediaStorage(IConfiguration configuration) : IMediaStorage
+	public class LocalMediaStorage(IConfiguration configuration, ILogger<LocalMediaStorage> logger) : IMediaStorage
 	{
 		const string DEFAULT_CACHE_FOLDER = ".cache";
 
 		readonly IConfiguration _configuration = configuration;
+		readonly ILogger<LocalMediaStorage> _logger = logger;
 
 		struct EntryNames(string fullName, string virtName)
 		{
@@ -64,7 +66,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 		}
 
 
-		static bool DeletePreviews(string cachePath, IList<EntryNames> files, IList<EntryNames> folders)
+		static bool DeletePreviews(string cachePath, IList<EntryNames> files, IList<EntryNames> folders, ILogger<LocalMediaStorage> logger)
 		{
 			var cached = Directory.GetFiles(cachePath);
 
@@ -88,8 +90,9 @@ namespace AleProjects.Cms.Infrastructure.Media
 						{
 							File.Delete(preview.FullName);
 						}
-						catch
+						catch (Exception ex)
 						{
+							logger?.LogWarning(ex, "Error deleting preview file {FullName}", preview.FullName);
 							result = false;
 						}
 					}
@@ -103,8 +106,9 @@ namespace AleProjects.Cms.Infrastructure.Media
 						{
 							File.Delete(preview.FullName);
 						}
-						catch
+						catch (Exception ex)
 						{
+							logger?.LogWarning(ex, "Error deleting preview file {FullName}", preview.FullName);
 							result = false;
 						}
 					}
@@ -446,7 +450,10 @@ namespace AleProjects.Cms.Infrastructure.Media
 						Directory.Delete(folder.FullName, true);
 						list.Add(folder.VirtualName);
 					}
-					catch { }
+					catch (Exception ex)
+					{
+						_logger?.LogWarning(ex, "Error deleting folder {FullName}", folder.FullName);
+					}
 			});
 
 			Task task2 = Task.Run(() =>
@@ -457,12 +464,15 @@ namespace AleProjects.Cms.Infrastructure.Media
 						File.Delete(file.FullName);
 						list.Add(file.VirtualName);
 					}
-					catch { }
+					catch (Exception ex)
+					{
+						_logger?.LogWarning(ex, "Error deleting file {FullName}", file.FullName);
+					}
 			});
 
 			Task task3 = Task.Run(() =>
 			{
-				DeletePreviews(cachePath, files, folders);
+				DeletePreviews(cachePath, files, folders, _logger);
 			});
 
 			Task[] tasks = [task1, task2, task3];
@@ -492,9 +502,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 				if (k < 0)
 					k = name.Length;
 
-				fullPath = Path.Combine(storagePath, path ?? "", name[0..k]);
-
-				var fi = new FileInfo(fullPath);
+				var fi = new FileInfo(Path.Combine(storagePath, path ?? "", name[0..k]));
 
 				result = new()
 				{
@@ -508,7 +516,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.ToString());
+				_logger?.LogError(ex, "Error creating folder {FullPath}", fullPath);
 				result = null;
 			}
 

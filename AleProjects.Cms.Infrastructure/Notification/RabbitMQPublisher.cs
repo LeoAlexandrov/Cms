@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using RabbitMQ.Client;
 
 using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Endpoints;
-using System.Net;
 
 
 namespace AleProjects.Cms.Infrastructure.Notification
@@ -14,7 +15,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 	public static class RabbitMQPublisher
 	{
-		public static async Task Publish(RabbitMQDestination destination, EventPayload payload)
+		public static async Task Publish(RabbitMQDestination destination, EventPayload payload, ILogger<EventNotifier> logger)
 		{
 			string host;
 			int port;
@@ -69,7 +70,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"RabbitMQ destination '{destination.HostName}' failed with exception: {ex.Message}");
+				logger?.LogError(ex, "RabbitMQ destination '{HostName}' failed with exception: {Message}", destination.HostName, ex.Message);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using AleProjects.Cms.Application.Dto;
 
@@ -115,7 +116,7 @@ namespace AleProjects.Cms.Application.Services
 			}
 		}
 
-		static async Task CreateDemoData(IServiceScopeFactory serviceScopeFactory, ClaimsPrincipal user)
+		static async Task CreateDemoData(IServiceScopeFactory serviceScopeFactory, ClaimsPrincipal user, ILogger logger)
 		{
 			using var scope = serviceScopeFactory.CreateScope();
 			var cms = scope.ServiceProvider.GetRequiredService<ContentManagementService>();
@@ -129,14 +130,14 @@ namespace AleProjects.Cms.Application.Services
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
+				logger?.LogError(ex, "Failed to load demo initialization data from JSON file");
 				documents = [];
 			}
 
 			await CreateDocument(0, documents, cms, user);
 		}
 
-		public static async Task<InitResult> Initialize(IServiceScopeFactory serviceScopeFactory, string userLogin, bool addDemoData)
+		public static async Task<InitResult> Initialize(IServiceScopeFactory serviceScopeFactory, string userLogin, bool addDemoData, ILoggerFactory loggerFactory)
 		{
 			using var scope = serviceScopeFactory.CreateScope();
 
@@ -161,8 +162,10 @@ namespace AleProjects.Cms.Application.Services
 
 				ClaimsIdentity identity = new(claims, "AuthenticationTypes.Federation");
 
-				_ = CreateDemoData(serviceScopeFactory, new(identity))
-					.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+				var logger = loggerFactory?.CreateLogger("InitializationHelper");
+
+				_ = CreateDemoData(serviceScopeFactory, new(identity), logger)
+					.ContinueWith(t => logger?.LogError(t.Exception, "Creation of demo data failed"), TaskContinuationOptions.OnlyOnFaulted);
 			}
 
 			return InitResult.Success;

@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 using Google.Apis.Auth;
@@ -111,7 +112,11 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 
 
-	public class SignInHandler(CmsDbContext context, IConfiguration configuration, IDistributedCache cache, IHttpClientFactory httpClientFactory)
+	public class SignInHandler(CmsDbContext context, 
+		IConfiguration configuration, 
+		IDistributedCache cache, 
+		IHttpClientFactory httpClientFactory,
+		ILogger<SignInHandler> logger)
 	{
 #if DEBUG
 		const int JWT_EXPIRES_IN = 60;
@@ -135,6 +140,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		readonly IConfiguration _configuration = configuration;
 		readonly IDistributedCache _cache = cache;
 		readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+		readonly ILogger<SignInHandler> _logger = logger;
 
 
 		#region local
@@ -299,8 +305,9 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			{
 				payload = await GoogleJsonWebSignature.ValidateAsync(gPayload.Credential);
 			}
-			catch
+			catch (Exception ex)
 			{
+				_logger?.LogError(ex, "Validation of Google json web signature failed");
 				return UserLogin.WithStatus(LoginStatus.InvalidToken);
 			}
 
@@ -366,7 +373,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "Microsoft token exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				msToken = await response.Content.ReadFromJsonAsync<MicrosoftTokenResponse>();
 			}
@@ -380,7 +395,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "Microsoft user info exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				msUser = await response.Content.ReadFromJsonAsync<MicrosoftUser>();
 			}
@@ -461,7 +484,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "Github token exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				ghTtoken = await response.Content.ReadFromJsonAsync<GithubTokenResponse>();
 			}
@@ -475,7 +506,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "Github user info exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				ghUser = await response.Content.ReadFromJsonAsync<GithubUser>();
 			}
@@ -539,7 +578,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "StackOverflow token exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				soToken = await response.Content.ReadFromJsonAsync<StackOverflowTokenResponse>();
 			}
@@ -553,7 +600,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "StackOverflow user info exchange failed");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				soUser = await response.Content.ReadFromJsonAsync<StackOverflowUser>();
 			}
@@ -619,7 +674,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			{
 				using HttpResponseMessage response = await client.SendAsync(request);
 
-				response.EnsureSuccessStatusCode();
+				try
+				{
+					response.EnsureSuccessStatusCode();
+				}
+				catch (HttpRequestException ex)
+				{
+					_logger?.LogError(ex, "Failed to get Cloudflare Turnstile response");
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
 
 				var cfResponse = await response.Content.ReadFromJsonAsync<CloudflareTurnstileResponse>();
 
@@ -661,8 +724,10 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				_cache.Remove(refresh);
 			}
-			catch
+			catch (Exception ex)
 			{
+				_logger?.LogError(ex, "Failed to refresh JWT");
+
 				return UserLogin.WithStatus(LoginStatus.InternalError);
 			}
 			finally

@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using AleProjects.Cms.Domain.ValueObjects;
 
@@ -11,11 +12,11 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 	public static class HttpEventSender
 	{
-		public static async Task Send(HttpClient client, WebhookDestination destination, EventPayload payload)
+		public static async Task Send(HttpClient client, WebhookDestination destination, EventPayload payload, ILogger<EventNotifier> logger)
 		{
 			if (client == null)
 			{
-				Console.WriteLine($"HttpClient for webhook destination '{destination.Endpoint}' is null");
+				logger?.LogError("HttpClient for webhook destination '{Endpoint}' is null", destination.Endpoint);
 				return;
 			}
 
@@ -33,12 +34,12 @@ namespace AleProjects.Cms.Infrastructure.Notification
 				using HttpResponseMessage response = await client.SendAsync(request);
 
 				if (!response.IsSuccessStatusCode)
-					Console.WriteLine($"Webhook destination '{destination.Endpoint}' failed with status: {response.StatusCode}");
+					logger?.LogError("Webhook destination '{Endpoint}' failed with status: {StatusCode}", destination.Endpoint, response.StatusCode);
 
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Webhook destination '{destination.Endpoint}' failed with exception: {ex.Message}");
+				logger?.LogError(ex, "Webhook destination '{Endpoint}' failed with exception: {Message}", destination.Endpoint, ex.Message);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Domain.ValueObjects;
@@ -20,7 +21,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 
 
-	public class EventNotifier(CmsDbContext context, IHttpClientFactory httpClientFactory) : IEventNotifier
+	public class EventNotifier(CmsDbContext context, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory) : IEventNotifier
 	{
 		public const string EVENT_DOC_CREATE = "on_doc_create";
 		public const string EVENT_DOC_CHANGE = "on_doc_change";
@@ -34,9 +35,10 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 		readonly CmsDbContext _dbContext = context;
 		readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+		readonly ILoggerFactory _loggerFactory = loggerFactory;
 
 
-		async static Task PublishEvent(EventDestination[] destinations, EventPayload payload, HttpClient httpClient)
+		async static Task PublishEvent(EventDestination[] destinations, EventPayload payload, HttpClient httpClient, ILogger<EventNotifier> logger)
 		{
 			foreach (var dest in destinations)
 			{
@@ -45,21 +47,21 @@ namespace AleProjects.Cms.Infrastructure.Notification
 					case "webhook":
 
 						var webhook = System.Text.Json.JsonSerializer.Deserialize<WebhookDestination>(dest.Data);
-						await HttpEventSender.Send(httpClient, webhook, payload);
+						await HttpEventSender.Send(httpClient, webhook, payload, logger);
 
 						break;
 
 					case "redis":
 
 						var redis = System.Text.Json.JsonSerializer.Deserialize<RedisDestination>(dest.Data);
-						await RedisPublisher.Publish(redis, payload);
+						await RedisPublisher.Publish(redis, payload, logger);
 
 						break;
 
 					case "rabbitmq":
 
 						var rabbit = System.Text.Json.JsonSerializer.Deserialize<RabbitMQDestination>(dest.Data);
-						await RabbitMQPublisher.Publish(rabbit, payload);
+						await RabbitMQPublisher.Publish(rabbit, payload, logger);
 
 						break;
 				}
@@ -92,8 +94,10 @@ namespace AleProjects.Cms.Infrastructure.Notification
 				AffectedContent = [new() { Id = id, Root = root, Path = path }]
 			};
 
-			_ = PublishEvent(dests, payload, httpClient)
-				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
+
+			_ = PublishEvent(dests, payload, httpClient, logger)
+				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public async Task Notify(string eventType, string[] fullPaths)
@@ -120,8 +124,10 @@ namespace AleProjects.Cms.Infrastructure.Notification
 				AffectedContent = fullPaths.Select(p => new EventPayloadContentEntry() { Path = p }).ToArray()
 			};
 
-			_ = PublishEvent(dests, payload, httpClient)
-				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
+
+			_ = PublishEvent(dests, payload, httpClient, logger)
+				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public async Task Notify(string eventType, int destinationId = 0)
@@ -134,8 +140,10 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 			var payload = new EventPayload() { Event = eventType };
 
-			_ = PublishEvent(dests, payload, httpClient)
-				.ContinueWith(t => Console.WriteLine(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
+
+			_ = PublishEvent(dests, payload, httpClient, logger)
+				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 	}
 }

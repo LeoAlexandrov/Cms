@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
@@ -12,7 +13,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 
 	public static class RedisPublisher
 	{
-		public static Task<long> Publish(RedisDestination destination, EventPayload payload)
+		public static Task<long> Publish(RedisDestination destination, EventPayload payload, ILogger<EventNotifier> logger)
 		{
 			ConfigurationOptions opts = new()
 			{
@@ -41,7 +42,7 @@ namespace AleProjects.Cms.Infrastructure.Notification
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Redis destination '{destination.Endpoint}' failed with exception: {ex.Message}");
+				logger?.LogError(ex, "Redis destination '{Endpoint}' failed with exception: {Message}", destination.Endpoint, ex.Message);
 				result = Task.FromResult(-1L);
 			}
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using AleProjects.Cms.Application.Services;
 
@@ -37,7 +38,7 @@ namespace AleProjects.Cms.Web.Pages
 			}
 		}
 
-		public void OnPost([FromServices] IServiceScopeFactory serviceScopeFactory)
+		public void OnPost([FromServices] IServiceScopeFactory serviceScopeFactory, [FromServices] ILoggerFactory loggerFactory)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -47,7 +48,7 @@ namespace AleProjects.Cms.Web.Pages
 
 			lock (_lockObj)
 			{
-				var result = InitializationHelper.Initialize(serviceScopeFactory, this.Account, this.AddDemoData).Result;
+				var result = InitializationHelper.Initialize(serviceScopeFactory, this.Account, this.AddDemoData, loggerFactory).Result;
 
 				if (result == InitializationHelper.InitResult.UsersExist)
 				{
