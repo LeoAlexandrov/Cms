@@ -369,4 +369,7 @@
   <data name="InvalidPublishStatus" xml:space="preserve">
     <value>Status is inconsistent with status of parent document </value>
   </data>
+  <data name="RootKey" xml:space="preserve">
+    <value>Root key</value>
+  </data>
 </root>

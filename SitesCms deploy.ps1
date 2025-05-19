@@ -11,12 +11,18 @@ tar -xf publish.tar --directory publish
 rm -f publish.tar
 chmod -R a+x publish; 
 docker rm -f SitesCms;
-docker rmi sitescms:latest;
-docker build --tag sitescms .;
-docker run -p 8084:8080 --name SitesCms -h SitesCms --restart=always --network external -v /etc/SitesCms:/etc/SitesCms -v /var/www/sites-media:/var/www/sites-media -d sitescms:latest
+docker rmi sites-cms:latest;
+docker build --tag sites-cms .;
+
+docker run -p 8084:8080 --name SitesCms -h SitesCms --restart=always --network external \
+	-e SETTINGS=/etc/SitesCms/settings.json \
+	-v /etc/SitesCms:/etc/SitesCms \
+	-v /var/www/sites-media:/var/www/sites-media \
+	-d sites-cms:latest
 "@
 
 <# chown -R leo:leo /home/leo/Cms; #>
+
 
 Write-Host "============== ContaboVPS ==============\r\n"
 

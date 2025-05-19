@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="PopupSuccess" xml:space="preserve">
-    <value>You have successfully authorized. You can close this window and continue with the Headless CMS.</value>
+    <value>You have successfully authorized. You can close this window and continue your work.</value>
   </data>
   <data name="SignInAnonymously" xml:space="preserve">
     <value>Sign in as anonymous guest</value>

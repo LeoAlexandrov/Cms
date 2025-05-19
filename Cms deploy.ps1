@@ -10,15 +10,15 @@ cd /home/leo/Cms;
 tar -xf publish.tar --directory publish
 rm -f publish.tar
 chmod -R a+x publish; 
-docker rm -f H-Cms;
-docker rmi h-cms:latest;
-docker build --tag h-cms .;
+docker rm -f H-Cms-Admin;
+docker rmi h-cms-admin:latest;
+docker build --tag h-cms-admin .;
 
-docker run -p 8082:8080 --name H-Cms -h H-Cms --restart=always --network external \
-	-e SETTINGS=/etc/HCms/settings.json \
-	-v /etc/HCms:/etc/HCms \
+docker run -p 8082:8080 --name H-Cms-Admin -h H-Cms-Admin --restart=always --network external \
+	-e SETTINGS=/etc/HCms.Admin/settings.json \
+	-v /etc/HCms.Admin:/etc/HCms.Admin \
 	-v /var/www/cms-media:/var/www/cms-media \
-	-d h-cms:latest
+	-d h-cms-admin:latest
 "@
 
 <# chown -R leo:leo /home/leo/Cms; #>

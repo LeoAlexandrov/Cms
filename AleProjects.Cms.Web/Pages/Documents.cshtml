@@ -43,7 +43,7 @@
 
 			<q-input v-model="newDocument.slug"
 				autofocus
-				label="@Localizer["Slug"]"
+				:label="newDocument.parent>0 ? '@Localizer["Slug"]' : '@Localizer["RootKey"]'"
 				ref="NewDocumentSlug"
 				:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidNewDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">
 			</q-input>
@@ -713,7 +713,7 @@
 
 								<q-input dense outlined
 									v-model="editedDoc.properties.slug"
-									label="@Localizer["Slug"]"
+									:label="editedDoc.properties.parent>0 ? '@Localizer["Slug"]' : '@Localizer["RootKey"]'"
 									ref="Slug"
 									@@update:model-value="hasChanged=true"
 									:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]', val => !invalidDocSlugs.includes(val) || '@Localizer["SlugAlreadyExists"]' ]">

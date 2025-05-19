@@ -369,4 +369,7 @@
   <data name="InvalidPublishStatus" xml:space="preserve">
     <value>Le statut est incompatible avec le statut du document parent</value>
   </data>
+  <data name="RootKey" xml:space="preserve">
+    <value>Clé racine</value>
+  </data>
 </root>

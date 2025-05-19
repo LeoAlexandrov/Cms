@@ -121,7 +121,7 @@
     <value>Add</value>
   </data>
   <data name="AppTitle" xml:space="preserve">
-    <value>H-Cms</value>
+    <value>H-Cms.Net</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
@@ -184,7 +184,7 @@
     <value>Webhooks</value>
   </data>
   <data name="Welcome" xml:space="preserve">
-    <value>Welcome to H-Cms !</value>
+    <value>Welcome to H-Cms.Net !</value>
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
