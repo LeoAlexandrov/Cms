@@ -12,8 +12,8 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 using Google.Apis.Auth;
@@ -113,9 +113,9 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 
 	public class SignInHandler(CmsDbContext context, 
-		IConfiguration configuration, 
 		IDistributedCache cache, 
 		IHttpClientFactory httpClientFactory,
+		IOptions<AuthSettings> settings,
 		ILogger<SignInHandler> logger)
 	{
 #if DEBUG
@@ -137,9 +137,9 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		static readonly SemaphoreSlim _semaphore = new(1, 1);
 
 		readonly CmsDbContext _dbContext = context;
-		readonly IConfiguration _configuration = configuration;
 		readonly IDistributedCache _cache = cache;
 		readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+		readonly AuthSettings _settings = settings.Value;
 		readonly ILogger<SignInHandler> _logger = logger;
 
 
@@ -259,7 +259,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		#endregion
 
 
-		private static List<Claim> UserClaims(User user)
+		static List<Claim> UserClaims(User user)
 		{
 			var claims = new List<Claim>()
 			{
@@ -283,11 +283,11 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		public JwtSecurityToken CreateJwt(IEnumerable<Claim> claims)
 		{
 			DateTime now = DateTime.UtcNow;
-			byte[] key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("Auth:SecurityKey"));
+			byte[] key = Encoding.ASCII.GetBytes(_settings.SecurityKey);
 
 			JwtSecurityToken token = new(
-				issuer: _configuration.GetValue<string>("Auth:JwtIssuer"),
-				audience: _configuration.GetValue<string>("Auth:JwtAudience"),
+				issuer: _settings.JwtIssuer,
+				audience: _settings.JwtAudience,
 				notBefore: now,
 				claims: claims,
 				expires: now.Add(TimeSpan.FromSeconds(JWT_EXPIRES_IN)),
@@ -311,13 +311,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				return UserLogin.WithStatus(LoginStatus.InvalidToken);
 			}
 
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			var user = _dbContext.Users.FirstOrDefault(u => u.Login == payload.Email);
 
 			if (user == null && demoMode)
 			{
-				string defaultDemoModeRole = _configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+				string defaultDemoModeRole = _settings.DefaultDemoModeRole;
 
 				_dbContext.Users.Add(user = new() { Login = payload.Email, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
 			}
@@ -363,8 +363,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			{
 				string body = string.Format("code={0}&client_id={1}&client_secret={2}&scope=User.Read&grant_type=authorization_code&redirect_uri={3}://{4}/auth/microsoft",
 					code,
-					_configuration.GetValue<string>("Auth:Microsoft:ClientId"),
-					_configuration.GetValue<string>("Auth:Microsoft:ClientSecret"),
+					_settings.Microsoft.ClientId,
+					_settings.Microsoft.ClientSecret,
 					 "https",
 					 host);
 
@@ -409,13 +409,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			}
 
 			string upn = msUser.UserPrincipalName;
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			var user = _dbContext.Users.FirstOrDefault(u => u.Login == upn);
 
 			if (user == null && demoMode)
 			{
-				string defaultDemoModeRole = _configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+				string defaultDemoModeRole = _settings.DefaultDemoModeRole;
 
 				_dbContext.Users.Add(user = new() { Login = upn, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
 			}
@@ -472,8 +472,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			GithubCodeExchange codeExchange = new()
 			{
 				Code = code,
-				ClientId = _configuration.GetValue<string>("Auth:Github:ClientId"),
-				ClientSecret = _configuration.GetValue<string>("Auth:Github:ClientSecret"),
+				ClientId = _settings.Github.ClientId,
+				ClientSecret = _settings.Github.ClientSecret
 			};
 
 			GithubTokenResponse ghTtoken;
@@ -519,13 +519,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				ghUser = await response.Content.ReadFromJsonAsync<GithubUser>();
 			}
 
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			var user = _dbContext.Users.FirstOrDefault(u => u.Login == ghUser.Login);
 
 			if (user == null && demoMode)
 			{
-				string defaultDemoModeRole = _configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+				string defaultDemoModeRole = _settings.DefaultDemoModeRole;
 
 				_dbContext.Users.Add(user = new() { Login = ghUser.Login, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
 			}
@@ -565,8 +565,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			Dictionary<string, string> codeExchange = new()
 			{
 				{ "code" , code },
-				{ "client_id", _configuration.GetValue<string>("Auth:StackOverflow:ClientId") },
-				{ "client_secret", _configuration.GetValue<string>("Auth:StackOverflow:ClientSecret") },
+				{ "client_id", _settings.StackOverflow.ClientId },
+				{ "client_secret", _settings.StackOverflow.ClientSecret },
 				{ "redirect_uri", redurectUri }
 			};
 
@@ -592,7 +592,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			}
 
 			StackOverflowUser soUser;
-			string key = _configuration.GetValue<string>("Auth:StackOverflow:Key");
+			string key = _settings.StackOverflow.Key;
 
 			using (HttpRequestMessage request = new() { Method = HttpMethod.Get, RequestUri = new Uri(string.Format(STACKOVERFLOW_USER, soToken.AccessToken, key)) })
 			{
@@ -614,13 +614,13 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			}
 
 			string uid = soUser.Items[0].UserId.ToString();
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			var user = _dbContext.Users.FirstOrDefault(u => u.Login == uid);
 
 			if (user == null && demoMode)
 			{
-				string defaultDemoModeRole = _configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+				string defaultDemoModeRole = _settings.DefaultDemoModeRole;
 
 				_dbContext.Users.Add(user = new() { Login = uid, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
 			}
@@ -652,7 +652,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 		public async Task<UserLogin> Anonymous(string cfToken, string cfConnectingIp)
 		{
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			if (!demoMode)
 				return UserLogin.WithStatus(LoginStatus.Forbidden);
@@ -663,7 +663,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			Dictionary<string, string> cfVerification = new()
 			{
-				{ "secret" , _configuration.GetValue<string>("Auth:CloudflareTT:SecretKey") },
+				{ "secret" , _settings.CloudflareTT.SecretKey },
 				{ "response", cfToken },
 				{ "remoteip", cfConnectingIp }
 			};
@@ -691,7 +691,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			}
 
 
-			string role = this._configuration.GetValue<string>("Auth:DefaultDemoModeRole");
+			string role = _settings.DefaultDemoModeRole;
 
 			var user = _dbContext.Users.FirstOrDefault(u => u.Login == "demo" && u.Role == role && u.IsEnabled);
 
@@ -747,7 +747,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				return login;
 			}
 
-			bool demoMode = _configuration.GetValue<bool>("Auth:DemoMode");
+			bool demoMode = _settings.DemoMode;
 
 			var user = await _dbContext.Users.FindAsync(login.UserId);
 

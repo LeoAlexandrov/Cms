@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 
 namespace AleProjects.Cms.Infrastructure.Auth
@@ -17,10 +18,10 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 
 
-	public class RoleClaimPolicies(IConfiguration config) : IRoleClaimPolicies
+	public class RoleClaimPolicies(IOptions<AuthSettings> settings) : IRoleClaimPolicies
 	{
-		protected readonly Dictionary<string, string[]> _policies = Create(config);
-		protected readonly string[] _roles = config.GetSection("Auth:OrderedRoles")?.Get<string[]>().Reverse().ToArray() ?? [];
+		protected readonly Dictionary<string, string[]> _policies = settings.Value.RoleClaimPolicies;
+		protected readonly string[] _roles = settings.Value.OrderedRoles.Reverse().ToArray();
 
 		public string[] Roles { get => _roles; }
 
@@ -31,17 +32,9 @@ namespace AleProjects.Cms.Infrastructure.Auth
 			return !string.IsNullOrEmpty(role) && Array.IndexOf(Roles, requiredRole) >= Array.IndexOf(Roles, role);
 		}
 
-
-		private static Dictionary<string, string[]> Create(IConfiguration config)
-		{
-			var policies = config.GetSection("Auth:RoleClaimPolicies").Get<Dictionary<string, string[]>>();
-
-			return policies;
-		}
-
 		public static void CreatePolicies(IConfiguration config, AuthorizationOptions options)
 		{
-			var policies = Create(config);
+			var policies = config.GetSection("Auth:RoleClaimPolicies").Get<Dictionary<string, string[]>>();
 
 			foreach (var policy in policies)
 				options.AddPolicy(

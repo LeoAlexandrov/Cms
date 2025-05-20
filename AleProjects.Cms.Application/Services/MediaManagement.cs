@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
@@ -21,26 +20,11 @@ using AleProjects.Cms.Infrastructure.Notification;
 namespace AleProjects.Cms.Application.Services
 {
 
-	public class MediaManagementService(IMediaStorage mediaStorage, IAuthorizationService authService, IConfiguration configuration, IEventNotifier notifier)
+	public class MediaManagementService(IMediaStorage mediaStorage, IAuthorizationService authService, IEventNotifier notifier)
 	{
-		const int DEFAULT_MAX_UPLOAD_SIZE = 10 * 1024 * 1024;
-		const string DEFAULT_SAFENAME_REGEX = ".+";
-
 		private readonly IMediaStorage _mediaStorage = mediaStorage;
 		private readonly IAuthorizationService _authService = authService;
-		private readonly IConfiguration _configuration = configuration;
 		private readonly IEventNotifier _notifier = notifier;
-
-
-		public int MaxUploadSize
-		{
-			get => _configuration.GetValue<int>("Media:MaxUploadSize", DEFAULT_MAX_UPLOAD_SIZE);
-		}
-
-		public string SafeNameRegexString
-		{
-			get => _configuration.GetValue<string>("Media:SafeNameRegex", DEFAULT_SAFENAME_REGEX);
-		}
 
 
 		public Result<DtoMediaFolderReadResult> Read(string link)
@@ -146,7 +130,7 @@ namespace AleProjects.Cms.Application.Services
 					(!contentType.StartsWith("image/") && !contentType.StartsWith("video/")))
 					return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Invalid file type");
 
-				if (!Regex.IsMatch(fileName, SafeNameRegexString))
+				if (!Regex.IsMatch(fileName, _mediaStorage.Settings.SafeNameRegex))
 					return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Unsafe file name");
 			}
 

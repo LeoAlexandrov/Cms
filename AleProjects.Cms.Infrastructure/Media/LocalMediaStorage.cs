@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -19,12 +20,24 @@ using AleProjects.Cms.Domain.ValueObjects;
 
 namespace AleProjects.Cms.Infrastructure.Media
 {
-	public class LocalMediaStorage(IConfiguration configuration, ILogger<LocalMediaStorage> logger) : IMediaStorage
-	{
-		const string DEFAULT_CACHE_FOLDER = ".cache";
 
-		readonly IConfiguration _configuration = configuration;
+	public class LocalMediaStorageSettings : BaseMediaStorageSettings
+	{
+		public const string DEFAULT_CACHE_FOLDER = ".cache";
+
+		public string StoragePath { get; set; } = string.Empty;
+		public string CacheFolder { get; set; } = DEFAULT_CACHE_FOLDER;
+	}
+
+
+
+	public class LocalMediaStorage(IOptions<LocalMediaStorageSettings> settings, ILogger<LocalMediaStorage> logger) : IMediaStorage
+	{
+		readonly LocalMediaStorageSettings _settings = settings.Value;
 		readonly ILogger<LocalMediaStorage> _logger = logger;
+
+		public BaseMediaStorageSettings Settings { get => _settings; }
+
 
 		struct EntryNames(string fullName, string virtName)
 		{
@@ -177,7 +190,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public List<MediaStorageEntry> ReadDirectory(string path)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+			string storagePath = _settings.StoragePath;
 			string fullPath = Path.Combine(storagePath, path ?? "");
 			int storagePathLen = storagePath.Length;
 
@@ -233,7 +246,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public MediaStorageEntry GetFile(string path)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+			string storagePath = _settings.StoragePath;
 			string fullPath = Path.Combine(storagePath, path ?? "");
 
 			if (!File.Exists(fullPath))
@@ -257,7 +270,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+			string storagePath = _settings.StoragePath;
 			string fullPath;
 
 			if (Path.GetExtension(path) == ".svg")
@@ -283,7 +296,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 				};
 			}
 
-			string cacheFolder = _configuration.GetValue<string>("Media:CacheFolder", DEFAULT_CACHE_FOLDER);
+			string cacheFolder = _settings.CacheFolder;
 			string cachedName = $"{System.Web.HttpUtility.UrlEncode(previewPrefix)}_{size}x{size}.webp";
 			string cachedPath = Path.Combine(storagePath, cacheFolder, cachedName);
 
@@ -365,7 +378,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 			if (extension == ".webp" || extension == ".png" || extension == ".jpg" ||
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
-				string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+				string storagePath = _settings.StoragePath;
 				string fullPath = Path.Combine(storagePath, path ?? "");
 
 				using var stream = File.OpenRead(fullPath);
@@ -382,7 +395,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+			string storagePath = _settings.StoragePath;
 			string relativeName = Path.Combine(destination ?? "", fileName);
 			string fullPath = Path.Combine(storagePath, relativeName);
 			string extension = Path.GetExtension(fileName);
@@ -422,8 +435,8 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public async Task<string[]> Delete(string[] entries)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
-			string cacheFolder = _configuration.GetValue<string>("Media:CacheFolder", DEFAULT_CACHE_FOLDER);
+			string storagePath = _settings.StoragePath;
+			string cacheFolder = _settings.CacheFolder;
 			string cachePath = Path.Combine(storagePath, cacheFolder);
 
 			List<EntryNames> files = [];
@@ -488,7 +501,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public MediaStorageEntry CreateFolder(string name, string path)
 		{
-			string storagePath = _configuration.GetValue<string>("Media:StoragePath");
+			string storagePath = _settings.StoragePath;
 			string fullPath = Path.Combine(storagePath, path ?? "", name);
 
 			MediaStorageEntry result;
@@ -525,8 +538,12 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public static void CheckAndCreateCacheFolder(IConfiguration configuration)
 		{
-			string storagePath = configuration.GetValue<string>("Media:StoragePath");
-			string cacheFolder = configuration.GetValue<string>("Media:CacheFolder", DEFAULT_CACHE_FOLDER);
+			var settings = configuration.GetSection("Media").Get<LocalMediaStorageSettings>();
+
+			string storagePath = settings.StoragePath;
+			string cacheFolder = settings.CacheFolder;
+			//string storagePath = configuration.GetValue<string>("Media:StoragePath");
+			//string cacheFolder = configuration.GetValue<string>("Media:CacheFolder", LocalMediaStorageSettings.DEFAULT_CACHE_FOLDER);
 			string cachePath = Path.Combine(storagePath, cacheFolder);
 
 			if (!Directory.Exists(cachePath))

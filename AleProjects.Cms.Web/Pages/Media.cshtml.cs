@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-using AleProjects.Cms.Application.Services;
+using AleProjects.Cms.Infrastructure.Media;
 
 
 
@@ -11,9 +11,9 @@ namespace AleProjects.Cms.Web.Pages
 {
 
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-	public class MediaModel(MediaManagementService mms, IAuthorizationService authService) : PageModel
+	public class MediaModel(IMediaStorage ms, IAuthorizationService authService) : PageModel
 	{
-		private readonly MediaManagementService _mms = mms;
+		private readonly IMediaStorage _ms = ms;
 		private readonly IAuthorizationService _authService = authService;
 
 		public string Link { get; set; }
@@ -28,8 +28,8 @@ namespace AleProjects.Cms.Web.Pages
 				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
 
 			Link = link ?? "";
-			MaxUploadSize = _mms.MaxUploadSize;
-			SafeNameRegexString = _mms.SafeNameRegexString;
+			MaxUploadSize = _ms.Settings.MaxUploadSize;
+			SafeNameRegexString = _ms.Settings.SafeNameRegex;
 
 			var authResult = await _authService.AuthorizeAsync(User, "UploadUnsafeContent");
 
