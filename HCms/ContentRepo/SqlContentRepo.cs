@@ -19,38 +19,23 @@ namespace HCms.ContentRepo
 	/// <summary>
 	/// CMS content repository querying database directly. Assumed to be a scoped service.
 	/// </summary>
-	public class SqlContentRepo : ContentRepo, IContentRepo, IDisposable
+	public class SqlContentRepo : ContentRepo, IContentRepo
 	{
 		readonly static FragmentSchemaRepo fsr = new();
 		readonly static object lockObject = new();
 		static int NeedsSchemataReload = 1;
 
 		readonly CmsDbContext dbContext;
-		bool disposed;
 
 
-		public SqlContentRepo(IPathTransformer pathTformer, IConfiguration configuration)
+		public SqlContentRepo(CmsDbContext dbContext, IPathTransformer pathTransformer)
 		{
-			string dbEngine = configuration["DbEngine"];
-			string connString = configuration.GetConnectionString("CmsDbConnection");
-
-			DbContextOptionsBuilder<CmsDbContext> builder;
-
-			if (string.IsNullOrEmpty(dbEngine) || dbEngine == "mssql")
-				builder = new DbContextOptionsBuilder<CmsDbContext>().UseSqlServer(connString);
-			else if (dbEngine == "postgres")
-				builder = new DbContextOptionsBuilder<CmsDbContext>().UseNpgsql(connString);
-			else if (dbEngine == "mysql")
-				builder = new DbContextOptionsBuilder<CmsDbContext>().UseMySQL(connString);
-			else
-				throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
-
-
-			dbContext = new CmsDbContext(builder.Options);
-			pathTransformer = pathTformer;
+			this.dbContext = dbContext;
+			this.pathTransformer = pathTransformer;
 
 			LoadFragmentSchemaService(dbContext);
 		}
+
 
 		#region private-functions
 
@@ -518,37 +503,5 @@ namespace HCms.ContentRepo
 			return user?.Role;
 		}
 
-		#region IDisposable-implementation
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				if (disposing)
-				{
-					dbContext.Dispose();
-				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override finalizer
-				// TODO: set large fields to null
-
-				disposed = true;
-			}
-		}
-
-		// // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-		// ~ContentRepo()
-		// {
-		//     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-		//     Dispose(disposing: false);
-		// }
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		#endregion
 	}
 }

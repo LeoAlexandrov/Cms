@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
+using DemoSite.Infrastructure.Middleware;
 using HCms.ContentRepo;
 using HCms.Dto;
 using HCms.ViewModels;
@@ -15,7 +17,11 @@ using HCms.ViewModels;
 namespace DemoSite.Services
 {
 
-	public class CmsContentService(IContentRepo repo, IMemoryCache cache, IAuthorizationService authorizationService)
+	public class CmsContentService(
+		IContentRepo repo, 
+		IMemoryCache cache, 
+		IAuthorizationService authorizationService,
+		ILogger<CmsContentService> logger)
 	{
 		public const string EVENT_DOC_CREATE = "on_doc_create";
 		public const string EVENT_DOC_CHANGE = "on_doc_change";
@@ -34,6 +40,7 @@ namespace DemoSite.Services
 		readonly IContentRepo _repo = repo;
 		readonly IMemoryCache _cache = cache;
 		readonly IAuthorizationService _authorizationService = authorizationService;
+		readonly ILogger<CmsContentService> _logger = logger;
 
 		public Document RequestedDocument { get; set; }
 		public IContentRepo Repo { get => _repo; }
@@ -143,7 +150,7 @@ namespace DemoSite.Services
 				case EVENT_XMLSCHEMA:
 
 					_repo.ReloadSchemata();
-					Console.WriteLine("*** Schema reloaded ***");
+					_logger.LogInformation("Schemata have been reloaded");
 					break;
 
 				case EVENT_DOC_UPDATE:
@@ -155,10 +162,12 @@ namespace DemoSite.Services
 						foreach (var con in model.AffectedContent)
 						{
 							cacheKey = _repo.PathTransformer.Forward(con.Root, con.Path, false);
+
 							_cache.Remove($"dark-{cacheKey}");
 							_cache.Remove($"light-{cacheKey}");
 							_cache.Remove(cacheKey);
-							Console.WriteLine($"*** Cache record '{cacheKey}' removed ***");
+
+							_logger.LogInformation("Cache record '{cacheKey}' has been removed", cacheKey);
 						}
 
 						return;
@@ -174,7 +183,8 @@ namespace DemoSite.Services
 			if (_cache is MemoryCache memoryCache)
 			{
 				memoryCache.Clear();
-				Console.WriteLine("*** Entire cache cleared ***");
+
+				_logger.LogInformation("Entire cache has been cleared");
 			}
 		}
 

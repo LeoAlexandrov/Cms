@@ -24,7 +24,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 	services
 		.AddMemoryCache()
-		.AddCmsContent()
+		.AddCmsContent(configuration["DbEngine"], configuration.GetConnectionString("CmsDbConnection"))
 		.AddLocalization(options => options.ResourcesPath = "Resources")
 		.AddHostedService<EventSubscriptionService>()
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))

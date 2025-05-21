@@ -12,9 +12,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using HCms.ContentRepo;
 using HCms.Routing;
+
 using DemoSite.Services;
 
 
@@ -23,11 +25,11 @@ namespace DemoSite.Infrastructure.Middleware
 
 	public static class CmsContentDIExtension
 	{
-		public static IServiceCollection AddCmsContent(this IServiceCollection services)
+		public static IServiceCollection AddCmsContent(this IServiceCollection services, string dbEngine, string connString)
 		{
 			return services
 				.AddTransient<IPathTransformer, DefaultPathTransformer>()
-				.AddScoped<IContentRepo, SqlContentRepo>()
+				.AddCmsContentRepo<SqlContentRepo>(dbEngine, connString)
 				.AddScoped<CmsContentService>();
 		}
 
@@ -39,9 +41,10 @@ namespace DemoSite.Infrastructure.Middleware
 
 
 	
-	public class CmsContentMiddleware(RequestDelegate next)
+	public class CmsContentMiddleware(RequestDelegate next, ILogger<CmsContentMiddleware> logger)
 	{
 		readonly RequestDelegate _next = next;
+		readonly ILogger<CmsContentMiddleware> _logger = logger;
 
 
 		static void SetCulture(string lang)
@@ -86,7 +89,7 @@ namespace DemoSite.Infrastructure.Middleware
 				string theme = Theme(context);
 				string cacheKey = $"{theme}-{path}";
 
-				/* We disabled in-process gzipping of cached content for Cloudflare
+				/* We disabled in-process gzipping of cached content if we behind Cloudflare
 				 * because it requires presense of Content-Length header in the response.
 				 * This header may be removed by Nginx or other reverse proxy server, so
 				 * Cloudflare will return 502 http status code.
@@ -104,7 +107,7 @@ namespace DemoSite.Infrastructure.Middleware
 					 * Cached body may be gzipped.
 					 */
 #if DEBUG
-					Console.WriteLine($"*** Cache hit '{path}' ***");
+					_logger.LogInformation("Cache hit '{cacheKey}'", cacheKey);
 #endif
 					if (gzipCache)
 					{
@@ -233,8 +236,7 @@ namespace DemoSite.Infrastructure.Middleware
 					newBody.Read(body, 0, body.Length);
 
 					/* Now we have the entire page body in the 'body' variable
-					 * which then will be written to the original response body,
-					 * and cached if possible.
+					 * which then will be written to the original response body and cached if possible.
 					 * Caching is possible if:
 					 * - the response status code is 200 OK,
 					 * - the document is published (PublishStatus == 1),
@@ -257,7 +259,7 @@ namespace DemoSite.Infrastructure.Middleware
 
 						cache.Set(cacheKey, awaitedResult.Body = gzipped);
 #if DEBUG
-						Console.WriteLine($"*** Cache add '{cacheKey}' ***");
+						_logger.LogInformation("Cached '{cacheKey}'", cacheKey);
 #endif
 					}
 

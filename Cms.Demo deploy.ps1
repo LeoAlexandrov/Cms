@@ -43,7 +43,6 @@ else
   Write-Host "Error"
 }
 
-<#
 
 Write-Host "============== MiniPC ===============\r\n"
 
@@ -83,6 +82,7 @@ else
   Write-Host "Error"
 }
 
+<#
 #>
 
 
