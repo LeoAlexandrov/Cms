@@ -1,0 +1,15 @@
+﻿<picture
+	xmlns="http://h-cms.net/default.xsd">
+	<source>https://demo-media.h-cms.net/Screenshot%202023-09-05%20120259.png</source>
+	<alt></alt>
+	<width>512</width>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+	<floating>left</floating>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+</picture>

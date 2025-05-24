@@ -43,9 +43,11 @@ namespace AleProjects.Cms.Application.Services
 	public static class InitializationHelper
 	{
 #if DEBUG
-		const string DATA_PATH = "InitialData/Db";
+		const string DATA_PATH = "InitialData/Docs";
+		const string MEDIA_PATH = "InitialData/Media";
 #else
-		const string DATA_PATH = "InitialData/Db";
+		const string DATA_PATH = "InitialData/Docs";
+		const string MEDIA_PATH = "InitialData/Media";
 #endif
 
 		public enum InitResult
@@ -116,12 +118,21 @@ namespace AleProjects.Cms.Application.Services
 			}
 		}
 
+		static async Task CreateMediaFile(string fileName, MediaManagementService mms, ClaimsPrincipal user)
+		{
+			using Stream stream = File.OpenRead(fileName);
+
+			await mms.Save(stream, Path.GetFileName(fileName), null, user);
+		}
+
 		static async Task CreateDemoData(IServiceScopeFactory serviceScopeFactory, ClaimsPrincipal user, ILogger logger)
 		{
 			using var scope = serviceScopeFactory.CreateScope();
 			var cms = scope.ServiceProvider.GetRequiredService<ContentManagementService>();
+			var mms = scope.ServiceProvider.GetRequiredService<MediaManagementService>();
 
 			InitialDocument[] documents;
+			string[] files;
 
 			try
 			{
@@ -135,6 +146,22 @@ namespace AleProjects.Cms.Application.Services
 			}
 
 			await CreateDocument(0, documents, cms, user);
+
+
+			try
+			{
+				files = Directory.GetFiles(MEDIA_PATH, "*.*", SearchOption.TopDirectoryOnly);
+			}
+			catch (Exception ex)
+			{
+				logger?.LogError(ex, "Failed to list demo media files");
+				files = [];
+			}
+
+			foreach (var f in files)
+			{
+				await CreateMediaFile(f, mms, user);
+			}
 		}
 
 		public static async Task<InitResult> Initialize(IServiceScopeFactory serviceScopeFactory, string userLogin, bool addDemoData, ILoggerFactory loggerFactory)

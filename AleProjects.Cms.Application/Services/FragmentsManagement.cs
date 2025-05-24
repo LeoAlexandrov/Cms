@@ -742,7 +742,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Author = user.Identity.Name;
 
 
-			if (dto.SharedFragment != null)
+			if (dto.SharedFragment != null || !string.IsNullOrEmpty(content))
 			{
 				var existingRefs = await dbContext.References
 					.Where(r => r.DocumentRef == dto.Document)

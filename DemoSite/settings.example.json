@@ -5,7 +5,11 @@
 		"CmsDbConnection": "data source=MSSQL;initial catalog=Cms;TrustServerCertificate=true;persist security info=True;user id=user;password=!Strong@Password;App=EntityFramework"
 	},
 
-	"MediaHost": "https://media.h-cms.net",
+	"Media": {
+		"Host": "https://localhost:7257/__debug-media__",
+		"StoragePath": "M:\\Cms-media2",
+		"SelfServed": true
+	},
 
 	"Webhook": {
 		"Secret": "1234567890Jth6e7a7ItLAWGn6RN"

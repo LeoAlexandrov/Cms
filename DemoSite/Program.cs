@@ -14,6 +14,7 @@ using DemoSite.Services;
 
 
 
+
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
 	string settingsFile = Environment.GetEnvironmentVariable("SETTINGS") ?? configuration["Settings"];
@@ -24,7 +25,10 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 	services
 		.AddMemoryCache()
-		.AddCmsContent(configuration["DbEngine"], configuration.GetConnectionString("CmsDbConnection"))
+		.AddCmsContent(
+			configuration["DbEngine"], 
+			configuration.GetConnectionString("CmsDbConnection"),
+			configuration["Media:Host"])
 		.AddLocalization(options => options.ResourcesPath = "Resources")
 		.AddHostedService<EventSubscriptionService>()
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
@@ -62,6 +66,7 @@ void ConfigureApp(WebApplication app)
 
 	app.UseHttpsRedirection()
 		.UseStaticFiles()
+		.UseStaticCmsMedia(app.Configuration.GetSection("Media"))
 		.UseRouting()
 		.UseRequestLocalization(localizationOptions)
 		.UseAuthentication()

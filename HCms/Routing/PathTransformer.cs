@@ -32,9 +32,21 @@ namespace HCms.Routing
 	/// <summary>
 	/// Default path transformer for single site CMS configurations. Transforms CMS logical path to the URL path and vice versa. 
 	/// </summary>
-	public class DefaultPathTransformer(IConfiguration configuration) : IPathTransformer
+	public class DefaultPathTransformer : IPathTransformer
 	{
-		readonly Uri mediaHost = new(configuration["MediaHost"] ?? "/");
+		readonly Uri baseMediaHost;
+
+		public DefaultPathTransformer(string mediaHost)
+		{
+			string host = mediaHost;
+
+			if (string.IsNullOrEmpty(host))
+				host = "/";
+			else if (host[^1] != '/')
+				host += "/";
+
+			baseMediaHost = new Uri(host);
+		}
 
 		public string Forward(string root, string path, bool isMedia)
 		{
@@ -42,7 +54,7 @@ namespace HCms.Routing
 				string.Compare(path, 0, "https://", 0, "https://".Length, StringComparison.OrdinalIgnoreCase) != 0 &&
 				string.Compare(path, 0, "http://", 0, "http://".Length, StringComparison.OrdinalIgnoreCase) != 0)
 			{
-				var mediaUri = new Uri(mediaHost, path);
+				var mediaUri = new Uri(baseMediaHost, path);
 				return mediaUri.ToString();
 			}
 

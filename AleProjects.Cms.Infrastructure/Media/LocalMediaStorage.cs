@@ -400,7 +400,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 			string fullPath = Path.Combine(storagePath, relativeName);
 			string extension = Path.GetExtension(fileName);
 
-			byte[] buf = new byte[1024 * 1024];
+			byte[] buf = new byte[64 * 1024];
 			long totalRead = 0;
 			int read = -1;
 

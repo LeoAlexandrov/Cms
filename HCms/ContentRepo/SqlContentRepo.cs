@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 using Entities = AleProjects.Cms.Domain.Entities;
 using AleProjects.Cms.Infrastructure.Data;
@@ -51,7 +49,6 @@ namespace HCms.ContentRepo
 					}
 				}
 		}
-
 
 		#endregion
 

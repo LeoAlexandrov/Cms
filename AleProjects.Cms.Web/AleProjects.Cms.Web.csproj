@@ -35,10 +35,10 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Content Update="InitialData\Db\documents.json">
+	<Content Update="InitialData\Docs\documents.json">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</Content>
-	<Content Update="settings.json">
+	<Content Update="settings.example.json">
 	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	</Content>
   </ItemGroup>
@@ -57,49 +57,91 @@
   </ItemGroup>
 
   <ItemGroup>
-	<None Update="InitialData\Db\about-accordion-expansion-item1.xml">
+	<None Update="InitialData\Docs\about-accordion-expansion-item1.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\about-accordion-expansion-item2.xml">
+	<None Update="InitialData\Docs\about-accordion-expansion-item2.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\about-accordion-expansion-item3.xml">
+	<None Update="InitialData\Docs\about-accordion-expansion-item3.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\about-accordion.xml">
+	<None Update="InitialData\Docs\about-accordion.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\about-header.xml">
+	<None Update="InitialData\Docs\about-header.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-hero-section.xml">
+	<None Update="InitialData\Docs\home-hero-section.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-horizontal-card.xml">
+	<None Update="InitialData\Docs\home-horizontal-card.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-tabs-quiquisquam.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col1-card1.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-tabs-tab1container-freddie-mercury.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col1.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-tabs-tab1container-lorem-ipsum.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col2-lorem-ipsum1.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-tabs-tab1container.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col2.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-tabs.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col3-card2.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-top-carousel-example-page.xml">
+	<None Update="InitialData\Docs\home-row-with-columns-col3.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-top-carousel-welcome-page.xml">
+	<None Update="InitialData\Docs\home-row-with-columns.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
-	<None Update="InitialData\Db\home-top-carousel.xml">
+	<None Update="InitialData\Docs\home-tabs-quiquisquam.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container-freddie-mercury.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container-lorem-ipsum.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-example-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-welcome-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract0.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract1.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract2.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\banner0.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\banner1.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\sunset-wide.jpg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\sunset.jpg">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
 	<None Update="InitialData\XmlSchemata\carousel-plus.xsd">

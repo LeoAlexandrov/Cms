@@ -1,0 +1,40 @@
+﻿<hero
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Hero section title</title>
+		<subtitle>Section subtitle</subtitle>
+		<text><![CDATA[<p>Hero section is the prominent, visually impactful area of a webpage, often featuring a large image, bold headline, and a call-to-action to grab attention and convey the site's main message or purpose.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>]]></text>
+		<picture>
+			<source><![CDATA[^('YWJzdHJhY3QxLndlYnA%3d')]]></source>
+			<alt></alt>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+		</picture>
+	</content>
+	<appearance>
+		<layout>end</layout>
+		<featured>true</featured>
+		<visibility>false</visibility>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:appearance\http://h-cms.net/default.xsd:background -->
+	</appearance>
+	<action>
+		<action-type>Url</action-type>
+		<action>^(2)</action>
+		<title>Internal link</title>
+		<altText>About</altText>
+		<icon></icon>
+		<icon-left>false</icon-left>
+		<category>primary</category>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:action\http://h-cms.net/default.xsd:target -->
+	</action>
+</hero>

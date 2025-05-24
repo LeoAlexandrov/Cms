@@ -693,10 +693,22 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			string role = _settings.DefaultDemoModeRole;
 
-			var user = _dbContext.Users.FirstOrDefault(u => u.Login == "demo" && u.Role == role && u.IsEnabled);
+			var user = _dbContext.Users.FirstOrDefault(u => u.Login == "demo");
 
 			if (user == null)
+			{
+				user = new()
+				{
+					Login = "demo",
+					Name = "Demo user",
+					Role = role,
+					IsEnabled = true, 
+				};
+			}
+			else if (user.Role != role && !user.IsEnabled)
+			{
 				return UserLogin.WithStatus(LoginStatus.Forbidden);
+			}
 
 			user.IsDemo = true;
 			user.LastSignIn = DateTimeOffset.UtcNow;

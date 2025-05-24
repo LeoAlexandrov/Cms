@@ -1,0 +1,31 @@
+<card
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Col #1 with card</title>
+		<subtitle>having subtitle</subtitle>
+		<text><![CDATA[<p>and text.&nbsp;Lorem ipsum dolor sit amet. Qui animi voluptatem cum iste nulla ea perferendis recusandae.</p>]]></text>
+	</content>
+	<appearance>
+		<layout>start</layout>
+		<horizontal>false</horizontal>
+		<featured>true</featured>
+	</appearance>
+	<picture>
+		<source><![CDATA[^('YWJzdHJhY3QxLndlYnA%3d')]]></source>
+		<alt></alt>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+	</picture>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:action -->
+</card>

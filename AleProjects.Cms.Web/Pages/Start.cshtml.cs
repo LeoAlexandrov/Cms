@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +18,7 @@ namespace AleProjects.Cms.Web.Pages
 	[IgnoreAntiforgeryToken(Order = 1001)]
 	public class StartModel(IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
-		readonly static object _lockObj = new();
+		readonly static SemaphoreSlim _semaphore = new(1, 1);
 		readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
 
 		public string ErrorMessage {get; private set;}
@@ -38,26 +40,32 @@ namespace AleProjects.Cms.Web.Pages
 			}
 		}
 
-		public void OnPost([FromServices] IServiceScopeFactory serviceScopeFactory, [FromServices] ILoggerFactory loggerFactory)
+		public async Task<IActionResult> OnPost([FromServices] IServiceScopeFactory serviceScopeFactory, [FromServices] ILoggerFactory loggerFactory)
 		{
 			if (!ModelState.IsValid)
 			{
 				this.ErrorMessage = (string)_errorsLocalizer.GetString("Start_InvalidAccount");
-				return;
+				return Page();
 			}
 
-			lock (_lockObj)
+			await _semaphore.WaitAsync();
+
+			try
 			{
-				var result = InitializationHelper.Initialize(serviceScopeFactory, this.Account, this.AddDemoData, loggerFactory).Result;
+				var result = await InitializationHelper.Initialize(serviceScopeFactory, this.Account, this.AddDemoData, loggerFactory);
 
 				if (result == InitializationHelper.InitResult.UsersExist)
 				{
 					this.ErrorMessage = (string)_errorsLocalizer.GetString("Start_LoginExists");
-					return;
+					return Page();
 				}
 			}
+			finally
+			{
+				_semaphore.Release();
+			}
 
-			this.Response.Redirect("/auth");
+			return Redirect("/auth");
 		}
 	}
 }

@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 
 using HCms.ContentRepo;
@@ -25,22 +27,56 @@ namespace DemoSite.Infrastructure.Middleware
 
 	public static class CmsContentDIExtension
 	{
-		public static IServiceCollection AddCmsContent(this IServiceCollection services, string dbEngine, string connString)
+		struct MediaSettings
+		{
+			public string Host { get; set; }
+			public string StoragePath { get; set; }
+			public bool SelfServed { get; set; }
+		}
+
+		public static IServiceCollection AddCmsContent(this IServiceCollection services, string dbEngine, string connString, string mediaHost)
 		{
 			return services
-				.AddTransient<IPathTransformer, DefaultPathTransformer>()
+				.AddSingleton<IPathTransformer, DefaultPathTransformer>(s => new DefaultPathTransformer(mediaHost))
 				.AddCmsContentRepo<SqlContentRepo>(dbEngine, connString)
 				.AddScoped<CmsContentService>();
 		}
 
+		public static IApplicationBuilder UseStaticCmsMedia(this IApplicationBuilder builder, IConfiguration mediaConfig)
+		{
+			IApplicationBuilder result;
+
+			var settings = mediaConfig.Get<MediaSettings>();
+
+			if (settings.SelfServed && 
+				!string.IsNullOrEmpty(settings.StoragePath) &&
+				!string.IsNullOrEmpty(settings.Host))
+			{
+				Uri uri = new(settings.Host[^1] == '/' ? settings.Host[..^1] : settings.Host);
+
+				result = builder.UseStaticFiles(new StaticFileOptions
+				{
+					FileProvider = new PhysicalFileProvider(settings.StoragePath),
+					RequestPath = uri.LocalPath
+				});
+			}
+			else
+			{
+				result = builder;
+			}
+
+			return result;
+		}
+
 		public static IApplicationBuilder UseCmsContent(this IApplicationBuilder builder)
 		{
+
 			return builder.UseMiddleware<CmsContentMiddleware>();
 		}
 	}
 
 
-	
+
 	public class CmsContentMiddleware(RequestDelegate next, ILogger<CmsContentMiddleware> logger)
 	{
 		readonly RequestDelegate _next = next;
@@ -255,10 +291,11 @@ namespace DemoSite.Infrastructure.Middleware
 						 * Setting 'Body' for other threads awaiting for the page to be rendered.
 						 */
 
+#if !DEBUG
 						var gzipped = gzipCache ? GZip(body) : body;
 
 						cache.Set(cacheKey, awaitedResult.Body = gzipped);
-#if DEBUG
+#else
 						_logger.LogInformation("Cached '{cacheKey}'", cacheKey);
 #endif
 					}

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using DemoSite.Infrastructure.Middleware;
 using HCms.ContentRepo;
 using HCms.Dto;
 using HCms.ViewModels;

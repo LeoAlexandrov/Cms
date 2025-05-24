@@ -26,6 +26,42 @@
 				"RawXml": "home-horizontal-card.xml"
 			},
 			{
+				"Name": "row with columns",
+				"RawXml": "home-row-with-columns.xml",
+				"Children": [
+					{
+						"Name": "col-1",
+						"RawXml": "home-row-with-columns-col1.xml",
+						"Children": [
+							{
+								"Name": "card-1",
+								"RawXml": "home-row-with-columns-col1-card1.xml"
+							}
+						]
+					},
+					{
+						"Name": "col-2",
+						"RawXml": "home-row-with-columns-col2.xml",
+						"Children": [
+							{
+								"Name": "lorem-ipsum-1",
+								"RawXml": "home-row-with-columns-col2-lorem-ipsum1.xml"
+							}
+						]
+					},
+					{
+						"Name": "col-3",
+						"RawXml": "home-row-with-columns-col3.xml",
+						"Children": [
+							{
+								"Name": "card-2",
+								"RawXml": "home-row-with-columns-col3-card2.xml"
+							}
+						]
+					}
+				]
+			},
+			{
 				"Name": "tabs",
 				"RawXml": "home-tabs.xml",
 				"Children": [
@@ -34,12 +70,12 @@
 						"RawXml": "home-tabs-tab1container.xml",
 						"Children": [
 							{
-								"Name": "Lorem Ipsum",
-								"RawXml": "home-tabs-tab1container-lorem-ipsum.xml"
-							},
-							{
 								"Name": "Freddie Mercury Windows 11",
 								"RawXml": "home-tabs-tab1container-freddie-mercury.xml"
+							},
+							{
+								"Name": "Lorem Ipsum",
+								"RawXml": "home-tabs-tab1container-lorem-ipsum.xml"
 							}
 						]
 					},
