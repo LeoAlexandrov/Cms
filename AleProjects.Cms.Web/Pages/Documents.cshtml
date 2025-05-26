@@ -236,7 +236,11 @@
 			<q-tabs class="text-secondary" align="left" v-model="fragmentPropsTab">
 				<q-tab name="properties" label="@Localizer["Properties"]"></q-tab>
 				<q-tab name="content" label="@Localizer["Content"]"></q-tab>
-				<q-tab name="attributes" label="@Localizer["Attributes"]"></q-tab>
+				<q-tab name="attributes" label="@Localizer["Attributes"]">
+					<q-badge v-if="fragment.attributes.length" color="primary" floating>
+						{{ fragment.attributes.length }}
+					</q-badge>
+				</q-tab>
 				<q-tab name="xml" label="XML"></q-tab>
 			</q-tabs>
 		</q-header>

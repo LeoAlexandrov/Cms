@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 
 namespace AleProjects.Cms.Domain.ValueObjects
@@ -26,7 +27,10 @@ namespace AleProjects.Cms.Domain.ValueObjects
 			if (other is null)
 				return 1;
 
-			return string.Compare(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+			return string.Compare(
+				Path.GetFileNameWithoutExtension(Name),
+				Path.GetFileNameWithoutExtension(other.Name), 
+				StringComparison.OrdinalIgnoreCase);
 		}
 	}
 
