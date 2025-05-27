@@ -127,6 +127,9 @@ namespace HCms.ContentRepo
 
 				bool exact = docs.Count == n;
 
+				if (exactPathMatch && !exact)
+					return null;
+
 				n = docs.Count;
 
 
