@@ -9,7 +9,6 @@ using Asp.Versioning;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Application.Services;
-using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Web.Infrastructure.Filters;
 

@@ -53,7 +53,6 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\AleProjects.Cms.Application\AleProjects.Cms.Application.csproj" />
-	<ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

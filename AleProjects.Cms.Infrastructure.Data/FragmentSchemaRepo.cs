@@ -454,12 +454,12 @@ namespace AleProjects.Cms.Infrastructure.Data
 			return result;
 		}
 
-		public async Task<Result<Schema>> UpdateSchema(CmsDbContext dbContext, int id, string description, string data, bool onlySave)
+		public async Task<(Schema, string)> UpdateSchema(CmsDbContext dbContext, int id, string description, string data, bool onlySave)
 		{
 			Schema schema = dbContext.Schemata.Find(id);
 
 			if (schema == null)
-				return Result<Schema>.NotFound();
+				return (null, null);
 
 			schema.Description = description;
 			schema.Data = data;
@@ -469,7 +469,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			{
 				await dbContext.SaveChangesAsync();
 
-				return Result<Schema>.Success(schema);
+				return (schema, null);
 			}
 
 			List<Schema> schemata = await dbContext.Schemata
@@ -491,30 +491,36 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (XmlSchemaException ex)
 			{
-				return Result<Schema>.BadParameters("Data", [$"{ex.Message} Line {ex.LineNumber}, position {ex.LinePosition}."]);
+				_logger?.LogError(ex, "Error reading schemata: {Message}", ex.Message);
+
+				return (null, $"{ex.Message} Line {ex.LineNumber}, position {ex.LinePosition}.");
 			}
-			catch (System.Xml.XmlException ex)
+			catch (XmlException ex)
 			{
-				return Result<Schema>.BadParameters("Data", [ex.Message]);
+				_logger?.LogError(ex, "Error reading schemata: {Message}", ex.Message);
+
+				return (null, ex.Message);
 			}
 			catch (Exception ex)
 			{
-				return Result<Schema>.BadParameters("Data", [ex.Message]);
+				_logger?.LogError(ex, "Error reading schemata: {Message}", ex.Message);
+
+				return (null, ex.Message);
 			}
 
 			await dbContext.SaveChangesAsync();
 
 			Reload(schemaSet, fragments);
 
-			return Result<Schema>.Success(schema);
+			return (schema, null);
 		}
 
-		public async Task<Result<bool>> DeleteSchema(CmsDbContext dbContext, int id)
+		public async Task<(bool, string)> DeleteSchema(CmsDbContext dbContext, int id)
 		{
 			Schema schema = dbContext.Schemata.Find(id);
 
 			if (schema == null)
-				return Result<bool>.NotFound();
+				return (false, null);
 
 			List<Schema> schemata = await dbContext.Schemata
 				.Where(s => s.Id != id)
@@ -529,7 +535,9 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (Exception ex)
 			{
-				return Result<bool>.BadParameters("Id", [$"This schema can't be deleted: {ex.Message}"]);
+				_logger?.LogError(ex, "Error reading schemata: {Message}", ex.Message);
+
+				return (false, ex.Message);
 			}
 
 			dbContext.Schemata.Remove(schema);
@@ -538,10 +546,10 @@ namespace AleProjects.Cms.Infrastructure.Data
 
 			Reload(schemaSet, fragments);
 
-			return Result<bool>.Success(true);
+			return (true, null);
 		}
 
-		public async Task<Result<bool>> CompileAndReload(CmsDbContext dbContext)
+		public async Task<(bool, string)> CompileAndReload(CmsDbContext dbContext)
 		{
 			Schema[] schemata = await dbContext.Schemata.ToArrayAsync();
 
@@ -554,12 +562,14 @@ namespace AleProjects.Cms.Infrastructure.Data
 			}
 			catch (Exception ex)
 			{
-				return Result<bool>.BadParameters("Data", [$"Compilation error: {ex.Message}"]);
+				_logger?.LogError(ex, "Error reading schemata: {Message}", ex.Message);
+
+				return (false, ex.Message);
 			}
 
 			Reload(schemaSet, fragments);
 
-			return Result<bool>.Success(true);
+			return (true, null);
 		}
 
 		/*

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
-using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Notification;
 
@@ -53,14 +52,18 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoSchemaResult>.Forbidden();
 
-			var result = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave.Value);
+			var (schema, error)  = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave.Value);
 
-			if (!result.Ok)
-				return Result<DtoSchemaResult>.From(result);
+			if (schema != null)
+			{
+				await _notifier.Notify("on_xmlschema_change");
 
-			await _notifier.Notify("on_xmlschema_change");
+				return Result<DtoSchemaResult>.Success(new(schema));
+			}
 
-			return Result<DtoSchemaResult>.Success(new(result.Value));
+			return string.IsNullOrEmpty(error) ?
+				Result<DtoSchemaResult>.NotFound() :
+				Result<DtoSchemaResult>.BadParameters("Data", [error]);
 		}
 
 		public async Task<Result<bool>> DeleteSchema(int id, ClaimsPrincipal user)
@@ -70,9 +73,18 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			await _notifier.Notify("on_xmlschema_change");
+			var (ok, error) = await fsr.DeleteSchema(dbContext, id);
 
-			return await fsr.DeleteSchema(dbContext, id);
+			if (ok)
+			{
+				await _notifier.Notify("on_xmlschema_change");
+
+				return Result<bool>.Success(true);
+			}
+
+			return string.IsNullOrEmpty(error) ?
+				Result<bool>.NotFound() :
+				Result<bool>.BadParameters("Id", [$"This schema can't be deleted: {error}"]);
 		}
 
 		public async Task<Result<bool>> CompileAndReload(ClaimsPrincipal user)
@@ -82,12 +94,16 @@ namespace AleProjects.Cms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			var result = await fsr.CompileAndReload(dbContext);
+			var (ok, error) = await fsr.CompileAndReload(dbContext);
 
-			if (result.Value)
+			if (ok)
+			{
 				await _notifier.Notify("on_xmlschema_change");
 
-			return result;
+				return Result<bool>.Success(true);
+			}
+
+			return Result<bool>.BadParameters("Data", [$"Compilation error: {error}"]);
 		}
 	}
 }

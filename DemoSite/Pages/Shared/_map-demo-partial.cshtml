@@ -62,7 +62,10 @@
 	let gjLayer = null;
 
 	mymap = L.map(containerId, { center: [lat, lon], zoom: zoom });
-	L.tileLayer('https://api.speedtrap-alert.cc/v1/tiles/osm/{z}/{x}/{y}',
+	L.tileLayer(
+		'https://api.speedtrap-alert.cc/v1/tiles/osm/{z}/{x}/{y}', 
+		//'https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=123123123123',
+		//'https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=564654654654654',
 		{
 			maxZoom: 19,
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',

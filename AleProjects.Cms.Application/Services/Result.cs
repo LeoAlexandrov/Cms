@@ -4,7 +4,7 @@ using System.Linq;
 
 
 
-namespace AleProjects.Cms.Domain.ValueObjects
+namespace AleProjects.Cms.Application.Services
 {
 
 	public enum ResultType
