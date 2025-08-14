@@ -140,8 +140,8 @@
 
 				} else if (!this._refreshInProgress) {
 
-					this._bcRefresh.postMessage(1);
 					this._refreshInProgress = true;
+					this._bcRefresh.postMessage(1);
 
 					let refreshResponse = await fetch(authEndpoints.refresh,
 						{
@@ -149,16 +149,18 @@
 							headers: { "Content-Type": "application/json; charset=utf-8" }
 						});
 
-					this._refreshInProgress = false;
-					this._bcRefresh.postMessage(0);
-
-					if (refreshResponse.ok) {
+					if (refreshResponse.status == 204) {
+						csrf_token = sessionStorage.getItem("csrf_token");
+					} else if (refreshResponse.ok) {
 						result = await refreshResponse.json();
 						csrf_token = result.csrfToken;
 						sessionStorage.setItem("csrf_token", csrf_token);
 					} else {
 						refreshFailed = true;
 					}
+
+					this._refreshInProgress = false;
+					this._bcRefresh.postMessage(0);
 
 				} else {
 
@@ -189,7 +191,7 @@
 					}
 
 					if (authEndpoints)
-						window.location = `${authEndpoints.signin}/?backUrl=${window.location.pathname}`;
+						window.location = `${authEndpoints.signin}/?backUrl=${window.location.pathname}${window.location.search}`;
 
 					return { ok: false, status: 401, result: null, contentType: null, totalItems: 0, link: null };
 				}

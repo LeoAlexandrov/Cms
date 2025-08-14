@@ -101,7 +101,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.5/dist/quasar.umd.prod.js"></script>
 	@if (SharedLocalizer["Language"].Value != "en")
 	{
-		<script src="https://cdn.jsdelivr.net/npm/quasar@2.17.7/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/quasar@2.18.2/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
 	}
 	<script id="auth_endpoints" type="application/json">@Json.Serialize(new { signin = "/auth", signout = "/api/v1/auth/signout", refresh = "/api/v1/auth/refresh" })</script>
 	@RenderSection("Scripts", required: false)

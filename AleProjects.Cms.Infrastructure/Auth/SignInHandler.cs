@@ -31,10 +31,12 @@ namespace AleProjects.Cms.Infrastructure.Auth
 	public enum LoginStatus
 	{
 		Success,
+		IsValid,
 		InvalidToken,
 		InvalidPayload,
 		Forbidden,
 		Expiration,
+		NotFound,
 		InternalError
 	}
 
@@ -361,12 +363,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 			using (HttpRequestMessage request = new() { Method = HttpMethod.Post, RequestUri = new Uri(MS_ACCESS_TOKEN) })
 			{
-				string body = string.Format("code={0}&client_id={1}&client_secret={2}&scope=User.Read&grant_type=authorization_code&redirect_uri={3}://{4}/auth/microsoft",
-					code,
-					_settings.Microsoft.ClientId,
-					_settings.Microsoft.ClientSecret,
-					 "https",
-					 host);
+				string schema = "https";
+				string body = $"code={code}&client_id={_settings.Microsoft.ClientId}&client_secret={_settings.Microsoft.ClientSecret}&scope=User.Read&grant_type=authorization_code&redirect_uri={schema}://{host}/auth/microsoft";
 
 				request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 				request.Content = new StringContent(body, Encoding.UTF8, "application/x-www-form-urlencoded");
@@ -726,6 +724,8 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 		public async Task<UserLogin> Refresh(string refresh)
 		{
+			DateTime now = DateTime.UtcNow;
+			UserLogin login;
 			byte[] bLogin;
 
 			try
@@ -734,6 +734,20 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 				bLogin = _cache.Get(refresh);
 
+				if (bLogin == null)
+				{
+					_logger?.LogWarning("Attempt to use inexistent refresh token: {Refresh}", refresh);
+					return UserLogin.WithStatus(LoginStatus.NotFound);
+				}
+
+				login = MessagePackSerializer.Deserialize<UserLogin>(bLogin);
+
+				if (now.Subtract(login.LoginTime).TotalSeconds < JWT_EXPIRES_IN - 10.0)
+				{
+					_logger?.LogInformation("Refreshing not expired jwt with: {Refresh}", refresh);
+					login.Status = LoginStatus.IsValid;
+					return login;
+				}
 				_cache.Remove(refresh);
 			}
 			catch (Exception ex)
@@ -747,20 +761,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 				_semaphore.Release();
 			}
 
-			if (bLogin == null)
-				return UserLogin.WithStatus(LoginStatus.Expiration);
-
-			DateTime now = DateTime.UtcNow;
-			UserLogin login = MessagePackSerializer.Deserialize<UserLogin>(bLogin);
-
-			if (now.Subtract(login.LoginTime).TotalSeconds < JWT_EXPIRES_IN - 10.0)
-			{
-				login.Status = LoginStatus.Expiration;
-				return login;
-			}
-
-			bool demoMode = _settings.DemoMode;
-
+			var demoMode = _settings.DemoMode;
 			var user = await _dbContext.Users.FindAsync(login.UserId);
 
 			if (user == null || !user.IsEnabled || (user.IsDemo && !demoMode))

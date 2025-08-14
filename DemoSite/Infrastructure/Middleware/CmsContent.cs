@@ -131,6 +131,7 @@ namespace DemoSite.Infrastructure.Middleware
 				 * Cloudflare will return 502 http status code.
 				 * If you configure your reverse proxy to keep Content-Length header, 
 				 * then you can set gzipCache to true.
+				 * In-process gzipping code below is not recommended in production in its current state.
 				 */
 
 				bool gzipCache = context.Request.Headers.All(h => !h.Key.StartsWith("cf-"));
@@ -149,9 +150,10 @@ namespace DemoSite.Infrastructure.Middleware
 					{
 						context.Response.Headers.ContentEncoding = "gzip";
 						context.Response.Headers.ContentLength = body.Length;
-						context.Response.Headers.ContentType = "text/html";
 						context.Response.Headers.Vary = "Accept-Encoding";
 					}
+
+					context.Response.Headers.ContentType = "text/html; charset=utf-8";
 
 					await context.Response.Body.WriteAsync(body);
 				}
@@ -191,9 +193,10 @@ namespace DemoSite.Infrastructure.Middleware
 							{
 								context.Response.Headers.ContentEncoding = "gzip";
 								context.Response.Headers.ContentLength = ar.Body.Length;
-								context.Response.Headers.ContentType = "text/html";
 								context.Response.Headers.Vary = "Accept-Encoding";
 							}
+
+							context.Response.Headers.ContentType = "text/html; charset=utf-8";
 
 							await context.Response.Body.WriteAsync(ar.Body);
 							return;
@@ -229,9 +232,10 @@ namespace DemoSite.Infrastructure.Middleware
 									{
 										context.Response.Headers.ContentEncoding = "gzip";
 										context.Response.Headers.ContentLength = ar.Body.Length;
-										context.Response.Headers.ContentType = "text/html";
 										context.Response.Headers.Vary = "Accept-Encoding";
 									}
+
+									context.Response.Headers.ContentType = "text/html; charset=utf-8";
 
 									await context.Response.Body.WriteAsync(ar.Body);
 									return;

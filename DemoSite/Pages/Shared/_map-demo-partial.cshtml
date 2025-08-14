@@ -46,6 +46,7 @@
 	<h3>@mapParams.Title</h3>
 }
 	<div id="@id-way-name"><strong>QuadKey</strong> = -1 <strong>Way name</strong> = </div>
+	<div id="@id-map-info"><strong>Zoom</strong> = - <strong>SW</strong> = - <strong>NE</strong> = - <strong>Diag</strong> = -</div>
 	<div id="@id-container">
 		<img src="/images/map-cross.png" class="@id-cross"/>
 	</div>
@@ -54,6 +55,7 @@
 <script>
 	let containerId = '@id-container';
 	let wayNameId = '@id-way-name'
+	let mapInfoId = '@id-map-info';
 	let mymap = null;
 	let lon = @mapParams.Lon;
 	let lat = @mapParams.Lat;
@@ -62,11 +64,13 @@
 	let gjLayer = null;
 
 	mymap = L.map(containerId, { center: [lat, lon], zoom: zoom });
+
 	L.tileLayer(
 		'https://api.speedtrap-alert.cc/v1/tiles/osm/{z}/{x}/{y}', 
 		//'https://api.tomtom.com/map/1/tile/basic/main/{z}/{x}/{y}.png?key=123123123123',
 		//'https://api.tomtom.com/map/1/tile/sat/main/{z}/{x}/{y}.jpg?key=564654654654654',
 		{
+			minZoom: 3,
 			maxZoom: 19,
 			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 			tileSize: 256,
@@ -75,8 +79,21 @@
 
 	mymap.on('moveend', onMapMoveZoomEnd);
 	mymap.on('zoomend', onMapMoveZoomEnd);
-	//mymap.on('move', onMapMoveZoomEnd);
 
+	displayMapInfo();
+
+	function displayMapInfo() {
+		
+		let mapInfo = document.getElementById(mapInfoId);
+
+		if (mapInfo) {
+			let bounds = mymap.getBounds();
+			let sw = bounds.getSouthWest().wrap();
+			let ne = bounds.getNorthEast().wrap();
+			let diag = sw.distanceTo(ne);
+			mapInfo.innerHTML = `<strong>Zoom</strong> = ${mymap.getZoom()} <strong>SW</strong> = ${sw.lat.toFixed(5)}, ${sw.lng.toFixed(5)} <strong>NE</strong> = ${ne.lat.toFixed(5)}, ${ne.lng.toFixed(5)} <strong>Diag</strong> = ${diag.toFixed(0)} meters`;
+		}
+	}
 
 	async function onMapMoveZoomEnd() {
 		hasMoved = true;
@@ -89,6 +106,8 @@
 			mymap.removeLayer(gjLayer);
 			gjLayer = null;
 		}
+
+		displayMapInfo();
 
 		let wayName = document.getElementById(wayNameId);
 

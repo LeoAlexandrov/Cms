@@ -65,7 +65,11 @@ namespace AleProjects.Cms.Web.Api
 			{
 				case LoginStatus.Forbidden:
 				case LoginStatus.Expiration:
+				case LoginStatus.NotFound:
 					return BadRequest();
+
+				case LoginStatus.IsValid:
+					return NoContent();
 
 				case LoginStatus.InternalError:
 					return StatusCode((int)HttpStatusCode.InternalServerError);

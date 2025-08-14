@@ -23,6 +23,7 @@ docker run -p 8083:8080 --name H-Cms-Demo -h H-Cms-Demo --restart=always --netwo
 <# chown -R leo:leo /home/leo/Cms.Demo; #>
 
 <#
+#>
 
 Write-Host "============== ContaboVPS ==============\r\n"
 
@@ -42,8 +43,8 @@ else
 {
   Write-Host "Error"
 }
-#>
 
+<#
 Write-Host "============== MiniPC ===============\r\n"
 
 ssh MiniPC $prepCommands
@@ -82,7 +83,6 @@ else
   Write-Host "Error"
 }
 
-<#
 #>
 
 
