@@ -84,9 +84,16 @@ else if (look == "grid" || look == "blog")
 							<h3 class="card-title>">@doc.Title</h3>
 							<div class="card-text">@Html.Raw(doc.Summary)</div>
 						</div>
-							<div class="mx-4 mb-4">
-								<a class="btn btn-primary stretched-link" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">@MoreLabel</a>
+						@if (look == "blog")
+						{
+						<div class="mx-4 mb-4">
+							<a class="btn btn-primary stretched-link" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title">@MoreLabel</a>
 						</div>
+						}
+						else
+						{
+						<a class="stretched-link" href="@PathTransformer.Forward(root, doc.Path, false)" alt="@doc.Title"></a>
+						}
 					</div>
 				</div>
 			}

@@ -903,7 +903,7 @@
 
 @section Css
 {
-	<link rel="stylesheet" href="https://unpkg.com/simple-code-editor@2.0.9/themes/themes.css" />
+	<link rel="stylesheet" href="https://unpkg.com/simple-code-editor@2.1.0/themes/themes.css" />
 	<link rel="stylesheet" href="~/css/simple-code-editor.css" />
 }
 
@@ -958,8 +958,8 @@
 	<script src="~/js/documents.js"></script>
 	<script>
 		const app = Vue.createApp(vueAppOptions);
-		app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}})
-		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]))
-		app.mount('#q-app')
+		app.use(Quasar, { config: { loadingBar: { color: "info", size: "4px" }}});
+		Quasar.lang.set(Quasar.lang.@(SharedLocalizer["Language"]));
+		app.mount('#q-app');
 	</script>
 }
