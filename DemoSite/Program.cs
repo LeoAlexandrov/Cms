@@ -3,8 +3,9 @@ using System.Globalization;
 using System.IO;
 
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +14,26 @@ using DemoSite.Infrastructure.Middleware;
 using DemoSite.Services;
 
 
+void ConfigureWebHost(IWebHostBuilder webHostBuilder)
+{
+	/*
+	 * Kestrel configuration assumes "Kestrel" section in appsettings.json
+	 * https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-8.0
+	 * ----
+		"Kestrel": {
+			"Endpoints": {
+				"Http": {
+					"Url": "http://localhost:8085"
+				}
+			}
+		},
+	 * ----
+	 */
 
+	webHostBuilder.ConfigureKestrel((context, options) =>
+		options.Configure(context.Configuration.GetSection("Kestrel")));
+
+}
 
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
@@ -34,7 +54,6 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddRazorPages(options => options.Conventions.AddPageRoute("/index", "{*url}"))
 		.AddViewLocalization();
 }
-
 
 void ConfigureApp(WebApplication app)
 {
@@ -91,6 +110,7 @@ void ConfigureApp(WebApplication app)
 
 var builder = WebApplication.CreateBuilder(args);
 
+ConfigureWebHost(builder.WebHost);
 ConfigureServices(builder.Services, builder.Configuration);
 
 

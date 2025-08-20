@@ -4,10 +4,11 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,9 +25,30 @@ using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Media;
 using AleProjects.Cms.Infrastructure.Notification;
 using AleProjects.Cms.Web.Infrastructure.Auth;
-using AleProjects.Cms.Web.Infrastructure.Middleware;
 using AleProjects.Cms.Web.Infrastructure.MediaTypeFormatters;
+using AleProjects.Cms.Web.Infrastructure.Middleware;
 
+
+void ConfigureWebHost(IWebHostBuilder webHostBuilder)
+{
+	/*
+	 * Kestrel configuration assumes "Kestrel" section in appsettings.json
+	 * https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-8.0
+	 * ----
+		"Kestrel": {
+			"Endpoints": {
+				"Http": {
+					"Url": "http://localhost:8085"
+				}
+			}
+		},
+	 * ----
+	 */
+
+	webHostBuilder.ConfigureKestrel((context, options) =>
+		options.Configure(context.Configuration.GetSection("Kestrel")));
+
+}
 
 void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager configuration)
 {
@@ -42,7 +64,6 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 	else
 		throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
 }
-
 
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
@@ -143,7 +164,6 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddRazorRuntimeCompilation();
 }
 
-
 void ConfigureApp(WebApplication app)
 {
 	LocalMediaStorage.CheckAndCreateCacheFolder(app.Configuration);
@@ -191,6 +211,7 @@ void ConfigureApp(WebApplication app)
 
 var builder = WebApplication.CreateBuilder(args);
 
+ConfigureWebHost(builder.WebHost);
 ConfigureServices(builder.Services, builder.Configuration);
 
 

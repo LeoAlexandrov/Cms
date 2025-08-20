@@ -134,7 +134,7 @@ namespace DemoSite.Infrastructure.Middleware
 				 * In-process gzipping code below is not recommended in production in its current state.
 				 */
 
-				bool gzipCache = context.Request.Headers.All(h => !h.Key.StartsWith("cf-"));
+				bool gzipCache = false; // context.Request.Headers.All(h => !h.Key.StartsWith("cf-"));
 
 
 				if (allowCaching && cache.TryGetValue(cacheKey, out byte[] body))
