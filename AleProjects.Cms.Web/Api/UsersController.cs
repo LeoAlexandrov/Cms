@@ -43,6 +43,23 @@ namespace AleProjects.Cms.Web.Api
 			};
 		}
 
+		[HttpGet("bylogin/{login?}")]
+		[Authorize]
+		public async Task<IActionResult> GetByLogin(string login)
+		{
+			if (string.IsNullOrEmpty(login))
+				return NotFound();
+
+			var result = await _ums.GetByLogin(login, this.HttpContext.User);
+
+			return result.Type switch
+			{
+				ResultType.NotFound => NotFound(),
+				ResultType.Forbidden => Forbid(),
+				_ => Ok(result.Value)
+			};
+		}
+
 		[HttpGet("roles")]
 		[Authorize]
 		public IActionResult Roles()

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using AleProjects.Cms.Application.Dto;
 using AleProjects.Cms.Domain.Entities;
-using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Cms.Infrastructure.Auth;
 using AleProjects.Random;
@@ -73,6 +73,21 @@ namespace AleProjects.Cms.Application.Services
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
+
+			return Result<DtoUserResult>.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
+		}
+
+		public async Task<Result<DtoUserResult>> GetByLogin(string login, ClaimsPrincipal user)
+		{
+			var u = await dbContext.Users.FirstOrDefaultAsync(u => u.Login == login);
+
+			if (u == null)
+				return Result<DtoUserResult>.NotFound();
+
+			var authResult = await _authService.AuthorizeAsync(user, u.Id, "CanManageUser");
+
+			if (!authResult.Succeeded)
+				return Result<DtoUserResult>.Forbidden();
 
 			return Result<DtoUserResult>.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
 		}

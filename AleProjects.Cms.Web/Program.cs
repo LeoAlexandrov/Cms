@@ -196,13 +196,19 @@ void ConfigureApp(WebApplication app)
 		.UseStaticFiles()
 		.UseRouting()
 		.UseRequestLocalization(localizationOptions)
-		.UseCors("All")
-		.UseAuthentication()
-		.UseAuthorization()
-		.UseMiddleware<UserLocale>();
+		.UseCors("All");
+	
+	app.UseAuthentication();
+	app.UseAuthorization();
+	app.UseMiddleware<UserLocale>();
 
-
-	app.MapControllers();
+	app.UseWhen(
+		context => context.Request.Path.StartsWithSegments("/api"),
+		appBuilder =>
+		{
+			appBuilder.UseEndpoints(ep => ep.MapControllers());
+		}
+	);
 
 	app.UseStatusCodePagesWithReExecute("/Error/{0}");
 	app.MapRazorPages();

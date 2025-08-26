@@ -21,6 +21,15 @@ namespace AleProjects.Cms.Infrastructure.Auth
 
 
 
+	public class ApiKey
+	{
+		public string Name { get; set; }
+		public string Key { get; set; }
+		public string Role { get; set; }
+	}
+
+
+
 	public class AuthSettings
 	{
 		public string SecurityKey { get; set; }
@@ -30,6 +39,7 @@ namespace AleProjects.Cms.Infrastructure.Auth
 		public string DefaultDemoModeRole { get; set; }
 		public string[] OrderedRoles { get; set; }
 		public Dictionary<string, string[]> RoleClaimPolicies { get; set; }
+		public ApiKey[] ApiKeys { get; set; }
 		public OAuthAppCredentials Google { get; set; }
 		public OAuthAppCredentials Microsoft { get; set; }
 		public OAuthAppCredentials Github { get; set; }
