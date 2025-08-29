@@ -17,5 +17,7 @@ namespace DemoSite.ViewModels
 	{ 
 		public MainMenuItem[] Languages { get; set; }
 		public MainMenuItem[] Commands { get; set; }
+
+		public readonly bool IsEmpty => (Languages == null || Languages.Length == 0) && (Commands == null || Commands.Length == 0);
 	}
 }

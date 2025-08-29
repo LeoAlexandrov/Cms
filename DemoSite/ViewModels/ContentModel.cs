@@ -12,15 +12,17 @@ namespace DemoSite.ViewModels
 
 		public Document Document { get; set; }
 		public string Language { get => string.IsNullOrEmpty(Document?.Language) ? "en-US" : Document.Language; }
+		public bool IsAuthenticated { get; protected set; }
 		public MainMenu MainMenu { get; set; }
 		public NavigationMenu NavigationMenu { get; set; }
 		public Footer Footer { get; set; }
 
 
-		public CmsPageModel(CmsContentService content)
+		public CmsPageModel(CmsContentService content, bool isAuthenticated)
 		{
 			_content = content;
 			Document = _content.RequestedDocument;
+			IsAuthenticated = isAuthenticated;
 
 			if (Document != null)
 			{
@@ -33,6 +35,8 @@ namespace DemoSite.ViewModels
 				NavigationMenu = new NavigationMenu() { Commands = [] };
 				Footer = new Footer() { Links = [] };
 			}
+
+			IsAuthenticated = isAuthenticated;
 		}
 
 		void InitializeMenus()

@@ -128,12 +128,11 @@ namespace DemoSite.Services
 
 			string role = await _repo.UserRole(login);
 
-			return string.IsNullOrEmpty(login) ? AuthResult.Forbidden : AuthResult.Success;
+			return string.IsNullOrEmpty(role) ? AuthResult.Forbidden : AuthResult.Success;
 		}
 
-		public async Task<Document> GetDocument(string host, string path, int childPos, int takeChildren, ClaimsPrincipal user)
+		public async Task<Document> GetDocument(string cmsRoot, string cmsPath, int childPos, int takeChildren, ClaimsPrincipal user)
 		{
-			var (cmsRoot, cmsPath) = _repo.PathTransformer.Back(host, path);
 			int[] allowedStatus = await AuthorizeEditor(user) == AuthResult.Success ? [1, 2] : [1];
 			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, childPos, takeChildren, true, allowedStatus, false);
 
@@ -154,19 +153,17 @@ namespace DemoSite.Services
 
 				case EVENT_DOC_UPDATE:
 
-					string cacheKey;
-
 					if (model.AffectedContent != null)
 					{
+						string path;
+
 						foreach (var con in model.AffectedContent)
 						{
-							cacheKey = _repo.PathTransformer.Forward(con.Root, con.Path, false);
+							path = string.IsNullOrEmpty(con.Path) ? "/" : con.Path;
+							_cache.Remove($"{con.Root}-dark-{path}");
+							_cache.Remove($"{con.Root}-light-{path}");
 
-							_cache.Remove($"dark-{cacheKey}");
-							_cache.Remove($"light-{cacheKey}");
-							_cache.Remove(cacheKey);
-
-							_logger.LogInformation("Cache record '{cacheKey}' has been removed", cacheKey);
+							_logger.LogInformation("Cache record '{path}' has been removed", path);
 						}
 
 						return;

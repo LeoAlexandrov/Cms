@@ -121,9 +121,11 @@ namespace DemoSite.Infrastructure.Middleware
 			{
 				bool allowCaching = string.IsNullOrEmpty(context.Request.QueryString.Value);
 
+				string host = context.Request.Host.Value;
 				string path = ContentRepo.CleanPath(context.Request.Path.Value);
 				string theme = Theme(context);
-				string cacheKey = $"{theme}-{path}";
+				var (cmsRoot, cmsPath) = content.Repo.PathTransformer.Back(host, path);
+				string cacheKey = $"{cmsRoot}-{theme}-{cmsPath}";
 
 				/* We disabled in-process gzipping of cached content if we behind Cloudflare
 				 * because it requires presense of Content-Length header in the response.
@@ -258,7 +260,7 @@ namespace DemoSite.Infrastructure.Middleware
 						p > 0 ? (p-1) * pageSize : 0;
 
 
-					var doc = await content.GetDocument(context.Request.Host.Value, path, position, pageSize, context.User);
+					var doc = await content.GetDocument(cmsRoot, cmsPath, position, pageSize, context.User);
 
 					SetCulture(doc?.Language);
 

@@ -42,7 +42,7 @@ namespace DemoSite.Pages
 			if (authResult != CmsContentService.AuthResult.Success)
 				return new StatusCodeResult(403);
 
-			CmsPage = new(_content);
+			CmsPage = new(_content, User.Identity?.IsAuthenticated ?? false);
 
 			if (CmsPage.Document.Attributes.ContainsKey("no-cache"))
 				this.HttpContext.Response.Headers.Append("Cache-Control", "max-age=0, no-store");

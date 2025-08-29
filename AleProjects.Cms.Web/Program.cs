@@ -204,10 +204,7 @@ void ConfigureApp(WebApplication app)
 
 	app.UseWhen(
 		context => context.Request.Path.StartsWithSegments("/api"),
-		appBuilder =>
-		{
-			appBuilder.UseEndpoints(ep => ep.MapControllers());
-		}
+		appBuilder => appBuilder.UseEndpoints(e => e.MapControllers())
 	);
 
 	app.UseStatusCodePagesWithReExecute("/Error/{0}");
