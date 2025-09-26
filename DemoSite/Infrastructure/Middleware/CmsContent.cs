@@ -79,6 +79,8 @@ namespace DemoSite.Infrastructure.Middleware
 
 	public class CmsContentMiddleware(RequestDelegate next, ILogger<CmsContentMiddleware> logger)
 	{
+		const string DEFAULT_ROOT = "home";
+
 		readonly RequestDelegate _next = next;
 		readonly ILogger<CmsContentMiddleware> _logger = logger;
 
@@ -125,10 +127,14 @@ namespace DemoSite.Infrastructure.Middleware
 				string path = ContentRepo.CleanPath(context.Request.Path.Value);
 				string theme = Theme(context);
 				var (cmsRoot, cmsPath) = content.Repo.PathTransformer.Back(host, path);
+
+				if (string.IsNullOrEmpty(cmsRoot)) // Back() method of default PathTransformer used here always returns null for cmsRoot
+					cmsRoot = DEFAULT_ROOT;
+
 				string cacheKey = $"{cmsRoot}-{theme}-{cmsPath}";
 
-				/* We disabled in-process gzipping of cached content if we behind Cloudflare
-				 * because it requires presense of Content-Length header in the response.
+				/* We disabled in-process gzipping of cached content if we are behind Cloudflare
+				 * because it requires presense of the Content-Length header in response.
 				 * This header may be removed by Nginx or other reverse proxy server, so
 				 * Cloudflare will return 502 http status code.
 				 * If you configure your reverse proxy to keep Content-Length header, 
@@ -287,7 +293,7 @@ namespace DemoSite.Infrastructure.Middleware
 					 */
 
 					allowCaching &= context.Response.StatusCode == (int)HttpStatusCode.OK &&
-						doc.PublishStatus == 1 &&
+						doc.Status == 1 &&
 						!doc.AuthRequired &&
 						(!context.Response.Headers.TryGetValue("Cache-Control", out var s) || s != "max-age=0, no-store");
 
@@ -302,8 +308,8 @@ namespace DemoSite.Infrastructure.Middleware
 
 						cache.Set(cacheKey, awaitedResult.Body = gzipped);
 #else
-						_logger.LogInformation("Cached '{cacheKey}'", cacheKey);
 #endif
+						_logger.LogInformation("Cached '{cacheKey}'", cacheKey);
 					}
 
 					if (awaitedResult.Cts != null)

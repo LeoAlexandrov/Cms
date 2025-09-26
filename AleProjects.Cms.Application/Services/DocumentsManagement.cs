@@ -166,8 +166,8 @@ namespace AleProjects.Cms.Application.Services
 			DtoFullDocumentResult result = new()
 			{ 
 				Properties = new(doc), 
-				FragmentLinks = fragments.FragmentLinks, // links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
-				FragmentsTree = fragments.FragmentsTree, //CreateTree<int, FragmentLink>(links),
+				FragmentLinks = fragments.FragmentLinks,
+				FragmentsTree = fragments.FragmentsTree,
 				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray()
 			};
 
@@ -252,7 +252,7 @@ namespace AleProjects.Cms.Application.Services
 				Title = title,
 				Language = language,
 				Icon = icon,
-				PublishStatus = dto.PublishStatus,
+				Status = dto.Status,
 				AuthPolicies = authPolicies,
 				Author = user.Identity.Name,
 				CreatedAt = now,
@@ -302,7 +302,7 @@ namespace AleProjects.Cms.Application.Services
 			string icon;
 			string tags;
 			string description;
-			int publishStatus = dto.PublishStatus.Value;
+			int publishStatus = dto.Status.Value;
 
 			authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -336,7 +336,7 @@ namespace AleProjects.Cms.Application.Services
 				return Result<DtoDocumentResult>.NotFound();
 
 			bool slugChanged = doc.Slug != slug;
-			bool needsChildrenUpdate = slugChanged || (publishStatus != doc.PublishStatus);
+			bool needsChildrenUpdate = slugChanged || (publishStatus != doc.Status);
 
 			Document[] children = needsChildrenUpdate ?
 				await dbContext.Documents
@@ -359,31 +359,31 @@ namespace AleProjects.Cms.Application.Services
 			string originalPath = doc.Path;
 
 
-			if (doc.PublishStatus != dto.PublishStatus)
-				if (publishStatus != (int)Document.Status.Unpublished)
+			if (doc.Status != dto.Status)
+				if (publishStatus != (int)PublishStatus.Unpublished)
 				{
 					var parent = await dbContext.Documents.FindAsync(doc.Parent);
 
-					if (publishStatus == (int)Document.Status.Published)
+					if (publishStatus == (int)PublishStatus.Published)
 					{
-						if (parent != null && parent.PublishStatus != (int)Document.Status.Published)
-							return Result<DtoDocumentResult>.BadParameters("PublishStatus", "Parent document is not published or in review");
+						if (parent != null && parent.Status != (int)PublishStatus.Published)
+							return Result<DtoDocumentResult>.BadParameters("Status", "Parent document is not published or in review");
 					}
 					else
 					{
-						if (parent != null && parent.PublishStatus == (int)Document.Status.Unpublished)
-							return Result<DtoDocumentResult>.BadParameters("PublishStatus", "Parent document is not published or in review");
+						if (parent != null && parent.Status == (int)PublishStatus.Unpublished)
+							return Result<DtoDocumentResult>.BadParameters("Status", "Parent document is not published or in review");
 
 						for (int i = 0; i < children.Length; i++)
-							if (children[i].PublishStatus == (int)Document.Status.Published)
-								children[i].PublishStatus = (int)Document.Status.InReview;
+							if (children[i].Status == (int)PublishStatus.Published)
+								children[i].Status = (int)PublishStatus.InReview;
 
 					}
 				}
 				else
 				{
 					for (int i = 0; i < children.Length; i++)
-						children[i].PublishStatus = (int)Document.Status.Unpublished;
+						children[i].Status = (int)PublishStatus.Unpublished;
 				}
 
 			if (slugChanged)
@@ -426,7 +426,7 @@ namespace AleProjects.Cms.Application.Services
 			doc.Icon = NullIfEmpty(icon);
 			doc.Tags = NullIfEmpty(tags);
 			doc.AuthPolicies = NullIfEmpty(dto.AuthPolicies);
-			doc.PublishStatus = publishStatus;
+			doc.Status = publishStatus;
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 
@@ -437,8 +437,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -449,7 +449,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -872,7 +872,7 @@ namespace AleProjects.Cms.Application.Services
 				Description = origin.Description,
 				Icon = origin.Icon,
 				AuthPolicies = origin.AuthPolicies,
-				PublishStatus = origin.PublishStatus,
+				Status = origin.Status,
 				CreatedAt = now,
 				ModifiedAt = now,
 				EditorRoleRequired = origin.EditorRoleRequired,

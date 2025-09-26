@@ -548,7 +548,7 @@ namespace AleProjects.Cms.Application.Services
 			DtoFullFragmentResult dto = new() 
 			{ 
 				Properties = new(fragment), 
-				Enabled = link.Enabled, 
+				Status = link.Status, 
 				Anchor = link.Anchor,
 				LockShare = useCount > 0,  
 				LinkId = link.Id,
@@ -666,7 +666,7 @@ namespace AleProjects.Cms.Application.Services
 					ContainerRef = dto.Parent,
 					DocumentRef = dto.Document,
 					Position = position,
-					Enabled = true
+					Status = (int)PublishStatus.Unpublished
 				};
 
 				dbContext.FragmentLinks.Add(fl);
@@ -717,7 +717,7 @@ namespace AleProjects.Cms.Application.Services
 					ContainerRef = dto.Parent,
 					DocumentRef = dto.Document,
 					Position = position,
-					Enabled = true
+					Status = (int)PublishStatus.Unpublished
 				};
 
 				fr = new()
@@ -751,8 +751,8 @@ namespace AleProjects.Cms.Application.Services
 					.ToListAsync();
 
 				string[] xmlData = await dbContext.Fragments
-					.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-					.Where(f => f.DocumentRef == dto.Document && f.Enabled)
+					.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+					.Where(f => f.DocumentRef == dto.Document && f.Status != (int)PublishStatus.Unpublished)
 					.Select(f => f.Data)
 					.ToArrayAsync();
 
@@ -763,7 +763,7 @@ namespace AleProjects.Cms.Application.Services
 
 				string[] fAttrData = await dbContext.FragmentLinks
 					.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-					.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+					.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 					.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 					.Where(a => a.Enabled)
 					.Select(a => a.Value)
@@ -843,8 +843,8 @@ namespace AleProjects.Cms.Application.Services
 			}
 
 
-			if (link.Enabled != dto.Enabled)
-				link.Enabled = dto.Enabled;
+			if (link.Status != dto.Status)
+				link.Status = dto.Status;
 
 			if (link.Anchor != dto.Anchor)
 			{
@@ -916,8 +916,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Id != id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Id != id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -928,7 +928,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -936,7 +936,7 @@ namespace AleProjects.Cms.Application.Services
 			
 			ReferencesHelper.GetReferencesChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? data : null, .. xmlData, .. attrData, .. fAttrData]),
+				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Status != (int)PublishStatus.Unpublished ? data : null, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -1031,8 +1031,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToArray();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == docId && f.Id != id && !excludedIds.Contains(f.Id) && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == docId && f.Id != id && !excludedIds.Contains(f.Id) && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -1043,7 +1043,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled && !deletingFragmentsIds.Contains(a.Id))
 				.Select(a => a.Value)
@@ -1176,7 +1176,7 @@ namespace AleProjects.Cms.Application.Services
 				DocumentRef = documentRef,
 				ContainerRef = containerRef,
 				Position = pos,
-				Enabled = link.Enabled,
+				Status = link.Status,
 				Anchor = link.Anchor,
 				Fragment = newFragment
 			};

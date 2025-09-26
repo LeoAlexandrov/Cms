@@ -32,8 +32,6 @@ namespace DemoSite.Services
 		public const string EVENT_ENABLE = "on_destination_enable";
 		public const string EVENT_DISABLE = "on_destination_disable";
 
-		const string DEFAULT_ROOT = "home";
-
 		public readonly static ConcurrentDictionary<string, AwaitedResult> AwaitedResults = new();
 
 		readonly IContentRepo _repo = repo;
@@ -134,7 +132,7 @@ namespace DemoSite.Services
 		public async Task<Document> GetDocument(string cmsRoot, string cmsPath, int childPos, int takeChildren, ClaimsPrincipal user)
 		{
 			int[] allowedStatus = await AuthorizeEditor(user) == AuthResult.Success ? [1, 2] : [1];
-			var doc = await _repo.GetDocument(cmsRoot ?? DEFAULT_ROOT, cmsPath, childPos, takeChildren, true, allowedStatus, false);
+			var doc = await _repo.GetDocument(cmsRoot, cmsPath, childPos, takeChildren, true, allowedStatus, false);
 
 			RequestedDocument = doc;
 
@@ -156,14 +154,17 @@ namespace DemoSite.Services
 					if (model.AffectedContent != null)
 					{
 						string path;
+						string root;
 
 						foreach (var con in model.AffectedContent)
 						{
 							path = string.IsNullOrEmpty(con.Path) ? "/" : con.Path;
-							_cache.Remove($"{con.Root}-dark-{path}");
-							_cache.Remove($"{con.Root}-light-{path}");
+							root = con.Root;
 
-							_logger.LogInformation("Cache record '{path}' has been removed", path);
+							_cache.Remove($"{root}-dark-{path}");
+							_cache.Remove($"{root}-light-{path}");
+
+							_logger.LogInformation("Cache record for '{root}-dark&light-{path}' has been removed", root, path);
 						}
 
 						return;

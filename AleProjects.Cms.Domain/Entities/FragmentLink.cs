@@ -20,7 +20,7 @@ namespace AleProjects.Cms.Domain.Entities
 
 		public int Position { get; set; }
 
-		public bool Enabled { get; set; }
+		public int Status { get; set; }
 
 		public bool Anchor { get; set; }
 
@@ -57,6 +57,9 @@ namespace AleProjects.Cms.Domain.Entities
 
 		[NotMapped]
 		public string Data { get; set; }
+
+		[NotMapped]
+		public bool Enabled => Status == (int)PublishStatus.Published;
 
 	}
 }

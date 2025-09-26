@@ -21,6 +21,7 @@ namespace HCms.ViewModels
 		public string Name { get; set; }
 		public string Icon { get; set; }
 		public bool Shared { get; set; }
+		public int Status { get; set; }
 		public bool Anchor { get; set; }
 		public string XmlName { get; set; }
 		public string XmlSchema { get; set; }
@@ -60,6 +61,7 @@ namespace HCms.ViewModels
 				Name = fragment.Name;
 				Icon = fragment.Icon;
 				Shared = fragment.Shared;
+				Status = fragment.Status;
 				XmlName = xmlName;
 				XmlSchema = fragment.XmlSchema;
 				Props = props;
@@ -79,6 +81,7 @@ namespace HCms.ViewModels
 				Name = link.Title,
 				Icon = link.Icon,
 				Shared = link.Fragment.Shared,
+				Status = link.Status,
 				Anchor = link.Anchor,
 				XmlName = link.Fragment.XmlName,
 				XmlSchema = link.Fragment.XmlSchema,

@@ -294,11 +294,14 @@
 							:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => val.length <= 256 || '@ErrorsLocalizer["Validation_MaxLen256"]' ]">
 						</q-input>
 
-						<q-checkbox v-model="fragment.enabled"
-							class="q-py-lg"
-							label="@Localizer["FragmentEnabledLabel"]"
-							ref="FragmentEnabled">
-						</q-checkbox>
+						<q-select dense outlined
+							v-model="fragment.status"
+							:options="publishStates"
+							emit-value
+							map-options
+							label="@Localizer["PublishStatus"]"
+							ref="FragmentStatus">
+						</q-select>
 
 						<q-checkbox v-model="fragment.anchor"
 							class="q-py-lg q-ml-lg"
@@ -818,13 +821,13 @@
 						 </q-input>
 
 						<q-select dense outlined
-							v-model="editedDoc.properties.publishStatus"
+							v-model="editedDoc.properties.status"
 							:options="publishStates"
 							emit-value
 							map-options
 							class="q-pt-lg"
 							label="@Localizer["PublishStatus"]"
-							ref="PublishStatus"
+							ref="Status"
 							@@update:model-value="hasChanged=true"
 							:rules="[val => !invalidPublishedState.includes(val) || '@Localizer["InvalidPublishStatus"]' ]">
 						</q-select>

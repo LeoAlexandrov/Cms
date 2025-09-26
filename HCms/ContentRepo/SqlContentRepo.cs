@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Entities = AleProjects.Cms.Domain.Entities;
+using AleProjects.Cms.Domain.ValueObjects;
 using AleProjects.Cms.Infrastructure.Data;
 using AleProjects.Hashing.MurmurHash3;
 
@@ -63,11 +64,16 @@ namespace HCms.ContentRepo
 
 		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
-			allowedStatus ??= [(int)Entities.Document.Status.Published];
+			allowedStatus ??= [(int)PublishStatus.Published];
 
-			var rootDoc = await dbContext.Documents
+			var query = dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Parent == 0 && d.Slug == root && allowedStatus.Contains(d.PublishStatus));
+				.Where(d => d.Parent == 0 && allowedStatus.Contains(d.Status));
+
+			if (!string.IsNullOrEmpty(root))
+				query = query.Where(d => d.Slug == root);
+
+			var rootDoc = await query.FirstOrDefaultAsync();
 
 			if (rootDoc == null)
 				return null;
@@ -115,7 +121,7 @@ namespace HCms.ContentRepo
 				var docs = await dbContext.Documents
 					.AsNoTracking()
 					.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
-					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && allowedStatus.Contains(dn.d.PublishStatus))
+					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && allowedStatus.Contains(dn.d.Status))
 					.Select(dn => dn.d)
 					.ToListAsync();
 
@@ -221,7 +227,7 @@ namespace HCms.ContentRepo
 			Entities.FragmentLink[] links = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Include(b => b.Fragment)
-				.Where(b => b.DocumentRef == doc.Id && b.Enabled)
+				.Where(b => b.DocumentRef == doc.Id && allowedStatus.Contains(b.Status))
 				.OrderBy(b => b.ContainerRef)
 				.ThenBy(b => b.Position)
 				.ToArrayAsync();
@@ -258,7 +264,7 @@ namespace HCms.ContentRepo
 			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
@@ -273,11 +279,11 @@ namespace HCms.ContentRepo
 
 		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
 		{
-			allowedStatus ??= [(int)Entities.Document.Status.Published];
+			allowedStatus ??= [(int)PublishStatus.Published];
 
 			var doc = await dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == id && allowedStatus.Contains(d.PublishStatus));
+				.FirstOrDefaultAsync(d => d.Id == id && allowedStatus.Contains(d.Status));
 
 			if (doc == null)
 				return null;
@@ -399,7 +405,7 @@ namespace HCms.ContentRepo
 			Entities.FragmentLink[] links = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Include(b => b.Fragment)
-				.Where(b => b.DocumentRef == id && b.Enabled)
+				.Where(b => b.DocumentRef == id && allowedStatus.Contains(b.Status))
 				.OrderBy(b => b.ContainerRef)
 				.ThenBy(b => b.Position)
 				.ToArrayAsync();
@@ -435,7 +441,7 @@ namespace HCms.ContentRepo
 			var fAttrs = await dbContext.FragmentLinks
 				.AsNoTracking()
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.ToArrayAsync();
@@ -458,13 +464,13 @@ namespace HCms.ContentRepo
 			if (allowedStatus != null)
 				query = dbContext.Documents
 					.AsNoTracking()
-					.Where(d => d.Parent == id && allowedStatus.Contains(d.PublishStatus) && d.Position >= childrenFromPos)
+					.Where(d => d.Parent == id && allowedStatus.Contains(d.Status) && d.Position >= childrenFromPos)
 					.OrderBy(d => d.Position)
 					.Take(take);
 			else
 				query = dbContext.Documents
 					.AsNoTracking()
-					.Where(d => d.Parent == id && d.PublishStatus == (int)Entities.Document.Status.Published && d.Position >= childrenFromPos)
+					.Where(d => d.Parent == id && d.Status == (int)PublishStatus.Published && d.Position >= childrenFromPos)
 					.OrderBy(d => d.Position)
 					.Take(take);
 

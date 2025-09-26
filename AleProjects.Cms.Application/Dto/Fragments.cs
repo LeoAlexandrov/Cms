@@ -83,8 +83,8 @@ namespace AleProjects.Cms.Application.Dto
 		[RequiredPositive]
 		public int LinkId { get; set; }
 
-		[MessagePack.Key("enabled")]
-		public bool Enabled { get; set; }
+		[MessagePack.Key("status")]
+		public int Status { get; set; }
 
 		[MessagePack.Key("anchor")]
 		public bool Anchor { get; set; }
@@ -135,8 +135,8 @@ namespace AleProjects.Cms.Application.Dto
 		[MessagePack.Key("position")]
 		public int Position { get; set; }
 
-		[MessagePack.Key("enabled")]
-		public bool Enabled { get; set; }
+		[MessagePack.Key("status")]
+		public int Status { get; set; }
 
 		[MessagePack.Key("anchor")]
 		public bool Anchor { get; set; }
@@ -160,7 +160,7 @@ namespace AleProjects.Cms.Application.Dto
 				FragmentRef = link.FragmentRef;
 				ContainerRef = link.ContainerRef;
 				Position = link.Position;
-				Enabled = link.Enabled;
+				Status = link.Status;
 				Anchor = link.Anchor;
 				Data = link.Data;
 				Icon = link.Icon;

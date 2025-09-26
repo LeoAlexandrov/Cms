@@ -91,7 +91,7 @@ namespace AleProjects.Cms.Application.Services
 		{
 			foreach (var doc in documents)
 			{
-				var res = await cms.CreateDocument(new DtoCreateDocument() { Parent = parentId, Slug = doc.Slug, Title = doc.Title, PublishStatus = 1 }, user);
+				var res = await cms.CreateDocument(new DtoCreateDocument() { Parent = parentId, Slug = doc.Slug, Title = doc.Title, Status = 1 }, user);
 
 				if (!res.Ok)
 					continue;

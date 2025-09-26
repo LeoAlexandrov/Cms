@@ -31,7 +31,7 @@
 					description: null,
 					editorRoleRequired: null,
 					authPolicies: null,
-					publishStatus: 0,
+					status: 0,
 					author: null,
 					createdAt: null,
 					modifiedAt: null
@@ -100,7 +100,7 @@
 				},
 				linkId: 0,
 				containerRef: 0,
-				enabled: true,
+				status: true,
 				anchor: false,
 				lockShare: false,
 				attributes: [],
@@ -241,7 +241,7 @@
 					summary: null,
 					coverPicture: null,
 					description: null,
-					publishStatus: 1,
+					status: 1,
 					author: this.profile.name,
 					createdAt: null,
 					modifiedAt: null
@@ -436,7 +436,7 @@
 							parent: this.editedDoc.properties.parent,
 							label: this.editedDoc.properties.title,
 							icon: this.editedDoc.properties.icon,
-							iconColor: this.editedDoc.enabled ? "blue-grey" : "blue-grey-2",
+							iconColor: this.editedDoc.status == 1 ? "blue-grey" : "blue-grey-2",
 							expandable: false,
 							selectable: true
 						};
@@ -522,7 +522,7 @@
 				coverPicture: this.editedDoc.properties.coverPicture,
 				description: this.editedDoc.properties.description,
 				authPolicies: this.editedDoc.properties.authPolicies,
-				publishStatus: this.editedDoc.properties.publishStatus,
+				status: this.editedDoc.properties.status,
 			};
 
 			Quasar.LoadingBar.start();
@@ -546,7 +546,7 @@
 							node.label = this.editedDoc.properties.title;
 							node.icon = this.editedDoc.properties.icon;
 
-							if (this.editedDoc.properties.publishStatus != 1) {
+							if (this.editedDoc.properties.status != 1) {
 								iterateNodes(node, (n) => n.iconColor = "blue-grey-2");
 							} else {
 								node.iconColor = "blue-grey";
@@ -584,9 +584,9 @@
 								if (r.result.errors.Icon)
 									this.$refs.Icon.validate();
 
-								if (r.result.errors.PublishStatus) {
-									this.invalidPublishedState.push(dto.publishStatus);
-									this.$refs.PublishStatus.validate();
+								if (r.result.errors.Status) {
+									this.invalidPublishedState.push(dto.status);
+									this.$refs.Status.validate();
 								}
 
 							} else {
@@ -1106,7 +1106,7 @@
 
 			let dto = {
 				properties: this.fragment.properties,
-				enabled: this.fragment.enabled,
+				status: this.fragment.status,
 				anchor: this.fragment.anchor,
 				linkId: this.fragment.linkId,
 				decomposition: forceXml ? null : this.fragment.decomposition,
@@ -1131,7 +1131,7 @@
 
 						if (node) {
 							node.label = r.result.fragment.name;
-							node.iconColor = r.result.link.enabled ? "blue-grey" : "blue-grey-2";
+							node.iconColor = r.result.link.status == 1 ? "blue-grey" : "blue-grey-2";
 						}
 
 						if (r.result.sharedStateChanged)
