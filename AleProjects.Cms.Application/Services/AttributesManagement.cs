@@ -97,8 +97,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -109,7 +109,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -204,8 +204,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -216,7 +216,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -300,8 +300,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -312,7 +312,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -392,8 +392,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -404,7 +404,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled && a.Id != id)
 				.Select(a => a.Value)
@@ -458,8 +458,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -470,7 +470,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
@@ -534,8 +534,8 @@ namespace AleProjects.Cms.Application.Services
 				.ToListAsync();
 
 			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Enabled, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Enabled)
+				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
 				.ToArrayAsync();
 
@@ -546,7 +546,7 @@ namespace AleProjects.Cms.Application.Services
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Enabled)
+				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled && a.Id != id)
 				.Select(a => a.Value)
