@@ -1046,7 +1046,7 @@
 							label2: `${r.result.fragment.xmlName} (${r.result.link.id})`,
 							data: r.result.link.data,
 							icon: r.result.link.icon,
-							iconColor: "blue-grey",
+							iconColor: r.result.link.status == 1 ? "blue-grey" : "blue-grey-2",
 							expandable: false,
 							selectable: true
 						};
