@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+	<!-- collapse -->
+
+	<xs:complexType name="collapse">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Collapse</xs:documentation>
+			<xs:documentation xml:lang="fr">Effondrement</xs:documentation>
+			<xs:appinfo>
+				<xsc:properties container="true"></xsc:properties>
+			</xs:appinfo>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="title" type="xs:string">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Title</xs:documentation>
+					<xs:documentation xml:lang="fr">Titre</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="uncollapsed" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Uncollapsed</xs:documentation>
+					<xs:documentation xml:lang="fr">Non effondré</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="look">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">Look</xs:documentation>
+					<xs:documentation xml:lang="fr">Aspect</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:token">
+						<xs:enumeration value="default"/>
+						<xs:enumeration value="primary"/>
+						<xs:enumeration value="secondary"/>
+						<xs:enumeration value="tertiary"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="collapse" type="collapse"/>
+
+</xs:schema>

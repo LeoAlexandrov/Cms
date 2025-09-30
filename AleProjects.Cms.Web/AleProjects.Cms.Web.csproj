@@ -143,6 +143,10 @@
 	<None Update="InitialData\Media\sunset.jpg">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
+	<None Update="InitialData\XmlSchemata\collapse.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
 	<None Update="InitialData\XmlSchemata\carousel-plus.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <SubType>Designer</SubType>

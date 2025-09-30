@@ -12,15 +12,18 @@
 	string floating = Model.Props.floating;
 
 	var sources = Model.Props.sources;
-	string style = null;
+	string floatCls = null;
 
 	switch (floating)
 	{
 		case "left":
-			style = "float: left; margin-right: 2em;";
+			floatCls = "float-start me-4 mb-4";
 			break;
 		case "right":
-			style = "float: right; margin-left: 2em;";
+			floatCls = "float-end ms-4 mb-4";
+			break;
+		case "none":
+			floatCls = "float-none mb-4";
 			break;
 	}
 
@@ -37,5 +40,5 @@
 			<source media="@s.media" srcset="@s.srcset" type="@s.type" />
 		}
 	}
-	<img id="@id" class="@Model.CssClass() @imgClass @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" style="@style" />
+	<img id="@id" class="@Model.CssClass() @floatCls @imgClass @extraFragmentClass" src="@src" alt="@alt" width="@width" height="@height" srcset="@srcset" sizes="@sizes" />
 </picture>

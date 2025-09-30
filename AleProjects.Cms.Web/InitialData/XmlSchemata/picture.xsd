@@ -100,6 +100,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:token">
+						<xs:enumeration value="none"/>
 						<xs:enumeration value="left"/>
 						<xs:enumeration value="right"/>
 					</xs:restriction>
