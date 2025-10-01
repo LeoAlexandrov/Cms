@@ -298,6 +298,7 @@ namespace AleProjects.Cms.Infrastructure.Data
 			logger?.LogInformation("Creating default schema db records...");
 
 			string[] files = Directory.GetFiles(XSD_PATH, "*.xsd", SearchOption.TopDirectoryOnly);
+			DateTimeOffset now = DateTimeOffset.UtcNow;
 
 			foreach (string file in files)
 			{
@@ -306,7 +307,13 @@ namespace AleProjects.Cms.Infrastructure.Data
 					var xml = File.ReadAllText(file);
 					var schema = ReadXsd(xml);
 					var ns = schema.TargetNamespace;
-					var sch = new Schema() { Data = xml, Description = Path.GetFileName(file) + " (default)", Namespace = ns };
+					var sch = new Schema() 
+					{ 
+						Data = xml, 
+						Description = Path.GetFileName(file) + " (default)", 
+						Namespace = ns, 
+						ModifiedAt = now 
+					};
 
 					result.Add(sch);
 				}

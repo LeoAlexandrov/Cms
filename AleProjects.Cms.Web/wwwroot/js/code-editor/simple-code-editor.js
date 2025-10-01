@@ -408,6 +408,19 @@ const CodeEditor = {
           <div v-for="num in lineNum">{{ num + 1 }}</div>
           <div>&nbsp;</div>
         </div>
+        <div
+          v-else
+          ref="lineNums"
+          class="no-line-nums hljs"
+          :style="{
+            fontSize: fontSize,
+            paddingTop: header ? '10px' : padding,
+            paddingBottom: padding,
+            top: top + 'px',
+          }"
+        >
+          <div>1</div>
+        </div>
         <textarea
           :readOnly="readOnly"
           :style="{

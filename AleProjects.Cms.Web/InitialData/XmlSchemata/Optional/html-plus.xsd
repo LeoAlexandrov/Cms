@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema
+	targetNamespace="http://h-cms.net/default.xsd"
+	elementFormDefault="qualified"
+	xmlns="http://h-cms.net/default.xsd"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsc="http://h-cms.net/custom">
+
+
+	<!-- html-plus -->
+
+	<xs:complexType name="html-plus">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">Html+</xs:documentation>
+			<xs:documentation xml:lang="fr">Html+</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="item" type="html" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="html-plus" type="html-plus"/>
+
+</xs:schema>

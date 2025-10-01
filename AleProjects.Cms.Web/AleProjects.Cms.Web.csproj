@@ -154,8 +154,16 @@
 	<None Update="InitialData\XmlSchemata\grid.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>
+	<None Update="InitialData\XmlSchemata\Optional\html-plus.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
 	<None Update="InitialData\XmlSchemata\html.xsd">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\Optional\markdown-plus.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
 	</None>
 	<None Update="InitialData\XmlSchemata\markdown.xsd">
 	  <SubType>Designer</SubType>

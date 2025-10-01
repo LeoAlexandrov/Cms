@@ -7,7 +7,6 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsc="http://h-cms.net/custom">
 
-
 	<!-- markdown -->
 
 	<xs:complexType name="markdown">
