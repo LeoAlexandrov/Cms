@@ -54,7 +54,7 @@
 		<div class="row gx-4">
 			<div class="col-md-6 @(layout == "end" ? "order-md-last" : null)">
 				@{
-					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = layout == "end" ? "img-fluid rounded-end" : "img-fluid rounded-start" } });
+					await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict, new Dictionary<string, string>() { ["bootstrap:class"] = layout == "end" ? "img-fluid rounded-end" : "img-fluid rounded-start" }));
 				}
 			</div>
 			<div class="col-md-6 @(layout == "end" ? "order-md-first" : null)">
@@ -88,7 +88,7 @@
 	{
 		if (layout == "start" && pict != null)
 		{
-			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "card-img-top" } });
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict, new Dictionary<string, string>() { ["bootstrap:class"] = "card-img-top" }));
 		}
 		<div class="card-body">
 			@if (!string.IsNullOrEmpty(title))
@@ -114,8 +114,8 @@
 				await Html.RenderPartialAsync("action", new Fragment(Model, "action", a));
 			}
 			</div>
-		}
-			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", Model.Props.picture) { Attributes = new() { ["bootstrap:class"] = "card-img-bottom" } });
+			}
+			await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", Model.Props.picture, new Dictionary<string, string>() { ["bootstrap:class"] = "card-img-bottom" }));
 		}
 		else if (actions != null)
 		{

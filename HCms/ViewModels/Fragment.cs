@@ -51,7 +51,7 @@ namespace HCms.ViewModels
 
 		public Fragment() { }
 
-		public Fragment(Fragment fragment, string xmlName, dynamic props)
+		public Fragment(Fragment fragment, string xmlName, dynamic props, Dictionary<string, string> attrs = null)
 		{
 			if (fragment != null)
 			{
@@ -65,7 +65,7 @@ namespace HCms.ViewModels
 				XmlName = xmlName;
 				XmlSchema = fragment.XmlSchema;
 				Props = props;
-				Attributes = fragment.Attributes;
+				Attributes = attrs ?? [];
 				Document = fragment.Document;
 				Data = fragment.Data;
 			}

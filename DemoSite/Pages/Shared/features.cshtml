@@ -94,7 +94,7 @@
 			<div class="col @cls mb-5 h-100 @relClass">
 			@if (pict != null)
 			{
-				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict) { Attributes = new() { ["bootstrap:class"] = "mb-4" } });
+				await Html.RenderPartialAsync("picture", new Fragment(Model, "picture", pict, new Dictionary<string, string>() { ["bootstrap:class"] = "mb-4" }));
 			}
 			@if (!string.IsNullOrEmpty(title))
 			{
