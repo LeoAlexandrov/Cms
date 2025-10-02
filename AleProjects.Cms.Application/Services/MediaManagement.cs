@@ -188,7 +188,7 @@ namespace AleProjects.Cms.Application.Services
 			if (!Base64Url.TryDecode(destination, out path))
 				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64-url format");
 
-			if (!_mediaStorage.IsValidPath(destination))
+			if (!_mediaStorage.IsValidPath(path))
 				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid destination");
 
 			var authResult = await _authService.AuthorizeAsync(user, "UploadUnsafeContent");
