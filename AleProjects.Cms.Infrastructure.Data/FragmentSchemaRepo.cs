@@ -180,6 +180,30 @@ namespace AleProjects.Cms.Infrastructure.Data
 							//	e.Annotation ??= GetAnnotation(any);
 							//}
 					}
+					else if (complexType.ContentTypeParticle is XmlSchemaAll all)
+					{
+						foreach (var childElement in all.Items)
+							if (childElement is XmlSchemaElement elem)
+							{
+								var e1 = TraverseSchema(elem, e);
+
+								if (e1 != null)
+								{
+									e.Elements ??= [];
+									e1.Annotation ??= GetAnnotation(elem);
+									e.Elements.Add(e1);
+								}
+							}
+					}
+					else
+					{
+						var particle = complexType.ContentTypeParticle;
+						string typeName = particle?.GetType().FullName;
+						int line = particle?.LineNumber ?? 0;
+						int pos = particle?.LinePosition ?? 0;
+
+						throw new NotSupportedException($"Unsupported schema complex type: '{typeName ?? "unknown"}' at line: {line}, position: {pos}");
+					}
 
 					break;
 
