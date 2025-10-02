@@ -189,7 +189,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 		public bool IsValidPath(string path)
 		{
-			bool result = !path.Contains("..");
+			bool result = string.IsNullOrEmpty(path) || !path.Contains("..");
 
 			return result;
 		}
@@ -197,7 +197,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 		public List<MediaStorageEntry> ReadDirectory(string path)
 		{
 			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? "");
+			string fullPath = Path.Combine(storagePath, path ?? string.Empty);
 			int storagePathLen = storagePath.Length;
 
 			if (!storagePath.EndsWith(Path.DirectorySeparatorChar))
@@ -253,7 +253,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 		public MediaStorageEntry GetFile(string path)
 		{
 			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? "");
+			string fullPath = Path.Combine(storagePath, path ?? string.Empty);
 
 			if (!File.Exists(fullPath))
 				return null;
@@ -283,7 +283,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 			{
 				// no need in preview for svg-files
 
-				fullPath = Path.Combine(storagePath, path ?? "");
+				fullPath = Path.Combine(storagePath, path ?? string.Empty);
 
 				if (!File.Exists(fullPath))
 					return null;
@@ -326,7 +326,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 			// generate preview and return it
 
-			fullPath = Path.Combine(storagePath, path ?? "");
+			fullPath = Path.Combine(storagePath, path ?? string.Empty);
 
 			if (!File.Exists(fullPath))
 				return null;
@@ -385,7 +385,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
 				string storagePath = _settings.StoragePath;
-				string fullPath = Path.Combine(storagePath, path ?? "");
+				string fullPath = Path.Combine(storagePath, path ?? string.Empty);
 
 				using var stream = File.OpenRead(fullPath);
 
@@ -402,7 +402,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination)
 		{
 			string storagePath = _settings.StoragePath;
-			string relativeName = Path.Combine(destination ?? "", fileName);
+			string relativeName = Path.Combine(destination ?? string.Empty, fileName);
 			string fullPath = Path.Combine(storagePath, relativeName);
 			string extension = Path.GetExtension(fileName);
 
@@ -508,7 +508,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 		public MediaStorageEntry CreateFolder(string name, string path)
 		{
 			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? "", name);
+			string fullPath = Path.Combine(storagePath, path ?? string.Empty, name);
 
 			MediaStorageEntry result;
 
@@ -521,7 +521,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 				if (k < 0)
 					k = name.Length;
 
-				var fi = new FileInfo(Path.Combine(storagePath, path ?? "", name[0..k]));
+				var fi = new FileInfo(Path.Combine(storagePath, path ?? string.Empty, name[0..k]));
 
 				result = new()
 				{
@@ -530,7 +530,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 					Name = fi.Name,
 					Extension = fi.Extension,
 					Date = fi.CreationTime,
-					RelativeName = Path.Combine(path ?? "", fi.Name)
+					RelativeName = Path.Combine(path ?? string.Empty, fi.Name)
 				};
 			}
 			catch (Exception ex)
@@ -548,8 +548,6 @@ namespace AleProjects.Cms.Infrastructure.Media
 
 			string storagePath = settings.StoragePath;
 			string cacheFolder = settings.CacheFolder;
-			//string storagePath = configuration.GetValue<string>("Media:StoragePath");
-			//string cacheFolder = configuration.GetValue<string>("Media:CacheFolder", LocalMediaStorageSettings.DEFAULT_CACHE_FOLDER);
 			string cachePath = Path.Combine(storagePath, cacheFolder);
 
 			if (!Directory.Exists(cachePath))

@@ -50,7 +50,7 @@ namespace AleProjects.Cms.Application.Services
 				int n = labels.Length;
 				breadcrumbs = new DtoMediaStoragePathElement[n + 1];
 
-				breadcrumbs[0] = new DtoMediaStoragePathElement() { Link = "" };
+				breadcrumbs[0] = new DtoMediaStoragePathElement() { Link = string.Empty };
 
 				for (int i = 0; i < n; i++)
 				{
