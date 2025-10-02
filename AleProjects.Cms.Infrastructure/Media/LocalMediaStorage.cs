@@ -187,6 +187,12 @@ namespace AleProjects.Cms.Infrastructure.Media
 			}
 		}
 
+		public bool IsValidPath(string path)
+		{
+			bool result = !path.Contains("..");
+
+			return result;
+		}
 
 		public List<MediaStorageEntry> ReadDirectory(string path)
 		{

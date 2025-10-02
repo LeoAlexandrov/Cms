@@ -21,6 +21,7 @@ namespace AleProjects.Cms.Infrastructure.Media
 	public interface IMediaStorage
 	{
 		BaseMediaStorageSettings Settings { get; }
+		bool IsValidPath(string path);
 		List<MediaStorageEntry> ReadDirectory(string path);
 		MediaStorageEntry GetFile(string path);
 		ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size);
