@@ -2,16 +2,16 @@
 
   <PropertyGroup>
 	<TargetFramework>net8.0</TargetFramework>
+	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<ImplicitUsings>disable</ImplicitUsings>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<VersionPrefix>1.0.15</VersionPrefix>	  
+	<AssemblyVersion>0.4.1</AssemblyVersion>
+	<FileVersion>0.4.1</FileVersion>
+	<VersionPrefix>1.0.20</VersionPrefix>	  
 	<Title>H-Cms.Net content repository and view models</Title>
 	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
-	<PackageOutputPath>C:\VSBuild\HCms\publish\nuget</PackageOutputPath>
-	<BaseOutputPath>C:\VSBuild\HCms\bin</BaseOutputPath>
+	<PackageOutputPath>bin\Nuget\$(TargetFramework)</PackageOutputPath>
 	<Description>H-Cms.Net content repository and view models</Description>
 	<Authors>h-cms.net</Authors>
 	<PackageIcon>icon.png</PackageIcon>
@@ -21,24 +21,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.20" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.20" />
-	<PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.6" />
-	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+	<PackageReference Include="HCms.Content.ViewModels" Version="1.0.20" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
   </ItemGroup>
 
   <ItemGroup>
-	<ProjectReference Include="..\AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj">
-	  <IncludeAssets>compile;runtime</IncludeAssets>
-	  <PrivateAssets>all</PrivateAssets>
+	<ProjectReference Include="..\HCms.Content\HCms.Content.csproj">
+		<IncludeAssets>compile;runtime</IncludeAssets>
+		<PrivateAssets>all</PrivateAssets>
 		<Private></Private>
 	</ProjectReference>
-	<ProjectReference Include="..\AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj">
-	  <IncludeAssets>compile;runtime</IncludeAssets>
-	  <PrivateAssets>all</PrivateAssets>
+	<ProjectReference Include="..\HCms.Domain\HCms.Domain.csproj">
+		<IncludeAssets>compile;runtime</IncludeAssets>
+		<PrivateAssets>all</PrivateAssets>
 		<Private></Private>
 	</ProjectReference>
-  </ItemGroup>
+	<ProjectReference Include="..\HCms.Infrastructure.Data\HCms.Infrastructure.Data.csproj">
+		<IncludeAssets>compile;runtime</IncludeAssets>
+		<PrivateAssets>all</PrivateAssets>
+		<Private></Private>
+	</ProjectReference>
+</ItemGroup>
 
   <ItemGroup>
 	<None Update="icon.png">
@@ -53,15 +57,25 @@
 	  <Pack>True</Pack>
 	  <PackagePath>\</PackagePath>
 	</None>
-	  <Content Include="..\AleProjects.Cms.Domain\bin\Release\net8.0\AleProjects.Cms.Domain.dll">
-		  <Pack>true</Pack>
-		  <PackagePath>lib\$(TargetFramework)</PackagePath>
-	  </Content>
-	  <Content Include="..\AleProjects.Cms.Infrastructure.Data\bin\Release\net8.0\AleProjects.Cms.Infrastructure.Data.dll">
-		  <Pack>true</Pack>
-		  <PackagePath>lib\$(TargetFramework)</PackagePath>
-	  </Content>
+	<Content Include="..\HCms.Content\bin\Release\$(TargetFramework)\HCms.Content.dll">
+	  <Pack>true</Pack>
+	  <PackagePath>lib\$(TargetFramework)</PackagePath>
+	</Content>
+	<Content Include="..\HCms.Domain\bin\Release\$(TargetFramework)\HCms.Domain.dll">
+	  <Pack>true</Pack>
+	  <PackagePath>lib\$(TargetFramework)</PackagePath>
+	</Content>
+	<Content Include="..\HCms.Infrastructure.Data\bin\Release\$(TargetFramework)\HCms.Infrastructure.Data.dll">
+	  <Pack>true</Pack>
+	  <PackagePath>lib\$(TargetFramework)</PackagePath>
+	</Content>
   </ItemGroup>
 
   <Import Project="..\Common\Common.projitems" Label="Shared" />
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	<Exec Command="dotnet build -c Release" WorkingDirectory="..\HCms.Domain" />
+	<Exec Command="dotnet build -c Release" WorkingDirectory="..\HCms.Content" />
+	<Exec Command="dotnet build -c Release" WorkingDirectory="..\HCms.Infrastructure.Data" />
+  </Target>
 </Project>

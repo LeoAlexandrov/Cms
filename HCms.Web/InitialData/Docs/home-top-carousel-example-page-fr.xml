@@ -1,0 +1,42 @@
+﻿<hero
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Second page title</title>
+		<subtitle></subtitle>
+		<text><![CDATA[<p>Il s'agit de la deuxième page du fragment <b>carousel+</b> affichant plusieurs éléments de contenu tels que des images, des héros ou du texte dans une seule zone, permettant aux utilisateurs de naviguer de manière interactive entre eux.</p>]]></text>
+		<picture>
+			<source>https://demo-media.h-cms.net/cms-demo-logo.svg</source>
+			<alt></alt>
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
+			<!-- Do not remove the comment below -->
+			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+		</picture>
+	</content>
+	<appearance>
+		<layout>start</layout>
+		<featured>false</featured>
+		<visibility>true</visibility>
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:appearance\http://h-cms.net/default.xsd:background -->
+	</appearance>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://h-cms.net</action>
+		<title>Site</title>
+		<altText></altText>
+		<icon></icon>
+		<icon-left>false</icon-left>
+		<category>secondary</category>
+		<!-- Do not remove the comment below -->
+		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:action\http://h-cms.net/default.xsd:target -->
+	</action>
+</hero>

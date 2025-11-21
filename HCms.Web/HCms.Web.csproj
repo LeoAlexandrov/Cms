@@ -1,0 +1,263 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+	<TargetFramework>net8.0</TargetFramework>
+	<AssemblyVersion>0.4.1</AssemblyVersion>
+	<FileVersion>0.4.1</FileVersion>
+	<Version>0.4.1</Version>
+	<Nullable>disable</Nullable>
+	<ImplicitUsings>disable</ImplicitUsings>
+	<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms</RepositoryUrl>
+	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
+	<Title>H-Cms.Net</Title>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
+	<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+	<PackageReference Include="Google.Protobuf" Version="3.33.1" />
+	<PackageReference Include="MessagePack" Version="3.1.4" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.22" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.22" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
+	<PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.9" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+	<PackageReference Include="protobuf-net" Version="3.2.56" />
+	<PackageReference Include="protobuf-net.Grpc" Version="1.2.2" />
+	<PackageReference Include="protobuf-net.Grpc.AspNetCore" Version="1.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Content Update="InitialData\Docs\documents.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Update="settings.json">
+	  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+	<Folder Include="wwwroot\js\code-editor\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="wwwroot\js\auth.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\HCms.Application\HCms.Application.csproj" />
+	<ProjectReference Include="..\HCms.Content\HCms.Content.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Update="InitialData\Docs\about-accordion-expansion-item1-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-expansion-item2-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-expansion-item3-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-expansion-item1.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-expansion-item2.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion-expansion-item3.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-accordion.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\about-header.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-hero-section-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-hero-section.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-horizontal-card-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-horizontal-card.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col1-card1-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col1-card1.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col1.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col2-lorem-ipsum1-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col2-lorem-ipsum1.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col2.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col3-card2-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns-col3.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-row-with-columns.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-quiquisquam.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container-freddie-mercury.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container-lorem-ipsum.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs-tab1container.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-tabs.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-example-page-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-example-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-welcome-page-fr.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel-welcome-page.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Docs\home-top-carousel.xml">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract0.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract1.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\abstract2.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\banner0.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\banner1.webp">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\sunset-wide.jpg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\Media\sunset.jpg">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\collapse.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\carousel-plus.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\grid.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\Optional\html-plus.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\html.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\Optional\markdown-plus.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\markdown.xsd">
+	  <SubType>Designer</SubType>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\partial-view.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\directory.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\action.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\card.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\carousel.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\common.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\container.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\accordion.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\features.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\hero.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\divider.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\metadata.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\picture.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+	<None Update="InitialData\XmlSchemata\row.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\tabs.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+	<None Update="InitialData\XmlSchemata\text.xsd">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <SubType>Designer</SubType>
+	</None>
+  </ItemGroup>
+
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
+</Project>

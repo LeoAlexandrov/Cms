@@ -1,0 +1,37 @@
+﻿<card
+	xmlns="http://h-cms.net/default.xsd">
+	<content>
+		<title>Card fragment</title>
+		<subtitle>Card subtitle</subtitle>
+		<text><![CDATA[<p>Une carte est un conteneur rectangulaire ou modulaire permettant de regrouper et d'afficher visuellement du contenu, comme du texte, des images, des boutons ou des liens, dans un format organisé et facile à consulter. Les cartes sont souvent utilisées pour présenter des informations sous forme de grilles ou de listes, ce qui explique leur popularité dans la conception d'interfaces utilisateur modernes.</p><p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?</p>]]></text>
+	</content>
+	<appearance>
+		<layout>start</layout>
+		<horizontal>true</horizontal>
+		<featured>false</featured>
+	</appearance>
+	<picture>
+		<source><![CDATA[^('YWJzdHJhY3QwLndlYnA%3d')]]></source>
+		<alt></alt>
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
+<!-- Do not remove the comment below -->
+<!-- http://h-cms.net/default.xsd:card\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
+	</picture>
+	<action>
+		<action-type>Url</action-type>
+		<action>https://h-cms.net</action>
+		<title>External link</title>
+		<altText></altText>
+		<icon>fa-solid fa-arrow-up-right-from-square</icon>
+		<icon-left>false</icon-left>
+		<category>primary</category>
+		<target>new_window</target>
+	</action>
+</card>

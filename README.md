@@ -1,127 +1,120 @@
 # Headless CMS
 
-This project currently is under heavy development. It consists of two main parts - standalone content management system (**AleProjects.Cms.Web**), and some SDK (**HCms**) for content consuming applications. The SDK is the abstraction over the database, querying it directly. **DemoSite** is a site using the SDK for content rendering.
+This project is currently under heavy development. It consists of two main parts: a standalone content management system (HCms.Web) and NuGet packages (HCms, HCms.Content.ViewModels) for content-consuming applications.
 
-There are also **AleProjects.Cms.Domain**, **AleProjects.Cms.Infrastructure**, **AleProjects.Cms.Infrastructure.Data**, and **AleProjects.Cms.Application** projects in the solution. These are shared core modules managing documents, visual fragments, media library, etc.
+There are also the **HCms.Domain**, **HCms.Infrastructure**, **HCms.Infrastructure.Data**, and **HCms.Application** projects in the solution which are shared core modules managing documents, visual fragments, media library, etc.
 
-The goal of the project is to enable users to create rich page content without knowledge of HTML/CSS, and on the other hand, to provide maximum flexibility for backend developer.
+The goal of the project is to enable users to create rich page content without any knowledge of HTML/CSS and, at the same time, to provide maximum flexibility for backend developers.
 
-Decomposition of documents visual content into simple structured fragments is in the main focus of development. Once decomposition of some visual fragment (like card, hero section, accordion, grid with rows and cols, etc) is defined and described, CMS can display its html form and save entered values to the database. To describe the decomposition, XML schemata are used.
+The CMS operates with documents that can typically be thought of as a 'web page' and with media files. Documents are organized into a tree-like hierarchy reflecting the 'site map', the CMS supports multiple independent trees (sites). Each document has a fixed set of common properties (like title, slug, meta tags, language, etc.) and visual content decomposed into fragments (content blocks). Fragments represent such visual elements as cards, hero sections, accordions, grids with rows and columns, etc. Fragments like grids or accordions serve as containers for other fragments, allowing creation of complex layouts.
 
-For example, the [card](https://getbootstrap.com/docs/5.3/components/card/) in simpliest case generally consists of title, image, text, and one or more "call-to-action". Its basic decomposition description will be:
+A key requirement for the decomposition is that fragments should be represented as objects with well-defined properties containing only data (such as 'title', 'subtitle', 'number of columns', 'alignment', etc) free from any specific HTML/CSS styling. This allows the CMS to render HTML forms for content editors to fill out and also allows developers of content consuming apps to make flexible partial views for fragments rendering.
 
-<details>
-  <summary>Click to expand</summary>
+XML schemas are used to define the structure of fragments, using them the CMS generates HTML forms and validates input. [Here](https://github.com/LeoAlexandrov/Cms/tree/master/HCms.Web/InitialData/XmlSchemata) are the default predefined schemata provided with the CMS. Developers can create their own or extend existing schemata to define custom fragments. This does not require rebuilding or redeploying the CMS.
 
-```
-<?xml version="1.0" encoding="utf-8"?>
+Presently, the CMS uses file storage for media content. Support for S3 storage is planned for future versions.
 
-<xs:schema
-	targetNamespace="http://h-cms.net/cms/new-schema.xsd"
-	elementFormDefault="qualified"
-	xmlns="http://h-cms.net/cms/new-schema.xsd"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xsc="http://aleprojects.com/custom">
+#### Demos
 
-	<xs:complexType name="simple-card">
-		<xs:annotation>
-			<xs:documentation xml:lang="en">Simple Card</xs:documentation>
-			<xs:documentation xml:lang="fr">Carte simple</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="title" type="xs:string">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Title</xs:documentation>
-					<xs:documentation xml:lang="fr">Titre</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="text" type="xs:string">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Text</xs:documentation>
-					<xs:documentation xml:lang="fr">Texte</xs:documentation>
-					<xs:appinfo>
-						<xsc:properties textformat="html"></xsc:properties>
-					</xs:appinfo>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="layout">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Layout</xs:documentation>
-					<xs:documentation xml:lang="fr">Disposition</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:token">
-						<xs:enumeration value="start"/>
-						<xs:enumeration value="end"/>
-						<xs:enumeration value="over"/>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
-			<xs:element name="image" type="xs:anyURI">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Link</xs:documentation>
-					<xs:documentation xml:lang="fr">Lien</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="link" type="xs:anyURI" maxOccurs="3">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">Image</xs:documentation>
-					<xs:documentation xml:lang="fr">Image</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
+[admin.h-cms.net](https://admin.h-cms.net) - The control panel with guest access. You can sign in anonymously, without revealing your e-mail or account login, using the 'Sign in as anonymous guest' button, simply passing the Cloudflare check.
 
-	<xs:element name="simple-card" type="simple-card"/>
-</xs:schema>
-```
-
-`<xs:documentation>` values are used as form field labels for different UI languages.
-
-</details>
-
-Rendered form will look
-
-<details>
-  <summary>Click to expand</summary>
-
-  ![form](https://h-cms.net/simple-card-form.png)
-
-</details>
-
-Note: all this don't require project rebuild and redeploy.
+[demo.h-cms.net](https://demo.h-cms.net) - The demo site consuming CMS content; see [this project](https://github.com/LeoAlexandrov/Cms-demos/tree/master/DemoSite).
 
 ## Prerequisites
 
-Below are the necessary steps to take in order to run it in Visual Studio 2022.
+Below are the necessary steps to take in order to run this project in Visual Studio.
 
-### Database connection
+#### Database connection
 
-CMS uses MS SQL database. Provide the connection string in the `settings.json` file. 
+The CMS can use MS SQL Server (default), PostgreSQL, or MySQL database engines. You must provide the connection string in the [settings.json](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json) file.
+<details>
+  <summary>Click to expand</summary>
 
-### External authorization
+```json
+{
+	"DbEngine": "mssql", // "postgres" or "mysql"
 
-CMS uses external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create Github OAuth app for the first time. Click you profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
+	"ConnectionStrings": {
+		"CmsDbConnection": "data source=<your-mssql-host>;initial catalog=Cms;TrustServerCertificate=true;persist security info=True;user id=user;password=uSer_Pa$$w0rd;App=EntityFramework"
+		//"CmsDbConnection": "Host=<your-pgsql-host>;Port=5432;Database=Cms;Username=user;Password=uSer_Pa$$w0rd"
+		//"CmsDbConnection": "server=<your-mysql-host>;database=Cms;user=user;password=uSer_Pa$$w0rd"
+	},
+...
+}
+```
+</details>
 
-In appeared form set these fields as
+#### External authorization
 
-`Application name`: "Cms" or whatever,  
+Presently, CMS uses only external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create a Github OAuth app for the first time. Click your profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
+
+In the form that appears, set the following fields:
+
+`Application name`: "Cms local" (or any other name you prefer),  
 `Homepage Url`: https://localhost:7284  
 `Authorization callback URL`: https://localhost:7284/api/v1/auth/github
 
-Save generated ClientId and Client Secret. Specify them [in settings.json file](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms.Web/settings.json#L35)  
-Note1: Client Secret will be displayed only once right after creation of the OAuth app.  
-Note2: Another Github OAuth app will be required for production. Microsoft and Google allow multiple Url/callbacks for a single application.
+Save the generated ClientId and Client Secret. Specify them in the [settings.json](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L46) file.
+<details>
+  <summary>Click to expand</summary>
 
-### App configuration
+```json
+{
+...
+	"Auth": {
+	...
+		"Github": {
+			"ClientId": "you-obtained-clientId",
+			"ClientSecret": "you-obtained-clientSecret"
+		},
+	...
+	}
+...
+}
+```
+</details>
 
-`appsettings.[Development].json` files link external settings file `settings.json`.  
-Fix [this line](https://github.com/LeoAlexandrov/Cms/blob/master/AleProjects.Cms.Web/appsettings.Development.json#L10) to **"settings.json"** value to use file from the repository. Or copy linked files to some outer folder.
+**Note1**: The Client Secret will be displayed only once, immediately after the OAuth app is created.  
+**Note2**: Another GitHub OAuth app will be required for production. GitHub, unlike Microsoft or Google, allows only one callback URL per application.  
+**Note3**: The presense of the `Google`, `Microsoft`, `Github`, `StackOverflow`, `CloudflareTT` sections defines the visibility of the corresponding 'SIGN IN WITH ...' button on the login page.
 
-## Demo
+Change ["SecurityKey"](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L9) value to something more secure. It must be 32 characters long. Leave other `Auth` settings as they are for the first time.
 
-Here [admin.h-cms.net](https://admin.h-cms.net) is the current control panel demo with guest access. Guest users have only read-permissions.
+#### Media storage configuration
 
-This [demo.h-cms.net](https://demo.h-cms.net) is the draft demo site that uses the SDK.
+["Media" section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L64) is responsible for media files storage configuration.
+<details>
+  <summary>Click to expand</summary>
+
+```json
+{
+...
+	"Media": {
+		"StoragePath": "M:\\Cms-media\\",
+		"CacheFolder": ".cache",
+		"MaxUploadSize": 10485760,
+		"SafeNameRegex": "^[\\w-]+.\\w+$"
+	},
+...
+}
+```
+</details>
+
+`StoragePath` - absolute path to the folder where media files will be stored. Make sure that the application has read/write permissions to this folder.  
+`CacheFolder` - name of the hidden folder inside `StoragePath` where thumbnails of media files will be cached.  
+`MaxUploadSize` - maximum allowed size of uploaded media files in bytes (10 MB by default). Don't forget to specify proper value in the nginx production configuration.  
+`SafeNameRegex` - regular expression defining allowed characters in media file names. Applied to the CMS users with the privileges less than the 'Admin' role gives.
+
+#### All other settings
+
+Can be left as they are for the first time.
+
+## Running the CMS for the first time
+
+At its first run, the CMS will create database tables and seed [initial data](https://github.com/LeoAlexandrov/Cms/tree/master/HCms.Web/InitialData).
+Then it will prompt to specify login of the first user with the 'Developer' role giving top privileges. Specify your Github login (or any other login depending on the configured external authorization providers).
+
+Finally, it will redirect you to the login page where you can sign in with the specified account.
+
 
 _To be continued..._

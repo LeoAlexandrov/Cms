@@ -1,9 +1,0 @@
-﻿@model ViewModels.CmsPageModel
-
-
-<div class="container">
-@foreach (var f in Model.Document.Fragments)
-{
-	await Html.RenderPartialAsync(f.XmlName, f);
-}
-</div>

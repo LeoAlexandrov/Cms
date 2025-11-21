@@ -361,3 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local Nuget config
+nuget.config
+
+# build props
+Directory.Build.props

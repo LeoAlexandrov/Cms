@@ -1,0 +1,116 @@
+{
+	"DbEngine": "mssql",
+
+	"ConnectionStrings": {
+		"CmsDbConnection": "data source=<your-mssql-host>;initial catalog=Cms;TrustServerCertificate=true;persist security info=True;user id=user;password=user_password;App=EntityFramework"
+	},
+
+	"Auth": {
+		"SecurityKey": "1234567890abcdefghijklmnopgrstuv",
+		"JwtIssuer": "localhost",
+		"JwtAudience": "cms_api",
+
+		"DemoMode": false,
+		"DefaultDemoModeRole": "Guest",
+
+		"OrderedRoles": [ "Guest", "User", "ConsumerApp", "Admin", "Developer" ],
+
+		"RoleClaimPolicies": {
+			"IsGuest": [ "Guest", "User", "ConsumerApp", "Admin", "Developer" ],
+			"IsUser": [ "User", "Admin", "Developer" ],
+			"IsAdmin": [ "Admin", "Developer" ],
+			"IsDeveloper": [ "Developer" ],
+			"IsConsumerApp": [ "ConsumerApp", "Admin", "Developer" ],
+			"NoInputSanitizing": [ "Admin", "Developer" ],
+			"UploadUnsafeContent": [ "Admin", "Developer" ]
+		},
+
+		"ApiKeys": [
+			{
+				"Name": "My demosite",
+				"Key": "123123",
+				"Role": "ConsumerApp"
+			}
+		],
+
+		"Google": {
+			"ClientId": "123456789012-abcdefghijklmnopgrstuv1234567890.apps.googleusercontent.com",
+			"ClientSecret": ""
+		},
+
+		"Microsoft": {
+			"ClientId": "189ee6cd-56ab-490c-ada3-df680603bf7a",
+			"ClientSecret": "12346~abcdderfsa_oooooooo.12345678990978"
+		},
+
+		"Github": {
+			"ClientId": "6d4fa106ac1b05f5949f",
+			"ClientSecret": "1234567890abcdefghijklmnopqrstuvwxyz1234"
+		},
+
+		"StackOverflow": {
+			"ClientId": "12345",
+			"ClientSecret": "abcdefghijklmnopqrstuv((",
+			"Key": "rl_1234567890NFWk4xg5JVCXjhT"
+		},
+
+		"CloudflareTT": {
+			"SiteKey": "0x1234567890abcdefghijkl",
+			"SecretKey": "0x1234567890abcdefghijklVatqVpgx0dY"
+		}
+
+	},
+
+	"Media": {
+		"StoragePath": "M:\\Cms-media\\",
+		"CacheFolder": ".cache",
+		"MaxUploadSize": 10485760,
+		"SafeNameRegex": "^[\\w-]+.\\w+$"
+	},
+
+	"ExternalMapperLocation": "C:\\OneDrive\\Projects\\Cms-configs\\DllOrCodeFileThatWillBeCompiled.dll.cs",
+
+	"PathMappingOptions": {
+		"PathMappers": [
+			{
+				"Name": "demo",
+				"Media": [
+					{
+						"PathRegex": "^(.*)",
+						"UrlReplace": "https://demo-media.h-cms.net/$1"
+					}
+				],
+				"Pages": [
+					{
+						"Root": "home",
+						"PathRegex": "^(.*)",
+						"UrlReplace": "$1"
+					}
+				]
+			},
+			{
+				"Name": "localdemo",
+				"Media": [
+					{
+						"PathRegex": "^(.*)",
+						"UrlReplace": "https://localhost:7257/__debug-media__/$1"
+					}
+				],
+				"Pages": [
+					{
+						"Root": "home",
+						"PathRegex": "^(.*)",
+						"UrlReplace": "$1"
+					},
+					{
+						"Root": "home-fr",
+						"PathRegex": "^(.*)",
+						"UrlReplace": "/fr$1"
+					}
+
+				]
+			}
+		]
+	}
+
+}

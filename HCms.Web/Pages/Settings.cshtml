@@ -1,0 +1,18 @@
+﻿@page
+@model HCms.Web.Pages.SettingsModel
+
+@{
+	Layout = "Shared/_Layout.cshtml";
+}
+
+<p>Under construction.</p>
+
+@section Scripts
+	{
+	<script src="~/js/settings.js"></script>
+	<script>
+		const app = Vue.createApp(vueAppOptions);
+		app.use(Quasar, { config: { loadingBar: { color: "info" }}});
+		app.mount('#q-app');
+	</script>
+}

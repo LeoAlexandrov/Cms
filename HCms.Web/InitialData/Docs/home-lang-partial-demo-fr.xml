@@ -1,0 +1,5 @@
+﻿<partial-view
+	xmlns="http://h-cms.net/default.xsd">
+	<name>_lang-demo-partial</name>
+	<args></args>
+</partial-view>

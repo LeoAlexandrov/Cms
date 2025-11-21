@@ -3,21 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AleProjects.Cms.Web", "AleProjects.Cms.Web\AleProjects.Cms.Web.csproj", "{A5FA5171-E350-48AC-9680-9F7EC032A182}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCms.Web", "HCms.Web\HCms.Web.csproj", "{A5FA5171-E350-48AC-9680-9F7EC032A182}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HCms", "HCms\HCms.csproj", "{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DemoSite", "DemoSite\DemoSite.csproj", "{9EAC2719-7CBF-4A6A-919E-DD89966CA986}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Common", "Common\Common.shproj", "{D00F2719-CC90-45DD-8210-4CE9297393D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AleProjects.Cms.Domain", "AleProjects.Cms.Domain\AleProjects.Cms.Domain.csproj", "{3F43EF48-01F9-456D-AFD3-1E9D4A048D16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Domain", "HCms.Domain\HCms.Domain.csproj", "{3F43EF48-01F9-456D-AFD3-1E9D4A048D16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AleProjects.Cms.Application", "AleProjects.Cms.Application\AleProjects.Cms.Application.csproj", "{7BA417B8-5B1D-409F-A4E2-2E88FF64070E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Application", "HCms.Application\HCms.Application.csproj", "{7BA417B8-5B1D-409F-A4E2-2E88FF64070E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AleProjects.Cms.Infrastructure", "AleProjects.Cms.Infrastructure\AleProjects.Cms.Infrastructure.csproj", "{D1246CC4-DAE9-42A6-8AC7-42B60249100D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Infrastructure", "HCms.Infrastructure\HCms.Infrastructure.csproj", "{D1246CC4-DAE9-42A6-8AC7-42B60249100D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AleProjects.Cms.Infrastructure.Data", "AleProjects.Cms.Infrastructure.Data\AleProjects.Cms.Infrastructure.Data.csproj", "{D90A71AC-671B-47B0-A0D4-4BDE50E3B2B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Infrastructure.Data", "HCms.Infrastructure.Data\HCms.Infrastructure.Data.csproj", "{D90A71AC-671B-47B0-A0D4-4BDE50E3B2B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Content", "HCms.Content\HCms.Content.csproj", "{407B93D0-11F1-4E53-AB1D-B94A321E7B70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HCms.Content.ViewModels", "HCms.Content.ViewModels\HCms.Content.ViewModels.csproj", "{2F68AA12-FD2F-4B48-AB39-FF2C7B076C5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +35,6 @@ Global
 		{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27CE1B76-25A4-4EE3-93B2-F1B4856747EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9EAC2719-7CBF-4A6A-919E-DD89966CA986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9EAC2719-7CBF-4A6A-919E-DD89966CA986}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9EAC2719-7CBF-4A6A-919E-DD89966CA986}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9EAC2719-7CBF-4A6A-919E-DD89966CA986}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F43EF48-01F9-456D-AFD3-1E9D4A048D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F43EF48-01F9-456D-AFD3-1E9D4A048D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F43EF48-01F9-456D-AFD3-1E9D4A048D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,6 +51,14 @@ Global
 		{D90A71AC-671B-47B0-A0D4-4BDE50E3B2B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D90A71AC-671B-47B0-A0D4-4BDE50E3B2B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D90A71AC-671B-47B0-A0D4-4BDE50E3B2B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{407B93D0-11F1-4E53-AB1D-B94A321E7B70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{407B93D0-11F1-4E53-AB1D-B94A321E7B70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{407B93D0-11F1-4E53-AB1D-B94A321E7B70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{407B93D0-11F1-4E53-AB1D-B94A321E7B70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F68AA12-FD2F-4B48-AB39-FF2C7B076C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F68AA12-FD2F-4B48-AB39-FF2C7B076C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F68AA12-FD2F-4B48-AB39-FF2C7B076C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F68AA12-FD2F-4B48-AB39-FF2C7B076C5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,8 +68,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Common\Common.projitems*{27ce1b76-25a4-4ee3-93b2-f1b4856747ee}*SharedItemsImports = 5
+		Common\Common.projitems*{407b93d0-11f1-4e53-ab1d-b94a321e7b70}*SharedItemsImports = 5
 		Common\Common.projitems*{7ba417b8-5b1d-409f-a4e2-2e88ff64070e}*SharedItemsImports = 5
-		Common\Common.projitems*{9eac2719-7cbf-4a6a-919e-dd89966ca986}*SharedItemsImports = 5
 		Common\Common.projitems*{a5fa5171-e350-48ac-9680-9f7ec032a182}*SharedItemsImports = 5
 		Common\Common.projitems*{d00f2719-cc90-45dd-8210-4ce9297393d6}*SharedItemsImports = 13
 		Common\Common.projitems*{d1246cc4-dae9-42a6-8ac7-42b60249100d}*SharedItemsImports = 5
