@@ -19,7 +19,7 @@ namespace HCms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class FragmentsController(ContentManagementService cms, FragmentSchemaRepo schemaRepo, IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
+	public class FragmentController(ContentManagementService cms, FragmentSchemaRepo schemaRepo, IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
 	{
 		private readonly ContentManagementService _cms = cms;
 		private readonly FragmentSchemaRepo _schemaRepo = schemaRepo;

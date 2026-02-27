@@ -94,6 +94,7 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
 	var pmf = PathMapperFactory.Load(configuration);
+	var fip = FileIconProvider.Load("Assets/FileTypeIcons");
 
 	services
 		.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -107,6 +108,26 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 							context.Token = context.Request.Cookies["X-JWT"];
 
 						return Task.CompletedTask;
+					},
+
+					OnChallenge = context =>
+					{
+						var acceptHeader = context.Request.Headers.Accept.ToString();
+
+						bool cameFromBrowser =
+							!string.IsNullOrEmpty(acceptHeader) &&
+							(acceptHeader.Contains("text/html", StringComparison.OrdinalIgnoreCase) ||
+							 acceptHeader.Contains("application/xhtml+xml", StringComparison.OrdinalIgnoreCase));
+
+						if (!cameFromBrowser)
+							return Task.CompletedTask;
+
+						var backUrl = context.Request.Path + context.Request.QueryString;
+
+						context.HandleResponse();
+						context.Response.Redirect($"/auth?backUrl={Uri.EscapeDataString(backUrl)}");
+
+						return context.Response.CompleteAsync();
 					}
 				};
 
@@ -125,6 +146,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
 
 	services
+		// data
 		.AddDbContext<CmsDbContext>(options => ConfigureDatabase(options, configuration))
 		.AddSingleton<FragmentSchemaRepo>(s =>
 			{
@@ -136,16 +158,23 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 					serviceProvider.GetRequiredService<ILoggerFactory>());
 			})
 		.AddTransient<IDbIndexConflictDetector, DbIndexConflictDetector>()
-		.AddSingleton<IPathMapperFactory, PathMapperFactory>(s => pmf)
-		.AddScoped<IEventNotifier, EventNotifier>()
+		// content
 		.AddScoped<ContentManagementService>()
 		.AddScoped<ContentProvidingService>()
+		.AddSingleton<IPathMapperFactory, PathMapperFactory>(s => pmf)
+		// media
+		.AddSingleton<IFileIconProvider, FileIconProvider>(s => fip)
 		.Configure<LocalMediaStorageSettings>(configuration.GetSection("Media"))
-		.AddTransient<IMediaStorage, LocalMediaStorage>()
-		.AddTransient<MediaManagementService>()
-		.AddTransient<SchemaManagementService>()
+		.AddKeyedTransient<IMediaStorage, LocalMediaStorage>("local")
+		.Configure<S3MediaStorageSettings>(configuration.GetSection("Media"))
+		.AddKeyedSingleton<IMediaStorage, S3MediaStorage>("s3")
+		.AddScoped<MediaManagementService>()
+		// infrastructure
+		.AddScoped<SchemaManagementService>()
 		.AddScoped<UserManagementService>()
-		.AddScoped<EventDestinationsManagementService>()
+		.AddScoped<EventDestinationManagementService>()
+		.AddScoped<IEventNotifier, EventNotifier>()
+		// auth
 		.Configure<AuthSettings>(configuration.GetSection("Auth"))
 		.AddScoped<SignInHandler>()
 		.AddSingleton<IRoleClaimPolicies, RoleClaimPolicies>()
@@ -164,8 +193,10 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				options.AddPolicy("CanManageFragment", policyBuilder => policyBuilder.AddRequirements(new CanManageFragmentRequirement()));
 				options.AddPolicy("CanManageUser", policyBuilder => policyBuilder.AddRequirements(new CanManageUserRequirement()));
 			})
+		// security
 		.AddCors(options => options.AddPolicy("All", policyBuilder => policyBuilder.AllowAnyOrigin()))
 		.AddAntiforgery(options => options.HeaderName = "X-RequestVerificationToken")
+		// infrastructure 2
 		.AddLocalization(options => options.ResourcesPath = "Resources")
 		.AddDistributedMemoryCache()
 		.AddHttpClient()
@@ -194,7 +225,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 
 void ConfigureApp(WebApplication app)
 {
-	LocalMediaStorage.CheckAndCreateCacheFolder(app.Configuration);
+	BaseMediaStorage.CheckAndCreateCacheFolder(app.Configuration);
 
 	var supportedCultures = new[]
 	{
@@ -244,7 +275,6 @@ void ConfigureApp(WebApplication app)
 	app.UseStatusCodePagesWithReExecute("/Error/{0}");
 	app.MapRazorPages();
 }
-
 
 
 var builder = WebApplication.CreateBuilder(args);

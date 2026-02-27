@@ -1,217 +1,121 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
-
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.Extensions.Configuration;
+using HCms.Domain.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-
-using AleProjects.Base64;
-using HCms.Domain.ValueObjects;
+using static HCms.Infrastructure.Media.S3MediaStorageSettings;
 
 
 namespace HCms.Infrastructure.Media
 {
 
-	public class LocalMediaStorageSettings : BaseMediaStorageSettings
+	public class LocalMediaStorage : BaseMediaStorage, IMediaStorage
 	{
-		public const string DEFAULT_CACHE_FOLDER = ".cache";
-
-		public string StoragePath { get; set; } = string.Empty;
-		public string CacheFolder { get; set; } = DEFAULT_CACHE_FOLDER;
-	}
+		readonly LocalMediaStorageSettings _settings;
+		readonly IFileIconProvider _fileIconProvider;
+		readonly ILogger<LocalMediaStorage> _logger;
 
 
-
-	public class LocalMediaStorage(IOptions<LocalMediaStorageSettings> settings, ILogger<LocalMediaStorage> logger) : IMediaStorage
-	{
-		readonly LocalMediaStorageSettings _settings = settings.Value;
-		readonly ILogger<LocalMediaStorage> _logger = logger;
-
-		public BaseMediaStorageSettings Settings { get => _settings; }
-
-
-		struct EntryNames(string fullName, string virtName)
+		public LocalMediaStorage(IOptions<LocalMediaStorageSettings> settings, IFileIconProvider fileIconProvider, ILogger<LocalMediaStorage> logger)
 		{
-			public string FullName { get; set; } = fullName;
-			public string VirtualName { get; set; } = virtName;
+			_settings = settings.Value;
+			_fileIconProvider = fileIconProvider;
+			_logger = logger;
+
+			if (_settings.LocalDiskPlaces.Any(p => string.IsNullOrEmpty(p.Path) || string.IsNullOrEmpty(p.Key)))
+				throw new ArgumentException("Some of bucket parameters (Path, Key) are null or empty.");
+
+			if (_settings.LocalDiskPlaces.Any(p => p.Key.Contains('/')))
+				throw new ArgumentException("Key cannot contain '/' character.");
 		}
 
-
-		static string MimeType(string fileName)
+		(string, string, string) SplitPath(string path)
 		{
-			var provider = new FileExtensionContentTypeProvider();
+			string key;
+			string localPath;
+			int i = path.IndexOf('/');
 
-			if (provider.TryGetContentType(fileName, out string contentType))
-				return contentType;
-
-			return "application/octet-stream";
-		}
-
-		static string FromBase64ToVirtual(string previewName)
-		{
-			string result;
-
-			if (string.IsNullOrEmpty(previewName))
+			if (i < 0)
 			{
-				result = string.Empty;
+				key = path;
+				localPath = string.Empty;
 			}
 			else
 			{
-				int k = previewName.LastIndexOf('_');
-
-				if (k < 0)
-					k = previewName.Length;
-
-				if (!Base64Url.TryDecode(previewName[0..k], out result))
-					result = string.Empty;
+				key = path[..i];
+				localPath = path[(i + 1)..];
 			}
 
-			return result;
+			var place = _settings.LocalDiskPlaces.FirstOrDefault(b => b.Key == key);
+
+			return (place?.Path ?? string.Empty, key, localPath);
 		}
 
+		public string[] PlaceKeys => [.. _settings.LocalDiskPlaces.Select(b => b.Key)];
 
-		static bool DeletePreviews(string cachePath, IList<EntryNames> files, IList<EntryNames> folders, ILogger<LocalMediaStorage> logger)
+		public bool ServesPath(string path)
 		{
-			var cached = Directory.GetFiles(cachePath);
+			var (_, key, _) = SplitPath(path);
 
-			int l = cachePath.Length;
+			return _settings.LocalDiskPlaces.Any(p => p.Key == key);
+		}
 
-			if (!cachePath.EndsWith(Path.DirectorySeparatorChar))
-				l++;
+		public CommonMediaStorageParams GetCommonParams(string path)
+		{
+			var (_, key, _) = SplitPath(path);
+			var place = _settings.LocalDiskPlaces.FirstOrDefault(p => p.Key == key);
 
-			var previews = cached.Select(c => new EntryNames(c, FromBase64ToVirtual(c[l..]))).ToArray();
-
-			bool result = true;
-
-			foreach (var preview in previews)
+			var result = new CommonMediaStorageParams()
 			{
-				foreach (var file in files)
-					if (preview.VirtualName.StartsWith(file.VirtualName) &&
-						preview.VirtualName.Length > file.VirtualName.Length &&
-						preview.VirtualName[file.VirtualName.Length] == '_')
-					{
-						try
-						{
-							File.Delete(preview.FullName);
-						}
-						catch (Exception ex)
-						{
-							logger?.LogWarning(ex, "Error deleting preview file {FullName}", preview.FullName);
-							result = false;
-						}
-					}
-
-				foreach (var folder in folders)
-					if (preview.VirtualName.StartsWith(folder.VirtualName) &&
-						preview.VirtualName.Length > folder.VirtualName.Length &&
-						preview.VirtualName[folder.VirtualName.Length] == Path.DirectorySeparatorChar)
-					{
-						try
-						{
-							File.Delete(preview.FullName);
-						}
-						catch (Exception ex)
-						{
-							logger?.LogWarning(ex, "Error deleting preview file {FullName}", preview.FullName);
-							result = false;
-						}
-					}
-			}
+				MaxUploadSize = place?.MaxUploadSize ??_settings.MaxUploadSize,
+				SafeNameRegex = place?.SafeNameRegex ??_settings.SafeNameRegex 
+			};
 
 			return result;
 		}
 
-		static bool CheckSignature(byte[] header, string extension)
+		public Task<List<MediaStorageEntry>> ReadDirectory(string path)
 		{
-			switch (extension)
+			List<MediaStorageEntry> result;
+
+			if (string.IsNullOrEmpty(path))
 			{
-				case ".png":
-					return header.Length > 8 && header[0] == 0x89 && header[1] == 0x50 && header[2] == 0x4e && header[3] == 0x47 &&
-						header[4] == 0x0d && header[5] == 0x0a && header[6] == 0x1a && header[7] == 0x0a;
+				result = [.. _settings.LocalDiskPlaces.Select(b => new MediaStorageEntry()
+						{
+							IsFolder = true,
+							Name = b.Key,
+							FullName = b.Key,
+							RelativeName = b.Key,
+							Extension = string.Empty,
+							Date = DateTime.UnixEpoch,
+						})];
 
-				case ".jpg":
-					return header.Length > 4 && header[0] == 0xff && header[1] == 0xd8 && header[2] == 0xff &&
-						(header[3] == 0xe0 || header[3] == 0xe1 || header[3] == 0xe2 || header[3] == 0xe3);
-
-				case ".webp":
-				case ".avi":
-					return header.Length > 4 && header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F';
-
-				case ".svg":
-
-					int len = 48;
-
-					if (len > header.Length)
-						len = header.Length;
-
-					string s = Encoding.UTF8.GetString(header, 0, len);
-
-					return s.StartsWith("<?xml version=\"1.0\" encoding=\"utf-8\"?>") || s.StartsWith("<svg ");
-
-				case ".bmp":
-					return header.Length > 2 && header[0] == 'B' && header[1] == 'M';
-
-				case ".gif":
-					return header.Length > 5 && header[0] == 'G' && header[1] == 'I' && header[2] == 'F' && header[3] == '8' &&
-						(header[4] == '7' || header[4] == '9');
-
-				case ".tif":
-				case ".tiff":
-					return header.Length > 4 &&
-						(header[0] == 0x49 && header[1] == 0x49 && header[2] == 0x2a && header[3] == 0 ||
-						 header[0] == 0x4d && header[1] == 0x4d && header[2] == 0 && header[3] == 0x2a);
-
-				case "webm":
-					return header.Length > 4 && header[0] == 0x1a && header[1] == 0x45 && header[2] == 0xdf && header[3] == 0xa3;
-
-				case ".mp4":
-					return header.Length > 8 &&
-						(header[0] == 'f' && header[1] == 't' && header[2] == 'y' && header[3] == 'p' && header[4] == 'i' && header[5] == 's' && header[6] == 'o' && header[7] == 'm' ||
-						 header[0] == 'f' && header[1] == 't' && header[2] == 'y' && header[3] == 'p' && header[4] == 'M' && header[5] == 'S' && header[6] == 'N' && header[7] == 'V');
-
-				case ".mpg":
-				case ".mpeg":
-					return header.Length > 4 && header[0] == 0x00 && header[1] == 0x00 && header[2] == 0x01 && (header[3] == 0xb3 || header[3] == 0xba);
-
-				default:
-					return true;
+				return Task.FromResult(result);
 			}
-		}
 
-		public bool IsValidPath(string path)
-		{
-			bool result = string.IsNullOrEmpty(path) || !path.Contains("..");
+			var (storagePath, key, objName) = SplitPath(path);
 
-			return result;
-		}
-
-		public List<MediaStorageEntry> ReadDirectory(string path)
-		{
-			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? string.Empty);
+			string fullPath = Path.Combine(storagePath, ToOSPath(objName));
 			int storagePathLen = storagePath.Length;
 
 			if (!storagePath.EndsWith(Path.DirectorySeparatorChar))
 				storagePathLen++;
 
 			if (!Directory.Exists(fullPath))
-				return null;
+				return Task.FromResult<List<MediaStorageEntry>>(null);
 
 			var di = new DirectoryInfo(fullPath);
 			var folders = di.GetDirectories();
 			var files = di.GetFiles();
 
-			List<MediaStorageEntry> result = new(folders.Length + files.Length);
+			result = new(folders.Length + files.Length);
 
 			for (int i = 0; i < folders.Length; i++)
 				if ((folders[i].Attributes & FileAttributes.Hidden) == 0)
@@ -221,7 +125,7 @@ namespace HCms.Infrastructure.Media
 							IsFolder = true,
 							Name = folders[i].Name,
 							FullName = folders[i].FullName,
-							RelativeName = folders[i].FullName[storagePathLen..],
+							RelativeName = key + "/" + ToUnixPath(folders[i].FullName[storagePathLen..]),
 							Extension = folders[i].Extension,
 							Date = folders[i].CreationTime
 						}
@@ -238,7 +142,7 @@ namespace HCms.Infrastructure.Media
 						{
 							Name = files[i].Name,
 							FullName = files[i].FullName,
-							RelativeName = files[i].FullName[storagePathLen..],
+							RelativeName = key + "/" + ToUnixPath(files[i].FullName[storagePathLen..]),
 							Extension = files[i].Extension,
 							Size = files[i].Length,
 							Date = files[i].CreationTime,
@@ -248,16 +152,17 @@ namespace HCms.Infrastructure.Media
 
 			result.Sort(sortStartIdx, result.Count - sortStartIdx, null);
 
-			return result;
+			return Task.FromResult(result);
 		}
 
-		public MediaStorageEntry GetFile(string path)
+		public Task<MediaStorageEntry> GetFile(string path)
 		{
-			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? string.Empty);
+			var (storagePath, key, objName) = SplitPath(path);
+
+			string fullPath = Path.Combine(storagePath, ToOSPath(objName));
 
 			if (!File.Exists(fullPath))
-				return null;
+				return Task.FromResult<MediaStorageEntry>(null);
 
 			FileInfo fi = new(fullPath);
 
@@ -265,26 +170,28 @@ namespace HCms.Infrastructure.Media
 			{
 				Name = fi.Name,
 				FullName = fi.FullName,
-				RelativeName = path,
+				RelativeName = key + "/" + ToUnixPath(objName),
 				Extension = fi.Extension,
 				Size = fi.Length,
 				Date = fi.CreationTime,
-				MimeType = MimeType(fi.Name)
+				MimeType = MimeType(fi.Name),
 			};
 
-			return result;
+			return Task.FromResult(result);
 		}
 
 		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size)
 		{
-			string storagePath = _settings.StoragePath;
-			string fullPath;
+			var (storagePath, key, objName) = SplitPath(path);
 
-			if (Path.GetExtension(path) == ".svg")
+			string fullPath;
+			string extension = Path.GetExtension(objName).ToLower();
+
+			if (extension == ".svg")
 			{
 				// no need in preview for svg-files
 
-				fullPath = Path.Combine(storagePath, path ?? string.Empty);
+				fullPath = Path.Combine(storagePath, ToOSPath(objName));
 
 				if (!File.Exists(fullPath))
 					return null;
@@ -295,7 +202,7 @@ namespace HCms.Infrastructure.Media
 				{
 					Name = fi.Name,
 					FullName = fi.FullName,
-					RelativeName = path,
+					RelativeName = key + "/" + ToUnixPath(objName),
 					Extension = fi.Extension,
 					Size = fi.Length,
 					Date = fi.CreationTime,
@@ -303,9 +210,9 @@ namespace HCms.Infrastructure.Media
 				};
 			}
 
-			string cacheFolder = _settings.CacheFolder;
+			string cacheFolder = _settings.CacheFolder ?? DEFAULT_CACHE_FOLDER;
 			string cachedName = $"{System.Web.HttpUtility.UrlEncode(previewPrefix)}_{size}x{size}.webp";
-			string cachedPath = Path.Combine(storagePath, cacheFolder, cachedName);
+			string cachedPath = Path.Combine(cacheFolder, cachedName);
 
 			if (File.Exists(cachedPath))
 			{
@@ -317,7 +224,7 @@ namespace HCms.Infrastructure.Media
 				{
 					Name = fi.Name,
 					FullName = fi.FullName,
-					RelativeName = path,
+					RelativeName = key + "/" + ToUnixPath(objName),
 					Extension = fi.Extension,
 					Size = fi.Length,
 					Date = fi.CreationTime,
@@ -327,12 +234,10 @@ namespace HCms.Infrastructure.Media
 
 			// generate preview and return it
 
-			fullPath = Path.Combine(storagePath, path ?? string.Empty);
+			fullPath = Path.Combine(storagePath, ToOSPath(objName));
 
 			if (!File.Exists(fullPath))
 				return null;
-
-			string extension = Path.GetExtension(fullPath).ToLower();
 
 			if (extension == ".webp" || extension == ".png" || extension == ".jpg" ||
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
@@ -348,6 +253,14 @@ namespace HCms.Infrastructure.Media
 					image.Mutate(x => x.Pad(size, size, Color.Transparent));
 
 				await image.SaveAsWebpAsync(output);
+			}
+			else if (_fileIconProvider != null && _fileIconProvider.TryGet(extension, size, out var bytes))
+			{
+				await File.WriteAllBytesAsync(cachedPath, bytes);
+			}
+			else if ((bytes = _fileIconProvider.Default(size)) != null)
+			{
+				await File.WriteAllBytesAsync(cachedPath, bytes);
 			}
 			else
 			{
@@ -365,7 +278,7 @@ namespace HCms.Infrastructure.Media
 			{
 				Name = f.Name,
 				FullName = f.FullName,
-				RelativeName = path,
+				RelativeName = key + "/" + ToUnixPath(objName),
 				Extension = f.Extension,
 				Size = f.Length,
 				Date = f.CreationTime,
@@ -375,35 +288,33 @@ namespace HCms.Infrastructure.Media
 
 		public async Task<MediaStorageEntry> Properties(string path)
 		{
-			var result = GetFile(path);
+			var result = await GetFile(path);
 
 			if (result == null)
 				return null;
 
-			string extension = Path.GetExtension(path).ToLower();
+			string extension = result.Extension.ToLower();
 
 			if (extension == ".webp" || extension == ".png" || extension == ".jpg" ||
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
-				string storagePath = _settings.StoragePath;
-				string fullPath = Path.Combine(storagePath, path ?? string.Empty);
-
+				var (storagePath, _, objName) = SplitPath(path);
+				string fullPath = Path.Combine(storagePath, ToOSPath(objName));
 				using var stream = File.OpenRead(fullPath);
-
 				var image = await Image.LoadAsync(stream);
 
 				result.Width = image.Width;
 				result.Height = image.Height;
 			}
 
-
 			return result;
 		}
 
 		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination)
 		{
-			string storagePath = _settings.StoragePath;
-			string relativeName = Path.Combine(destination ?? string.Empty, fileName);
+			var (storagePath, key, objName) = SplitPath(destination);
+
+			string relativeName = Path.Combine(ToOSPath(objName), fileName);
 			string fullPath = Path.Combine(storagePath, relativeName);
 			string extension = Path.GetExtension(fileName);
 
@@ -411,26 +322,38 @@ namespace HCms.Infrastructure.Media
 			long totalRead = 0;
 			int read = -1;
 
-			using var fileStream = File.Create(fullPath);
-
-			while (read != 0)
+			using (var fileStream = File.Create(fullPath))
 			{
-				read = await stream.ReadAsync(buf);
+				while (read != 0)
+				{
+					read = await stream.ReadAsync(buf);
 
-				if (totalRead == 0 && !CheckSignature(buf, extension))
-					return null;
+					if (totalRead == 0 && !CheckSignature(buf, extension))
+						return null;
 
-				totalRead += read;
+					totalRead += read;
 
-				if (read > 0)
-					await fileStream.WriteAsync(buf.AsMemory(0, read));
+					if (read > 0)
+						if (totalRead <= _settings.MaxUploadSize)
+							await fileStream.WriteAsync(buf.AsMemory(0, read));
+						else break;
+				}
+			}
+
+			if (totalRead > _settings.MaxUploadSize)
+			{
+				_logger.LogError("Size of '{fileName}' is greater than maximum allowed upload size.", fileName);
+				_logger.LogError("Error uploading file {RelativeName}", relativeName); 
+				File.Delete(fullPath);
+
+				return null;
 			}
 
 			MediaStorageEntry result = new()
 			{
 				Name = fileName,
 				FullName = fullPath,
-				RelativeName = relativeName,
+				RelativeName = key + "/" + ToUnixPath(relativeName),
 				Extension = extension,
 				Size = totalRead,
 				Date = DateTime.Now,
@@ -442,16 +365,30 @@ namespace HCms.Infrastructure.Media
 
 		public async Task<string[]> Delete(string[] entries)
 		{
-			string storagePath = _settings.StoragePath;
-			string cacheFolder = _settings.CacheFolder;
-			string cachePath = Path.Combine(storagePath, cacheFolder);
+			if (entries == null || entries.Length == 0)
+				return [];
+
+			var locations = entries
+				.Select(e => {
+					var (storagePath, key, path) = SplitPath(e);
+					return (storagePath, key, prefix: Path.GetDirectoryName(path));
+				})
+				.Distinct()
+				.ToArray();
+
+			if (locations.Length > 1)
+				return [];
+
+			string storagePath = locations[0].storagePath;
+			string cacheFolder = _settings.CacheFolder ?? DEFAULT_CACHE_FOLDER;
 
 			List<EntryNames> files = [];
 			List<EntryNames> folders = [];
 
 			foreach (string entry in entries)
 			{
-				var name = Path.Combine(storagePath, entry);
+				var (_, _, p) = SplitPath(entry);
+				var name = Path.Combine(storagePath, ToOSPath(p));
 				var fi = new FileInfo(name);
 
 				if ((fi.Attributes & FileAttributes.Directory) != 0)
@@ -468,7 +405,7 @@ namespace HCms.Infrastructure.Media
 					try
 					{
 						Directory.Delete(folder.FullName, true);
-						list.Add(folder.VirtualName);
+						list.Add(folder.OsNeutralName);
 					}
 					catch (Exception ex)
 					{
@@ -482,7 +419,7 @@ namespace HCms.Infrastructure.Media
 					try
 					{
 						File.Delete(file.FullName);
-						list.Add(file.VirtualName);
+						list.Add(file.OsNeutralName);
 					}
 					catch (Exception ex)
 					{
@@ -492,7 +429,7 @@ namespace HCms.Infrastructure.Media
 
 			Task task3 = Task.Run(() =>
 			{
-				DeletePreviews(cachePath, files, folders, _logger);
+				DeletePreviews(cacheFolder, files.Select(f => f.OsNeutralName), folders.Select(f => f.OsNeutralName), _logger);
 			});
 
 			Task[] tasks = [task1, task2, task3];
@@ -506,32 +443,30 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public MediaStorageEntry CreateFolder(string name, string path)
+		public Task<MediaStorageEntry> CreateFolder(string name, string path)
 		{
-			string storagePath = _settings.StoragePath;
-			string fullPath = Path.Combine(storagePath, path ?? string.Empty, name);
+			if (string.IsNullOrEmpty(path))
+				return Task.FromResult<MediaStorageEntry>(null);
+
+			var (storagePath, key, objName) = SplitPath(path);
+
+			string osPath = ToOSPath(objName);
+			string fullPath = Path.Combine(storagePath, osPath, name);
 
 			MediaStorageEntry result;
 
 			try
 			{
-				Directory.CreateDirectory(fullPath);
-
-				int k = name.IndexOf(Path.DirectorySeparatorChar);
-
-				if (k < 0)
-					k = name.Length;
-
-				var fi = new FileInfo(Path.Combine(storagePath, path ?? string.Empty, name[0..k]));
+				var di = Directory.CreateDirectory(fullPath);
 
 				result = new()
 				{
 					IsFolder = true,
-					FullName = fi.FullName,
-					Name = fi.Name,
-					Extension = fi.Extension,
-					Date = fi.CreationTime,
-					RelativeName = Path.Combine(path ?? string.Empty, fi.Name)
+					FullName = di.FullName,
+					Name = di.Name,
+					Extension = di.Extension,
+					Date = di.CreationTime,
+					RelativeName = key + "/" + ToUnixPath(Path.Combine(osPath, di.Name))
 				};
 			}
 			catch (Exception ex)
@@ -540,23 +475,9 @@ namespace HCms.Infrastructure.Media
 				result = null;
 			}
 
-			return result;
+			return Task.FromResult(result);
 		}
 
-		public static void CheckAndCreateCacheFolder(IConfiguration configuration)
-		{
-			var settings = configuration.GetSection("Media").Get<LocalMediaStorageSettings>();
-
-			string storagePath = settings.StoragePath;
-			string cacheFolder = settings.CacheFolder;
-			string cachePath = Path.Combine(storagePath, cacheFolder);
-
-			if (!Directory.Exists(cachePath))
-				Directory.CreateDirectory(cachePath);
-
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-				File.SetAttributes(cachePath, FileAttributes.Hidden);
-		}
 	}
 
 }

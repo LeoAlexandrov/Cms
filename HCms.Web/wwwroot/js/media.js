@@ -80,7 +80,9 @@
 		},
 
 		uploadHint() {
-			return TEXT.MEDIA.format("MESSAGE_MAXIMUM_UPLOAD_SIZE_HINT", this.formatFileSize(this.maxUploadSize));
+			return this.maxUploadSize ?
+				TEXT.MEDIA.format("MESSAGE_MAXIMUM_UPLOAD_SIZE_HINT", this.formatFileSize(this.maxUploadSize)) :
+				null;
 		},
 
 		openMedia(link) {
@@ -124,7 +126,7 @@
 			this.opened.referencedBy = [];
 
 			application
-				.apiCallAsync(`/api/v1/documents/mediarefs?link=${link}`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync(`/api/v1/document/mediarefs?link=${link}`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					if (r.ok) {

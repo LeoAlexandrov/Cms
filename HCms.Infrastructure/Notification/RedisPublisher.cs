@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 using AleProjects.Endpoints;
-using HCms.Domain.ValueObjects;
 
 
 namespace HCms.Infrastructure.Notification

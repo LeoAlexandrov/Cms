@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 
 using AleProjects.Endpoints;
-using HCms.Domain.ValueObjects;
 
 
 namespace HCms.Infrastructure.Notification

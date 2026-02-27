@@ -71,6 +71,11 @@ var DICTIONARY_DOCS = {
 	"VALIDATION_MINLEN": "La longueur minimale est de %s1.",
 	"VALIDATION_MAXLEN": "La longueur maximale est de %s1",
 	"VALIDATION_REGEX": "Format invalide ou caractère invalide.",
+	"VALIDATION_INVALID_NUMBER": "Format de nombre invalide.",
+	"VALIDATION_MININCLUSIVE_IS": "La valeur inclusive minimale est %s1.",
+	"VALIDATION_MINEXCLUSIVE_IS": "La valeur exclusive minimale est %s1.",
+	"VALIDATION_MAXINCLUSIVE_IS": "La valeur inclusive maximale est %s1.",
+	"VALIDATION_MAXEXCLUSIVE_IS": "La valeur exclusive maximale est %s1.",
 
 	"PUBLISH_STATUS_UNPUBLISHED": "Non publié",
 	"PUBLISH_STATUS_PUBLISHED": "Publié",

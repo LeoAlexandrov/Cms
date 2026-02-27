@@ -1,4 +1,4 @@
-# Headless CMS
+# H-Cms.Net
 
 This project is currently under heavy development. It consists of two main parts: a standalone content management system (HCms.Web) and NuGet packages (HCms, HCms.Content.ViewModels) for content-consuming applications.
 
@@ -12,7 +12,7 @@ A key requirement for the decomposition is that fragments should be represented 
 
 XML schemas are used to define the structure of fragments, using them the CMS generates HTML forms and validates input. [Here](https://github.com/LeoAlexandrov/Cms/tree/master/HCms.Web/InitialData/XmlSchemata) are the default predefined schemata provided with the CMS. Developers can create their own or extend existing schemata to define custom fragments. This does not require rebuilding or redeploying the CMS.
 
-Presently, the CMS uses file storage for media content. Support for S3 storage is planned for future versions.
+Media content can be stored in local filesystem or in S3 buckets.
 
 #### Demos
 
@@ -46,7 +46,7 @@ The CMS can use MS SQL Server (default), PostgreSQL, or MySQL database engines. 
 
 #### External authorization
 
-Presently, CMS uses only external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create a Github OAuth app for the first time. Click your profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
+Presently, CMS uses only external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create a Github OAuth app for the first time. Click your Github profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
 
 In the form that appears, set the following fields:
 
@@ -64,8 +64,8 @@ Save the generated ClientId and Client Secret. Specify them in the [settings.jso
 	"Auth": {
 	...
 		"Github": {
-			"ClientId": "you-obtained-clientId",
-			"ClientSecret": "you-obtained-clientSecret"
+			"ClientId": "your-obtained-clientId",
+			"ClientSecret": "your-obtained-clientSecret"
 		},
 	...
 	}
@@ -82,7 +82,8 @@ Change ["SecurityKey"](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web
 
 #### Media storage configuration
 
-["Media" section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L64) is responsible for media files storage configuration.
+The CMS works with 'storage places.' Think of these as top-level root folders. Each place can be either a local folder (filesystem) or an S3 bucket. Places of different types can be used simultaneously. Both place types share a common, manually assigned property: the `Key`. When you reference an image in a document, the link CMS generates consists of the key + relative media file path. You can move a storage folder to another location or even switch its type to S3 (and vice versa); links won't break as long as you preserve the key.  
+["Media" section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L64) is responsible for media content storage configuration.
 <details>
   <summary>Click to expand</summary>
 
@@ -90,31 +91,63 @@ Change ["SecurityKey"](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web
 {
 ...
 	"Media": {
-		"StoragePath": "M:\\Cms-media\\",
-		"CacheFolder": ".cache",
+		"CacheFolder": "\\var\\tmp\\hcms-media-cache",
 		"MaxUploadSize": 10485760,
-		"SafeNameRegex": "^[\\w-]+.\\w+$"
+		"SafeNameRegex": "^[\\w-]+.\\w+$",
+		"Buckets": [
+			{
+				"Endpoint": "https://s3.eu-west-1.amazonaws.com",
+				"Name": "beneficial-aurelia",
+				"AccessKey": "AKIAIOSFODNN7EXAMPLE",
+				"SecretKey": "wJalrXUtnFEMIaK7MDENGbbPxRfiCYEXAMPLEKEY",
+				"Key": "MySite"
+			}
+		],
+		"LocalDiskPlaces": [
+			{
+				"Path": "\\var\\www\\hcms-demosite-media",
+				"Key": "H-Cms demo"
+			}
+		]
 	},
 ...
 }
 ```
 </details>
 
-`StoragePath` - absolute path to the folder where media files will be stored. Make sure that the application has read/write permissions to this folder.  
-`CacheFolder` - name of the hidden folder inside `StoragePath` where thumbnails of media files will be cached.  
+`CacheFolder` - full path of the folder where CMS caches preview thumbnails of the media files.  
 `MaxUploadSize` - maximum allowed size of uploaded media files in bytes (10 MB by default). Don't forget to specify proper value in the nginx production configuration.  
-`SafeNameRegex` - regular expression defining allowed characters in media file names. Applied to the CMS users with the privileges less than the 'Admin' role gives.
+`SafeNameRegex` - regular expression defining allowed characters in media file names. Applied to the CMS users with the privileges less than the 'Admin' role gives.  
+`Buckets` - array with S3 bucket parameters.  
+`LocalDiskPlaces` - array with local filesystem folder parameters.
+
+##### S3 bucket parameters
+
+`Endpoint` - service Url.  
+`Name` - bucket name.  
+`AccessKey` and `SecretKey` - bucket credentials.  
+`Key` - storage place key.  
+
+##### Local folder parameters
+
+`Path` - full path of the folder.  
+`Key` - storage place key.
+
+**Note**: if you decide to deploy CMS as docker container and use filesystem media storage, mount local folders to the container.
 
 #### All other settings
 
 Can be left as they are for the first time.
 
-## Running the CMS for the first time
+## Starting the CMS
 
 At its first run, the CMS will create database tables and seed [initial data](https://github.com/LeoAlexandrov/Cms/tree/master/HCms.Web/InitialData).
 Then it will prompt to specify login of the first user with the 'Developer' role giving top privileges. Specify your Github login (or any other login depending on the configured external authorization providers).
 
 Finally, it will redirect you to the login page where you can sign in with the specified account.
 
+## Path mapping, documents linking, and URL generation
+
+## Production deployment
 
 _To be continued..._

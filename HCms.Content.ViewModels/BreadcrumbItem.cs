@@ -9,7 +9,7 @@ namespace HCms.Content.ViewModels
 	/// Represents a breadcrumb item view model. For use as razor page or partial view model.
 	/// </summary>
 	[MessagePackObject]
-	public struct BreadcrumbsItem
+	public struct BreadcrumbItem
 	{
 		[MessagePack.Key("document")]
 		public int Document { get; set; }

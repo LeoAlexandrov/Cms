@@ -2,9 +2,9 @@
 
   <PropertyGroup>
 	<TargetFramework>net8.0</TargetFramework>
-	<AssemblyVersion>0.4.1</AssemblyVersion>
-	<FileVersion>0.4.1</FileVersion>
-	<Version>0.4.1</Version>
+	<AssemblyVersion>0.4.3</AssemblyVersion>
+	<FileVersion>0.4.3</FileVersion>
+	<Version>0.4.3</Version>
 	<Nullable>disable</Nullable>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
@@ -14,15 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
-	<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-	<PackageReference Include="Google.Protobuf" Version="3.33.1" />
+	<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
+	<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
 	<PackageReference Include="MessagePack" Version="3.1.4" />
-	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.22" />
-	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.22" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
-	<PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.9" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.24" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.24" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.13" />
+	<PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.11" />
 	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 	<PackageReference Include="protobuf-net" Version="3.2.56" />
 	<PackageReference Include="protobuf-net.Grpc" Version="1.2.2" />
@@ -39,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Folder Include="Assets\FileTypeIcons\" />
 	<Folder Include="wwwroot\js\code-editor\" />
   </ItemGroup>
 
@@ -52,6 +52,60 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Update="Assets\FileTypeIcons\apk.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\avi.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\doc.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\docx.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\gz.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\md.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\mkv.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\mp3.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\mp4.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\pdf.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\tar.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\txt.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\wav.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\wma.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\xls.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\xlsx.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\zip.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="Assets\FileTypeIcons\__default.webp">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
 	<None Update="InitialData\Docs\about-accordion-expansion-item1-fr.xml">
 	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	</None>

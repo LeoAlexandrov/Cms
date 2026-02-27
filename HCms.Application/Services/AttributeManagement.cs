@@ -11,7 +11,7 @@ using Ganss.Xss;
 
 using HCms.Application.Dto;
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Application.Services
@@ -114,9 +114,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -221,9 +221,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -317,9 +317,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -409,9 +409,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, dto.Enabled ? value : null, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -475,9 +475,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 			existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -551,9 +551,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(doc.Id,
+			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 

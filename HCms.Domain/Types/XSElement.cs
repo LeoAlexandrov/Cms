@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 
 
-namespace HCms.Domain.ValueObjects
+namespace HCms.Domain.Types
 {
 
 	public class XSElement
@@ -229,7 +229,7 @@ namespace HCms.Domain.ValueObjects
 			if (prefix.Length == 1)
 				return "t1";
 
-			return "t" + (int.Parse(prefix[1..]) + 1).ToString();
+			return $"t{int.Parse(prefix[1..]) + 1}";
 		}
 
 	}

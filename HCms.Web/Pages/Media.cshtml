@@ -174,7 +174,7 @@
 				@@click="onEntryClicked(e)">
 			</q-img>
 			<div class="q-mt-sm media-preview-label">
-				<q-checkbox v-model="selected" :val="e.link" size="xs" :label="e.name" dense><q-tooltip>{{ e.name }}</q-tooltip></q-checkbox>
+				<q-checkbox v-model="selected" :val="e.link" size="xs" :label="e.name" :disable="!folderLink" dense><q-tooltip>{{ e.name }}</q-tooltip></q-checkbox>
 			</div>
 		</div>
 	</div>
@@ -183,16 +183,18 @@
 
 @section Commands
 {
-	<q-space></q-space>
-	<q-btn flat round icon="upload" @@click="startUpload()">
-		<q-tooltip>@Localizer["Upload"]</q-tooltip>
-	</q-btn>
-	<q-btn flat round icon="create_new_folder" @@click="startCreateFolder()">
-		<q-tooltip>@Localizer["CreateFolder"]</q-tooltip>
-	</q-btn>
-	<q-btn flat round icon="delete" :disabled="selected.length==0" @@click="startDelete()">
-		<q-tooltip>@Localizer["Delete"]</q-tooltip>
-	</q-btn>
+	<div v-if="folderLink">
+		<q-space></q-space>
+		<q-btn flat round icon="upload" @@click="startUpload()">
+			<q-tooltip>@Localizer["Upload"]</q-tooltip>
+		</q-btn>
+		<q-btn flat round icon="create_new_folder" @@click="startCreateFolder()">
+			<q-tooltip>@Localizer["CreateFolder"]</q-tooltip>
+		</q-btn>
+		<q-btn flat round icon="delete" :disabled="selected.length==0" @@click="startDelete()">
+			<q-tooltip>@Localizer["Delete"]</q-tooltip>
+		</q-btn>
+	</div>
 }
 
 @section InfoLine

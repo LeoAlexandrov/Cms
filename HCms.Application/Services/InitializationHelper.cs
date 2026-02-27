@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using AleProjects.Base64;
 using HCms.Application.Dto;
+using HCms.Infrastructure.Notification;
 
 
 namespace HCms.Application.Services
@@ -120,19 +122,28 @@ namespace HCms.Application.Services
 			}
 		}
 
-		static async Task CreateMediaFile(string fileName, MediaManagementService mms, ClaimsPrincipal user)
+		static async Task CreateMediaFile(string fileName, string destination, MediaManagementService mms, ClaimsPrincipal user)
 		{
 			using Stream stream = File.OpenRead(fileName);
 
-			await mms.Save(stream, Path.GetFileName(fileName), null, user);
+			await mms.Save(stream, Path.GetFileName(fileName), destination, user);
+		}
+
+		static Task<Result<DtoEventDestinationLiteResult>> CreateEventDestination(string type, string name, string tPath, string tPathAux, EventDestinationManagementService eds, ClaimsPrincipal user)
+		{
+			object data = type switch
+			{
+				"webhook" => new WebhookDestination() { Endpoint = "https://localhost", Secret = "!#Secret_Code" },
+				"redis" => new RedisDestination() { Endpoint = "localhost:6379", Channel = "hcms-channel" },
+				"rabbitmq" => new RabbitMQDestination() { HostName = "localhost", Exchange = "hcms-exchange", ExchangeType = "fanout", RoutingKey = string.Empty },
+				_ => null
+			};
+
+			return eds.CreateDestination(type, name, tPath, tPathAux, data, user);
 		}
 
 		static async Task CreateDemoData(IServiceScopeFactory serviceScopeFactory, ClaimsPrincipal user, ILogger logger)
 		{
-			using var scope = serviceScopeFactory.CreateScope();
-			var cms = scope.ServiceProvider.GetRequiredService<ContentManagementService>();
-			var mms = scope.ServiceProvider.GetRequiredService<MediaManagementService>();
-
 			InitialDocument[] documents;
 			string[] files;
 
@@ -147,8 +158,19 @@ namespace HCms.Application.Services
 				documents = [];
 			}
 
+			using var scope = serviceScopeFactory.CreateScope();
+			var cms = scope.ServiceProvider.GetRequiredService<ContentManagementService>();
+
 			await CreateDocument(0, documents, cms, user);
 
+			var eds = scope.ServiceProvider.GetRequiredService<EventDestinationManagementService>();
+			
+			string tpath = documents[0].Slug + "/";
+			string tpathAux = documents.Length > 1 ? documents[1].Slug + "/" : null;
+
+			await CreateEventDestination("rabbitmq", "RabbitMQ", tpath, tpathAux, eds, user);
+			await CreateEventDestination("redis", "Redis pub/sub", tpath, tpathAux, eds, user);
+			await CreateEventDestination("webhook", "Webhook", tpath, tpathAux, eds, user);
 
 			try
 			{
@@ -160,9 +182,26 @@ namespace HCms.Application.Services
 				files = [];
 			}
 
-			foreach (var f in files)
+			var mms = scope.ServiceProvider.GetRequiredService<MediaManagementService>();
+
+			string destination = Base64Url.Encode(mms.GetDefaultPlace() ?? string.Empty);
+
+			if (!string.IsNullOrEmpty(destination))
 			{
-				await CreateMediaFile(f, mms, user);
+				foreach (var f in files)
+				{
+					await CreateMediaFile(f, destination, mms, user);
+				}
+
+				if (Base64Url.TryDecode(destination, out tpath))
+				{
+					tpath += "/";
+
+					await CreateEventDestination("rabbitmq", "RabbitMQ media", tpath, null, eds, user);
+					await CreateEventDestination("redis", "Redis pub/sub media", tpath, null, eds, user);
+					await CreateEventDestination("webhook", "Webhook media", tpath, null, eds, user);
+				}
+
 			}
 		}
 

@@ -156,8 +156,11 @@
   <data name="Content" xml:space="preserve">
     <value>Contenu décomposé</value>
   </data>
-  <data name="CoverImageNotFound" xml:space="preserve">
-    <value>Image de couverture non trouvée</value>
+  <data name="CoverPictureInaccessible" xml:space="preserve">
+    <value>Image de couverture inaccessible:</value>
+  </data>
+  <data name="PictureInaccessible" xml:space="preserve">
+    <value>Image inaccessible:</value>
   </data>
   <data name="CoverPicture" xml:space="preserve">
     <value>Image de couverture</value>
@@ -364,7 +367,7 @@
     <value>Id du fragment</value>
   </data>
   <data name="ContainerIsNotValid" xml:space="preserve">
-    <value>Le fragment avec cet identifiant n'est pas trouvé ou ne peut pas être défini comme conteneur</value>
+    <value>Le fragment avec cet identifiant n`est pas trouvé ou ne peut pas être défini comme conteneur</value>
   </data>
   <data name="InvalidPublishStatus" xml:space="preserve">
     <value>Le statut est incompatible avec le statut du document parent</value>

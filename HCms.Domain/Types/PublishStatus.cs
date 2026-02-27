@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace HCms.Domain.ValueObjects
+namespace HCms.Domain.Types
 {
 
 	public enum PublishStatus

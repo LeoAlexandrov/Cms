@@ -17,9 +17,9 @@ namespace HCms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class UsersController(UserManagementService ums) : ControllerBase
+	public class EventDestinationController(EventDestinationManagementService eds) : ControllerBase
 	{
-		private readonly UserManagementService _ums = ums;
+		private readonly EventDestinationManagementService _eds = eds;
 
 		[HttpGet("{id:int?}")]
 		[Authorize]
@@ -27,51 +27,25 @@ namespace HCms.Web.Api
 		{
 			if (!id.HasValue)
 			{
-				var list = await _ums.GetList(HttpContext.User);
+				var list = await _eds.GetList();
 
 				return Ok(list);
 			}
 
-			var result = await _ums.GetById(id.Value, HttpContext.User);
+			var result = await _eds.GetById(id.Value, HttpContext.User);
 
-			return result.Type switch
-			{
-				ResultType.NotFound => NotFound(),
-				ResultType.Forbidden => Forbid(),
-				_ => Ok(result.Value)
-			};
-		}
-
-		[HttpGet("bylogin/{login?}")]
-		[Authorize]
-		public async Task<IActionResult> GetByLogin(string login)
-		{
-			if (string.IsNullOrEmpty(login))
+			if (result == null)
 				return NotFound();
 
-			var result = await _ums.GetByLogin(login, HttpContext.User);
-
-			return result.Type switch
-			{
-				ResultType.NotFound => NotFound(),
-				ResultType.Forbidden => Forbid(),
-				_ => Ok(result.Value)
-			};
-		}
-
-		[HttpGet("roles")]
-		[Authorize]
-		public IActionResult Roles()
-		{
-			return Ok(_ums.UserRoles(HttpContext.User));
+			return Ok(result);
 		}
 
 		[HttpPost]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateUser dto)
+		public async Task<IActionResult> Post([Required] DtoCreateEventDestination dto)
 		{
-			var result = await _ums.CreateUser(dto, HttpContext.User);
+			var result = await _eds.CreateDestination(dto, HttpContext.User);
 
 			return result.Type switch
 			{
@@ -83,11 +57,11 @@ namespace HCms.Web.Api
 		}
 
 		[HttpPut("{id:int}")]
-		[Authorize("IsUser")]
+		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateUser dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateEventDestination dto)
 		{
-			var result = await _ums.UpdateUser(id, dto, HttpContext.User);
+			var result = await _eds.UpdateDestination(id, dto, HttpContext.User);
 
 			return result.Type switch
 			{
@@ -99,18 +73,18 @@ namespace HCms.Web.Api
 		}
 
 		[HttpDelete("{id:int}")]
-		[Authorize]
+		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
 		public async Task<IActionResult> Delete(int id)
 		{
-			var result = await _ums.DeleteUser(id, HttpContext.User);
+			var result = await _eds.DeleteDestination(id, HttpContext.User);
 
 			return result.Type switch
 			{
 				ResultType.NotFound => NotFound(),
 				ResultType.Forbidden => Forbid(),
 				ResultType.BadParameters => BadRequest(result.Errors),
-				_ => Ok(result.Value)
+				_ => Ok()
 			};
 		}
 

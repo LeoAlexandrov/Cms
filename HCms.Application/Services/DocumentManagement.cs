@@ -13,7 +13,7 @@ using AleProjects.Base64;
 using AleProjects.Hashing.MurmurHash3;
 using HCms.Application.Dto;
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 using HCms.Infrastructure.Data;
 using HCms.Infrastructure.Notification;
 
@@ -115,7 +115,7 @@ namespace HCms.Application.Services
 
 		#endregion
 
-		public async Task<DtoTreeNode<int>[]> DocumentsTree()
+		public async Task<DtoTreeNode<int>[]> DocumentTree()
 		{
 			Document[] docs = await dbContext.Documents
 				.AsNoTracking()
@@ -128,10 +128,10 @@ namespace HCms.Application.Services
 			return result;
 		}
 
-		public async Task<DtoTreeNode<int>[]> DocumentsTree(int docId)
+		public async Task<DtoTreeNode<int>[]> DocumentTree(int docId)
 		{
 			if (docId <= 0)
-				return await DocumentsTree();
+				return await DocumentTree();
 
 			Document[] docs = await dbContext.Documents
 				.AsNoTracking()
@@ -165,7 +165,7 @@ namespace HCms.Application.Services
 
 			DtoDocumentFragmentsResult result = new() {
 				FragmentLinks = links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
-				FragmentsTree = CreateTree<int, FragmentLink>(links)
+				FragmentTree = CreateTree<int, FragmentLink>(links)
 			};
 
 			return result;
@@ -190,7 +190,7 @@ namespace HCms.Application.Services
 			{ 
 				Properties = new(doc), 
 				FragmentLinks = fragments.FragmentLinks,
-				FragmentsTree = fragments.FragmentsTree,
+				FragmentTree = fragments.FragmentTree,
 				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray()
 			};
 
@@ -305,7 +305,7 @@ namespace HCms.Application.Services
 				Properties = new(doc),
 				Attributes = doc.DocumentAttributes?.Select(a => new DtoDocumentAttributeResult(a)).ToArray() ?? [],
 				FragmentLinks = [],
-				FragmentsTree = []
+				FragmentTree = []
 			};
 
 			return Result<DtoFullDocumentResult>.Success(result);
@@ -478,9 +478,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(id,
+			ReferenceHelper.GetReferenceChanges(id,
 				existingRefs,
-				ReferencesHelper.Extract([summary, picture, .. xmlData, .. attrData, .. fAttrData]), 
+				ReferenceHelper.Extract([summary, picture, .. xmlData, .. attrData, .. fAttrData]), 
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -931,7 +931,7 @@ namespace HCms.Application.Services
 				Properties = new(doc),
 				Attributes = doc.DocumentAttributes?.Select(a => new DtoDocumentAttributeResult(a)).ToArray() ?? [],
 				FragmentLinks = [],
-				FragmentsTree = []
+				FragmentTree = []
 			};
 
 
@@ -971,7 +971,7 @@ namespace HCms.Application.Services
 
 		public async Task<Result<DtoMinDocumentResult[]>> GetMediaReferers(string link)
 		{
-			if (!Base64Url.TryDecode(link, out string path))
+			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
 				return Result<DtoMinDocumentResult[]>.BadParameters("Link", "Invalid base64-url format");
 
 			var result = await dbContext.References

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Domain.Entities

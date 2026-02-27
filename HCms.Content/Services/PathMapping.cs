@@ -36,7 +36,8 @@ namespace HCms.Content.Services
 
 
 	/// <summary>
-	/// Default path mapper for single site CMS configurations. Maps CMS logical path to the URL path. 
+	/// Default path mapper for single site and single media storarage CMS configurations.
+	/// Maps CMS logical path to the URL path. 
 	/// </summary>
 	public class DefaultPathMapper : IPathMapper
 	{
@@ -63,7 +64,8 @@ namespace HCms.Content.Services
 				string.Compare(path, 0, HTTPS, 0, HTTPS.Length, StringComparison.OrdinalIgnoreCase) != 0 &&
 				string.Compare(path, 0, HTTP, 0, HTTP.Length, StringComparison.OrdinalIgnoreCase) != 0)
 			{
-				var mediaUri = new Uri(baseMediaHost, path);
+				int i = path.IndexOf('/'); // there is the key for media storage place or s3 bucket before the first '/'
+				var mediaUri = new Uri(baseMediaHost, path[(i + 1)..]);
 				return mediaUri.ToString();
 			}
 

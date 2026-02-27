@@ -56,7 +56,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync("/api/v1/users/roles", "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync("/api/v1/user/roles", "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -72,7 +72,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync("/api/v1/users", "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync("/api/v1/user", "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -99,7 +99,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/users`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/user`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -150,7 +150,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/users/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/user/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -178,7 +178,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/users/${this.editedUser.id}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/user/${this.editedUser.id}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -245,7 +245,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/users/${this.userToDelete}`, "DELETE", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/user/${this.userToDelete}`, "DELETE", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();

@@ -76,7 +76,7 @@ namespace HCms.Application.Services
 		}
 	}
 
-	public static partial class ReferencesHelper
+	public static partial class ReferenceHelper
 	{
 		[GeneratedRegex("\\^\\(\\d+\\)")]
 		private static partial Regex RefRegex();
@@ -96,13 +96,13 @@ namespace HCms.Application.Services
 			var matches = re.Matches(content);
 
 			for (int i = 0; i < matches.Count; i++)
-				refs.Add(new(int.Parse(matches[i].Value[2..^1]), null, matches[i].Value));
+				refs.Add(new(int.Parse(matches[i].Value.AsSpan()[2..^1]), null, matches[i].Value));
 
 			re = MediaLinkRegex();
 			matches = re.Matches(content);
 
 			for (int i = 0; i < matches.Count; i++)
-				if (Base64Url.TryDecode(matches[i].Value[3..^2], out string path))
+				if (Base64Url.TryDecode(matches[i].Value.AsSpan()[3..^2], out string path))
 					refs.Add(new(0, path, matches[i].Value));
 
 			if (refs.Count == 0)
@@ -131,7 +131,7 @@ namespace HCms.Application.Services
 					matches = re.Matches(content[i]);
 
 					for (int j = 0; j < matches.Count; j++)
-						refs.Add(new(int.Parse(matches[j].Value[2..^1]), null, matches[j].Value));
+						refs.Add(new(int.Parse(matches[j].Value.AsSpan()[2..^1]), null, matches[j].Value));
 				}
 
 			re = MediaLinkRegex();
@@ -142,7 +142,7 @@ namespace HCms.Application.Services
 					matches = re.Matches(content[i]);
 
 					for (int j = 0; j < matches.Count; j++)
-						if (Base64Url.TryDecode(matches[j].Value[3..^2], out string path))
+						if (Base64Url.TryDecode(matches[j].Value.AsSpan()[3..^2], out string path))
 							refs.Add(new(0, path, matches[j].Value));
 				}
 
@@ -156,7 +156,7 @@ namespace HCms.Application.Services
 			return res;
 		}
 
-		public static void GetReferencesChanges(int id, List<Reference> existingRefs, ExtractedRef[] newRefs, out List<Reference> toAdd, out List<Reference> toRemove)
+		public static void GetReferenceChanges(int id, List<Reference> existingRefs, ExtractedRef[] newRefs, out List<Reference> toAdd, out List<Reference> toRemove)
 		{
 			int n = newRefs.Length;
 

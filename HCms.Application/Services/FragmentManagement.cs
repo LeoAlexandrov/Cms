@@ -16,7 +16,8 @@ using Ganss.Xss;
 
 using HCms.Application.Dto;
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
+using HCms.Infrastructure.Data;
 
 
 namespace HCms.Application.Services
@@ -768,9 +769,9 @@ namespace HCms.Application.Services
 					.Select(a => a.Value)
 					.ToArrayAsync();
 
-				ReferencesHelper.GetReferencesChanges(dto.Document,
+				ReferenceHelper.GetReferenceChanges(dto.Document,
 					existingRefs,
-					ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, fr.Data, .. xmlData, .. attrData, .. fAttrData]),
+					ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, fr.Data, .. xmlData, .. attrData, .. fAttrData]),
 					out List<Reference> toAdd,
 					out List<Reference> toRemove);
 
@@ -908,43 +909,66 @@ namespace HCms.Application.Services
 			doc.Author = user.Identity.Name;
 
 
-			var existingRefs = await dbContext.References
-				.Where(r => r.DocumentRef == doc.Id)
-				.OrderBy(r => r.ReferenceTo)
-				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+			static async Task UpdateRefs(CmsDbContext dbContext, Document doc, int linkId, string data, int newStatus)
+			{
+				var existingRefs = await dbContext.References
+					.Where(r => r.DocumentRef == doc.Id)
+					.OrderBy(r => r.ReferenceTo)
+					.ThenBy(r => r.MediaLink)
+					.ToListAsync();
 
-			string[] xmlData = await dbContext.Fragments
-				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
-				.Where(f => f.DocumentRef == doc.Id && f.Id != id && f.Status != (int)PublishStatus.Unpublished)
-				.Select(f => f.Data)
-				.ToArrayAsync();
+				string[] xmlData = await dbContext.Fragments
+					.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
+					.Where(f => f.DocumentRef == doc.Id && f.Id != linkId && f.Status != (int)PublishStatus.Unpublished)
+					.Select(f => f.Data)
+					.ToArrayAsync();
 
-			string[] attrData = await dbContext.DocumentAttributes
-				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
-				.Select(a => a.Value)
-				.ToArrayAsync();
+				string[] attrData = await dbContext.DocumentAttributes
+					.Where(a => a.DocumentRef == doc.Id && a.Enabled)
+					.Select(a => a.Value)
+					.ToArrayAsync();
 
-			string[] fAttrData = await dbContext.FragmentLinks
-				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
-				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
-				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
-				.Where(a => a.Enabled)
-				.Select(a => a.Value)
-				.ToArrayAsync();
-			
-			ReferencesHelper.GetReferencesChanges(doc.Id,
-				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, dto.Status != (int)PublishStatus.Unpublished ? data : null, .. xmlData, .. attrData, .. fAttrData]),
-				out List<Reference> toAdd,
-				out List<Reference> toRemove);
+				string[] fAttrData = await dbContext.FragmentLinks
+					.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
+					.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
+					.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
+					.Where(a => a.Enabled)
+					.Select(a => a.Value)
+					.ToArrayAsync();
 
-			if (toAdd != null)
-				dbContext.References.AddRange(toAdd);
+				ReferenceHelper.GetReferenceChanges(doc.Id,
+					existingRefs,
+					ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, newStatus != (int)PublishStatus.Unpublished ? data : null, .. xmlData, .. attrData, .. fAttrData]),
+					out List<Reference> toAdd,
+					out List<Reference> toRemove);
 
-			if (toRemove != null)
-				dbContext.References.RemoveRange(toRemove);
+				if (toAdd != null)
+					dbContext.References.AddRange(toAdd);
 
+				if (toRemove != null)
+					dbContext.References.RemoveRange(toRemove);
+			}
+
+
+			if (!sharedStateChanged && fragment.Shared)
+			{
+				// if changed fragment is shared, we should update references for all documents using it
+
+				var linksAndDocs = await dbContext.FragmentLinks
+					.AsNoTracking()
+					.Where(fl => fl.FragmentRef == fragment.Id)
+					.Include(fl => fl.Document)
+					.ToArrayAsync();
+
+				foreach (var ld in linksAndDocs)
+				{
+					await UpdateRefs(dbContext, ld.Document, ld.Id, data, dto.Status);
+				}
+			}
+			else
+			{
+				await UpdateRefs(dbContext, doc, id, data, dto.Status);
+			}
 
 			await dbContext.SaveChangesAsync();
 
@@ -992,7 +1016,9 @@ namespace HCms.Application.Services
 			if (fragment != null)
 				if (fragment.Shared)
 				{
-					// check if it is the last used shared fragment and delete it too
+					// optionally check if it is the last used shared fragment and delete it too
+					// otherwise, the only way to delete unlinked shared fragment is via SQL management tools
+					// however, even in this case we can use it in other documents 
 					linksToDelete.Add(link);
 				}
 				else
@@ -1048,9 +1074,9 @@ namespace HCms.Application.Services
 				.Select(a => a.Value)
 				.ToArrayAsync();
 
-			ReferencesHelper.GetReferencesChanges(docId,
+			ReferenceHelper.GetReferenceChanges(docId,
 				existingRefs,
-				ReferencesHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData]),
+				ReferenceHelper.Extract([doc.Summary, doc.CoverPicture, .. xmlData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 

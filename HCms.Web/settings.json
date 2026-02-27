@@ -62,21 +62,34 @@
 	},
 
 	"Media": {
-		"StoragePath": "M:\\Cms-media\\",
-		"CacheFolder": ".cache",
+		"CacheFolder": "\\var\\tmp\\hcms-media-cache",
 		"MaxUploadSize": 10485760,
-		"SafeNameRegex": "^[\\w-]+.\\w+$"
+		"SafeNameRegex": "^[\\w-]+.\\w+$",
+		"Buckets": [
+			{
+				"Endpoint": "https://s3.eu-west-1.amazonaws.com",
+				"Name": "beneficial-aurelia",
+				"AccessKey": "AKIAIOSFODNN7EXAMPLE",
+				"SecretKey": "wJalrXUtnFEMIaK7MDENGbbPxRfiCYEXAMPLEKEY",
+				"Key": "aurelia"
+			}
+		],
+		"LocalDiskPlaces": [
+			{
+				"Path": "\\var\\www\\hcms-demosite-media",
+				"Key": "H-Cms demo"
+			}
+		]
 	},
 
-	"ExternalMapperLocation": "C:\\OneDrive\\Projects\\Cms-configs\\DllOrCodeFileThatWillBeCompiled.dll.cs",
-
 	"PathMappingOptions": {
+		"ExternalMapperLocation": "C:\\OneDrive\\Projects\\Cms-configs\\DllOrCodeFileThatWillBeCompiled.dll.cs",
 		"PathMappers": [
 			{
 				"Name": "demo",
 				"Media": [
 					{
-						"PathRegex": "^(.*)",
+						"PathRegex": "^(?:H-Cms demo/)(.*)",
 						"UrlReplace": "https://demo-media.h-cms.net/$1"
 					}
 				],
@@ -92,7 +105,7 @@
 				"Name": "localdemo",
 				"Media": [
 					{
-						"PathRegex": "^(.*)",
+						"PathRegex": "^(?:H-Cms demo/)(.*)",
 						"UrlReplace": "https://localhost:7257/__debug-media__/$1"
 					}
 				],

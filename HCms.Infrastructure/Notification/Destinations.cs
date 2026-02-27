@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
 
-namespace HCms.Domain.ValueObjects
+namespace HCms.Infrastructure.Notification
 {
 
 	public class WebhookDestination

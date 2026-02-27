@@ -26,9 +26,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public IActionResult Folder([FromQuery] string link)
+		public async Task<IActionResult> Folder([FromQuery] string link)
 		{
-			var result = _mms.Read(link);
+			var result = await _mms.Read(link);
 
 			return result.Type switch
 			{
@@ -40,15 +40,17 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public IActionResult Entry([FromQuery] string link)
+		public async Task<IActionResult> Entry([FromQuery] string link)
 		{
-			var result = _mms.Get(link);
+			var result = await _mms.Get(link);
 
 			return result.Type switch
 			{
 				ResultType.NotFound => NotFound(),
 				ResultType.BadParameters => BadRequest(result.Errors),
-				_ => PhysicalFile(result.Value.FullPath, result.Value.MimeType)
+				_ => result.Value.Content == null ?
+						PhysicalFile(result.Value.FullPath, result.Value.MimeType) :
+						File(result.Value.Content, result.Value.MimeType, result.Value.Size > 100 * 1024)
 			};
 		}
 
@@ -128,15 +130,17 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public IActionResult Download([FromQuery] string link)
+		public async Task<IActionResult> Download([FromQuery] string link)
 		{
-			var result = _mms.Get(link);
+			var result = await _mms.Get(link);
 
 			return result.Type switch
 			{
 				ResultType.NotFound => NotFound(),
 				ResultType.BadParameters => BadRequest(result.Errors),
-				_ => PhysicalFile(result.Value.FullPath, result.Value.MimeType, result.Value.DownloadName)
+				_ => result.Value.Content == null ?
+						PhysicalFile(result.Value.FullPath, result.Value.MimeType, result.Value.DownloadName) :
+						File(result.Value.Content, result.Value.MimeType, result.Value.DownloadName, result.Value.Size > 100 * 1024)
 			};
 		}
 

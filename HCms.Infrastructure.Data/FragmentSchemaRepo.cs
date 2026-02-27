@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Infrastructure.Data

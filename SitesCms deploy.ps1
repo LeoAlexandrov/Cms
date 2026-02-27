@@ -44,15 +44,15 @@ else
 }
 
 
-<#
+<##>
 
-Write-Host "============== MiniAir11 ===============\r\n"
+Write-Host "============== MiniPC ===============\r\n"
 
-ssh MiniAir11 $prepCommands
-scp C:\VSBuild\Cms\publish.tar MiniAir11:/home/leo/Cms
-scp C:\OneDrive\Projects\Cms\HCms.Web\Dockerfile MiniAir11:/home/leo/Cms
+ssh MiniPC $prepCommands
+scp C:\VSBuild\Cms\publish.tar MiniPC:/home/leo/Cms
+scp C:\OneDrive\Projects\Cms\HCms.Web\Dockerfile MiniPC:/home/leo/Cms
 
-ssh MiniAir11 $commands 
+ssh MiniPC $commands 
 
 $winscpResult = $LastExitCode
 
@@ -65,7 +65,6 @@ else
   Write-Host "Error"
 }
 
-#>
 
 Write-Host "========================================"
 

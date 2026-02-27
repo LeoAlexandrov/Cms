@@ -1,6 +1,6 @@
 ﻿using System;
 using MessagePack;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Application.Dto

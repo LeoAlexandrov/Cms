@@ -37,7 +37,7 @@
 					modifiedAt: null
 				},
 				fragmentLinks: [],
-				fragmentsTree: [],
+				fragmentTree: [],
 				attributes: [],
 				references: [],
 				referencedBy: []
@@ -195,12 +195,26 @@
 			window.open(this.imageUrl(link), '_blank', 'popup');
 		},
 
+		decodeImageLink(link) {
+			if (/^\^\('[a-zA-Z0-9+/%]+'\)$/i.test(link)) {
+				let b64 = link.slice(3, -2).replace(/-/g, '+').replace(/_/g, '/');
+
+				while (b64.length % 4) {
+					b64 += '=';
+				}
+
+				return atob(b64);
+			}
+
+			return "";
+		},
+
 		getDocTree(id) {
 
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync("/api/v1/documents/tree", "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync("/api/v1/document/tree", "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -247,7 +261,7 @@
 					modifiedAt: null
 				},
 				fragmentLinks: [],
-				fragmentsTree: [],
+				fragmentTree: [],
 				attributes: [],
 				references: [],
 				referencedBy: []
@@ -257,7 +271,7 @@
 		loadFragmentsCreationStuff() {
 
 			application
-				.apiCallAsync("/api/v1/fragments/creationstuff", "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync("/api/v1/fragment/creationstuff", "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					if (r.ok) {
@@ -271,14 +285,14 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${id}/fragments`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync(`/api/v1/document/${id}/fragments`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
 
 					if (r.ok) {
 						this.editedDoc.fragmentLinks = r.result.fragmentLinks;
-						this.editedDoc.fragmentsTree = r.result.fragmentsTree;
+						this.editedDoc.fragmentTree = r.result.fragmentTree;
 					}
 				});
 		},
@@ -286,7 +300,7 @@
 		getRefs(id) {
 
 			application
-				.apiCallAsync(`/api/v1/documents/${id}/refs`, "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync(`/api/v1/document/${id}/refs`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					if (r.ok) {
@@ -333,7 +347,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, null) 
+				.apiCallAsync(`/api/v1/document/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, null) 
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -364,7 +378,7 @@
 						this.getRefs(id);
 
 						Vue.nextTick(() => {
-							this.$refs.FragmentsTree.expandAll();
+							this.$refs.FragmentTree.expandAll();
 						});
 
 
@@ -418,7 +432,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/document`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -468,7 +482,7 @@
 
 						this.selectedDoc = node.id;
 
-						window.history.pushState({ docId: node.id }, "", `/documents/${node.id}`);
+						window.history.pushState({ docId: node.id }, "", `/document/${node.id}`);
 
 						displayMessage(TEXT.DOCS.get('MESSAGE_CREATE_SUCCESS'), false);
 
@@ -528,7 +542,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${this.selectedDoc}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack" )
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack" )
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -630,7 +644,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${this.selectedDoc}/parent`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}/parent`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -696,7 +710,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${id}`, "DELETE", null, null, null)
+				.apiCallAsync(`/api/v1/document/${id}`, "DELETE", null, null, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -757,7 +771,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${this.selectedDoc}/lock`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}/lock`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then(r => {
 
 					Quasar.LoadingBar.stop();
@@ -791,7 +805,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${this.selectedDoc}/move`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}/move`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then(r => {
 
 					Quasar.LoadingBar.stop();
@@ -845,7 +859,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/documents/${this.selectedDoc}/copy`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}/copy`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -962,7 +976,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${id}`, "GET", null, null, null) // { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1028,7 +1042,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1055,11 +1069,11 @@
 						if (parent == 0) {
 
 							this.editedDoc.fragmentLinks.push(r.result.link);
-							this.editedDoc.fragmentsTree.push(node);
+							this.editedDoc.fragmentTree.push(node);
 
 						} else {
 
-							var pNode = this.$refs.FragmentsTree.getNodeByKey(parent);
+							var pNode = this.$refs.fragmentTree.getNodeByKey(parent);
 
 							if (pNode) {
 								if (!pNode.hasOwnProperty("children")) {
@@ -1072,7 +1086,7 @@
 									pNode.children.push(node);
 								}
 
-								this.$refs.FragmentsTree.setExpanded(parent, true);
+								this.$refs.fragmentTree.setExpanded(parent, true);
 							}
 						}
 
@@ -1116,7 +1130,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${this.fragment.linkId}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment/${this.fragment.linkId}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1127,7 +1141,7 @@
 						if (!apply)
 							this.fragmentProps = false;
 
-						let node = this.$refs.FragmentsTree.getNodeByKey(this.fragment.linkId);
+						let node = this.$refs.fragmentTree.getNodeByKey(this.fragment.linkId);
 
 						if (node) {
 							node.label = r.result.fragment.name;
@@ -1164,7 +1178,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${this.fragment.linkId}/container`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment/${this.fragment.linkId}/container`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1229,18 +1243,18 @@
 			if (!id)
 				return;
 
-			let node = this.$refs.FragmentsTree.getNodeByKey(id);
+			let node = this.$refs.fragmentTree.getNodeByKey(id);
 
 			if (!node)
 				return;
 
 			let parentId = node.parent;
-			let parent = parentId == 0 ? null : this.$refs.FragmentsTree.getNodeByKey(parentId);
+			let parent = parentId == 0 ? null : this.$refs.fragmentTree.getNodeByKey(parentId);
 
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${id}`, "DELETE", null, null, null)
+				.apiCallAsync(`/api/v1/fragment/${id}`, "DELETE", null, null, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -1257,7 +1271,7 @@
 
 						} else {
 
-							let tree = this.editedDoc.fragmentsTree;
+							let tree = this.editedDoc.fragmentTree;
 
 							for (let i = 0, n = tree.length; i < n; i++)
 								if (tree[i].id == id) {
@@ -1289,7 +1303,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${id}/move`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment/${id}/move`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then(r => {
 
 					Quasar.LoadingBar.stop();
@@ -1303,7 +1317,7 @@
 
 							if (parent) {
 
-								let pNode = this.$refs.FragmentsTree.getNodeByKey(parent);
+								let pNode = this.$refs.fragmentTree.getNodeByKey(parent);
 								let siblings = pNode.children;
 								let fr = siblings[oldPos];
 
@@ -1312,11 +1326,11 @@
 
 							} else {
 
-								let siblings = this.editedDoc.fragmentsTree;
+								let siblings = this.editedDoc.fragmentTree;
 								let fr = siblings[oldPos];
 
 								siblings.splice(oldPos, 1);
-								this.editedDoc.fragmentsTree = [...siblings.slice(0, newPos), fr, ...siblings.slice(newPos)];
+								this.editedDoc.fragmentTree = [...siblings.slice(0, newPos), fr, ...siblings.slice(newPos)];
 
 							}
 
@@ -1337,7 +1351,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/fragments/${id}/copy`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/fragment/${id}/copy`, "POST", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then(r => {
 
 					Quasar.LoadingBar.stop();
@@ -1362,11 +1376,11 @@
 						if (parent == 0) {
 
 							this.editedDoc.fragmentLinks.push(r.result.link);
-							this.editedDoc.fragmentsTree.push(node);
+							this.editedDoc.fragmentTree.push(node);
 
 						} else {
 
-							var pNode = this.$refs.FragmentsTree.getNodeByKey(parent);
+							var pNode = this.$refs.fragmentTree.getNodeByKey(parent);
 
 							if (pNode) {
 								if (!pNode.hasOwnProperty("children")) {
@@ -1379,7 +1393,7 @@
 									pNode.children.push(node);
 								}
 
-								this.$refs.FragmentsTree.setExpanded(parent, true);
+								this.$refs.fragmentTree.setExpanded(parent, true);
 							}
 						}
 
@@ -1496,7 +1510,7 @@
 				Quasar.LoadingBar.start();
 
 				application
-					.apiCallAsync(`/api/v1/fragments/newelement/?path=${de.path}`, "GET", { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+					.apiCallAsync(`/api/v1/fragment/newelement/?path=${de.path}`, "GET", { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 					.then((r) => {
 
 						Quasar.LoadingBar.stop();
@@ -1623,26 +1637,26 @@
 				let v = parseInt(val);
 
 				if (isNaN(v))
-					return "Invalid number format";
+					return TEXT.DOCS.get('VALIDATION_INVALID_NUMBER');
 
 				if (f.facetMinInclusive !== null) {
 					if (v < f.facetMinInclusive)
-						return `Minimum inclusive value is ${f.facetMinInclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MININCLUSIVE_IS', f.facetMinInclusive);
 				}
 
 				if (f.facetMinExclusive !== null) {
 					if (v <= f.facetMinExclusive)
-						return `Minimum exclusive value is ${f.facetMinExclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MINEXCLUSIVE_IS', f.facetMinExclusive);
 				}
 
 				if (f.facetMaxInclusive !== null) {
 					if (v > f.facetMaxInclusive)
-						return `Maximum inclusive value is ${f.facetMaxInclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MAXINCLUSIVE_IS', f.facetMaxInclusive);
 				}
 
 				if (f.facetMaxExclusive !== null) {
 					if (v >= f.facetMaxExclusive)
-						return `Maximum exclusive value is ${f.facetMaxExclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MAXEXCLUSIVE_IS', f.facetMaxExclusive);
 				}
 
 			}
@@ -1656,22 +1670,22 @@
 
 				if (f.facetMinInclusive !== null) {
 					if (v < f.facetMinInclusive)
-						return `Minimum inclusive value is ${f.facetMinInclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MININCLUSIVE_IS', f.facetMinInclusive);
 				}
 
 				if (f.facetMinExclusive !== null) {
 					if (v <= f.facetMinExclusive)
-						return `Minimum exclusive value is ${f.facetMinExclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MINEXCLUSIVE_IS', f.facetMinExclusive);
 				}
 
 				if (f.facetMaxInclusive !== null) {
 					if (v > f.facetMaxInclusive)
-						return `Maximum inclusive value is ${f.facetMaxInclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MAXINCLUSIVE_IS', f.facetMaxInclusive);
 				}
 
 				if (f.facetMaxExclusive !== null) {
 					if (v >= f.facetMaxExclusive)
-						return `Maximum exclusive value is ${f.facetMaxExclusive}`;
+						return TEXT.DOCS.format('VALIDATION_MAXEXCLUSIVE_IS', f.facetMaxExclusive);
 				}
 			}
 
@@ -1703,11 +1717,11 @@
 
 			if (forFragment) {
 				dto.fragmentLinkRef = this.fragment.linkId;
-				url = "/api/v1/fragments/attributes";
+				url = "/api/v1/fragment/attributes";
 			} else {
 				dto.documentRef = this.selectedDoc;
 				dto.private = this.attribute.private;
-				url = "/api/v1/documents/attributes";
+				url = "/api/v1/document/attributes";
 			}
 
 			Quasar.LoadingBar.start();
@@ -1775,10 +1789,10 @@
 
 			if (forFragment) {
 				dto.documentRef = this.selectedDoc;
-				url = `/api/v1/fragments/attributes/${id}`;
+				url = `/api/v1/fragment/attributes/${id}`;
 			} else {
 				dto.private = this.attribute.private;
-				url = `/api/v1/documents/attributes/${id}`;
+				url = `/api/v1/document/attributes/${id}`;
 			}
 
 			Quasar.LoadingBar.start();
@@ -1832,8 +1846,8 @@
 			const forFragment = this.attribute.forFragment;
 
 			let url = forFragment ? 
-				`/api/v1/fragments/attributes/${id}?documentRef=${this.selectedDoc}` :
-				`/api/v1/documents/attributes/${id}`;
+				`/api/v1/fragment/attributes/${id}?documentRef=${this.selectedDoc}` :
+				`/api/v1/document/attributes/${id}`;
 
 
 			Quasar.LoadingBar.start();

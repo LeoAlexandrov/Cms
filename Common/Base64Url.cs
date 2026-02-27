@@ -34,7 +34,7 @@ namespace AleProjects.Base64
 
 				l += l % 4;
 
-				Span<char> chars = stackalloc char[l + padding * 2];
+				Span<char> chars = stackalloc char[l];
 
 				Convert.TryToBase64Chars(bytes, chars, out l);
 
@@ -46,14 +46,7 @@ namespace AleProjects.Base64
 
 				l -= padding;
 
-				for (int i = 0; i < padding; i++)
-				{
-					chars[l++] = '%';
-					chars[l++] = '3';
-					chars[l++] = 'd';
-				}
-
-				return new string(chars);
+				return new string(chars[..l]);
 			}
 			else
 			{
@@ -70,9 +63,9 @@ namespace AleProjects.Base64
 				if (diff > 0)
 					l += diff;
 
-				l +=  l % 4;
+				l += l % 4;
 
-				char[] chars = new char[l + padding * 2];
+				char[] chars = new char[l];
 
 				Convert.TryToBase64Chars(bytes.AsSpan(), chars, out l);
 
@@ -84,58 +77,76 @@ namespace AleProjects.Base64
 
 				l -= padding;
 
-				for (int i = 0; i < padding; i++)
-				{
-					chars[l++] = '%';
-					chars[l++] = '3';
-					chars[l++] = 'd';
-				}
-
-				return new string(chars);
+				return new string(chars[..l]);
 			}
 		}
 
-		
-		public static bool TryDecode(string base64url, out string result)
+		public static bool TryDecode(ReadOnlySpan<char> base64url, out string result)
 		{
-			if (string.IsNullOrEmpty(base64url))
+			if (base64url.IsEmpty)
 			{
-				result = base64url;
+				result = string.Empty;
 				return true;
 			}
 
 			int n = base64url.Length;
+			int hasPadding = 0;
+			int rem4 = 0;
+
+			if (base64url.EndsWith("%3d"))
+			{
+				if (base64url.EndsWith("%3d%3d"))
+				{
+					hasPadding = 2;
+					n -= 4;
+				}
+				else
+				{
+					hasPadding = 1;
+					n -= 2;
+				}
+			}
+			else if (base64url[^1] != '=')
+			{
+				switch (rem4 = base64url.Length % 4)
+				{
+					case 2:
+						n += 2;
+						break;
+					case 3:
+						n += 1;
+						break;
+				}
+			}
+
 
 			if (n <= STACKALLOC_THRESHOLD)
 			{
 				Span<char> chars = stackalloc char[n];
 				Span<byte> bytes = stackalloc byte[n];
 
-				base64url.CopyTo(chars);
+				int len = base64url.Length - hasPadding * 3;
 
-				for (int i = 0; i < chars.Length; i++)
-					if (chars[i] == '-')
+				for (int i = 0; i < len; i++)
+					if (base64url[i] == '-')
 						chars[i] = '+';
-					else if (chars[i] == '_')
+					else if (base64url[i] == '_')
 						chars[i] = '/';
+					else
+						chars[i] = base64url[i];
 
-				int len;
 
-				if (base64url.EndsWith("%3d%3d"))
+				if (hasPadding == 2 || rem4 == 2)
 				{
-					len = chars.Length - 4;
-					chars[len - 2] = '=';
-					chars[len - 1] = '=';
+					chars[n - 2] = '=';
+					chars[n - 1] = '=';
 				}
-				else if (base64url.EndsWith("%3d"))
+				else if (hasPadding == 1 || rem4 == 3)
 				{
-					len = chars.Length - 2;
-					chars[len - 1] = '=';
+					chars[n - 1] = '=';
 				}
-				else
-					len = chars.Length;
 
-				if (!Convert.TryFromBase64Chars(chars[..len], bytes, out int l))
+				if (!Convert.TryFromBase64Chars(chars, bytes, out int l))
 				{
 					result = null;
 
@@ -146,32 +157,31 @@ namespace AleProjects.Base64
 			}
 			else
 			{
-				char[] chars = base64url.ToCharArray();
+				char[] chars = new char[n];
 				byte[] bytes = new byte[n];
 
-				for (int i = 0; i < chars.Length; i++)
-					if (chars[i] == '-')
+				int len = base64url.Length - hasPadding * 3;
+
+				for (int i = 0; i < len; i++)
+					if (base64url[i] == '-')
 						chars[i] = '+';
-					else if (chars[i] == '_')
+					else if (base64url[i] == '_')
 						chars[i] = '/';
+					else
+						chars[i] = base64url[i];
 
-				int len;
 
-				if (base64url.EndsWith("%3d%3d"))
+				if (hasPadding == 2 || rem4 == 2)
 				{
-					len = chars.Length - 4;
-					chars[len - 2] = '=';
-					chars[len - 1] = '=';
+					chars[n - 2] = '=';
+					chars[n - 1] = '=';
 				}
-				else if (base64url.EndsWith("%3d"))
+				else if (hasPadding == 1 || rem4 == 3)
 				{
-					len = chars.Length - 2;
-					chars[len - 1] = '=';
+					chars[n - 1] = '=';
 				}
-				else
-					len = chars.Length;
 
-				if (!Convert.TryFromBase64Chars(chars.AsSpan(0, len), bytes, out int l))
+				if (!Convert.TryFromBase64Chars(chars, bytes, out int l))
 				{
 					result = null;
 
@@ -183,7 +193,7 @@ namespace AleProjects.Base64
 
 			return true;
 		}
-		
+
 	}
 
 }

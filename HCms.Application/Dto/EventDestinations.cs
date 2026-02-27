@@ -65,6 +65,10 @@ namespace HCms.Application.Dto
 		[Required(AllowEmptyStrings = false), MaxLength(260)]
 		public string Endpoint { get; set; }
 
+		[MessagePack.Key("secret")]
+		[Required(AllowEmptyStrings = false)]
+		public string Secret { get; set; }
+
 		[MessagePack.Key("resetSecret")]
 		public bool ResetSecret { get; set; }
 	}

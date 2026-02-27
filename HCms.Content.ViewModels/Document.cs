@@ -71,7 +71,7 @@ namespace HCms.Content.ViewModels
 		public bool ExactMatch { get; set; } = true;
 
 		[MessagePack.Key("breadcrumbs")]
-		public BreadcrumbsItem[] Breadcrumbs { get; set; }
+		public BreadcrumbItem[] Breadcrumbs { get; set; }
 
 		[MessagePack.Key("siblings")]
 		public Document[] Siblings { get; set; }

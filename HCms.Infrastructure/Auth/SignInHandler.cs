@@ -729,11 +729,11 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login;
 			byte[] bLogin;
 
+			await _semaphore.WaitAsync();
+
 			try
 			{
-				await _semaphore.WaitAsync();
-
-				bLogin = _cache.Get(refresh);
+				bLogin = await _cache.GetAsync(refresh);
 
 				if (bLogin == null)
 				{
@@ -749,7 +749,8 @@ namespace HCms.Infrastructure.Auth
 					login.Status = LoginStatus.IsValid;
 					return login;
 				}
-				_cache.Remove(refresh);
+
+				await _cache.RemoveAsync(refresh);
 			}
 			catch (Exception ex)
 			{

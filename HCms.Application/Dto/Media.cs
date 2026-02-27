@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.IO;
+using System.Text.Json.Serialization;
 
 using MessagePack;
-using HCms.Domain.ValueObjects;
+
+using AleProjects.Base64;
+using HCms.Domain.Types;
 
 
 
@@ -48,7 +51,7 @@ namespace HCms.Application.Dto
 			{
 				IsFolder = mse.IsFolder;
 				Name = mse.Name;
-				Link = System.Web.HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.UTF8.GetBytes(mse.RelativeName)));
+				Link = Base64Url.Encode(mse.RelativeName);
 				Extension = mse.Extension;
 				Size = mse.Size;
 				Date = mse.Date;
@@ -97,6 +100,12 @@ namespace HCms.Application.Dto
 		[MessagePack.Key("downloadName")]
 		public string DownloadName { get; set; }
 
+		[MessagePack.Key("size")]
+		public long Size { get; set; }
+
+		[JsonIgnore]
+		[MessagePack.IgnoreMember]
+		public Stream Content { get; set; }
 
 		public DtoPhysicalMediaFileResult() { }
 
@@ -107,6 +116,8 @@ namespace HCms.Application.Dto
 				FullPath = mse.FullName;
 				MimeType = mse.MimeType;
 				DownloadName = mse.Name;
+				Size = mse.Size ?? 0;
+				Content = mse.Content;
 			}
 		}
 	}

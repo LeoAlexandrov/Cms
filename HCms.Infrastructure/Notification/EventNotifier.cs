@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
 using HCms.Infrastructure.Data;
 
 
@@ -123,13 +122,13 @@ namespace HCms.Infrastructure.Notification
 			var payload = new EventPayload()
 			{
 				Event = eventType,
-				AffectedContent = fullPaths.Select(p => new EventPayloadContentEntry() { Path = p }).ToArray()
+				AffectedContent = [.. fullPaths.Select(p => new EventPayloadContentEntry() { Path = p })]
 			};
 
 			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
 
 			_ = PublishEvent(dests, payload, httpClient, logger)
-				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
+			.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
 		}
 
 		public async Task Notify(string eventType, int destinationId = 0)

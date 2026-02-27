@@ -106,10 +106,11 @@
 				</q-input>
 
 				<q-input v-model="editedDestination.webhook.secret"
-					readonly
+					:readonly="editedDestination.webhook.resetSecret"
 					class="q-mb-md" dense
 					label="@Localizer["Secret"]"
-					ref="DestinationWebhookSecret">
+					ref="DestinationWebhookSecret"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]' ]">
 				</q-input>
 
 				<q-checkbox v-model="editedDestination.webhook.resetSecret"

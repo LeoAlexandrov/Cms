@@ -5,9 +5,9 @@
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<AssemblyVersion>0.4.1</AssemblyVersion>
-	<FileVersion>0.4.1</FileVersion>
-	<VersionPrefix>1.0.20</VersionPrefix>	  
+	<AssemblyVersion>0.4.3</AssemblyVersion>
+	<FileVersion>0.4.3</FileVersion>
+	<VersionPrefix>1.0.21</VersionPrefix>	  
 	<Title>H-Cms.Net content repository and view models</Title>
 	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
@@ -21,9 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="HCms.Content.ViewModels" Version="1.0.20" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
-	<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.11" />
+	<PackageReference Include="HCms.Content.ViewModels" Version="1.0.21" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.13" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,8 +70,6 @@
 	  <PackagePath>lib\$(TargetFramework)</PackagePath>
 	</Content>
   </ItemGroup>
-
-  <Import Project="..\Common\Common.projitems" Label="Shared" />
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 	<Exec Command="dotnet build -c Release" WorkingDirectory="..\HCms.Domain" />

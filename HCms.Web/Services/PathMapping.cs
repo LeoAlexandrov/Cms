@@ -28,7 +28,6 @@ namespace HCms.Web.Services
 		{
 			[Required]
 			public string Root { get; set; }
-
 			public string PathRegex { get; set; }
 			public string UrlReplace { get; set; }
 		}

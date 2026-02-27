@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using MessagePack;
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Application.Dto

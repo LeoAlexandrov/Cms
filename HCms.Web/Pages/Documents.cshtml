@@ -395,9 +395,9 @@
 									style="max-height: 160px; max-width: 160px"
 									@@click="openImage(f.value)">
 									<template v-slot:error>
-										<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["CoverImageNotFound"]</div>
+										<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["PictureInaccessible"]  {{ decodeImageLink(f.value) }}</div>
 									</template>
-									<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+									<q-tooltip>@Localizer["OpenFullSize"] <span style="font-size:larger">{{ decodeImageLink(f.value) }}</span></q-tooltip>
 								</q-img>
 								<div class="flex-break" v-if="f.isImage"></div>
 								<q-input dense clearable outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
@@ -786,9 +786,9 @@
 							style="max-height: 192px; max-width: 192px"
 							@@click="openImage(editedDoc.properties.coverPicture)">
 							<template v-slot:error>
-								<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["CoverImageNotFound"]</div>
+								<div class="absolute-full flex flex-center bg-grey text-white">@Localizer["CoverPictureInaccessible"] {{ decodeImageLink(editedDoc.properties.coverPicture) }}</div>
 							</template>
-							<q-tooltip>@Localizer["OpenFullSize"]</q-tooltip>
+							<q-tooltip>@Localizer["OpenFullSize"] <span style="font-size:larger">{{ decodeImageLink(editedDoc.properties.coverPicture) }}</span></q-tooltip>
 						</q-img>
 
 						<q-input dense outlined
@@ -847,9 +847,9 @@
 					<div class=" q-pa-md">
 						<h5 class="q-mt-none q-mb-lg">@Localizer["Content"]</h5>
 
-						<q-tree ref="FragmentsTree"
+						<q-tree ref="FragmentTree"
 							class="q-mb-lg"
-							:nodes="editedDoc.fragmentsTree"
+							:nodes="editedDoc.fragmentTree"
 							v-model:selected="selectedFragment"
 							dense
 							no-connectors

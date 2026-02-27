@@ -156,8 +156,11 @@
   <data name="Content" xml:space="preserve">
     <value>Decomposed content</value>
   </data>
-  <data name="CoverImageNotFound" xml:space="preserve">
-    <value>Cover picture not found</value>
+  <data name="CoverPictureInaccessible" xml:space="preserve">
+    <value>Cover picture inaccessible:</value>
+  </data>
+  <data name="PictureInaccessible" xml:space="preserve">
+    <value>Picture inaccessible:</value>
   </data>
   <data name="CoverPicture" xml:space="preserve">
     <value>Cover picture</value>

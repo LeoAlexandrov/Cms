@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 
 
-namespace HCms.Domain.ValueObjects
+namespace HCms.Infrastructure.Notification
 {
 
 	public class EventPayloadContentEntry

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using AleProjects.Hashing.MurmurHash3;
 using Entities = HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 using HCms.Content.ViewModels;
 using HCms.Infrastructure.Data;
 
@@ -265,7 +265,7 @@ namespace HCms.Content.Services
 			};
 		}
 
-		static Document DocumentFromEntity(Entities.Document doc, string url, BreadcrumbsItem[] breadcrumbs = null)
+		static Document DocumentFromEntity(Entities.Document doc, string url, BreadcrumbItem[] breadcrumbs = null)
 		{
 			return new Document()
 			{
@@ -307,7 +307,7 @@ namespace HCms.Content.Services
 			}
 		}
 
-		Fragment[] CreateFragmentsTree(Entities.FragmentLink[] links, ILookup<int, Entities.FragmentAttribute> fragmentAttrs, IList<XSElement> xse)
+		Fragment[] CreateFragmentTree(Entities.FragmentLink[] links, ILookup<int, Entities.FragmentAttribute> fragmentAttrs, IList<XSElement> xse)
 		{
 			Fragment fragmentFactory(Entities.FragmentLink link) => FragmentFromLink(link, fragmentAttrs[link.FragmentRef], xse);
 
@@ -446,7 +446,7 @@ namespace HCms.Content.Services
 
 				result = DocumentFromEntity(doc, 
 					pathMapper.Map(rootKey, "/"), 
-					[new BreadcrumbsItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = rootId }]
+					[new BreadcrumbItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = rootId }]
 				);
 			}
 			else
@@ -488,7 +488,7 @@ namespace HCms.Content.Services
 				n = docs.Count;
 
 
-				var breadcrumbs = new BreadcrumbsItem[n + 1];
+				var breadcrumbs = new BreadcrumbItem[n + 1];
 				breadcrumbs[0] = new() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = rootId };
 
 				for (int i = 0; i < n; i++)
@@ -611,7 +611,7 @@ namespace HCms.Content.Services
 			foreach (var f in fAttrs)
 				f.Value = ReplaceRefs(f.Value, refs);
 
-			result.Fragments = CreateFragmentsTree(links, fAttrs.ToLookup(a => a.FragmentRef, a => a), _fsr.Fragments);
+			result.Fragments = CreateFragmentTree(links, fAttrs.ToLookup(a => a.FragmentRef, a => a), _fsr.Fragments);
 
 			return result;
 		}
@@ -639,7 +639,7 @@ namespace HCms.Content.Services
 
 				result = DocumentFromEntity(doc, 
 					pathMapper.Map(rootKey, "/"), 
-					[new BreadcrumbsItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = id }]
+					[new BreadcrumbItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = id }]
 				);
 			}
 			else
@@ -656,12 +656,12 @@ namespace HCms.Content.Services
 
 				rootKey = docs[0].Slug;
 
-				var breadcrumbs = new BreadcrumbsItem[docs.Count + 1];
-				breadcrumbs[0] = new BreadcrumbsItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = docs[0].Id };
-				breadcrumbs[^1] = new BreadcrumbsItem() { Path = pathMapper.Map(rootKey, doc.Path), Title = doc.Title, Document = id };
+				var breadcrumbs = new BreadcrumbItem[docs.Count + 1];
+				breadcrumbs[0] = new BreadcrumbItem() { Path = pathMapper.Map(rootKey, "/"), Title = string.Empty, Document = docs[0].Id };
+				breadcrumbs[^1] = new BreadcrumbItem() { Path = pathMapper.Map(rootKey, doc.Path), Title = doc.Title, Document = id };
 
 				for (int i = 1; i < docs.Count; i++)
-					breadcrumbs[i] = new BreadcrumbsItem() { Path = pathMapper.Map(rootKey, docs[i].Path), Title = docs[i].Title, Document = docs[i].Id };
+					breadcrumbs[i] = new BreadcrumbItem() { Path = pathMapper.Map(rootKey, docs[i].Path), Title = docs[i].Title, Document = docs[i].Id };
 
 				result = DocumentFromEntity(doc, pathMapper.Map(rootKey, doc.Path), breadcrumbs);
 				allDocsIds = [.. docs.Select(d => d.Id), doc.Id];
@@ -782,7 +782,7 @@ namespace HCms.Content.Services
 			foreach (var f in fAttrs)
 				f.Value = ReplaceRefs(f.Value, refs);
 
-			result.Fragments = CreateFragmentsTree(links, fAttrs.ToLookup(a => a.FragmentRef, a => a), _fsr.Fragments);
+			result.Fragments = CreateFragmentTree(links, fAttrs.ToLookup(a => a.FragmentRef, a => a), _fsr.Fragments);
 
 			return result;
 		}

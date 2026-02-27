@@ -17,7 +17,7 @@ namespace HCms.Web.Api
 	[Route("api/v{version:apiVersion}/[controller]")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class DocumentsController(ContentManagementService cms) : ControllerBase
+	public class DocumentController(ContentManagementService cms) : ControllerBase
 	{
 		private readonly ContentManagementService _cms = cms;
 
@@ -25,7 +25,7 @@ namespace HCms.Web.Api
 		[Authorize]
 		public async Task<IActionResult> Tree()
 		{
-			var result = await _cms.DocumentsTree();
+			var result = await _cms.DocumentTree();
 			return Ok(result);
 		}
 

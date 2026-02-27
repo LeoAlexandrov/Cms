@@ -84,7 +84,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync("/api/v1/eventdestinations", "GET", null, { "Accept": "application/x-msgpack" }, null)
+				.apiCallAsync("/api/v1/eventdestination", "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -110,7 +110,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/eventdestinations`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/eventdestination`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -163,7 +163,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/eventdestinations/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/eventdestination/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -193,6 +193,7 @@
 
 					dto.webhook = {
 						endpoint: this.editedDestination.webhook.endpoint,
+						secret: this.editedDestination.webhook.secret,
 						resetSecret: this.editedDestination.webhook.resetSecret
 					};
 
@@ -227,7 +228,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/eventdestinations/${this.editedDestination.id}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/eventdestination/${this.editedDestination.id}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -288,7 +289,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/eventdestinations/${this.destinationToDelete}`, "DELETE", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.apiCallAsync(`/api/v1/eventdestination/${this.destinationToDelete}`, "DELETE", null, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();

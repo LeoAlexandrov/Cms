@@ -60,21 +60,6 @@ namespace HCms.Content.ViewModels
 			set => Props = new DynamicProperties(value);
 		}
 
-		/*
-		[MessagePack.IgnoreMember]
-		[JsonIgnore]
-		public ByteString Props3 
-		{
-			get
-			{
-				var b = MessagePack.MessagePackSerializer.Serialize(Props2);
-				var p = MessagePack.MessagePackSerializer.Deserialize<Dictionary<string, object>>(b);
-				return ByteString.CopyFrom(b);
-			}
-			set => Props2 = MessagePack.MessagePackSerializer.Deserialize<Dictionary<string, object>>(value.Memory); 
-		}
-		*/
-
 		[MessagePack.Key("attributes")]
 		public Dictionary<string, string> Attributes { get; set; }
 

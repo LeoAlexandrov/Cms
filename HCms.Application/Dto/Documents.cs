@@ -107,8 +107,8 @@ namespace HCms.Application.Dto
 		[MessagePack.Key("attributes")]
 		public DtoDocumentAttributeResult[] Attributes { get; set; }
 
-		[MessagePack.Key("fragmentsTree")]
-		public DtoTreeNode<int>[] FragmentsTree { get; set; }
+		[MessagePack.Key("fragmentTree")]
+		public DtoTreeNode<int>[] FragmentTree { get; set; }
 	}
 
 
@@ -131,8 +131,8 @@ namespace HCms.Application.Dto
 		[MessagePack.Key("fragmentLinks")]
 		public DtoFragmentLinkResult[] FragmentLinks { get; set; }
 
-		[MessagePack.Key("fragmentsTree")]
-		public DtoTreeNode<int>[] FragmentsTree { get; set; }
+		[MessagePack.Key("fragmentTree")]
+		public DtoTreeNode<int>[] FragmentTree { get; set; }
 	}
 
 

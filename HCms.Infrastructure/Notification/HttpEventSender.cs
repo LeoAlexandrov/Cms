@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
-using HCms.Domain.ValueObjects;
-
 
 namespace HCms.Infrastructure.Notification
 {

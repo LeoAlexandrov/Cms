@@ -12,12 +12,12 @@ using HCms.Infrastructure.Notification;
 using HCms.Infrastructure.Data;
 using HCms.Application.Dto;
 using HCms.Domain.Entities;
-using HCms.Domain.ValueObjects;
+using HCms.Domain.Types;
 
 
 namespace HCms.Application.Services
 {
-	public class EventDestinationsManagementService(CmsDbContext dbContext, IAuthorizationService authService, IEventNotifier notifier)
+	public class EventDestinationManagementService(CmsDbContext dbContext, IAuthorizationService authService, IEventNotifier notifier)
 	{
 		private readonly CmsDbContext _dbContext = dbContext;
 		private readonly IAuthorizationService _authService = authService;
@@ -66,30 +66,22 @@ namespace HCms.Application.Services
 			return result;
 		}
 
-		public async Task<Result<DtoEventDestinationLiteResult>> CreateDestination(DtoCreateEventDestination dto, ClaimsPrincipal user)
+		public async Task<Result<DtoEventDestinationLiteResult>> CreateDestination(string type, string name, string tPath, string tPathAux, object data, ClaimsPrincipal user)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<DtoEventDestinationLiteResult>.Forbidden();
 
-			if (dto.Type != "webhook" &&
-				dto.Type != "redis" &&
-				dto.Type != "rabbitmq")
-				return Result<DtoEventDestinationLiteResult>.BadParameters("Type", [$"Destination of type '{dto.Type}' is not supported."]);
-
-			object data = dto.Type switch
-			{
-				"webhook" => new WebhookDestination() { Endpoint = "https://localhost", Secret = RandomString.Create(32) },
-				"redis" => new RedisDestination() { Endpoint = "localhost:6379", Channel = "hcms-channel" },
-				"rabbitmq" => new RabbitMQDestination() { HostName = "localhost", Exchange = "hcms-exchange", ExchangeType = "fanout", RoutingKey = string.Empty },
-				_ => null
-			};
+			if (type != "webhook" && type != "redis" && type != "rabbitmq")
+				return Result<DtoEventDestinationLiteResult>.BadParameters("Type", [$"Destination of type '{type}' is not supported."]);
 
 			EventDestination result = new()
 			{
-				Type = dto.Type,
-				Name = dto.Name,
+				Type = type,
+				Name = name,
+				TriggeringPath = tPath,
+				TriggeringPathAux = tPathAux,
 				Data = System.Text.Json.JsonSerializer.Serialize(data)
 			};
 
@@ -98,6 +90,22 @@ namespace HCms.Application.Services
 			await _dbContext.SaveChangesAsync();
 
 			return Result<DtoEventDestinationLiteResult>.Success(new(result));
+		}
+
+		public Task<Result<DtoEventDestinationLiteResult>> CreateDestination(DtoCreateEventDestination dto, ClaimsPrincipal user)
+		{
+			object data = dto.Type switch
+			{
+				"webhook" => new WebhookDestination() { Endpoint = "https://localhost", Secret = RandomString.Create(32) },
+				"redis" => new RedisDestination() { Endpoint = "localhost:6379", Channel = "hcms-channel" },
+				"rabbitmq" => new RabbitMQDestination() { HostName = "localhost", Exchange = "hcms-exchange", ExchangeType = "fanout", RoutingKey = string.Empty },
+				_ => null
+			};
+
+			if (data == null)
+				return Task.FromResult(Result<DtoEventDestinationLiteResult>.BadParameters("Type", [$"Destination of type '{dto.Type}' is not supported."]));
+
+			return CreateDestination(dto.Type, dto.Name, null, null, data, user);
 		}
 
 		public async Task<Result<DtoEventDestinationLiteResult>> UpdateDestination(int id, DtoUpdateEventDestination dto, ClaimsPrincipal user)
@@ -130,6 +138,8 @@ namespace HCms.Application.Services
 
 					if (dto.Webhook.ResetSecret)
 						wData.Secret = RandomString.Create(32);
+					else
+						wData.Secret = dto.Webhook.Secret;
 
 					data = wData;
 					break;
