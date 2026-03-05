@@ -4,12 +4,12 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
-	<AssemblyVersion>0.4.3</AssemblyVersion>
-	<FileVersion>0.4.3</FileVersion>
+	<AssemblyVersion>0.4.4</AssemblyVersion>
+	<FileVersion>0.4.4</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Media\S3MediaStorageMinio.cs" />
+	<Compile Remove="Media\S3MediaStorageMinio.cs" />
   </ItemGroup>
 
   <ItemGroup>

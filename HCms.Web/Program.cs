@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
@@ -173,7 +174,15 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddScoped<SchemaManagementService>()
 		.AddScoped<UserManagementService>()
 		.AddScoped<EventDestinationManagementService>()
+		.AddSingleton(Channel.CreateBounded<NotificationEvent>(
+			new BoundedChannelOptions(100) 
+			{ 
+				FullMode = BoundedChannelFullMode.Wait, 
+				SingleReader = true, 
+				SingleWriter = false 
+			}))
 		.AddScoped<IEventNotifier, EventNotifier>()
+		.AddHostedService<EventDispatcher>()
 		// auth
 		.Configure<AuthSettings>(configuration.GetSection("Auth"))
 		.AddScoped<SignInHandler>()

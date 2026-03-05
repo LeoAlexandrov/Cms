@@ -1073,7 +1073,7 @@
 
 						} else {
 
-							var pNode = this.$refs.fragmentTree.getNodeByKey(parent);
+							var pNode = this.$refs.FragmentTree.getNodeByKey(parent);
 
 							if (pNode) {
 								if (!pNode.hasOwnProperty("children")) {
@@ -1086,7 +1086,7 @@
 									pNode.children.push(node);
 								}
 
-								this.$refs.fragmentTree.setExpanded(parent, true);
+								this.$refs.FragmentTree.setExpanded(parent, true);
 							}
 						}
 
@@ -1141,7 +1141,7 @@
 						if (!apply)
 							this.fragmentProps = false;
 
-						let node = this.$refs.fragmentTree.getNodeByKey(this.fragment.linkId);
+						let node = this.$refs.FragmentTree.getNodeByKey(this.fragment.linkId);
 
 						if (node) {
 							node.label = r.result.fragment.name;
@@ -1243,13 +1243,13 @@
 			if (!id)
 				return;
 
-			let node = this.$refs.fragmentTree.getNodeByKey(id);
+			let node = this.$refs.FragmentTree.getNodeByKey(id);
 
 			if (!node)
 				return;
 
 			let parentId = node.parent;
-			let parent = parentId == 0 ? null : this.$refs.fragmentTree.getNodeByKey(parentId);
+			let parent = parentId == 0 ? null : this.$refs.FragmentTree.getNodeByKey(parentId);
 
 			Quasar.LoadingBar.start();
 
@@ -1317,7 +1317,7 @@
 
 							if (parent) {
 
-								let pNode = this.$refs.fragmentTree.getNodeByKey(parent);
+								let pNode = this.$refs.FragmentTree.getNodeByKey(parent);
 								let siblings = pNode.children;
 								let fr = siblings[oldPos];
 
@@ -1380,7 +1380,7 @@
 
 						} else {
 
-							var pNode = this.$refs.fragmentTree.getNodeByKey(parent);
+							var pNode = this.$refs.FragmentTree.getNodeByKey(parent);
 
 							if (pNode) {
 								if (!pNode.hasOwnProperty("children")) {
@@ -1393,7 +1393,7 @@
 									pNode.children.push(node);
 								}
 
-								this.$refs.fragmentTree.setExpanded(parent, true);
+								this.$refs.FragmentTree.setExpanded(parent, true);
 							}
 						}
 

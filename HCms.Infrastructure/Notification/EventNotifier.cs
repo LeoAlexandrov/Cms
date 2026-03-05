@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 using HCms.Domain.Entities;
 using HCms.Infrastructure.Data;
@@ -21,7 +20,7 @@ namespace HCms.Infrastructure.Notification
 
 
 
-	public class EventNotifier(CmsDbContext context, IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory) : IEventNotifier
+	public class EventNotifier(CmsDbContext context, Channel<NotificationEvent> channel) : IEventNotifier
 	{
 		public const string EVENT_DOC_CREATE = "on_doc_create";
 		public const string EVENT_DOC_CHANGE = "on_doc_change";
@@ -35,40 +34,32 @@ namespace HCms.Infrastructure.Notification
 		public const string EVENT_DISABLE = "on_destination_disable";
 
 		readonly CmsDbContext _dbContext = context;
-		readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
-		readonly ILoggerFactory _loggerFactory = loggerFactory;
+		readonly Channel<NotificationEvent> _channel = channel;
 
 
-		async static Task PublishEvent(EventDestination[] destinations, EventPayload payload, HttpClient httpClient, ILogger<EventNotifier> logger)
+		static object[] Destinations(EventDestination[] destinations)
 		{
+			object[] result = new object[destinations.Length];
+			int i = 0;
+
 			foreach (var dest in destinations)
-			{
 				switch (dest.Type)
 				{
 					case "webhook":
-
-						var webhook = System.Text.Json.JsonSerializer.Deserialize<WebhookDestination>(dest.Data);
-						await HttpEventSender.Send(httpClient, webhook, payload, logger);
-
+						result[i++] = System.Text.Json.JsonSerializer.Deserialize<WebhookDestination>(dest.Data);
 						break;
 
 					case "redis":
-
-						var redis = System.Text.Json.JsonSerializer.Deserialize<RedisDestination>(dest.Data);
-						await RedisPublisher.Publish(redis, payload, logger);
-
+						result[i++] = System.Text.Json.JsonSerializer.Deserialize<RedisDestination>(dest.Data);
 						break;
 
 					case "rabbitmq":
-
-						var rabbit = System.Text.Json.JsonSerializer.Deserialize<RabbitMQDestination>(dest.Data);
-						await RabbitMQPublisher.Publish(rabbit, payload, logger);
-
+						result[i++] = System.Text.Json.JsonSerializer.Deserialize<RabbitMQDestination>(dest.Data);
 						break;
 				}
-			}
-		}
 
+			return result;
+		}
 
 		public async Task Notify(string eventType, string root, string path, int id)
 		{
@@ -87,18 +78,17 @@ namespace HCms.Infrastructure.Notification
 					)
 				.ToArray();
 
-			var httpClient = dests.Any(d => d.Type == "webhook") ? _httpClientFactory.CreateClient() : null;
-
-			var payload = new EventPayload()
+			var ev = new NotificationEvent()
 			{
-				Event = eventType,
-				AffectedContent = [new() { Id = id, Root = root, Path = path }]
+				Destinations = Destinations(dests),
+				Payload = new EventPayload()
+				{
+					Event = eventType,
+					AffectedContent = [new() { Id = id, Root = root, Path = path }]
+				}
 			};
 
-			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
-
-			_ = PublishEvent(dests, payload, httpClient, logger)
-				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
+			await _channel.Writer.WriteAsync(ev);
 		}
 
 		public async Task Notify(string eventType, string[] fullPaths)
@@ -117,18 +107,17 @@ namespace HCms.Infrastructure.Notification
 					))
 				.ToArray();
 
-			var httpClient = dests.Any(d => d.Type == "webhook") ? _httpClientFactory.CreateClient() : null;
-
-			var payload = new EventPayload()
+			var ev = new NotificationEvent()
 			{
-				Event = eventType,
-				AffectedContent = [.. fullPaths.Select(p => new EventPayloadContentEntry() { Path = p })]
+				Destinations = Destinations(dests),
+				Payload = new EventPayload()
+				{
+					Event = eventType,
+					AffectedContent = [.. fullPaths.Select(p => new EventPayloadEntry() { Path = p })]
+				}
 			};
 
-			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
-
-			_ = PublishEvent(dests, payload, httpClient, logger)
-			.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
+			await _channel.Writer.WriteAsync(ev);
 		}
 
 		public async Task Notify(string eventType, int destinationId = 0)
@@ -137,14 +126,13 @@ namespace HCms.Infrastructure.Notification
 				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Id == destinationId).ToArrayAsync() :
 				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Enabled).ToArrayAsync();
 
-			var httpClient = dests.Any(d => d.Type == "webhook") ? _httpClientFactory.CreateClient() : null;
+			var ev = new NotificationEvent()
+			{
+				Destinations = Destinations(dests),
+				Payload = new EventPayload() { Event = eventType }
+			};
 
-			var payload = new EventPayload() { Event = eventType };
-
-			var logger = _loggerFactory?.CreateLogger<EventNotifier>();
-
-			_ = PublishEvent(dests, payload, httpClient, logger)
-				.ContinueWith(t => logger?.LogError(t.Exception, "Notification failed"), TaskContinuationOptions.OnlyOnFaulted);
+			await _channel.Writer.WriteAsync(ev);
 		}
 	}
 }

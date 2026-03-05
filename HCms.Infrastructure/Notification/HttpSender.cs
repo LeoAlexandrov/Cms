@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -9,9 +10,9 @@ using Microsoft.Extensions.Logging;
 namespace HCms.Infrastructure.Notification
 {
 
-	public static class HttpEventSender
+	public static class HttpSender
 	{
-		public static async Task Send(HttpClient client, WebhookDestination destination, EventPayload payload, ILogger<EventNotifier> logger)
+		public static async Task Send(HttpClient client, WebhookDestination destination, EventPayload payload, ILogger<EventDispatcher> logger)
 		{
 			if (client == null)
 			{
@@ -34,7 +35,6 @@ namespace HCms.Infrastructure.Notification
 
 				if (!response.IsSuccessStatusCode)
 					logger?.LogError("Webhook destination '{Endpoint}' failed with status: {StatusCode}", destination.Endpoint, response.StatusCode);
-
 			}
 			catch (Exception ex)
 			{

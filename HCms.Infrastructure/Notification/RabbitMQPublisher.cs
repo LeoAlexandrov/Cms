@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Logging;
 
 using RabbitMQ.Client;
@@ -15,7 +15,7 @@ namespace HCms.Infrastructure.Notification
 
 	public static class RabbitMQPublisher
 	{
-		public static async Task Publish(RabbitMQDestination destination, EventPayload payload, ILogger<EventNotifier> logger)
+		public static async Task Publish(RabbitMQDestination destination, EventPayload payload, ILogger<EventDispatcher> logger)
 		{
 			string host;
 			int port;
