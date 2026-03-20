@@ -714,11 +714,11 @@
 							</div>
 						</div>
 
-						<div class="q-mt-xs q-mb-lg q-py-xs q-px-sm bg-grey-1">
+						<div class="q-mt-xs q-mb-md q-py-xs q-px-sm bg-grey-1">
 							<span class="text-caption text-grey-7">{{ editedDoc.properties.path }}</span>
 						</div>
 
-						<div class="row q-my-md q-col-gutter-y-sm q-col-gutter-x-md">
+						<div class="row q-my-sm q-col-gutter-y-sm q-col-gutter-x-md">
 							<div class="col-sm-4 col-xs-12">
 
 								<q-input dense outlined
@@ -743,7 +743,7 @@
 							</div>
 						</div>
 
-						<div class="row q-my-md q-col-gutter-y-sm q-col-gutter-x-md">
+						<div class="row q-my-sm q-col-gutter-y-sm q-col-gutter-x-md">
 							<div class="col-sm-4 col-xs-12">
 
 								<q-input dense outlined
@@ -808,39 +808,50 @@
 							@@update:model-value="hasChanged=true">
 						</q-input>
 
-						<q-input dense outlined
-							v-model="editedDoc.properties.tags"
-							class="q-mt-lg"
-							label="@Localizer["Tags"]"
-							@@update:model-value="hasChanged=true">
-						 </q-input>
+						<div class="row q-mt-md q-col-gutter-y-sm q-col-gutter-x-md">
+							<div class="col-sm-6 col-xs-12">
 
-						<q-input dense outlined
-							v-model="editedDoc.properties.authPolicies"
-							class="q-mt-lg"
-							label="@Localizer["AuthPolicies"]"
-							ref="AuthPolicies"
-							@@update:model-value="hasChanged=true">
-						 </q-input>
+								<q-input dense outlined
+									v-model="editedDoc.properties.tags"
+									label="@Localizer["Tags"]"
+									@@update:model-value="hasChanged=true">
+								</q-input>
 
-						<q-select dense outlined
-							v-model="editedDoc.properties.status"
-							:options="publishStates"
-							emit-value
-							map-options
-							class="q-pt-lg"
-							label="@Localizer["PublishStatus"]"
-							ref="Status"
-							@@update:model-value="hasChanged=true"
-							:rules="[val => !invalidPublishedState.includes(val) || '@Localizer["InvalidPublishStatus"]' ]">
-						</q-select>
+							</div>
+							<div class="col-sm-6 col-xs-12">
+								
+								<q-input dense outlined
+									v-model="editedDoc.properties.authPolicies"
+									label="@Localizer["AuthPolicies"]"
+									ref="AuthPolicies"
+									@@update:model-value="hasChanged=true">
+								</q-input>
 
-						<p class="text-caption text-negative" v-if="editedDoc.properties.published===invalidPublishedState">@Localizer["ParentNotPublished"]</p>
-
-						<div class="clearfix q-gutter-x-md q-mt-lg">
-							<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
-							<q-btn color="secondary" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+							</div>
 						</div>
+
+						<div class="row q-mt-lg q-col-gutter-y-sm q-col-gutter-x-md justify-between">
+							<div class="col-sm-4 col-xs-12">
+								<q-select dense outlined
+									v-model="editedDoc.properties.status"
+									:options="publishStates"
+									emit-value
+									map-options
+									label="@Localizer["PublishStatus"]"
+									ref="Status"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => !invalidPublishedState.includes(val) || '@Localizer["InvalidPublishStatus"]' ]">
+								</q-select>
+							</div>
+							<div class="col-sm-8 col-xs-12 column items-end">
+								<div>
+									<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
+									<q-btn color="secondary" class="q-ml-md" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+								</div>
+							</div>
+						</div>
+
+
 					</div>
 				</div>
 				<div class="col-sm-12 col-md-4" v-if="selectedDoc!=0">
