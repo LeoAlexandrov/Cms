@@ -375,4 +375,7 @@
   <data name="RootKey" xml:space="preserve">
     <value>Root key</value>
   </data>
+  <data name="MediaPicker" xml:space="preserve">
+    <value>Open media picker</value>
+  </data>
 </root>

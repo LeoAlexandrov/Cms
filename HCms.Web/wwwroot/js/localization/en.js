@@ -30,6 +30,7 @@
 	'MESSAGE_ANTIFORGERY': 'Antiforgery token is not valid. Refresh this page.',
 	'MESSAGE_CLIPBOARD_SUCCESS': "Successfully copied to clipboard",
 	'MESSAGE_CLIPBOARD_FAIL': "Failed to copy to clipboard",
+	'MESSAGE_POPUP_FAIL': "Popup was blocked. Allow popups for this site.",
 
 	'TITLE_WARNING': 'Warning',
 	'TITLE_CONFIRM': 'Confirm',

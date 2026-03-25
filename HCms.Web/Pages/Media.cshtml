@@ -174,7 +174,9 @@
 				@@click="onEntryClicked(e)">
 			</q-img>
 			<div class="q-mt-sm media-preview-label">
-				<q-checkbox v-model="selected" :val="e.link" size="xs" :label="e.name" :disable="!folderLink" dense><q-tooltip>{{ e.name }}</q-tooltip></q-checkbox>
+				<q-checkbox v-model="selected" :val="e.link" size="xs" :label="e.name" :disable="!folderLink || (e.isFolder && mediaPicker)" dense>
+					<q-tooltip>{{ e.name }}</q-tooltip>
+				</q-checkbox>
 			</div>
 		</div>
 	</div>
@@ -185,6 +187,9 @@
 {
 	<div v-if="folderLink">
 		<q-space></q-space>
+		<q-btn flat round icon="check" :disabled="selected.length!=1" @@click="onPickerSelect()" v-if="mediaPicker">
+			<q-tooltip>@Localizer["Select"]</q-tooltip>
+		</q-btn>
 		<q-btn flat round icon="upload" @@click="startUpload()">
 			<q-tooltip>@Localizer["Upload"]</q-tooltip>
 		</q-btn>
@@ -209,6 +214,7 @@
 
 @section Scripts
 {
+	<script id="media_picker" type="application/json">@Json.Serialize(Model.MediaPickerMode)</script>
 	<script id="folder_link" type="application/json">@Json.Serialize(Model.Link)</script>
 	<script id="upload_params" type="application/json">@Json.Serialize(Model.UploadParams)</script>
 	<script src="~/js/media.js"></script>

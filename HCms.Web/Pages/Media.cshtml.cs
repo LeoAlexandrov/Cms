@@ -10,7 +10,6 @@ using HCms.Application.Services;
 
 namespace HCms.Web.Pages
 {
-
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	public class MediaModel(MediaManagementService ms, IAuthorizationService authService) : PageModel
 	{
@@ -22,11 +21,16 @@ namespace HCms.Web.Pages
 		public bool UploadOnlySafeContent { get; set; }
 		public string SafeNameRegexString { get; set; }
 		public object UploadParams { get; set; }
+		public bool MediaPickerMode { get; set; }
+
 
 		public async Task<IActionResult> OnGet([FromRoute] string link)
 		{
 			if (!User.Identity.IsAuthenticated && !this.Request.Cookies.ContainsKey("X-JWT"))
 				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
+
+			if (MediaPickerMode = this.Request.Query.ContainsKey("picker"))
+				ViewData["NoNavigationDrawer"] = true;
 
 			Link = link ?? string.Empty;
 
@@ -40,7 +44,7 @@ namespace HCms.Web.Pages
 				string redirLink = Base64Url.Encode(_ms.GetDefaultDisplayPlace() ?? string.Empty);
 
 				if (!string.IsNullOrEmpty(redirLink))
-					return Redirect($"/media/{redirLink}");
+					return Redirect($"/media/{redirLink}{(MediaPickerMode ? "?picker" : string.Empty)}");
 			}
 
 			var authResult = await _authService.AuthorizeAsync(User, "UploadUnsafeContent");

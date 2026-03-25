@@ -375,4 +375,7 @@
   <data name="RootKey" xml:space="preserve">
     <value>Clé racine</value>
   </data>
+  <data name="MediaPicker" xml:space="preserve">
+    <value>Sélecteur de médias ouvert</value>
+  </data>
 </root>

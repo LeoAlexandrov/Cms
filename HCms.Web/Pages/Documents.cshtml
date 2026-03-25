@@ -400,7 +400,13 @@
 									<q-tooltip>@Localizer["OpenFullSize"] <span style="font-size:larger">{{ decodeImageLink(f.value) }}</span></q-tooltip>
 								</q-img>
 								<div class="flex-break" v-if="f.isImage"></div>
-								<q-input dense clearable outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
+								<q-input dense clearable outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]">
+									<template v-slot:append>
+										<q-btn round dense flat icon="more_horiz" v-if="f.isImage" @@click="openMediaPicker(p=>f.value=p)">
+											<q-tooltip>@Localizer["MediaPicker"]</q-tooltip>
+										</q-btn>
+									</template>
+								</q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
@@ -796,8 +802,13 @@
 							class="q-mt-lg"
 							clearable
 							label="@Localizer["CoverPicture"]"
-							ref="Picture"
+							ref="CoverPicture"
 							@@update:model-value="hasChanged=true">
+							<template v-slot:append>
+								<q-btn round dense flat icon="more_horiz" @@click="openMediaPicker(p=>{ editedDoc.properties.coverPicture=p; hasChanged=true})">
+									<q-tooltip>@Localizer["MediaPicker"]</q-tooltip>
+								</q-btn>
+							</template>
 						</q-input>
 
 						<q-input dense outlined

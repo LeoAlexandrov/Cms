@@ -9,6 +9,7 @@
 			navmenu: [],
 			activeNavSection: "media",
 			appVersion: null,
+			mediaPicker: false,
 
 			folderLink: "",
 			mediaEntries: [],
@@ -312,8 +313,19 @@
 					return false;
 
 			return true;
-		}
+		},
 
+		onPickerSelect() {
+
+			if (window.opener && !window.opener.closed) {
+				window.opener.postMessage(
+					{ type: 'media_picker_selection', picture: this.selected[0] },
+					window.origin
+				);
+			}
+
+			window.close();
+		}
 	},
 
 	computed: {
@@ -365,6 +377,9 @@
 		let link = JSON.parse(qs.innerHTML);
 
 		this.readFolder(link, true);
+
+		qs = document.querySelector("#media_picker");
+		this.mediaPicker = JSON.parse(qs.innerHTML);
 
 		qs = document.querySelector("#upload_params");
 

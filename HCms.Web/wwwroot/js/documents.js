@@ -115,6 +115,7 @@
 			newContainerProps: false,
 			invalidContainers: [],
 
+			mediaSelector: null,
 
 			attributeProps: false,
 			attribute: {
@@ -336,7 +337,7 @@
 				this.newFragment.stuffSelected = "new";
 				this.newFragment.templateSelected = null;
 				this.newFragment.sharedFragmentSelected = null;
-
+				this.mediaSelector = null;
 
 				if (pushState)
 					window.history.pushState({ docId: 0 }, "", `/documents`);
@@ -368,6 +369,7 @@
 						this.newFragment.stuffSelected = "new";
 						this.newFragment.templateSelected = null;
 						this.newFragment.sharedFragmentSelected = null;
+						this.mediaSelector = {};
 
 						if (selectNode)
 							this.selectedDoc = id;
@@ -1517,8 +1519,6 @@
 
 						if (r.ok) {
 
-							console.log(r.result);
-
 							let elements = r.result;
 
 							if (de.isAddable) {
@@ -1542,8 +1542,6 @@
 									this.fragment.decomposition = [...this.fragment.decomposition, ...elements];
 								}
 							}
-
-							console.log(this.fragment.decomposition);
 
 						} else {
 							displayMessage(`${TEXT.DOCS.get('MESSAGE_DELETE_FAIL')} (${formatHTTPStatus(r)})`, true);
@@ -1893,6 +1891,26 @@
 					}
 				});
 
+		},
+
+		openMediaPicker(selector) {
+
+			const width = 1200;
+			const height = 800;
+			const left = (window.screen.width - width) / 2;
+			const top = (window.screen.height - height) / 2;
+
+			this.mediaSelector = selector;
+
+			const pickerWindow = window.open(
+				`/media?picker`,
+				'Media picker',
+				`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+			);
+
+			if (!pickerWindow || pickerWindow.closed || typeof pickerWindow.closed === 'undefined') {
+				displayMessage(TEXT.COMMON.get('MESSAGE_POPUP_FAIL'), true);
+			}
 		}
 	},
 
@@ -1989,6 +2007,19 @@
 			clearTimeout(timeout);
 			timeout = setTimeout(setPageHeight, 25);
 		});
+
+
+		var pickerHandler = (event) => {
+
+			const selector = this.mediaSelector;
+
+			if (event.data && event.data.type === 'media_picker_selection' && selector != null) {
+				this.mediaSelector = null;
+				selector(`^('${event.data.picture}')`);
+			}
+		};
+
+		window.addEventListener('message', pickerHandler);
 	},
 
 	components: {

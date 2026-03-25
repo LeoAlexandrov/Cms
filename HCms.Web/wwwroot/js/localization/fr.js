@@ -30,6 +30,7 @@
 	'MESSAGE_ANTIFORGERY': 'Le jeton anti-contrefaçon n\'est pas valide. Rafraîchissez cette page.',
 	'MESSAGE_CLIPBOARD_SUCCESS': "Copié avec succès dans le presse-papiers",
 	'MESSAGE_CLIPBOARD_FAIL': "Échec de la copie dans le presse-papiers",
+	'MESSAGE_POPUP_FAIL': "La fenêtre contextuelle a été bloquée. Autorisez les fenêtres contextuelles pour ce site.",
 
 	'TITLE_WARNING': 'Avertissement',
 	'TITLE_CONFIRM': 'Confirmer',
