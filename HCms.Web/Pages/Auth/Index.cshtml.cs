@@ -1,15 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 using AleProjects.Random;
 using HCms.Application.Services;
+using HCms.Infrastructure.Auth;
 
 
 namespace HCms.Web.Pages.Auth
@@ -17,9 +17,9 @@ namespace HCms.Web.Pages.Auth
 
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 	[IgnoreAntiforgeryToken(Order = 1001)]
-	public class AuthModel(IConfiguration configuration, IHtmlLocalizer<SharedErrors> localizer) : PageModel
+	public class AuthModel(IOptions<AuthSettings> settings, IHtmlLocalizer<SharedErrors> localizer) : PageModel
 	{
-		private readonly IConfiguration _configuration = configuration;
+		private readonly AuthSettings _settings = settings.Value;
 		private readonly IHtmlLocalizer<SharedErrors> _errorsLocalizer = localizer;
 
 		public string CurrentSite { get; set; }
@@ -85,10 +85,10 @@ namespace HCms.Web.Pages.Auth
 				PopupSuccess = true;
 
 			CurrentSite = $"https://{this.Request.Host.Value}";
-			GoogleClientId = _configuration.GetValue<string>("Auth:Google:ClientId");
-			MicrosoftClientId = _configuration.GetValue<string>("Auth:Microsoft:ClientId");
-			GithubClientId = _configuration.GetValue<string>("Auth:Github:ClientId");
-			StackOverflowClientId = _configuration.GetValue<string>("Auth:StackOverflow:ClientId");
+			GoogleClientId = _settings.Google?.ClientId;
+			MicrosoftClientId = _settings.Microsoft?.ClientId;
+			GithubClientId = _settings.Github?.ClientId;
+			StackOverflowClientId = _settings.StackOverflow?.ClientId;
 
 			if (!string.IsNullOrEmpty(MicrosoftClientId))
 			{
@@ -108,11 +108,10 @@ namespace HCms.Web.Pages.Auth
 				this.Response.Cookies.Append("stackoverflow_auth_state", StackOverflowState);
 			}
 
-			this.AllowAnonymous = this._configuration.GetValue<bool>("Auth:DemoMode") &&
-				ums.HasUser("demo", this._configuration.GetValue<string>("Auth:DefaultDemoModeRole"));
+			this.AllowAnonymous = _settings.DemoMode && ums.HasUser("demo", _settings.DefaultDemoModeRole);
 
 			if (this.AllowAnonymous)
-				this.CfSiteKey = this._configuration.GetValue<string>("Auth:CloudflareTT:SiteKey");
+				this.CfSiteKey = _settings.CloudflareTT.SiteKey;
 
 			if (this.Request.Query.ContainsKey("backUrl"))
 				this.Response.Cookies.Append(

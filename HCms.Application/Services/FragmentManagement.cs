@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -276,6 +277,17 @@ namespace HCms.Application.Services
 
 							if (sanitizer != null)
 								s = sanitizer.Sanitize(s);
+
+							switch (decomposition[i].XmlType)
+							{
+								case "normalizedString":
+									s = Regex.Replace(s, @"[\t\n\r]", " ");
+									break;
+
+								case "token":
+									s = Regex.Replace(s.Trim(), @"\s+", " ");
+									break;
+							}
 
 							if (s.Any(c => c == '<' || c == '>' || c == '"' || c == '\'' || c == '&' || c == '\r' || c == '\n' || c == '\t'))
 								result.AppendLine($"<![CDATA[{s}]]></{tag}>");

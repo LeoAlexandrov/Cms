@@ -333,7 +333,8 @@
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
 							</div>
 							<div class="row q-mb-lg items-center" v-else-if="f.xmlType=='token'">
-								<q-select dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :options="f.facetEnumeration"></q-select>
+								<q-select dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :options="f.facetEnumeration" v-if="f.facetEnumeration"></q-select>
+								<q-input dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]" v-else></q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
 								<q-btn flat round color="secondary" icon="delete" :disable="!canDeleteFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="startDeleteFragmentElement(idx)"></q-btn>
@@ -382,7 +383,7 @@
 									border-radius="4px">
 								</code-editor>
 							</div>
-							<div class="row q-mb-none items-start" v-else-if="f.xmlType=='string'">
+							<div class="row q-mb-none items-start" v-else-if="f.xmlType=='string' || f.xmlType=='normalizedString'">
 								<q-input dense outlined v-model="f.value" class="content-dialog-field" :label="f.annotation" :rules="[val => validateFragment(val, f)]"></q-input>
 								<q-space></q-space>
 								<q-btn flat round color="secondary" icon="add_circle_outline" :disable="!canAddFragmentElement(idx)" v-if="f.minOccurs<f.maxOccurs" @@click="addFragmentElement(idx)"></q-btn>
