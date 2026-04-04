@@ -20,15 +20,21 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Media</xs:documentation>
 					<xs:documentation xml:lang="fr">Media</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties noindex="true"></xsc:properties>
+					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="srcset" type="xs:string">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Srcset</xs:documentation>
 					<xs:documentation xml:lang="fr">Srcset</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties noindex="true"></xsc:properties>
+					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="type" type="xs:string" minOccurs="0">
+			<xs:element name="type" type="xs:token" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Type</xs:documentation>
 					<xs:documentation xml:lang="fr">Taper</xs:documentation>
@@ -85,12 +91,18 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Srcset</xs:documentation>
 					<xs:documentation xml:lang="fr">Srcset</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties noindex="true"></xsc:properties>
+					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="sizes" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Sizes</xs:documentation>
 					<xs:documentation xml:lang="fr">Tailles</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties noindex="true"></xsc:properties>
+					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="floating" minOccurs="0">

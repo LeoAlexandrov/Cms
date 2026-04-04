@@ -32,6 +32,9 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Action (Url or JS function)</xs:documentation>
 					<xs:documentation xml:lang="fr">Action (Url ou fonction JS)</xs:documentation>
+					<xs:appinfo>
+						<xsc:properties noindex="true"></xsc:properties>
+					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="title" type="xs:string">
@@ -46,7 +49,7 @@
 					<xs:documentation xml:lang="fr">Texte alternatif</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="icon" type="xs:string">
+			<xs:element name="icon" type="xs:token">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Icon</xs:documentation>
 					<xs:documentation xml:lang="fr">Icône</xs:documentation>

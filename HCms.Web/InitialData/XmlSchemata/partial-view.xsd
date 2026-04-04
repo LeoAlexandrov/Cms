@@ -16,7 +16,7 @@
 			<xs:documentation xml:lang="fr">Vue partielle</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="name" type="xs:string">
+			<xs:element name="name" type="xs:token">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Name</xs:documentation>
 					<xs:documentation xml:lang="fr">Nom</xs:documentation>
@@ -28,6 +28,7 @@
 					<xs:documentation xml:lang="fr">Arguments</xs:documentation>
 					<xs:appinfo>
 						<xsc:properties textformat="text"></xsc:properties>
+						<xsc:properties noindex="true"></xsc:properties>
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>

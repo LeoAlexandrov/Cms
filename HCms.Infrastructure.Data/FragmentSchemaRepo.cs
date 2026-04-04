@@ -110,6 +110,10 @@ namespace HCms.Infrastructure.Data
 											result.IsImage = string.Equals(attr.Value, "true", StringComparison.CurrentCultureIgnoreCase);
 											break;
 
+										case "noindex":
+											result.NoIndex = string.Equals(attr.Value, "true", StringComparison.CurrentCultureIgnoreCase);
+											break;
+
 										case "textformat":
 											result.TextFormat = attr.Value.ToLower(); 
 											break;

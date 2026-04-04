@@ -87,7 +87,7 @@
 					</xs:appinfo>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="icon" type="xs:string" minOccurs="0">
+			<xs:element name="icon" type="xs:token" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Icon</xs:documentation>
 					<xs:documentation xml:lang="fr">Icône</xs:documentation>

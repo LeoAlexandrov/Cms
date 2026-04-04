@@ -22,7 +22,7 @@
 					<xs:documentation xml:lang="fr">Titre</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="icon" type="xs:string">
+			<xs:element name="icon" type="xs:token">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">Icon</xs:documentation>
 					<xs:documentation xml:lang="fr">Icône</xs:documentation>

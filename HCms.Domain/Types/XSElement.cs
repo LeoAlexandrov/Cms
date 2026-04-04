@@ -84,6 +84,10 @@ namespace HCms.Domain.Types
 
 		//[JsonIgnore]
 		[XmlIgnore]
+		public bool NonIndexableContent => Annotation.HasValue && Annotation.Value.NoIndex;
+
+		//[JsonIgnore]
+		[XmlIgnore]
 		public string InnerTextFormat => Annotation.GetValueOrDefault().TextFormat;
 
 
@@ -92,6 +96,7 @@ namespace HCms.Domain.Types
 			public Dictionary<string, string> Documentation { get; set; }
 			public bool IsContainer { get; set; }
 			public bool IsImage { get; set; }
+			public bool NoIndex { get; set; }
 			public string TextFormat { get; set; }
 		}
 
