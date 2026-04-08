@@ -54,6 +54,12 @@
 			"Key": "rl_1234567890NFWk4xg5JVCXjhT"
 		},
 
+		"Ldap": {
+			"Host": "ldap.minipc.local",
+			"Port": 636,
+			"UseSSL": true
+		},
+
 		"CloudflareTT": {
 			"SiteKey": "0x1234567890abcdefghijkl",
 			"SecretKey": "0x1234567890abcdefghijklVatqVpgx0dY"

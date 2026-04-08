@@ -41,7 +41,8 @@
 		<q-card-section class="q-pt-none">
 			<div class="text-caption text-grey-7">@Localizer["ParentId"] : {{ newDocument.parent }}</div>
 
-			<q-input v-model="newDocument.slug"
+			<q-input 
+				v-model="newDocument.slug"
 				autofocus
 				:label="newDocument.parent>0 ? '@Localizer["Slug"]' : '@Localizer["RootKey"]'"
 				ref="NewDocumentSlug"

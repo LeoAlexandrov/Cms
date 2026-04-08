@@ -21,6 +21,7 @@ namespace HCms.Web.Pages.Auth
 			this.Response.Cookies.Delete("ms_auth_state");
 			this.Response.Cookies.Delete("github_auth_state");
 			this.Response.Cookies.Delete("stackoverflow_auth_state");
+			this.Response.Cookies.Delete("ldap_auth_state");
 
 			if (csrf != gPayload.G_Csrf_Token)
 			{

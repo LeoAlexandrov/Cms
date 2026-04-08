@@ -171,4 +171,7 @@
   <data name="Validation_Required" xml:space="preserve">
     <value>Field is required</value>
   </data>
+  <data name="Auth_Invalid_Credentials" xml:space="preserve">
+    <value>Invalid credentials</value>
+  </data>
 </root>

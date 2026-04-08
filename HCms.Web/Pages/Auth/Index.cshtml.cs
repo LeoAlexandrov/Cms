@@ -27,15 +27,17 @@ namespace HCms.Web.Pages.Auth
 		public string MicrosoftClientId { get; set; }
 		public string GithubClientId { get; set; }
 		public string StackOverflowClientId { get; set; }
+		public bool LdapEnabled {get; set; }
 
 		public string MicrosoftState { get; set; }
 		public string GithubState { get; set; }
 		public string StackOverflowState { get; set; }
+		public string LdapState { get; set; }
 		public string AuthError { get; set; }
 		public bool PopupSuccess { get; set; }
-
 		public bool AllowAnonymous { get; set; }
 		public string CfSiteKey { get; set; }
+		public bool StartWithLdap { get; set; }
 
 
 		public class AnonymousSignIn
@@ -75,6 +77,7 @@ namespace HCms.Web.Pages.Auth
 				"invalid_token" => (string)_errorsLocalizer.GetString("Auth_Invalid_Token"),
 				"forbidden" => (string)_errorsLocalizer.GetString("Auth_Forbidden"),
 				"invalid_json" => (string)_errorsLocalizer.GetString("Auth_Invalid_Json"),
+				"invalid_credentials" => (string)_errorsLocalizer.GetString("Auth_Invalid_Credentials"),
 				"access_denied" => string.Empty,
 				_ => error,
 			};
@@ -89,6 +92,15 @@ namespace HCms.Web.Pages.Auth
 			MicrosoftClientId = _settings.Microsoft?.ClientId;
 			GithubClientId = _settings.Github?.ClientId;
 			StackOverflowClientId = _settings.StackOverflow?.ClientId;
+			LdapEnabled = _settings.Ldap != null;
+			
+			StartWithLdap = LdapEnabled && (
+				error == "invalid_credentials" ||
+				(string.IsNullOrEmpty(GoogleClientId) && 
+				 string.IsNullOrEmpty(MicrosoftClientId) && 
+				 string.IsNullOrEmpty(GithubClientId) && 
+				 string.IsNullOrEmpty(StackOverflowClientId))
+				);
 
 			if (!string.IsNullOrEmpty(MicrosoftClientId))
 			{
@@ -106,6 +118,12 @@ namespace HCms.Web.Pages.Auth
 			{
 				StackOverflowState = RandomString.Create(32);
 				this.Response.Cookies.Append("stackoverflow_auth_state", StackOverflowState);
+			}
+
+			if (LdapEnabled)
+			{
+				LdapState = RandomString.Create(32);
+				this.Response.Cookies.Append("ldap_auth_state", LdapState);
 			}
 
 			this.AllowAnonymous = _settings.DemoMode && ums.HasUser("demo", _settings.DefaultDemoModeRole);

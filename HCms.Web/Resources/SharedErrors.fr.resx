@@ -171,4 +171,7 @@
   <data name="Validation_Required" xml:space="preserve">
     <value>Champ requis</value>
   </data>
+  <data name="Auth_Invalid_Credentials" xml:space="preserve">
+    <value>Identifiants invalides</value>
+  </data>
 </root>

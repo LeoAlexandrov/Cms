@@ -44,9 +44,9 @@ The CMS can use MS SQL Server (default), PostgreSQL, or MySQL database engines. 
 ```
 </details>
 
-#### External authorization
+#### Authorization
 
-Presently, CMS uses only external authorization. Google, Microsoft, Github, and StackOverflow are currently supported. It is easier to create a Github OAuth app for the first time. Click your Github profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
+Presently, CMS uses only external authorization (Google, Microsoft, Github, StackOverflow) and LDAP. It is easier to create a Github OAuth app for the first time. Click your Github profile icon at the top-right, select `Settings`, select `Developer settings` (at the very bottom), then `OAuth App`, and finally click `New OAuth App`.
 
 In the form that appears, set the following fields:
 
@@ -76,14 +76,35 @@ Save the generated ClientId and Client Secret. Specify them in the [settings.jso
 
 **Note1**: The Client Secret will be displayed only once, immediately after the OAuth app is created.  
 **Note2**: Another GitHub OAuth app will be required for production. GitHub, unlike Microsoft or Google, allows only one callback URL per application.  
-**Note3**: The presense of the `Google`, `Microsoft`, `Github`, `StackOverflow`, `CloudflareTT` sections defines the visibility of the corresponding 'SIGN IN WITH ...' button on the login page.
+**Note3**: The presense of the `Google`, `Microsoft`, `Github`, `StackOverflow`, `CloudflareTT`, and `Ldap` sections defines the visibility of the corresponding 'SIGN IN WITH ...' button on the login page.
 
 Change ["SecurityKey"](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L9) value to something more secure. It must be 32 characters long. Leave other `Auth` settings as they are for the first time.
+
+To enable LDAP authentication [this section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L57) should present in the `settings.json` file.
+<details>
+  <summary>Click to expand</summary>
+
+```json
+{
+...
+	"Auth": {
+	...
+		"Ldap": {
+			"Host": "ldap.minipc.local", // your LDAP server host
+			"Port": 636, // or 389 if SSL is not used
+			"UseSSL": true
+		},
+	...
+	}
+...
+}
+```
+</details>
 
 #### Media storage configuration
 
 The CMS works with 'storage places.' Think of these as top-level root folders. Each place can be either a local folder (filesystem) or an S3 bucket. Places of different types can be used simultaneously. Both place types share a common, manually assigned property: the `Key`. When you reference an image in a document, the link CMS generates consists of the key + relative media file path. You can move a storage folder to another location or even switch its type to S3 (and vice versa); links won't break as long as you preserve the key.  
-["Media" section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L64) is responsible for media content storage configuration.
+["Media" section](https://github.com/LeoAlexandrov/Cms/blob/master/HCms.Web/settings.json#L70) is responsible for media content storage configuration.
 <details>
   <summary>Click to expand</summary>
 
@@ -148,6 +169,8 @@ Finally, it will redirect you to the login page where you can sign in with the s
 
 ## Path mapping, documents linking, and URL generation
 
+_Coming soon..._
+
 ## Production deployment
 
-_To be continued..._
+_Coming soon..._

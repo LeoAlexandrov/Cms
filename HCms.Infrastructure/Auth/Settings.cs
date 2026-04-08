@@ -30,6 +30,15 @@ namespace HCms.Infrastructure.Auth
 
 
 
+	public class LdapSettings
+	{
+		public string Host { get; set; }
+		public int Port { get; set; }
+		public bool UseSSL { get; set; }
+	}
+
+
+
 	public class AuthSettings
 	{
 		public string SecurityKey { get; set; }
@@ -44,6 +53,7 @@ namespace HCms.Infrastructure.Auth
 		public OAuthAppCredentials Microsoft { get; set; }
 		public OAuthAppCredentials Github { get; set; }
 		public OAuthAppCredentials StackOverflow { get; set; }
+		public LdapSettings Ldap { get; set; }
 		public CloudflareTTCredentials CloudflareTT { get; set; }
 	}
 }

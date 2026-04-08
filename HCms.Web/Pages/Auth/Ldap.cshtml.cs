@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,34 +10,52 @@ using HCms.Infrastructure.Auth;
 namespace HCms.Web.Pages.Auth
 {
 
-	public class Anonymous(SignInHandler signInHandler) : PageModel
+	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+	[IgnoreAntiforgeryToken(Order = 1001)]
+	public class LdapModel(SignInHandler signInHandler) : PageModel
 	{
 		private readonly SignInHandler _signInHandler = signInHandler;
 
-		public async Task<IActionResult> OnGet([FromQuery] string token, [FromQuery] string error)
+
+		public class LdapCredentials
+		{
+			public string Username { get; set; }
+			public string Password { get; set; }
+			public string State { get; set; }
+		}
+
+
+		public async Task<IActionResult> OnPost([Required] [FromForm] LdapCredentials credentials)
 		{
 			var popupAuth = !string.IsNullOrEmpty(this.Request.Cookies["popup_auth"]);
+			var ldapState = this.Request.Cookies["ldap_auth_state"];
 
-			this.Response.Cookies.Delete("github_auth_state");
 			this.Response.Cookies.Delete("ms_auth_state");
 			this.Response.Cookies.Delete("github_auth_state");
 			this.Response.Cookies.Delete("stackoverflow_auth_state");
 			this.Response.Cookies.Delete("ldap_auth_state");
 
-			if (!string.IsNullOrEmpty(error))
+			if (credentials.State != ldapState)
 			{
-				TempData["error"] = error;
+				TempData["error"] = "csrf_forgery";
 				return Redirect("/auth");
 			}
 
-			string connectingIp = this.Request.Headers["Cf-Connecting-Ip"].FirstOrDefault();
-
-			var login = await _signInHandler.Anonymous(token, connectingIp);
+			var login = await _signInHandler.Ldap(credentials.Username, credentials.Password);
 
 			switch (login.Status)
 			{
+				case LoginStatus.InvalidPayload:
+				case LoginStatus.InvalidCredentials:
+					TempData["error"] = "invalid_credentials";
+					return Redirect("/auth");
+
 				case LoginStatus.Forbidden:
 					TempData["error"] = "forbidden";
+					return Redirect("/auth");
+
+				case LoginStatus.InternalError:
+					TempData["error"] = "internal_error";
 					return Redirect("/auth");
 			}
 
@@ -53,6 +72,5 @@ namespace HCms.Web.Pages.Auth
 
 			return Redirect(backUrl.StartsWith('/') ? backUrl : "/");
 		}
-
 	}
 }

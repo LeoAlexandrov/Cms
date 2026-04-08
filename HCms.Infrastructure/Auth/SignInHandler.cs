@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net.Http;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -19,11 +19,11 @@ using Microsoft.IdentityModel.Tokens;
 
 using Google.Apis.Auth;
 using MessagePack;
+using Novell.Directory.Ldap;
 
 using AleProjects.Random;
 using HCms.Domain.Entities;
 using HCms.Infrastructure.Data;
-
 
 
 namespace HCms.Infrastructure.Auth
@@ -35,6 +35,7 @@ namespace HCms.Infrastructure.Auth
 		IsValid,
 		InvalidToken,
 		InvalidPayload,
+		InvalidCredentials,
 		Forbidden,
 		Expiration,
 		NotFound,
@@ -642,6 +643,76 @@ namespace HCms.Infrastructure.Auth
 
 			IEnumerable<Claim> claims = UserClaims(user);
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "stackoverflow");
+			byte[] bLogin = MessagePackSerializer.Serialize(login);
+
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+
+			return login;
+		}
+
+		public async Task<UserLogin> Ldap(string username, string password)
+		{
+			if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+				return UserLogin.WithStatus(LoginStatus.InvalidPayload);
+
+#if DEBUG
+			LdapConnectionOptions options = new LdapConnectionOptions()
+				.ConfigureRemoteCertificateValidationCallback(new((a, b, c, d) => true))
+				.UseSsl();
+
+			using var connection = new LdapConnection(options); // { SecureSocketLayer = _settings.Ldap.UseSSL };
+#else
+			using var connection = new LdapConnection() { SecureSocketLayer = _settings.Ldap.UseSSL };
+#endif
+
+			try
+			{
+				await connection.ConnectAsync(_settings.Ldap.Host, _settings.Ldap.Port);
+				await connection.BindAsync(username, password);
+			}
+			catch (LdapException ex)
+			{
+				if (ex.ResultCode != 49)
+				{
+					_logger.LogError(ex, "Error validating {username}", username);
+					return UserLogin.WithStatus(LoginStatus.InternalError);
+				}
+
+				return UserLogin.WithStatus(LoginStatus.InvalidCredentials);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error validating {login}", username);
+				return UserLogin.WithStatus(LoginStatus.InternalError);
+			}
+
+			string uid = username;
+			bool demoMode = _settings.DemoMode;
+
+			var user = _dbContext.Users.FirstOrDefault(u => u.Login == uid);
+
+			if (user == null && demoMode)
+			{
+				string defaultDemoModeRole = _settings.DefaultDemoModeRole;
+
+				_dbContext.Users.Add(user = new() { Login = uid, Role = defaultDemoModeRole, IsEnabled = true, IsDemo = true });
+			}
+
+			if (user == null || !user.IsEnabled || user.IsDemo && !demoMode)
+				return UserLogin.WithStatus(LoginStatus.Forbidden);
+
+			if (string.IsNullOrEmpty(user.Name))
+				user.Name = uid;
+
+			if (string.IsNullOrEmpty(user.Role))
+				user.Role = "User";
+
+			user.LastSignIn = DateTimeOffset.UtcNow;
+
+			await _dbContext.SaveChangesAsync();
+
+			IEnumerable<Claim> claims = UserClaims(user);
+			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "ldap");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
 			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });

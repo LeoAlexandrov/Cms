@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="LdapCredentials" xml:space="preserve">
+    <value>LDAP credentials</value>
+  </data>
+  <data name="LdapLogin" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="LdapPassword" xml:space="preserve">
+    <value>Password</value>
+  </data>
   <data name="PopupSuccess" xml:space="preserve">
     <value>You have successfully authorized. You can close this window and continue your work.</value>
   </data>
@@ -125,6 +134,9 @@
   </data>
   <data name="SignInWithGithub" xml:space="preserve">
     <value>Sign in with Github</value>
+  </data>
+  <data name="SignInWithLDAP" xml:space="preserve">
+    <value>Sign in with LDAP</value>
   </data>
   <data name="SignInWithMicrosoft" xml:space="preserve">
     <value>Sign in with Microsoft</value>

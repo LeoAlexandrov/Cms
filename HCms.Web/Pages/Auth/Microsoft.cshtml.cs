@@ -20,6 +20,7 @@ namespace HCms.Web.Pages.Auth
 			Response.Cookies.Delete("ms_auth_state");
 			Response.Cookies.Delete("github_auth_state");
 			Response.Cookies.Delete("stackoverflow_auth_state");
+			Response.Cookies.Delete("ldap_auth_state");
 
 			if (!string.IsNullOrEmpty(error))
 			{

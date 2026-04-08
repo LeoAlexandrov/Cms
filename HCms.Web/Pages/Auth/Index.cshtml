@@ -3,6 +3,7 @@
 @using HCms.Web;
 @using Microsoft.AspNetCore.Mvc.Localization;
 @inject IHtmlLocalizer<SharedResources> SharedLocalizer
+@inject IHtmlLocalizer<SharedErrors> ErrorsLocalizer
 @inject IViewLocalizer Localizer
 @model HCms.Web.Pages.Auth.AuthModel
 
@@ -23,12 +24,60 @@
 		<script id="cf_sitekey" type="application/json">@Json.Serialize(Model.CfSiteKey)</script>
 	}
 
+	@if (Model.StartWithLdap)
+	{
+		<script id="start_ldap" type="application/json">true</script>
+	}
+
 	<script src="~/js/auth.js"></script>
 	<script>
 		const app = Vue.createApp(vueAppOptions)
 		app.use(Quasar)
 		app.mount('#q-app')
 	</script>
+}
+
+@if (Model.LdapEnabled)
+{
+	<q-dialog v-model="ldapCredentials" persistent>
+		<q-card class="card-dialog">
+			<q-card-section class="row items-center">
+				<div class="text-h6">@Localizer["LdapCredentials"]</div>
+			</q-card-section>
+
+			<q-card-section class="q-pt-none">
+				<form id="ldap_cred_form" method="post" action="/auth/ldap">
+				<q-input 
+					v-model="ldapLogin" 
+					autofocus
+					name="Username"
+					label="@Localizer["LdapLogin"]"
+					ref="LdapLogin"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]']">
+				</q-input>
+
+				<q-input 
+					v-model="ldapPassword" 
+					name="Password"
+					label="@Localizer["LdapPassword"]"
+					:type="isLdapPassword ? 'password' : 'text'"
+					ref="LdapPassword"
+					:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]']">
+					<template v-slot:append>
+						<q-icon :name="isLdapPassword ? 'visibility_off' : 'visibility'" class="cursor-pointer" @@click="isLdapPassword=!isLdapPassword"></q-icon>
+					</template>
+				</q-input>
+
+				<input type="hidden" name="State" value="@Model.LdapState" />
+				</form>
+			</q-card-section>
+
+			<q-card-actions align="right">
+				<q-btn flat label="@SharedLocalizer["OK"]" color="primary" :disabled="!ldapLogin || !ldapPassword" @@click="submitLdap()"></q-btn>
+				<q-btn flat label="@SharedLocalizer["Cancel"]" color="primary" v-close-popup></q-btn>
+			</q-card-actions>
+		</q-card>
+	</q-dialog>
 }
 
 @if (Model.AllowAnonymous)
@@ -46,7 +95,7 @@
 
 @if (!string.IsNullOrEmpty(Model.AuthError))
 {
-	<q-banner dense inline-actions class="text-white bg-red">
+	<q-banner inline-actions class="text-white bg-red">
 		@Model.AuthError
 	</q-banner>
 }
@@ -110,6 +159,19 @@
 					href="https://stackoverflow.com/oauth/?client_id=@Model.StackOverflowClientId&state=@Model.StackOverflowState&redirect_uri=@Model.CurrentSite/auth/stackoverflow"
 					label="@Localizer["SignInWithStackOverflow"]"
 					class="q-mt-md full-width">
+				</q-btn>
+			</div>
+		}
+
+		@if (Model.LdapEnabled)
+		{
+			<div>
+				<q-btn outline
+					align="left"
+					icon="img:@Model.CurrentSite/images/ldap.svg"
+					label="@Localizer["SignInWithLDAP"]"
+					class="q-mt-md full-width"
+					@@click="showLdap()">
 				</q-btn>
 			</div>
 		}
