@@ -237,8 +237,8 @@
 </q-dialog>
 
 
-<div class="q-gutter-md q-pa-md" :style="{'max-height': pageHeight}">
-	<h5>@Localizer["Destinations"]</h5>
+<div class="q-gutter-md q-mt-none q-px-md" :style="{'max-height': pageHeight, 'overflow': 'auto'}">
+	<div class="text-h5">@Localizer["Destinations"]</div>
 	<div class="text-body2 text-grey-7" v-if="!destinations.length">@Localizer["NoDestinations"]</div>
 
 	<q-list>
