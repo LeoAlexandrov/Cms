@@ -21,6 +21,23 @@ namespace HCms.Web.Api
 		private readonly ContentProvidingService _cps = cps;
 
 
+		[HttpGet("list/{id:int}")]
+		[Authorize("IsConsumerApp")]
+		public async Task<IActionResult> List(int id, [FromQuery] string pm)
+		{
+			IPathMapper mapper = _pathMapperFactory.Get(pm);
+
+			if (mapper == null)
+				return BadRequest(new { name = nameof(pm), message = $"Path mapper '{pm}' is not found." });
+
+			var result = await _cps.ListDocuments(mapper, id);
+
+			if (result.Length == 0 && id > 0)
+				return NotFound();
+
+			return Ok(result);
+		}
+
 		[HttpGet("doc/{id:int}")]
 		[Authorize("IsConsumerApp")]
 		public async Task<IActionResult> GetById(int id, [FromQuery] string pm, [FromQuery] int? cfp, [FromQuery] int? tc, [FromQuery] bool? sib, [FromQuery] int[] ast)
@@ -65,7 +82,7 @@ namespace HCms.Web.Api
 
 		[HttpGet("children/{id:int}")]
 		[Authorize("IsConsumerApp")]
-		public async Task<IActionResult> GetChildren(int id, [FromQuery] string pm, [FromQuery] int? cfp, [FromQuery] int? tc, [FromQuery] bool? sib, [FromQuery] int[] ast)
+		public async Task<IActionResult> GetChildren(int id, [FromQuery] string pm, [FromQuery] int? cfp, [FromQuery] int? tc, [FromQuery] int[] ast)
 		{
 			IPathMapper mapper = _pathMapperFactory.Get(pm);
 

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading.Tasks;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,18 @@ using Microsoft.AspNetCore.Mvc.Localization;
 namespace HCms.Web.Api
 {
 
-	[Route("api/v{version:apiVersion}/[controller]/{action}")]
+	[Route("api/v{version:apiVersion}/[controller]/{action=Get}")]
 	[ApiVersion("1.0")]
 	[ApiController]
-	public class UIController(IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
+	public class UIController(IAuthorizationService authService, IHtmlLocalizer<SharedResources> sharedLocalizer) : ControllerBase
 	{
+		const string PAGE_DOCUMENTS = "documents";
+		const string PAGE_MEDIA = "media";
+		const string PAGE_SCHEMATA = "schemata";
+		const string PAGE_USERS = "users";
+		const string PAGE_EVENTS = "events";
+
+		private readonly IAuthorizationService _authService = authService;
 		private readonly IHtmlLocalizer<SharedResources> _sharedLocalizer = sharedLocalizer;
 
 		#region dto
@@ -39,23 +47,53 @@ namespace HCms.Web.Api
 
 		#endregion
 
+
 		[HttpGet]
 		[Authorize]
-		public IActionResult NavigationMenu()
+		public async Task<IActionResult> Get(string id)
 		{
-			UserProfile user = new() 
-			{ 
+			UserProfile user = new()
+			{
 				Name = User.Identity.Name,
 				Avatar = User.Claims.FirstOrDefault(c => c.Type == "avt")?.Value ?? "/images/default-user.webp"
 			};
 
 			NavigationMenuItem[] menu = [
-				new() { Id = "documents", Label = _sharedLocalizer.GetString("Nav_Documents"), Url = "/documents", Icon = "text_snippet" },
-				new() { Id = "media", Label = _sharedLocalizer.GetString("Nav_Media"), Url = "/media", Icon = "photo_library" },
-				new() { Id = "schemata", Label = _sharedLocalizer.GetString("Nav_Schemata"), Url = "/schemata", Icon = "code" },
-				new() { Id = "users", Label = _sharedLocalizer.GetString("Nav_Users"), Url = "/users", Icon = "people" },
-				new() { Id = "events", Label = _sharedLocalizer.GetString("Nav_Events"), Url = "/events", Icon = "bolt" },
-				//new() { Id = "settings", Label = _sharedLocalizer.GetString("Nav_Settings"), Url = "/settings", Icon = "settings" }
+				new()
+				{
+					Id = PAGE_DOCUMENTS,
+					Label = _sharedLocalizer.GetString("Nav_Documents"),
+					Url = id == PAGE_DOCUMENTS ? null : "/documents",
+					Icon = "text_snippet"
+				},
+				new() 
+				{ 
+					Id = PAGE_MEDIA, 
+					Label = _sharedLocalizer.GetString("Nav_Media"), 
+					Url = id == PAGE_MEDIA ? null : "/media", 
+					Icon = "photo_library" 
+				},
+				new() 
+				{ 
+					Id = PAGE_SCHEMATA, 
+					Label = _sharedLocalizer.GetString("Nav_Schemata"), 
+					Url = id == PAGE_SCHEMATA ? null : "/schemata", 
+					Icon = "code" 
+				},
+				new() 
+				{ 
+					Id = PAGE_USERS, 
+					Label = _sharedLocalizer.GetString("Nav_Users"), 
+					Url = id == PAGE_USERS ? null : "/users", 
+					Icon = "people" 
+				},
+				new() 
+				{ 
+					Id = PAGE_EVENTS, 
+					Label = _sharedLocalizer.GetString("Nav_Events"), 
+					Url = id == PAGE_EVENTS ? null : "/events", 
+					Icon = "bolt" 
+				},
 			];
 
 			Status status = new()
@@ -63,8 +101,20 @@ namespace HCms.Web.Api
 				Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()
 			};
 
-			return Ok(new { user, menu, status });
-		}
-	}
+			var authResult = await _authService.AuthorizeAsync(User, "UploadUnsafeContent");
+			
+			Dictionary<string, object> parameters = id switch
+			{
+				PAGE_MEDIA => new Dictionary<string, object>
+					{
+						{ "uploadOnlySafeContent", !authResult.Succeeded }
+					},
 
+				_ => [],
+			};
+
+			return Ok(new { user, menu, status, parameters });
+		}
+
+	}
 }

@@ -7,7 +7,6 @@
 			drawerMiniState: true,
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
-			activeNavSection: "media",
 			appVersion: null,
 			mediaPicker: false,
 
@@ -17,6 +16,7 @@
 			selected: [],
 			opened: { name: null, link: null, hrefLink: null, width: 0, height: 0, size: 0, referencedBy: [] },
 
+			uploadOnlySafeContent: true,
 			maxUploadSize: 10 * 1024 * 1024,
 			safeNameRegexString: "^[\\w-]+.\\w+$",
 
@@ -303,7 +303,7 @@
 
 		validateFileName(val) {
 
-			if (!val)
+			if (!val || !this.uploadOnlySafeContent)
 				return true;
 
 			let re = new RegExp(this.safeNameRegexString);
@@ -362,13 +362,16 @@
 		document.querySelector("body").classList.remove("body-progress");
 
 		application
-			.apiCallAsync("/api/v1/ui/navigationmenu", "GET", null, null, null)
+			.apiCallAsync("/api/v1/ui/?id=media", "GET", null, null, null)
 			.then((r) => {
 
 				if (r.ok) {
 					this.profile = r.result.user;
 					this.navmenu = r.result.menu;
 					this.appVersion = r.result.status.version;
+
+					if (r.result.parameters.hasOwnProperty("uploadOnlySafeContent"))
+						this.uploadOnlySafeContent = r.result.parameters.uploadOnlySafeContent;
 				}
 
 			});

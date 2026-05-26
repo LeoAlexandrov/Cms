@@ -83,11 +83,11 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 	string connString = configuration.GetConnectionString("CmsDbConnection");
 
 	if (string.IsNullOrEmpty(dbEngine) || dbEngine == "mssql")
-		options.UseSqlServer(connString);
+		options.UseSqlServer(connString, mssqlOptions => mssqlOptions.EnableRetryOnFailure(2, TimeSpan.FromSeconds(1), [1205]));
 	else if (dbEngine == "postgres")
-		options.UseNpgsql(connString);
+		options.UseNpgsql(connString, npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(2, TimeSpan.FromSeconds(1), ["40P01"]));
 	else if (dbEngine == "mysql")
-		options.UseMySQL(connString);
+		options.UseMySQL(connString, mysqlOptions => mysqlOptions.EnableRetryOnFailure(2, TimeSpan.FromSeconds(1), [1213]));
 	else
 		throw new NotSupportedException($"Database engine '{dbEngine}' is not supported.");
 }

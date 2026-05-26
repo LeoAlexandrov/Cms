@@ -416,6 +416,57 @@ namespace HCms.Content.Services
 
 		#endregion
 
+		public async Task<Document[]> ListDocuments(IPathMapper pathMapper, int id)
+		{
+			Entities.Document[] docs;
+
+			if (id <= 0)
+			{
+				docs = await _dbContext.Documents
+					.AsNoTracking()
+					.OrderBy(d => d.Parent)
+					.ThenBy(d => d.Position)
+					.ToArrayAsync();
+			}
+			else
+			{
+				docs = await _dbContext.Documents
+					.AsNoTracking()
+					.Join(_dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
+					.Where(dn => dn.d.Id == id || dn.n.Parent == id)
+					.Select(dn => dn.d)
+					.OrderBy(d => d.Parent)
+					.ThenBy(d => d.Position)
+					.ToArrayAsync();
+			}
+
+			var refsList = await _dbContext.References
+				.AsNoTracking()
+				.GroupJoin(_dbContext.Documents, r => r.ReferenceTo, d => d.Id, (r, d) => new { r, d })
+				.SelectMany(
+					rd => rd.d.DefaultIfEmpty(),
+					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathMapper)
+				)
+				.ToArrayAsync();
+
+			Dictionary<string, string> refs = [];
+
+			foreach (var r in refsList)
+				refs.TryAdd(r.Pattern, r.Replacement);
+
+			var result = docs
+				.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null))
+				.ToArray();
+
+			foreach (var r in result)
+			{
+				r.Summary = ReplaceRefs(r.Summary, refs);
+				r.CoverPicture = ReplaceRefs(r.CoverPicture, refs);
+			}
+
+			return result;
+		}
+
 		public async Task<Document> GetDocument(IPathMapper pathMapper, string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
 			allowedStatus ??= [(int)PublishStatus.Published];

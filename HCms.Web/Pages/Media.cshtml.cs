@@ -11,14 +11,12 @@ using HCms.Application.Services;
 namespace HCms.Web.Pages
 {
 	[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-	public class MediaModel(MediaManagementService ms, IAuthorizationService authService) : PageModel
+	public class MediaModel(MediaManagementService ms) : PageModel
 	{
 		private readonly MediaManagementService _ms = ms;
-		private readonly IAuthorizationService _authService = authService;
 
 		public string Link { get; set; }
 		public long? MaxUploadSize { get; set; }
-		public bool UploadOnlySafeContent { get; set; }
 		public string SafeNameRegexString { get; set; }
 		public object UploadParams { get; set; }
 		public bool MediaPickerMode { get; set; }
@@ -34,11 +32,6 @@ namespace HCms.Web.Pages
 
 			Link = link ?? string.Empty;
 
-			var storageParams = _ms.GetCommonParams(Link);
-
-			MaxUploadSize = storageParams.MaxUploadSize;
-			SafeNameRegexString = storageParams.SafeNameRegex;
-
 			if (string.IsNullOrEmpty(Link))
 			{
 				string redirLink = Base64Url.Encode(_ms.GetDefaultDisplayPlace() ?? string.Empty);
@@ -47,10 +40,11 @@ namespace HCms.Web.Pages
 					return Redirect($"/media/{redirLink}{(MediaPickerMode ? "?picker" : string.Empty)}");
 			}
 
-			var authResult = await _authService.AuthorizeAsync(User, "UploadUnsafeContent");
+			var storageParams = _ms.GetCommonParams(Link);
 
-			UploadOnlySafeContent = !authResult.Succeeded;
-			UploadParams = new { MaxUploadSize, UploadOnlySafeContent, SafeNameRegexString };
+			MaxUploadSize = storageParams.MaxUploadSize;
+			SafeNameRegexString = storageParams.SafeNameRegex;
+			UploadParams = new { MaxUploadSize, SafeNameRegexString };
 
 			return Page();
 		}

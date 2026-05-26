@@ -87,6 +87,34 @@ namespace HCms.Content.Repo
 			return result;
 		}
 
+		public async Task<Document[]> ListDocuments(int id)
+		{
+			string url = $"{_cmsApiHost}/api/v1/content/list/{id}?pm={_pathMapperName}";
+			Document[] result;
+
+			try
+			{
+				result = await RestRequest<Document[]>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE);
+			}
+			catch (HttpRequestException ex)
+			{
+				if (ex.StatusCode != System.Net.HttpStatusCode.NotFound)
+				{
+					_logger.LogError(ex, "Status code returned by H-Cms API is not 200 OK or 404 NotFound: {Url}", url);
+					throw;
+				}
+				else
+					result = null;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting document list from the H-Cms API: {Url}", url);
+				throw;
+			}
+
+			return result;
+		}
+
 		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
 			string ast = allowedStatus != null ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : "ast=1";

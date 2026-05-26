@@ -19,6 +19,13 @@ namespace HCms.Content.Repo
 		void Reset();
 
 		/// <summary>
+		/// Asynchronously returns an array of view models of all the documents that are direct or indirect children of the document with the specified id. If id is 0 method returns all documents from the database.
+		/// </summary>
+		/// <param name="id">Id of the parent document whose all direct or indirect children to return. If zero, all documents are returned.</param>
+		/// <returns>An array of view models of the returned documents.</returns>
+		Task<Document[]> ListDocuments(int id);
+
+		/// <summary>
 		/// Asynchronously returns a view model of the document with the specified logical path.
 		/// </summary>
 		/// <param name="root">Slug of the root document.</param>

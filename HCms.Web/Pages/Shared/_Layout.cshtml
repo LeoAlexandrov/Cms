@@ -12,7 +12,7 @@
 	<link rel="shortcut icon" href="~/images/app-fav-icon.webp" type="image/webp">
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet" type="text/css">
-	<link href="https://cdn.jsdelivr.net/npm/quasar@2.18.7/dist/quasar.prod.css" rel="stylesheet" type="text/css">
+	<link href="https://cdn.jsdelivr.net/npm/quasar@2.19.3/dist/quasar.prod.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="~/css/styles.css">
 	@RenderSection("Css", required: false)
 
@@ -52,18 +52,16 @@
 
 					<q-scroll-area class="drawer-menu-scroller">
 							<q-list>
-
 								<template v-for="(menuItem, index) in navmenu" :key="index">
-									<q-item active v-ripple v-if="menuItem.id == activeNavSection">
-										<q-item-section avatar><q-icon color="primary" :name="menuItem.icon" /></q-item-section>
-										<q-item-section class="text-weight-medium">{{ menuItem.label }}</q-item-section>
-									</q-item>
-									<q-item clickable :href="menuItem.url" v-ripple v-else>
+									<q-item clickable :href="menuItem.url" v-ripple v-if="menuItem.url">
 										<q-item-section avatar><q-icon color="blue-grey" :name="menuItem.icon" /></q-item-section>
 										<q-item-section class="text-weight-regular">{{ menuItem.label }}</q-item-section>
 									</q-item>
+									<q-item active v-ripple v-else>
+										<q-item-section avatar><q-icon color="primary" :name="menuItem.icon" /></q-item-section>
+										<q-item-section class="text-weight-medium">{{ menuItem.label }}</q-item-section>
+									</q-item>
 								</template>
-
 								<q-separator></q-separator>
 								<q-item clickable v-ripple v-if="navmenu.length!=0" @@click="signout()">
 									<q-item-section avatar><q-icon color="blue-grey" name="logout" /></q-item-section>
@@ -103,10 +101,10 @@
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/quasar@2.18.7/dist/quasar.umd.prod.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/quasar@2.19.3/dist/quasar.umd.prod.js"></script>
 	@if (SharedLocalizer["Language"].Value != "en")
 	{
-		<script src="https://cdn.jsdelivr.net/npm/quasar@2.18.7/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/quasar@2.19.3/dist/lang/@(SharedLocalizer["Language"]).umd.prod.js"></script>
 	}
 	<script id="auth_endpoints" type="application/json">@Json.Serialize(new { signin = "/auth", signout = "/api/v1/auth/signout", refresh = "/api/v1/auth/refresh" })</script>
 	@RenderSection("Scripts", required: false)

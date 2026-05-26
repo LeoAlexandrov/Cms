@@ -91,8 +91,8 @@
 					clearable
 					use-chips
 					max-file-size="@Model.MaxUploadSize"
-					@(Model.UploadOnlySafeContent ? Html.Raw("accept=\"image/*, video/*\"") : "")
-					@(Model.UploadOnlySafeContent ? Html.Raw(string.Format(":rules=\"[val => validateFileName(val) || '{0}']\"", Localizer["UnsafeName"].Value)) : "")
+					:accept="uploadOnlySafeContent ? 'image/*, video/*' : ''"
+					:rules="[val => validateFileName(val) || '@Localizer["UnsafeName"]']"
 					@@rejected="onUploadRejected">
 				</q-file>
 			</form>

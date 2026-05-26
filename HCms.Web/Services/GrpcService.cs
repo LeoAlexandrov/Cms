@@ -45,6 +45,18 @@ namespace HCms.Web.Services
 
 
 	[ProtoContract]
+	public class ListGrpcRequest
+	{
+		[ProtoMember(1)]
+		public int Id { get; set; }
+
+		[ProtoMember(2)]
+		public string PathMapper { get; set; }
+	}
+
+
+
+	[ProtoContract]
 	public class DocumentGrpcResult
 	{
 		[ProtoMember(1)]
@@ -60,6 +72,7 @@ namespace HCms.Web.Services
 	public interface IContentGrpcService
 	{
 		Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, ServerCallContext context = default);
+		Task<DocumentGrpcResult> GetList(ListGrpcRequest request, ServerCallContext context = default);
 	}
 
 
@@ -87,6 +100,23 @@ namespace HCms.Web.Services
 			{
 				Status = doc != null ? 200 : 404,
 				Data = MessagePack.MessagePackSerializer.Serialize(doc)
+			};
+
+			return result;
+		}
+
+		public async Task<DocumentGrpcResult> GetList(ListGrpcRequest request, ServerCallContext context = default)
+		{
+			using var scope = _serviceProvider.CreateScope();
+			var cps = scope.ServiceProvider.GetRequiredService<ContentProvidingService>();
+			var pm = _pathMapperFactory.Get(request.PathMapper);
+
+			var docs = await cps.ListDocuments(pm, request.Id);
+
+			var result = new DocumentGrpcResult()
+			{
+				Status = docs != null ? 200 : 404,
+				Data = MessagePack.MessagePackSerializer.Serialize(docs)
 			};
 
 			return result;

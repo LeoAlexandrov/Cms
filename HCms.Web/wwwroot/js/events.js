@@ -7,7 +7,6 @@
 			drawerMiniState: true,
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
-			activeNavSection: "events",
 			appVersion: null,
 
 			destinations: [],
@@ -316,7 +315,7 @@
 		document.querySelector("body").classList.remove("body-progress");
 
 		application
-			.apiCallAsync("/api/v1/ui/navigationmenu", "GET", null, null, null)
+			.apiCallAsync("/api/v1/ui/?id=events", "GET", null, null, null)
 			.then((r) => {
 
 				if (r.ok) {

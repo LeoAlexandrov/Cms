@@ -7,7 +7,6 @@
 			drawerMiniState: true,
 			profile: { name: "", avatar: "/images/empty-avatar.png" },
 			navmenu: [],
-			activeNavSection: "schemata",
 			appVersion: null,
 			splitter: 20,
 
@@ -391,7 +390,7 @@
 		document.querySelector("body").classList.remove("body-progress");
 
 		application
-			.apiCallAsync("/api/v1/ui/navigationmenu", "GET", null, null, null)
+			.apiCallAsync("/api/v1/ui/?id=schemata", "GET", null, null, null)
 			.then((r) => {
 
 				if (r.ok) {

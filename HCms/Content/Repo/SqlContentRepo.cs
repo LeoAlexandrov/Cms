@@ -61,6 +61,15 @@ namespace HCms.Content.Repo
 			NeedsSchemataReload = 1;
 		}
 
+
+		public Task<Document[]> ListDocuments(int id)
+		{
+			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
+			var provider = new ContentProvidingService(dbContext, fsr, logger);
+
+			return provider.ListDocuments(pathMapper, id);
+		}
+
 		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
@@ -86,6 +95,5 @@ namespace HCms.Content.Repo
 
 			return provider.UserRole(login);
 		}
-
 	}
 }
