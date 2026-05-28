@@ -175,7 +175,6 @@ namespace HCms.Application.Dto
 		[Range(0, 2)]
 		public int Status { get; set; }
 
-
 		[MessagePack.Key("copyAttributes")]
 		public bool CopyAttributes { get; set; }
 	}

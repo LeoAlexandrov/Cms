@@ -5,17 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Amazon.Runtime;
-
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 
 using HCms.Domain.Types;
 
@@ -338,16 +333,14 @@ namespace HCms.Infrastructure.Media
 
 				using var resp = await client.GetObjectAsync(req);
 
-				var image = await Image.LoadAsync<Rgba32>(resp.ResponseStream);
+				// this is for SkiaSharp, pass ms to CreateImagePreview instead of resp.ResponseStream
+				// because SkiaSharp requires seekable stream for some image formats
+				// 
+				// MemoryStream ms = new();
+				// await resp.ResponseStream.CopyToAsync(ms);
+				// ms.Position = 0;
 
-				if (image.Height > size || image.Width > size)
-					image.Mutate(x => x.Resize(new ResizeOptions() { Mode = ResizeMode.Pad, Size = new(size, size), PadColor = SixLabors.ImageSharp.Color.Transparent }));
-				else
-					image.Mutate(x => x.Pad(size, size, SixLabors.ImageSharp.Color.Transparent));
-
-				using var output = File.OpenWrite(cachedPath);
-
-				await image.SaveAsWebpAsync(output);
+				await CreateImagePreview(resp.ResponseStream, cachedPath, size);
 			}
 			else if (_fileIconProvider != null && _fileIconProvider.TryGet(fileExt, size, out var bytes))
 			{
@@ -359,13 +352,7 @@ namespace HCms.Infrastructure.Media
 			}
 			else
 			{
-				using var image = new Image<Rgba32>(size, size);
-
-				image.Mutate(x => x.BackgroundColor(SixLabors.ImageSharp.Color.Gainsboro));
-
-				using var output = File.OpenWrite(cachedPath);
-
-				await image.SaveAsWebpAsync(output);
+				await CreateImagePreview(null, cachedPath, size);
 			}
 
 			FileInfo f = new(cachedPath);
@@ -399,10 +386,6 @@ namespace HCms.Infrastructure.Media
 			if (extension == ".webp" || extension == ".png" || extension == ".jpg" ||
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
-				string tempFolder = Path.Combine(_settings.CacheFolder, Guid.NewGuid().ToString());
-
-				Directory.CreateDirectory(tempFolder);
-
 				var objReq = new GetObjectRequest() 
 				{ 
 					BucketName = bucket, 
@@ -411,10 +394,7 @@ namespace HCms.Infrastructure.Media
 
 				using var resp = await client.GetObjectAsync(objReq);
 
-				var image = await Image.LoadAsync(resp.ResponseStream);
-
-				w = image.Width;
-				h = image.Height;
+				(w, h) = await GetImageDimensions(resp.ResponseStream);
 				size = resp.ContentLength;
 				lastModified = resp.LastModified ?? DateTime.UnixEpoch;
 			}

@@ -4,13 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using HCms.Domain.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using static HCms.Infrastructure.Media.S3MediaStorageSettings;
+
+using HCms.Domain.Types;
 
 
 namespace HCms.Infrastructure.Media
@@ -243,16 +240,7 @@ namespace HCms.Infrastructure.Media
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
 				using var stream = File.OpenRead(fullPath);
-				using var output = File.OpenWrite(cachedPath);
-
-				var image = await Image.LoadAsync<Rgba32>(stream);
-
-				if (image.Height > size || image.Width > size)
-					image.Mutate(x => x.Resize(new ResizeOptions() { Mode = ResizeMode.Pad, Size = new(size, size), PadColor = Color.Transparent }));
-				else
-					image.Mutate(x => x.Pad(size, size, Color.Transparent));
-
-				await image.SaveAsWebpAsync(output);
+				await CreateImagePreview(stream, cachedPath, size);
 			}
 			else if (_fileIconProvider != null && _fileIconProvider.TryGet(extension, size, out var bytes))
 			{
@@ -264,12 +252,7 @@ namespace HCms.Infrastructure.Media
 			}
 			else
 			{
-				using var image = new Image<Rgba32>(size, size);
-				using var output = File.OpenWrite(cachedPath);
-
-				image.Mutate(x => x.BackgroundColor(Color.Gainsboro));
-
-				await image.SaveAsWebpAsync(output);
+				await CreateImagePreview(null, cachedPath, size);
 			}
 
 			FileInfo f = new(cachedPath);
@@ -300,11 +283,10 @@ namespace HCms.Infrastructure.Media
 			{
 				var (storagePath, _, objName) = SplitPath(path);
 				string fullPath = Path.Combine(storagePath, ToOSPath(objName));
+				
 				using var stream = File.OpenRead(fullPath);
-				var image = await Image.LoadAsync(stream);
+				(result.Width, result.Height) = await GetImageDimensions(stream);
 
-				result.Width = image.Width;
-				result.Height = image.Height;
 			}
 
 			return result;

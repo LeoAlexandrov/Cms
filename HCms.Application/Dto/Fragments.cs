@@ -277,7 +277,6 @@ namespace HCms.Application.Dto
 
 		[MessagePack.Key("rawXml")]
 		public string RawXml { get; set; }
-
 	}
 
 

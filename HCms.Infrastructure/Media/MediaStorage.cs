@@ -4,10 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+//using SkiaSharp;
+
+// to use SkiaSharp add nuget packages 'SkiaSharp' and 'SkiaSharp.NativeAssets.Linux.NoDependencies'
+// uncomment the SkiaSharp code and comment the ImageSharp code below
 
 using AleProjects.Base64;
 using HCms.Domain.Types;
@@ -205,6 +212,105 @@ namespace HCms.Infrastructure.Media
 					return true;
 			}
 		}
+
+		// SixLabors.ImageSharp
+
+		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size)
+		{
+			bool blank = imageStream == null;
+
+			using var image = blank ?
+				new Image<Rgba32>(size, size) :
+				await Image.LoadAsync<Rgba32>(imageStream);
+
+			if (blank)
+				image.Mutate(x => x.BackgroundColor(SixLabors.ImageSharp.Color.Gainsboro));
+			else if (image.Height > size || image.Width > size)
+				image.Mutate(x => x.Resize(new ResizeOptions() { Mode = ResizeMode.Pad, Size = new(size, size), PadColor = SixLabors.ImageSharp.Color.Transparent }));
+			else
+				image.Mutate(x => x.Pad(size, size, SixLabors.ImageSharp.Color.Transparent));
+
+			using var output = File.OpenWrite(previewPath);
+
+			await image.SaveAsWebpAsync(output);
+		}
+
+		public static async ValueTask<(int, int)> GetImageDimensions(Stream imageStream)
+		{
+			var image = await Image.LoadAsync(imageStream);
+
+			return (image.Width, image.Height);
+		}
+
+		// SkiaSharp
+		// uncomment code fragment in S3MediaStorage.cs around L340
+
+		/*
+		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size)
+		{
+			var info = new SKImageInfo(size, size, SKColorType.Rgba8888, SKAlphaType.Premul);
+			using var surface = SKSurface.Create(info);
+			using var canvas = surface.Canvas;
+
+			if (imageStream == null)
+			{
+				canvas.Clear(SKColors.Gainsboro);
+			}
+			else
+			{
+				using var srcBitmap = SKBitmap.Decode(imageStream);
+
+				if (srcBitmap != null)
+				{
+					int w = srcBitmap.Width;
+					int h = srcBitmap.Height;
+
+					if (w > size || h > size)
+					{
+						float scale = w > h ? (float)w / size : (float)h / size;
+						int destW = (int)Math.Round(w / scale);
+						int destH = (int)Math.Round(h / scale);
+						int left = (size - destW) / 2;
+						int top = (size - destH) / 2;
+
+						var destRect = new SKRectI(left, top, left + destW, top + destH);
+
+						using var resizedBitmap = srcBitmap.Resize(new SKSizeI(destW, destH), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+						canvas.DrawBitmap(resizedBitmap, destRect);
+					}
+					else
+					{
+						int left = (size - w) / 2;
+						int top = (size - h) / 2;
+						var destRect = new SKRectI(left, top, left + w, top + h);
+
+						canvas.DrawBitmap(srcBitmap, destRect);
+					}
+				}
+				else
+				{
+					canvas.Clear(SKColors.Gainsboro);
+				}
+			}
+
+			using var image = surface.Snapshot();
+			using var data = image.Encode(SKEncodedImageFormat.Webp, 90);
+			using var stream = data.AsStream();
+			using var output = File.OpenWrite(previewPath);
+
+			await stream.CopyToAsync(output);
+		}
+
+		public static ValueTask<(int, int)> GetImageDimensions(Stream imageStream)
+		{
+			if (imageStream == null)
+				return ValueTask.FromResult((0, 0));
+
+			var imgInfo = SKBitmap.DecodeBounds(imageStream);
+
+			return ValueTask.FromResult((imgInfo.Width, imgInfo.Height));
+		}
+		*/
 
 		public static void CheckAndCreateCacheFolder(IConfiguration configuration)
 		{
