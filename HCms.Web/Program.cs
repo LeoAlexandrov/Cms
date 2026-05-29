@@ -94,11 +94,25 @@ void ConfigureDatabase(DbContextOptionsBuilder options, ConfigurationManager con
 
 void ConfigureServices(IServiceCollection services, ConfigurationManager configuration)
 {
-	var pmf = PathMapperFactory.Load(configuration);
-	var fip = FileIconProvider.Load("Assets/FileTypeIcons");
+	const string AUTH_SCHEME_MULTI = "MultiAuth";
+	const string AUTH_SCHEME_APIKEY	= "ApiKey";
 
 	services
-		.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+		// auth
+		.AddAuthentication(options => 
+			{
+				options.DefaultAuthenticateScheme = AUTH_SCHEME_MULTI;
+				options.DefaultChallengeScheme = AUTH_SCHEME_MULTI;
+			})
+		.AddPolicyScheme(AUTH_SCHEME_MULTI, "Multiple Auth Schemes", options =>
+			{
+				options.ForwardDefaultSelector = context =>
+				{
+					return context.Request.Headers.ContainsKey("APIKey") ? 
+						AUTH_SCHEME_APIKEY : 
+						JwtBearerDefaults.AuthenticationScheme;
+				};
+			})
 		.AddJwtBearer(options =>
 			{
 				options.Events = new JwtBearerEvents
@@ -144,7 +158,11 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetValue<string>("Auth:SecurityKey"))),
 				};
 			})
-		.AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
+		.AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(AUTH_SCHEME_APIKEY, _ => { });
+
+
+	var pmf = PathMapperFactory.Load(configuration);
+	var fip = FileIconProvider.Load("Assets/FileTypeIcons");
 
 	services
 		// data
@@ -193,7 +211,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddAuthorization(options =>
 			{
 				options.DefaultPolicy = new AuthorizationPolicyBuilder()
-					.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, "ApiKey")
+					.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, AUTH_SCHEME_APIKEY)
 					.RequireAuthenticatedUser()
 					.Build();
 
@@ -222,10 +240,10 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 	services
 		.AddApiVersioning()
 		.AddApiExplorer(options =>
-		 {
-			 options.GroupNameFormat = "'v'VVV";
-			 options.SubstituteApiVersionInUrl = true;
-		 });
+			{
+				 options.GroupNameFormat = "'v'VVV";
+				 options.SubstituteApiVersionInUrl = true;
+			});
 
 	services.AddRazorPages()
 		.AddViewLocalization()
@@ -262,9 +280,7 @@ void ConfigureApp(WebApplication app)
 
 	app.UseForwardedHeaders()
 #if DEBUG
-		// assumed production deployment configuration is the app running in docker container
-		// behind a reverse proxy with TLS termination
-		.UseHttpsRedirection()
+		.UseHttpsRedirection() // Assumed production deployment configuration is the app running in docker container behind a reverse proxy with TLS termination
 #endif
 		.UseStaticFiles()
 		.UseRouting()
