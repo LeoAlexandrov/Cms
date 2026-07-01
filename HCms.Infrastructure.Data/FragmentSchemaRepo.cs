@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,8 +21,6 @@ namespace HCms.Infrastructure.Data
 
 	public class FragmentSchemaRepo
 	{
-		public const string W3_2001_XMLSCHEMA = "http://www.w3.org/2001/XMLSchema";
-
 #if DEBUG
 		const string XSD_PATH = "InitialData/XmlSchemata";
 #else
@@ -32,7 +31,7 @@ namespace HCms.Infrastructure.Data
 
 		public List<XSElement> Fragments { get; private set; }
 		public XmlSchemaSet SchemaSet { get; private set; }
-		public Dictionary<string, XSElement> Index { get; private set; }
+		public FrozenDictionary<string, XSElement> Index { get; private set; }
 
 
 		public FragmentSchemaRepo() { }
@@ -44,10 +43,17 @@ namespace HCms.Infrastructure.Data
 			_logger = loggerFactory.CreateLogger<FragmentSchemaRepo>();
 
 			(SchemaSet, Fragments) = ReadSchemata(dbContext, _logger);
-			Index = [];
+			Dictionary<string, XSElement> index = [];
 
 			foreach (var f in Fragments)
-				f.AddSelfToIndex(Index);
+				f.AddSelfToIndex(index);
+
+			Index = index.ToFrozenDictionary();
+
+#if DEBUG
+			string logJson = System.Text.Json.JsonSerializer.Serialize(Fragments, new System.Text.Json.JsonSerializerOptions() { WriteIndented = true });
+			_logger.LogInformation(logJson);
+#endif
 		}
 
 		private static XmlSchema ReadXsd(string data)
@@ -413,7 +419,7 @@ namespace HCms.Infrastructure.Data
 
 				SchemaSet = schemaSet;
 				Fragments = fragments;
-				Index = index;
+				Index = index.ToFrozenDictionary();
 
 				_logger?.LogInformation("Schema repo is (re)loaded: {Count} items", Fragments.Count);
 				result = true;
@@ -437,7 +443,7 @@ namespace HCms.Infrastructure.Data
 
 			SchemaSet = schemaSet;
 			Fragments = fragments;
-			Index = index;
+			Index = index.ToFrozenDictionary();
 
 			_logger?.LogInformation("Schema repo is (re)loaded: {Count} items", Fragments.Count);
 

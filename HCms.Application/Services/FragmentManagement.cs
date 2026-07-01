@@ -43,6 +43,14 @@ namespace HCms.Application.Services
 			}
 		}
 
+		struct XmlNodeAndPath : IComparable<XmlNodeAndPath>
+		{
+			public XmlNode Node;
+			public string Path;
+
+			public readonly int CompareTo(XmlNodeAndPath other) => string.Compare(Path, other.Path, StringComparison.InvariantCultureIgnoreCase);
+		}
+
 		#region private-functions
 
 		private static void RecursiveDelete(FragmentLink[] links, int containerRef, LinkComparer linkComparer, List<Fragment> fragmentsToDelete, List<FragmentLink> linksToDelete)
@@ -88,17 +96,21 @@ namespace HCms.Application.Services
 			return children;
 		}
 
-		private static List<DtoFragmentElement> TraverseElement(XmlNode element, int level, string path, string lang, List<DtoFragmentElement> list, IDictionary<string, XSElement> index)
+		private static string XmlNodeFullPath(XmlNode node, string pathPrefix)
 		{
-			int k = element.Name.IndexOf(':');
-			string name = element.Name[(k + 1)..];
-			string ns = element.NamespaceURI;
+			int k = node.Name.IndexOf(':');
+			string name = node.Name[(k + 1)..];
+			string ns = node.NamespaceURI;
 
-			if (string.IsNullOrEmpty(path))
-				path = ns + ":" + name;
-			else
-				path += "\\" + ns + ":" + name;
+			if (string.IsNullOrEmpty(pathPrefix))
+				return ns + ":" + name;
+			
+			return pathPrefix + "\\" + ns + ":" + name;
+		}
 
+		private static List<DtoFragmentElement> Decompose(XmlNode element, int level, string path, string lang, List<DtoFragmentElement> list, IDictionary<string, XSElement> index)
+		{
+			path = XmlNodeFullPath(element, path);
 
 			XSElement xse = index[path];
 
@@ -110,77 +122,87 @@ namespace HCms.Application.Services
 
 			list.Add(vmi);
 
-			XmlNode node = element.FirstChild;
+			var node = element.FirstChild;
+			var nodes = new List<XmlNodeAndPath>(16);
+			var sb = new StringBuilder(512);
 
 			if (node != null)
 			{
-				var sb = new StringBuilder(512);
-
 				do
 				{
 					if (node.NodeType == XmlNodeType.Element)
-						TraverseElement(node, level + 1, path, lang, list, index);
+					{
+						string p = XmlNodeFullPath(node, path);
+						nodes.Add(new XmlNodeAndPath { Node = node, Path = p });
+					}
 					else if (node.NodeType == XmlNodeType.Text || node.NodeType == XmlNodeType.CDATA)
 						sb.Append(node.InnerText.Trim());
-					else if (node.NodeType == XmlNodeType.Comment)
-					{
-						string nodePath = node.InnerText.Trim();
-
-						if (index.TryGetValue(nodePath, out xse))
-						{
-							DtoFragmentElement vmi2 = new(xse, lang)
-							{
-								Level = level + 1,
-								Path = nodePath,
-								IsAddable = true,
-								Value = xse.DefaultObjectValue()
-							};
-
-							list.Add(vmi2);
-						}
-					}
 
 					node = node.NextSibling;
 
 				} while (node != null);
-
-				switch (vmi.XmlType)
-				{
-					case "boolean":
-						if (bool.TryParse(sb.ToString(), out bool b))
-							vmi.Value = b;
-
-						break;
-
-					case "integer":
-					case "int":
-					case "short":
-					case "byte":
-						if (int.TryParse(sb.ToString(), out int i))
-							vmi.Value = i;
-
-						break;
-
-					case "decimal":
-					case "double":
-					case "float":
-						if (double.TryParse(sb.ToString(), out double d))
-							vmi.Value = d;
-
-						break;
-
-					default:
-						vmi.Value = sb.ToString();
-						break;
-				}
 			}
-			else if (vmi.XmlType == "string" ||
-				(vmi.XmlType != "boolean" &&
-				 vmi.XmlType != "integer" && vmi.XmlType != "int" && vmi.XmlType != "short" && vmi.XmlType != "byte" &&
-				 vmi.XmlType != "decimal" && vmi.XmlType != "double" && vmi.XmlType != "float"))
+
+
+			switch (vmi.XmlType)
 			{
-				vmi.Value = string.Empty;
+				case "boolean":
+					if (bool.TryParse(sb.ToString(), out bool b))
+						vmi.Value = b;
+
+					break;
+
+				case "integer":
+				case "int":
+				case "short":
+				case "byte":
+					if (int.TryParse(sb.ToString(), out int v))
+						vmi.Value = v;
+
+					break;
+
+				case "decimal":
+				case "double":
+				case "float":
+					if (double.TryParse(sb.ToString(), out double d))
+						vmi.Value = d;
+
+					break;
+
+				default:
+					vmi.Value = sb.ToString();
+					break;
 			}
+
+
+			nodes.Sort();
+
+			if (xse.Elements != null)
+				for (int i = 0; i < xse.Elements.Count; i++)
+				{
+					string p = xse.Elements[i].Path;
+					int j = nodes.FindIndex(n => string.Equals(n.Path, p, StringComparison.InvariantCultureIgnoreCase));
+
+					if (j < 0)
+					{
+						vmi = new(xse.Elements[i], lang)
+						{
+							Level = level + 1,
+							Path = p,
+							IsAddable = true,
+							Value = xse.Elements[i].DefaultObjectValue()
+						};
+
+						list.Add(vmi);
+					}
+					else
+					{
+						do
+						{
+							Decompose(nodes[j++].Node, level + 1, path, lang, list, index);
+						} while (j < nodes.Count && string.Equals(nodes[j].Path, p, StringComparison.InvariantCultureIgnoreCase));
+					}
+				}
 
 			return list;
 		}
@@ -218,7 +240,6 @@ namespace HCms.Application.Services
 
 
 			Stack<string> closeTags = new();
-			IFormatProvider fmt = new NumberFormatInfo();
 			string tag;
 			int level = 0;
 
@@ -241,10 +262,6 @@ namespace HCms.Application.Services
 								.AppendLine();
 						} while (level > decomposition[i].Level);
 					}
-
-					result
-						.AppendLine("<!-- Do not remove the comment below -->")
-						.AppendLine($"<!-- {decomposition[i].Path} -->");
 				}
 				else if (decomposition[i].IsSimple)
 				{
@@ -302,7 +319,7 @@ namespace HCms.Application.Services
 
 						default:
 							result
-								.AppendFormat(fmt, "{0}</{1}>", decomposition[i].Value, tag)
+								.AppendFormat(CultureInfo.InvariantCulture, "{0}</{1}>", decomposition[i].Value, tag)
 								.AppendLine();
 							break;
 					}
@@ -394,13 +411,7 @@ namespace HCms.Application.Services
 				int n = e.MinOccurs;
 
 				if (n == 0)
-				{
-					result
-						.AppendLine("<!-- Do not remove or change the comment below -->")
-						.AppendLine($"<!-- {e.Path} -->");
-
 					return;
-				}
 
 				if (NamespacesPrefixes.TryGetValue(e.Namespace, out string prefix) && !string.IsNullOrEmpty(prefix))
 					prefix += ":";
@@ -584,7 +595,7 @@ namespace HCms.Application.Services
 
 				var root = document.DocumentElement ?? throw new XmlException();
 
-				dto.Decomposition = TraverseElement(root, 0, null, lang, [], _schemaRepo.Index);
+				dto.Decomposition = Decompose(root, 0, null, lang, [], _schemaRepo.Index);
 			}
 			catch (Exception ex)
 			{

@@ -7,26 +7,12 @@
 		<picture>
 			<source>https://demo-media.h-cms.net/cms-demo-logo.svg</source>
 			<alt></alt>
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:height -->
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
-			<!-- Do not remove the comment below -->
-			<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:content\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
 		</picture>
 	</content>
 	<appearance>
 		<layout>start</layout>
 		<featured>false</featured>
 		<visibility>true</visibility>
-		<!-- Do not remove the comment below -->
-		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:appearance\http://h-cms.net/default.xsd:background -->
 	</appearance>
 	<action>
 		<action-type>Url</action-type>
@@ -36,7 +22,5 @@
 		<icon></icon>
 		<icon-left>false</icon-left>
 		<category>secondary</category>
-		<!-- Do not remove the comment below -->
-		<!-- http://h-cms.net/default.xsd:hero\http://h-cms.net/default.xsd:action\http://h-cms.net/default.xsd:target -->
 	</action>
 </hero>

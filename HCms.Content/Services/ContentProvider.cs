@@ -69,7 +69,7 @@ namespace HCms.Content.Services
 			return new string(cId);
 		}
 
-		static object Convert(string val, int type, IFormatProvider fmt)
+		static object Convert(string val, int type)
 		{
 			object result;
 
@@ -85,7 +85,7 @@ namespace HCms.Content.Services
 					break;
 
 				case 2:
-					if (double.TryParse(val, fmt, out double xRes))
+					if (double.TryParse(val, CultureInfo.InvariantCulture.NumberFormat, out double xRes))
 						result = xRes;
 					else
 						result = val;
@@ -121,7 +121,7 @@ namespace HCms.Content.Services
 				.Distinct();
 		}
 
-		static object GetXmlMember(XElement node, string ns, XSElement xse, string memberName, IFormatProvider fmt, out bool success)
+		static object GetXmlMember(XElement node, string ns, XSElement xse, string memberName, out bool success)
 		{
 			string name = string.IsNullOrEmpty(ns) ? memberName : $"{{{ns}}}{memberName}";
 			var nodes = node.Elements(name);
@@ -172,7 +172,7 @@ namespace HCms.Content.Services
 				var keys = GetXmlKeys(n, ns);
 
 				foreach (var key in keys)
-					dict[key] = GetXmlMember(n, ns, newXse, key, fmt, out _);
+					dict[key] = GetXmlMember(n, ns, newXse, key, out _);
 
 				return dict;
 			}
@@ -183,7 +183,7 @@ namespace HCms.Content.Services
 
 			if (isArray)
 			{
-				result = nodes.Select(n => n.HasElements ? getObject(n) : Convert(n.Value, mtype, fmt)).ToArray();
+				result = nodes.Select(n => n.HasElements ? getObject(n) : Convert(n.Value, mtype)).ToArray();
 				return result;
 			}
 
@@ -197,7 +197,7 @@ namespace HCms.Content.Services
 			}
 			else
 			{
-				result = Convert(n.Value, mtype, fmt);
+				result = Convert(n.Value, mtype);
 			}
 
 			return result;
@@ -217,7 +217,6 @@ namespace HCms.Content.Services
 				return [];
 			}
 
-			IFormatProvider fmt = new NumberFormatInfo();
 			XSElement xse = null;
 			string ns = null;
 			XAttribute attr;
@@ -235,7 +234,7 @@ namespace HCms.Content.Services
 
 			foreach (var key in keys)
 			{
-				var val = GetXmlMember(root, ns, xse, key, fmt, out bool success);
+				var val = GetXmlMember(root, ns, xse, key, out bool success);
 
 				if (success)
 					result[key] = val;

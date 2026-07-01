@@ -2,6 +2,4 @@
 	xmlns="http://h-cms.net/default.xsd">
 	<text><![CDATA[### Col #2 avec markdown
 Lorem ipsum dolor sit amet. Qui animi voluptatem cum iste nulla ea perferendis recusandae.]]></text>
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:markdown\http://h-cms.net/default.xsd:picture -->
 </markdown>

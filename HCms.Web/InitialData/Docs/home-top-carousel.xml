@@ -8,17 +8,7 @@
 		<picture>
 			<source><![CDATA[^('SC1DbXMgZGVtby9iYW5uZXIwLndlYnA')]]></source>
 			<alt></alt>
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
 			<height>320</height>
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
 		</picture>
 		<active>true</active>
 	</item>
@@ -26,17 +16,7 @@
 		<picture>
 			<source><![CDATA[^('SC1DbXMgZGVtby9iYW5uZXIxLndlYnA')]]></source>
 			<alt></alt>
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:width -->
 			<height>320</height>
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:srcset -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sizes -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:floating -->
-<!-- Do not remove the comment below -->
-<!-- http://h-cms.net/default.xsd:carousel-plus\http://h-cms.net/default.xsd:item\http://h-cms.net/default.xsd:picture\http://h-cms.net/default.xsd:sources -->
 		</picture>
 		<active>false</active>
 	</item>

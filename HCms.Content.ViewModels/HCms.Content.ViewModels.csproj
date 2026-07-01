@@ -5,9 +5,9 @@
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<AssemblyVersion>0.4.4</AssemblyVersion>
-	<FileVersion>0.4.4</FileVersion>
-	<VersionPrefix>1.0.22</VersionPrefix>
+	<AssemblyVersion>0.4.5</AssemblyVersion>
+	<FileVersion>0.4.5</FileVersion>
+	<VersionPrefix>1.0.23</VersionPrefix>
 	<Title>H-Cms.Net view models</Title>
 	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms.Content.ViewModels</RepositoryUrl>
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="MessagePack" Version="3.1.6" />
+	<PackageReference Include="MessagePack" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,8 +4,8 @@
 	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
-	<AssemblyVersion>0.4.8</AssemblyVersion>
-	<FileVersion>0.4.8</FileVersion>
+	<AssemblyVersion>0.4.9</AssemblyVersion>
+	<FileVersion>0.4.9</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,15 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="AWSSDK.S3" Version="4.0.23.4" />
-	<PackageReference Include="Google.Apis.Auth" Version="1.74.0" />
-	<PackageReference Include="MessagePack" Version="3.1.6" />
+	<PackageReference Include="AWSSDK.S3" Version="4.0.100" />
+	<PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
+	<PackageReference Include="MessagePack" Version="3.1.7" />
 	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.27" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.16" />
 	<PackageReference Include="Novell.Directory.Ldap.NETStandard" Version="4.0.0" />
 	<PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
 	<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-	<PackageReference Include="StackExchange.Redis" Version="2.13.17" />
+	<PackageReference Include="StackExchange.Redis" Version="3.0.11" />
   </ItemGroup>
 
   <ItemGroup>

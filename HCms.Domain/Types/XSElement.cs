@@ -21,14 +21,30 @@ namespace HCms.Domain.Types
 		[XmlIgnore]
 		public IList<XSElement> Elements { get; set; }
 
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public IList<string> FacetEnumeration { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public string FacetPattern { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMinInclusive { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMaxInclusive { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMinExclusive { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMaxExclusive { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMinLength { get; set; }
+
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public int? FacetMaxLength { get; set; }
+
 		public int MinOccurs { get; set; } = 1;
 		public int MaxOccurs { get; set; } = 1;
 
