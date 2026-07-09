@@ -16,11 +16,11 @@
   <ItemGroup>
 	<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.1" />
 	<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
-	<PackageReference Include="MessagePack" Version="3.1.7" />
-	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.27" />
-	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.27" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.16" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.16" />
+	<PackageReference Include="MessagePack" Version="3.1.8" />
+	<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.28" />
+	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.28" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.17" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.17" />
 	<PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.15" />
 	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 	<PackageReference Include="protobuf-net" Version="3.2.56" />

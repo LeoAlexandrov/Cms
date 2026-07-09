@@ -43,7 +43,7 @@
 		signout() {
 
 			if (this.hasChanged) {
-				this.confirmUnsavedDoc("signout", null);
+				this.confirmUnsavedSchema("signout", null);
 				return;
 			}
 

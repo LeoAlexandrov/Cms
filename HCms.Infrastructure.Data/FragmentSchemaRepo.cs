@@ -77,7 +77,6 @@ namespace HCms.Infrastructure.Data
 			foreach (var item in annotated.Annotation.Items)
 				if (item is XmlSchemaDocumentation doc)
 				{
-
 					result.Documentation ??= [];
 
 					if (sb == null)
