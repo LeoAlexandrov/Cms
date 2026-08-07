@@ -467,16 +467,18 @@ namespace HCms.Infrastructure.Data
 				.ToArrayAsync();
 		}
 
-		public static ValueTask<Schema> GetSchema(CmsDbContext dbContext, int id)
+		public static Task<Schema> GetSchema(CmsDbContext dbContext, int id)
 		{
-			return dbContext.Schemata.FindAsync(id);
+			return dbContext.Schemata
+				.AsNoTracking()
+				.FirstOrDefaultAsync(s => s.Id == id);
 		}
 
 		public static async Task<Schema> CreateSchema(CmsDbContext dbContext, string description)
 		{
-			string ns = "http://h-cms.net/cms/new-schema.xsd";
+			const string ns = "http://h-cms.net/cms/new-schema.xsd";
 
-			string data = @"<?xml version=""1.0"" encoding=""utf-8""?>
+			const string data = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <xs:schema
 	targetNamespace=""http://h-cms.net/cms/new-schema.xsd""
 	elementFormDefault=""qualified""
@@ -502,7 +504,7 @@ namespace HCms.Infrastructure.Data
 
 		public async Task<(Schema, string)> UpdateSchema(CmsDbContext dbContext, int id, string description, string data, bool onlySave)
 		{
-			Schema schema = dbContext.Schemata.Find(id);
+			Schema schema = await dbContext.Schemata.FindAsync(id);
 
 			if (schema == null)
 				return (null, null);
@@ -519,6 +521,7 @@ namespace HCms.Infrastructure.Data
 			}
 
 			List<Schema> schemata = await dbContext.Schemata
+				.AsNoTracking()
 				.Where(s => s.Id != id)
 				.ToListAsync();
 
@@ -563,12 +566,13 @@ namespace HCms.Infrastructure.Data
 
 		public async Task<(bool, string)> DeleteSchema(CmsDbContext dbContext, int id)
 		{
-			Schema schema = dbContext.Schemata.Find(id);
+			Schema schema = await dbContext.Schemata.FindAsync(id);
 
 			if (schema == null)
 				return (false, null);
 
 			List<Schema> schemata = await dbContext.Schemata
+				.AsNoTracking()
 				.Where(s => s.Id != id)
 				.ToListAsync();
 
@@ -597,7 +601,9 @@ namespace HCms.Infrastructure.Data
 
 		public async Task<(bool, string)> CompileAndReload(CmsDbContext dbContext)
 		{
-			Schema[] schemata = await dbContext.Schemata.ToArrayAsync();
+			Schema[] schemata = await dbContext.Schemata
+				.AsNoTracking()
+				.ToArrayAsync();
 
 			XmlSchemaSet schemaSet;
 			List<XSElement> fragments;
@@ -617,29 +623,5 @@ namespace HCms.Infrastructure.Data
 
 			return (true, null);
 		}
-
-		/*
-		public void Traverse(string xmlName, Func<XSElement, int, int, int> callback)
-		{
-			var xse = Find(xmlName);
-			int ofs = 0;
-
-			void traverse(XSElement xse, int level, int parentIdx, Func<XSElement, int, int, int> callback)
-			{
-				XSElement e;
-
-				for (int i = 0; i < xse.Elements.Count; i++)
-				{
-					ofs++;
-
-					if (callback(e = xse.Elements[i], level, parentIdx) == 0 && e.Elements != null)
-						traverse(e, level + 1, ofs, callback);
-				}
-			}
-
-			if (xse != null && callback(xse, 0, -1) == 0 && xse.Elements != null)
-				traverse(xse, 1, ofs, callback);
-		}
-		*/
 	}
 }

@@ -545,12 +545,16 @@ namespace HCms.Application.Services
 
 		public async Task<Result<DtoFullFragmentResult>> GetFragmentByLink(int id, string lang)
 		{
-			var link = await dbContext.FragmentLinks.FindAsync(id);
+			var link = await dbContext.FragmentLinks
+				.AsNoTracking()
+				.FirstOrDefaultAsync(l => l.Id == id);
 
 			if (link == null)
 				return Result<DtoFullFragmentResult>.NotFound();
 
-			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
+			var fragment = await dbContext.Fragments
+				.AsNoTracking()
+				.FirstOrDefaultAsync(f => f.Id == link.FragmentRef);
 
 			int useCount = 0;
 

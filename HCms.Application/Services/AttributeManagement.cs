@@ -20,9 +20,11 @@ namespace HCms.Application.Services
 	public partial class ContentManagementService
 	{
 
-		public async ValueTask<DtoDocumentAttributeResult> GetDocumentAttribute(int id)
+		public async Task<DtoDocumentAttributeResult> GetDocumentAttribute(int id)
 		{
-			DocumentAttribute attr = await dbContext.DocumentAttributes.FindAsync(id);
+			DocumentAttribute attr = await dbContext.DocumentAttributes
+				.AsNoTracking()
+				.FirstOrDefaultAsync(a => a.Id == id);
 
 			if (attr == null)
 				return null;
@@ -30,9 +32,11 @@ namespace HCms.Application.Services
 			return new(attr);
 		}
 
-		public async ValueTask<DtoFragmentAttributeResult> GetFragmentAttribute(int id)
+		public async Task<DtoFragmentAttributeResult> GetFragmentAttribute(int id)
 		{
-			FragmentAttribute attr = await dbContext.FragmentAttributes.FindAsync(id);
+			FragmentAttribute attr = await dbContext.FragmentAttributes
+				.AsNoTracking()
+				.FirstOrDefaultAsync(a => a.Id == id);
 
 			if (attr == null)
 				return null;
@@ -154,7 +158,9 @@ namespace HCms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<DtoFragmentAttributeResult>.Forbidden();
 
-			var link = await dbContext.FragmentLinks.FindAsync(dto.FragmentLinkRef);
+			var link = await dbContext.FragmentLinks
+				.AsNoTracking()
+				.FirstOrDefaultAsync(l => l.Id == dto.FragmentLinkRef);
 
 			if (link == null)
 				return Result<DtoFragmentAttributeResult>.BadParameters("FragmentLinkRef", "No fragment link found");

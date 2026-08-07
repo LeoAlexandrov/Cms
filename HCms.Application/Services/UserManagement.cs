@@ -82,7 +82,9 @@ namespace HCms.Application.Services
 
 		public async Task<Result<DtoUserResult>> GetByLogin(string login, ClaimsPrincipal user)
 		{
-			var u = await dbContext.Users.FirstOrDefaultAsync(u => u.Login == login);
+			var u = await dbContext.Users
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.Login == login);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -97,7 +99,9 @@ namespace HCms.Application.Services
 
 		public async Task<Result<DtoUserResult>> GetByApiKey(string apikey)
 		{
-			var u = await dbContext.Users.FirstOrDefaultAsync(u => u.ApiKey == apikey);
+			var u = await dbContext.Users
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.ApiKey == apikey);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();

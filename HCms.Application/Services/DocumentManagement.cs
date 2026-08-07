@@ -173,7 +173,9 @@ namespace HCms.Application.Services
 
 		public async Task<DtoFullDocumentResult> GetDocument(int id)
 		{
-			Document doc = await dbContext.Documents.FindAsync(id);
+			Document doc = await dbContext.Documents
+				.AsNoTracking()
+				.FirstOrDefaultAsync(d => d.Id == id);
 
 			if (doc == null)
 				return null;
@@ -940,7 +942,9 @@ namespace HCms.Application.Services
 	
 		public async Task<Result<DtoDocumentRefResult>> GetReferences(int id)
 		{
-			var doc = await dbContext.Documents.FindAsync(id);
+			var doc = await dbContext.Documents
+				.AsNoTracking()
+				.FirstOrDefaultAsync(d => d.Id == id);
 
 			if (doc == null)
 				return Result<DtoDocumentRefResult>.NotFound();

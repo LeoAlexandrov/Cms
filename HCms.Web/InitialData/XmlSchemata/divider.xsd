@@ -8,7 +8,7 @@
 	xmlns:xsc="http://h-cms.net/custom">
 
 	
-	<!-- page metadata -->
+	<!-- divider -->
 
 	<xs:complexType name="divider">
 		<xs:annotation>

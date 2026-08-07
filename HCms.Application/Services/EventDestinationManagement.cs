@@ -42,12 +42,14 @@ namespace HCms.Application.Services
 
 		public async Task<DtoEventDestinationResult> GetById(int id, ClaimsPrincipal user)
 		{
-			var d = await _dbContext.EventDestinations.FindAsync(id);
+			var ed = await _dbContext.EventDestinations
+				.AsNoTracking()
+				.FirstOrDefaultAsync(d => d.Id == id);
 
-			if (d == null)
+			if (ed == null)
 				return null;
 
-			DtoEventDestinationResult result = new(d, true);
+			DtoEventDestinationResult result = new(ed, true);
 
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
