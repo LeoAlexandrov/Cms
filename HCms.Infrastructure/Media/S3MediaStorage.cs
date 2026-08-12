@@ -340,7 +340,7 @@ namespace HCms.Infrastructure.Media
 				// await resp.ResponseStream.CopyToAsync(ms);
 				// ms.Position = 0;
 
-				await CreateImagePreview(resp.ResponseStream, cachedPath, size);
+				await CreateImagePreview(resp.ResponseStream, cachedPath, size,ct);
 			}
 			else if (_fileIconProvider != null && _fileIconProvider.TryGet(fileExt, size, out var bytes))
 			{
