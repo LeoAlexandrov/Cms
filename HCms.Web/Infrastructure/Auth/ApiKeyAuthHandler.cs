@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authentication;
@@ -61,7 +62,7 @@ namespace HCms.Web.Infrastructure.Auth
 			
 
 			if (result.IsNotFound)
-				result = await _ums.GetByApiKey(token);
+				result = await _ums.GetByApiKey(token, CancellationToken.None);
 
 			if (result.IsNotFound || !result.Value.IsEnabled)
 				return AuthenticateResult.NoResult();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -133,7 +134,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<List<MediaStorageEntry>> ReadDirectory(string path)
+		public async Task<List<MediaStorageEntry>> ReadDirectory(string path, CancellationToken ct)
 		{
 			if (string.IsNullOrEmpty(path))
 			{
@@ -169,7 +170,7 @@ namespace HCms.Infrastructure.Media
 					ContinuationToken = continuationToken
 				};
 
-				var response = await client.ListObjectsV2Async(request);
+				var response = await client.ListObjectsV2Async(request, ct);
 
 				// folders
 				if (response.CommonPrefixes != null)
@@ -210,7 +211,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<MediaStorageEntry> GetFile(string path)
+		public async Task<MediaStorageEntry> GetFile(string path, CancellationToken ct)
 		{
 			var (bucket, key, objName) = SplitPath(path);
 			var client = GetClient(bucket);
@@ -218,7 +219,7 @@ namespace HCms.Infrastructure.Media
 			if (client == null)
 				return null;
 
-			async ValueTask<Stream> getContentStream(GetObjectResponse r, string fn)
+			static async ValueTask<Stream> getContentStream(GetObjectResponse r, string fn)
 			{
 				return new S3StreamWrapper(r);
 
@@ -257,7 +258,7 @@ namespace HCms.Infrastructure.Media
 				Key = objName
 			};
 
-			var response = await client.GetObjectAsync(request);
+			var response = await client.GetObjectAsync(request, ct);
 
 			long size = response.ContentLength;
 			DateTime lastModified = response.LastModified ?? DateTime.UnixEpoch;
@@ -277,7 +278,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size)
+		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size, CancellationToken ct)
 		{
 			var (bucket, _, objName) = SplitPath(path);
 			var client = GetClient(bucket);
@@ -318,9 +319,9 @@ namespace HCms.Infrastructure.Media
 					Key = objName 
 				};
 				
-				using var resp = await client.GetObjectAsync(req);
+				using var resp = await client.GetObjectAsync(req, ct);
 
-				await resp.WriteResponseStreamToFileAsync(cachedPath, false, default);
+				await resp.WriteResponseStreamToFileAsync(cachedPath, false, ct);
 			}
 			else if (fileExt == ".webp" || fileExt == ".png" || fileExt == ".jpg" ||
 					fileExt == ".gif" || fileExt == ".bmp" || fileExt == ".tif" || fileExt == ".tiff")
@@ -331,28 +332,29 @@ namespace HCms.Infrastructure.Media
 					Key = objName 
 				};
 
-				using var resp = await client.GetObjectAsync(req);
+				using var resp = await client.GetObjectAsync(req, ct);
 
 				// this is for SkiaSharp, pass ms to CreateImagePreview instead of resp.ResponseStream
 				// because SkiaSharp requires seekable stream for some image formats
 				// 
 				// MemoryStream ms = new();
-				// await resp.ResponseStream.CopyToAsync(ms);
+				// await resp.ResponseStream.CopyToAsync(ms, ct);
 				// ms.Position = 0;
+				// await CreateImagePreview(ms, cachedPath, size,ct);
 
 				await CreateImagePreview(resp.ResponseStream, cachedPath, size,ct);
 			}
 			else if (_fileIconProvider != null && _fileIconProvider.TryGet(fileExt, size, out var bytes))
 			{
-				await File.WriteAllBytesAsync(cachedPath, bytes);
+				await File.WriteAllBytesAsync(cachedPath, bytes, ct);
 			}
 			else if ((bytes = _fileIconProvider.Default(size)) != null)
 			{
-				await File.WriteAllBytesAsync(cachedPath, bytes);
+				await File.WriteAllBytesAsync(cachedPath, bytes, ct);
 			}
 			else
 			{
-				await CreateImagePreview(null, cachedPath, size);
+				await CreateImagePreview(null, cachedPath, size, ct);
 			}
 
 			FileInfo f = new(cachedPath);
@@ -369,7 +371,7 @@ namespace HCms.Infrastructure.Media
 			};
 		}
 
-		public async Task<MediaStorageEntry> Properties(string path)
+		public async Task<MediaStorageEntry> Properties(string path, CancellationToken ct)
 		{
 			var (bucket, key, objName) = SplitPath(path);
 			var client = GetClient(bucket);
@@ -392,9 +394,9 @@ namespace HCms.Infrastructure.Media
 					Key = objName 
 				};
 
-				using var resp = await client.GetObjectAsync(objReq);
+				using var resp = await client.GetObjectAsync(objReq, ct);
 
-				(w, h) = await GetImageDimensions(resp.ResponseStream);
+				(w, h) = await GetImageDimensions(resp.ResponseStream, ct);
 				size = resp.ContentLength;
 				lastModified = resp.LastModified ?? DateTime.UnixEpoch;
 			}
@@ -406,7 +408,7 @@ namespace HCms.Infrastructure.Media
 					Key = objName
 				};
 
-				var metadata = await client.GetObjectMetadataAsync(objMetaReq);
+				var metadata = await client.GetObjectMetadataAsync(objMetaReq, ct);
 
 				w = 0;
 				h = 0;
@@ -432,7 +434,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination)
+		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination, CancellationToken ct)
 		{
 			if (string.IsNullOrEmpty(destination))
 				return null;
@@ -456,28 +458,37 @@ namespace HCms.Infrastructure.Media
 			using (var sha256 = SHA256.Create())
 			using (var fileStream = File.Create(tempFileName))
 			{
-				while (read != 0)
+				try
 				{
-					read = await stream.ReadAsync(buf.AsMemory(0, buf.Length));
-
-					if (totalRead == 0 && !CheckSignature(buf, extension))
-						return null;
-
-					totalRead += read;
-
-					if (read > 0)
+					while (read != 0)
 					{
-						if (totalRead <= _settings.MaxUploadSize)
-							await fileStream.WriteAsync(buf.AsMemory(0, read));
-						else
-							break;
+						read = await stream.ReadAsync(buf.AsMemory(0, buf.Length), ct);
 
-						sha256.TransformBlock(buf, 0, read, null, 0);
+						if (totalRead == 0 && !CheckSignature(buf, extension))
+							return null;
+
+						totalRead += read;
+
+						if (read > 0)
+						{
+							if (totalRead <= _settings.MaxUploadSize)
+								await fileStream.WriteAsync(buf.AsMemory(0, read), ct);
+							else
+								break;
+
+							sha256.TransformBlock(buf, 0, read, null, 0);
+						}
 					}
-				}
 
-				sha256.TransformFinalBlock([], 0, 0);
-				sha256Hash = sha256.Hash ?? [];
+					sha256.TransformFinalBlock([], 0, 0);
+					sha256Hash = sha256.Hash ?? [];
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error saving tempfile {TempFileName}", tempFileName);
+					Directory.Delete(tempFolder);
+					throw;
+				}
 			}
 
 			string sha256Hex = BitConverter.ToString(sha256Hash).Replace("-", "").ToLowerInvariant();
@@ -502,7 +513,7 @@ namespace HCms.Infrastructure.Media
 					StorageClass = S3StorageClass.Standard
 				};
 
-				await client.PutObjectAsync(putRequest);
+				await client.PutObjectAsync(putRequest, ct);
 
 				result = new()
 				{
@@ -524,7 +535,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<string[]> Delete(string[] entries)
+		public async Task<string[]> Delete(string[] entries, CancellationToken ct)
 		{
 			if (entries == null || entries.Length == 0)
 				return [];
@@ -554,7 +565,7 @@ namespace HCms.Infrastructure.Media
 
 			var toDelete = new HashSet<string>(entries.Select(e => SplitPath(e).Item3));
 
-			static async Task<(List<string>, List<string>)> gatherAllObjects(IAmazonS3 client, string bucketName, string prefix)
+			static async Task<(List<string>, List<string>)> gatherAllObjects(IAmazonS3 client, string bucketName, string prefix, CancellationToken ct)
 			{
 				var files = new List<string>();
 				var folders = new List<string>();
@@ -571,7 +582,7 @@ namespace HCms.Infrastructure.Media
 						Delimiter = "/" 
 					};
 
-					var resp = await client.ListObjectsV2Async(req);
+					var resp = await client.ListObjectsV2Async(req, ct);
 
 					if (resp.CommonPrefixes != null)
 						foreach (var cp in resp.CommonPrefixes)
@@ -589,7 +600,7 @@ namespace HCms.Infrastructure.Media
 				return (files, folders);
 			}
 
-			var (files, folders) = await gatherAllObjects(client, bucket, prefix);
+			var (files, folders) = await gatherAllObjects(client, bucket, prefix, ct);
 
 			static async Task removeFiles(IAmazonS3 client, IEnumerable<string> files, ConcurrentBag<string> reportTo, string bucketName, string alias, ILogger<S3MediaStorage> logger)
 			{
@@ -603,7 +614,7 @@ namespace HCms.Infrastructure.Media
 
 				try
 				{
-					await client.DeleteObjectsAsync(deleteReq);
+					await client.DeleteObjectsAsync(deleteReq, CancellationToken.None);
 				}
 				catch (Exception ex)
 				{
@@ -618,7 +629,7 @@ namespace HCms.Infrastructure.Media
 				foreach (var folder in folders)
 				{
 					string pfx = folder + "/";
-					var (subFiles, subFolders) = await gatherAllObjects(client, bucketName, pfx);
+					var (subFiles, subFolders) = await gatherAllObjects(client, bucketName, pfx, CancellationToken.None);
 
 					if (subFiles.Count != 0 || subFolders.Count != 0)
 					{
@@ -630,7 +641,7 @@ namespace HCms.Infrastructure.Media
 
 					try
 					{
-						await client.DeleteObjectAsync(deleteReq);
+						await client.DeleteObjectAsync(deleteReq, CancellationToken.None);
 						reportTo?.Add(alias + "/" + folder);
 					}
 					catch (Exception ex)
@@ -645,8 +656,10 @@ namespace HCms.Infrastructure.Media
 			var topFolders = folders.Where(f => toDelete.Contains(f)).ToList();
 			string cacheFolder = _settings.CacheFolder ?? DEFAULT_CACHE_FOLDER;
 
-			Task task1 = Task.Run(async () => await removeFiles(client, topFiles, list, bucket, key, _logger));
-			Task task2 = Task.Run(async () => await removeFolders(client, topFolders, list, bucket, key, _logger));
+			ct.ThrowIfCancellationRequested();
+
+			Task task1 = Task.Run(async () => await removeFiles(client, topFiles, list, bucket, key, _logger), CancellationToken.None);
+			Task task2 = Task.Run(async () => await removeFolders(client, topFolders, list, bucket, key, _logger), CancellationToken.None);
 			Task task3 = Task.Run(() => DeletePreviews(cacheFolder, topFiles, topFolders, _logger));
 
 			Task[] tasks = [task1, task2, task3];
@@ -660,7 +673,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<MediaStorageEntry> CreateFolder(string name, string path)
+		public async Task<MediaStorageEntry> CreateFolder(string name, string path, CancellationToken ct)
 		{
 			if (string.IsNullOrEmpty(path))
 				return null;
@@ -683,7 +696,7 @@ namespace HCms.Infrastructure.Media
 					ContentBody = string.Empty
 				};
 
-				await client.PutObjectAsync(putRequest);
+				await client.PutObjectAsync(putRequest, ct);
 
 				result = new()
 				{

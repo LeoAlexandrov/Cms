@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,6 @@ using HCms.Infrastructure.Notification;
 using HCms.Infrastructure.Data;
 using HCms.Application.Dto;
 using HCms.Domain.Entities;
-using HCms.Domain.Types;
 
 
 namespace HCms.Application.Services
@@ -29,22 +29,22 @@ namespace HCms.Application.Services
 			return !_dbContext.EventDestinations.Any(); ;
 		}
 
-		public async Task<DtoEventDestinationLiteResult[]> GetList()
+		public async Task<DtoEventDestinationLiteResult[]> GetList(CancellationToken ct)
 		{
 			var result = await _dbContext.EventDestinations
 				.AsNoTracking()
 				.OrderBy(d => d.Name)
 				.Select(d => new DtoEventDestinationLiteResult(d))
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			return result;
 		}
 
-		public async Task<DtoEventDestinationResult> GetById(int id, ClaimsPrincipal user)
+		public async Task<DtoEventDestinationResult> GetById(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var ed = await _dbContext.EventDestinations
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == id);
+				.FirstOrDefaultAsync(d => d.Id == id, ct);
 
 			if (ed == null)
 				return null;
@@ -68,7 +68,7 @@ namespace HCms.Application.Services
 			return result;
 		}
 
-		public async Task<Result<DtoEventDestinationLiteResult>> CreateDestination(string type, string name, string tPath, string tPathAux, object data, ClaimsPrincipal user)
+		public async Task<Result<DtoEventDestinationLiteResult>> CreateDestination(string type, string name, string tPath, string tPathAux, object data, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
@@ -89,12 +89,12 @@ namespace HCms.Application.Services
 
 			_dbContext.EventDestinations.Add(result);
 
-			await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync(ct);
 
 			return Result<DtoEventDestinationLiteResult>.Success(new(result));
 		}
 
-		public Task<Result<DtoEventDestinationLiteResult>> CreateDestination(DtoCreateEventDestination dto, ClaimsPrincipal user)
+		public Task<Result<DtoEventDestinationLiteResult>> CreateDestination(DtoCreateEventDestination dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			object data = dto.Type switch
 			{
@@ -107,17 +107,17 @@ namespace HCms.Application.Services
 			if (data == null)
 				return Task.FromResult(Result<DtoEventDestinationLiteResult>.BadParameters("Type", [$"Destination of type '{dto.Type}' is not supported."]));
 
-			return CreateDestination(dto.Type, dto.Name, null, null, data, user);
+			return CreateDestination(dto.Type, dto.Name, null, null, data, user, ct);
 		}
 
-		public async Task<Result<DtoEventDestinationLiteResult>> UpdateDestination(int id, DtoUpdateEventDestination dto, ClaimsPrincipal user)
+		public async Task<Result<DtoEventDestinationLiteResult>> UpdateDestination(int id, DtoUpdateEventDestination dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<DtoEventDestinationLiteResult>.Forbidden();
 
-			var result = await _dbContext.EventDestinations.FindAsync(id);
+			var result = await _dbContext.EventDestinations.FindAsync([id], ct);
 
 			if (result == null)
 				return Result<DtoEventDestinationLiteResult>.NotFound();
@@ -197,33 +197,33 @@ namespace HCms.Application.Services
 				result.TriggeringPathAux = null;
 			}
 
-			await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync(ct);
 
 			if (becomesEnabled)
-				await _notifier.Notify("on_destination_enable", id);
+				await _notifier.Notify("on_destination_enable", id, CancellationToken.None);
 			else if (becomesDisabled)
-				await _notifier.Notify("on_destination_disable", id);
+				await _notifier.Notify("on_destination_disable", id, CancellationToken.None);
 
 			return Result<DtoEventDestinationLiteResult>.Success(new(result));
 		}
 
-		public async Task<Result<bool>> DeleteDestination(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteDestination(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			var d = await _dbContext.EventDestinations.FindAsync(id);
+			var d = await _dbContext.EventDestinations.FindAsync([id], ct);
 
 			if (d == null)
 				return Result<bool>.NotFound();
 
-			await _notifier.Notify("on_destination_disable", id);
+			await _notifier.Notify("on_destination_disable", id, ct);
 
 			_dbContext.EventDestinations.Remove(d);
 
-			await _dbContext.SaveChangesAsync();
+			await _dbContext.SaveChangesAsync(ct);
 
 
 			return Result<bool>.Success(true);

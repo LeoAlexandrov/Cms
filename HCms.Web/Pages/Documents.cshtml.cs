@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +17,7 @@ namespace HCms.Web.Pages
 
 		public int DocumentId { get; set; }
 
-		public async Task<IActionResult> OnGet([FromRoute] string sId)
+		public async Task<IActionResult> OnGet([FromRoute] string sId, CancellationToken ct)
 		{
 			if (!User.Identity.IsAuthenticated && !this.Request.Cookies.ContainsKey("X-JWT"))
 				return Redirect($"/auth/?backUrl={this.Request.Path}{this.Request.QueryString}");
@@ -31,7 +32,7 @@ namespace HCms.Web.Pages
 			}
 			else if (sId.StartsWith("^('") && sId.EndsWith("')"))
 			{
-				var result = await _mms.Preview(sId[3..^2], null);
+				var result = await _mms.Preview(sId[3..^2], null, ct);
 
 				return result.Type switch
 				{

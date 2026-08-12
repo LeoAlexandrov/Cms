@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Asp.Versioning;
@@ -23,17 +24,17 @@ namespace HCms.Web.Api
 
 		[HttpGet("tree")]
 		[Authorize]
-		public async Task<IActionResult> Tree()
+		public async Task<IActionResult> Tree(CancellationToken ct)
 		{
-			var result = await _cms.DocumentTree();
+			var result = await _cms.DocumentTree(ct);
 			return Ok(result);
 		}
 
 		[HttpGet("{id:int}")]
 		[Authorize]
-		public async Task<IActionResult> Get(int id)
+		public async Task<IActionResult> Get(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetDocument(id);
+			var result = await _cms.GetDocument(id, ct);
 
 			if (result == null)
 				return NotFound();
@@ -44,9 +45,9 @@ namespace HCms.Web.Api
 		[HttpPost]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateDocument dto)
+		public async Task<IActionResult> Post([Required] DtoCreateDocument dto, CancellationToken ct)
 		{
-			var result = await _cms.CreateDocument(dto, HttpContext.User);
+			var result = await _cms.CreateDocument(dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -59,9 +60,9 @@ namespace HCms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateDocument dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateDocument dto, CancellationToken ct)
 		{
-			var result = await _cms.UpdateDocument(id, dto, HttpContext.User);
+			var result = await _cms.UpdateDocument(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -76,9 +77,9 @@ namespace HCms.Web.Api
 		[HttpDelete("{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Delete(int id)
+		public async Task<IActionResult> Delete(int id, CancellationToken ct)
 		{
-			var result = await _cms.DeleteDocument(id, HttpContext.User);
+			var result = await _cms.DeleteDocument(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -91,9 +92,9 @@ namespace HCms.Web.Api
 
 		[HttpGet("{id:int}/fragments")]
 		[Authorize]
-		public async Task<IActionResult> Fragments(int id)
+		public async Task<IActionResult> Fragments(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetDocumentFragments(id);
+			var result = await _cms.GetDocumentFragments(id, ct);
 			return Ok(result);
 		}
 
@@ -101,9 +102,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/lock")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> SetLock(int id, [Required] DtoLockDocument dto)
+		public async Task<IActionResult> SetLock(int id, [Required] DtoLockDocument dto, CancellationToken ct)
 		{
-			var result = await _cms.LockDocument(id, dto.LockState.Value, HttpContext.User);
+			var result = await _cms.LockDocument(id, dto.LockState.Value, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -117,9 +118,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/parent")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> SetParent(int id, [Required] DtoSetParentDocument dto)
+		public async Task<IActionResult> SetParent(int id, [Required] DtoSetParentDocument dto, CancellationToken ct)
 		{
-			var result = await _cms.SetParentDocument(id, dto.Parent, HttpContext.User);
+			var result = await _cms.SetParentDocument(id, dto.Parent, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -134,9 +135,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/move")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Move(int id, [Required] DtoMoveDocument dto)
+		public async Task<IActionResult> Move(int id, [Required] DtoMoveDocument dto, CancellationToken ct)
 		{
-			var result = await _cms.MoveDocument(id, dto.Increment.Value, HttpContext.User);
+			var result = await _cms.MoveDocument(id, dto.Increment.Value, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -149,9 +150,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/copy")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Copy(int id)
+		public async Task<IActionResult> Copy(int id, CancellationToken ct)
 		{
-			var result = await _cms.CopyDocument(id, HttpContext.User);
+			var result = await _cms.CopyDocument(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -163,9 +164,9 @@ namespace HCms.Web.Api
 
 		[HttpGet("{id:int}/refs")]
 		[Authorize]
-		public async Task<IActionResult> References(int id)
+		public async Task<IActionResult> References(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetReferences(id);
+			var result = await _cms.GetReferences(id, ct);
 
 			return result.Type switch
 			{
@@ -176,9 +177,9 @@ namespace HCms.Web.Api
 
 		[HttpGet("mediarefs")]
 		[Authorize]
-		public async Task<IActionResult> MediaReferers([FromQuery] string link)
+		public async Task<IActionResult> MediaReferers([FromQuery] string link, CancellationToken ct)
 		{
-			var result = await _cms.GetMediaReferers(link);
+			var result = await _cms.GetMediaReferers(link, ct);
 
 			return result.Type switch
 			{
@@ -189,9 +190,9 @@ namespace HCms.Web.Api
 
 		[HttpGet("attributes/{id:int}")]
 		[Authorize]
-		public async Task<IActionResult> GetAttribute(int id)
+		public async Task<IActionResult> GetAttribute(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetDocumentAttribute(id);
+			var result = await _cms.GetDocumentAttribute(id, ct);
 
 			if (result == null)
 				return NotFound();
@@ -202,9 +203,9 @@ namespace HCms.Web.Api
 		[HttpPost("attributes")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> PostAttribute([Required] DtoCreateDocumentAttribute dto)
+		public async Task<IActionResult> PostAttribute([Required] DtoCreateDocumentAttribute dto, CancellationToken ct)
 		{
-			var result = await _cms.CreateAttribute(dto, HttpContext.User);
+			var result = await _cms.CreateAttribute(dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -218,9 +219,9 @@ namespace HCms.Web.Api
 		[HttpPut("attributes/{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateDocumentAttribute dto)
+		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateDocumentAttribute dto, CancellationToken ct)
 		{
-			var result = await _cms.UpdateAttribute(id, dto, HttpContext.User);
+			var result = await _cms.UpdateAttribute(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -234,9 +235,9 @@ namespace HCms.Web.Api
 		[HttpDelete("attributes/{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> DeleteAttribute(int id)
+		public async Task<IActionResult> DeleteAttribute(int id, CancellationToken ct)
 		{
-			var result = await _cms.DeleteAttribute(id, HttpContext.User);
+			var result = await _cms.DeleteAttribute(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{

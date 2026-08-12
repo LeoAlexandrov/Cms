@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -75,7 +76,7 @@ namespace HCms.Application.Services
 			return keys.Length == 1 ? keys[0] : null;
 		}
 
-		public async Task<Result<DtoMediaFolderReadResult>> Read(string link)
+		public async Task<Result<DtoMediaFolderReadResult>> Read(string link, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
 				return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid base64-url format");
@@ -109,7 +110,7 @@ namespace HCms.Application.Services
 				if (!TryGetStorage(path, out IMediaStorage _mediaStorage))
 					return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid path");
 
-				entries = await _mediaStorage.ReadDirectory(path);
+				entries = await _mediaStorage.ReadDirectory(path, ct);
 
 				if (entries == null)
 					return Result<DtoMediaFolderReadResult>.NotFound();
@@ -139,7 +140,7 @@ namespace HCms.Application.Services
 				});
 		}
 
-		public async Task<Result<DtoPhysicalMediaFileResult>> Get(string link)
+		public async Task<Result<DtoPhysicalMediaFileResult>> Get(string link, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
 				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid base64-url format");
@@ -150,7 +151,7 @@ namespace HCms.Application.Services
 			if (!TryGetStorage(path, out IMediaStorage _mediaStorage))
 				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid path");
 
-			var entry = await _mediaStorage.GetFile(path);
+			var entry = await _mediaStorage.GetFile(path, ct);
 
 			if (entry == null)
 				return Result<DtoPhysicalMediaFileResult>.NotFound();
@@ -158,7 +159,7 @@ namespace HCms.Application.Services
 			return Result<DtoPhysicalMediaFileResult>.Success(new(entry));
 		}
 
-		public async Task<Result<DtoPhysicalMediaFileResult>> Preview(string link, int? size)
+		public async Task<Result<DtoPhysicalMediaFileResult>> Preview(string link, int? size, CancellationToken ct)
 		{
 			if (!size.HasValue)
 				size = 128;
@@ -174,7 +175,7 @@ namespace HCms.Application.Services
 			if (!TryGetStorage(path, out IMediaStorage _mediaStorage))
 				return Result<DtoPhysicalMediaFileResult>.BadParameters("Link", "Invalid path");
 
-			var entry = await _mediaStorage.Preview(path, link, size.Value);
+			var entry = await _mediaStorage.Preview(path, link, size.Value, ct);
 
 			if (entry == null)
 				return Result<DtoPhysicalMediaFileResult>.NotFound();
@@ -182,7 +183,7 @@ namespace HCms.Application.Services
 			return Result<DtoPhysicalMediaFileResult>.Success(new(entry));
 		}
 
-		public async Task<Result<DtoMediaStorageEntry>> Properties(string link)
+		public async Task<Result<DtoMediaStorageEntry>> Properties(string link, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
 				return Result<DtoMediaStorageEntry>.BadParameters("Link", "Invalid base64-url format");
@@ -193,7 +194,7 @@ namespace HCms.Application.Services
 			if (!TryGetStorage(path, out IMediaStorage _mediaStorage))
 				return Result<DtoMediaStorageEntry>.BadParameters("Link", "Invalid path");
 
-			var entry = await _mediaStorage.Properties(path);
+			var entry = await _mediaStorage.Properties(path, ct);
 
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.NotFound();
@@ -201,7 +202,7 @@ namespace HCms.Application.Services
 			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 
-		public async Task<Result<DtoMediaStorageEntry>> Save(Stream stream, string fileName, string destinationLink, ClaimsPrincipal user)
+		public async Task<Result<DtoMediaStorageEntry>> Save(Stream stream, string fileName, string destinationLink, ClaimsPrincipal user, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(destinationLink.AsSpan(), out string destination))
 				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64-url format");
@@ -231,17 +232,17 @@ namespace HCms.Application.Services
 					return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Unsafe file name");
 			}
 
-			var entry = await _mediaStorage.Save(stream, fileName, destination);
+			var entry = await _mediaStorage.Save(stream, fileName, destination, ct);
 
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.BadParameters(fileName, "Failed to save a file");
 
-			await _notifier.Notify("on_media_create", [entry.RelativeName]);
+			await _notifier.Notify("on_media_create", [entry.RelativeName], CancellationToken.None);
 
 			return Result<DtoMediaStorageEntry>.Success(new(entry));
 		}
 
-		public async Task<Result<string[]>> Delete(string[] links)
+		public async Task<Result<string[]>> Delete(string[] links, CancellationToken ct)
 		{
 			if (links == null || links.Length == 0)
 				return Result<string[]>.Success([]);
@@ -265,16 +266,16 @@ namespace HCms.Application.Services
 
 			if (!TryGetStorage(entries.First(), out IMediaStorage _mediaStorage))
 				return Result<string[]>.BadParameters("Links", "Invalid path");
-
-			var list = await _mediaStorage.Delete(entries);
+			
+			var list = await _mediaStorage.Delete(entries, ct);
 			var deleted = list.Select(Base64Url.Encode).ToArray();
 
-			await _notifier.Notify("on_media_delete", list);
+			await _notifier.Notify("on_media_delete", list, CancellationToken.None);
 
 			return Result<string[]>.Success(deleted);
 		}
 
-		public async Task<Result<DtoMediaStorageEntry>> CreateFolder(string name, string destination, ClaimsPrincipal user)
+		public async Task<Result<DtoMediaStorageEntry>> CreateFolder(string name, string destination, ClaimsPrincipal user, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(destination.AsSpan(), out string path))
 				return Result<DtoMediaStorageEntry>.BadParameters("Destination", "Invalid base64-url format");
@@ -301,7 +302,7 @@ namespace HCms.Application.Services
 				return Result<DtoMediaStorageEntry>.BadParameters("Name", "Unsafe folder name");
 			}
 
-			var entry = await _mediaStorage.CreateFolder(name, path);
+			var entry = await _mediaStorage.CreateFolder(name, path, ct);
 
 			if (entry == null)
 				return Result<DtoMediaStorageEntry>.Other("Failed to create folder");

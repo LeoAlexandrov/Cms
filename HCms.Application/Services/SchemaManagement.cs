@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -27,37 +28,37 @@ namespace HCms.Application.Services
 			return FragmentSchemaRepo.List(dbContext, s => new DtoSchemaResult(s));
 		}
 
-		public async Task<DtoSchemaResult> GetSchema(int id)
+		public async Task<DtoSchemaResult> GetSchema(int id, CancellationToken ct)
 		{
-			Schema schema = await FragmentSchemaRepo.GetSchema(dbContext, id);
+			Schema schema = await FragmentSchemaRepo.GetSchema(dbContext, id, ct);
 
 			return new(schema);
 		}
 
-		public async Task<Result<DtoSchemaResult>> CreateSchema(DtoCreateSchema dto, ClaimsPrincipal user)
+		public async Task<Result<DtoSchemaResult>> CreateSchema(DtoCreateSchema dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<DtoSchemaResult>.Forbidden();
 
-			var result = await FragmentSchemaRepo.CreateSchema(dbContext, dto.Description);
+			var result = await FragmentSchemaRepo.CreateSchema(dbContext, dto.Description, ct);
 
 			return Result<DtoSchemaResult>.Success(new(result));
 		}
 
-		public async Task<Result<DtoSchemaResult>> UpdateSchema(int id, DtoUpdateSchema dto, ClaimsPrincipal user)
+		public async Task<Result<DtoSchemaResult>> UpdateSchema(int id, DtoUpdateSchema dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<DtoSchemaResult>.Forbidden();
 
-			var (schema, error)  = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave.Value);
+			var (schema, error)  = await fsr.UpdateSchema(dbContext, id, dto.Description, dto.Data, dto.OnlySave.Value, ct);
 
 			if (schema != null)
 			{
-				await _notifier.Notify("on_xmlschema_change");
+				await _notifier.Notify("on_xmlschema_change", 0, CancellationToken.None);
 
 				return Result<DtoSchemaResult>.Success(new(schema));
 			}
@@ -67,18 +68,18 @@ namespace HCms.Application.Services
 				Result<DtoSchemaResult>.BadParameters("Data", [error]);
 		}
 
-		public async Task<Result<bool>> DeleteSchema(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteSchema(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			var (ok, error) = await fsr.DeleteSchema(dbContext, id);
+			var (ok, error) = await fsr.DeleteSchema(dbContext, id, ct);
 
 			if (ok)
 			{
-				await _notifier.Notify("on_xmlschema_change");
+				await _notifier.Notify("on_xmlschema_change", 0, CancellationToken.None);
 
 				return Result<bool>.Success(true);
 			}
@@ -88,18 +89,18 @@ namespace HCms.Application.Services
 				Result<bool>.BadParameters("Id", [$"This schema can't be deleted: {error}"]);
 		}
 
-		public async Task<Result<bool>> CompileAndReload(ClaimsPrincipal user)
+		public async Task<Result<bool>> CompileAndReload(ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "IsAdmin");
 
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			var (ok, error) = await fsr.CompileAndReload(dbContext);
+			var (ok, error) = await fsr.CompileAndReload(dbContext, ct);
 
 			if (ok)
 			{
-				await _notifier.Notify("on_xmlschema_change");
+				await _notifier.Notify("on_xmlschema_change", 0, CancellationToken.None);
 
 				return Result<bool>.Success(true);
 			}

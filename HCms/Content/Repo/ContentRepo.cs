@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using HCms.Content.ViewModels;
@@ -23,7 +24,7 @@ namespace HCms.Content.Repo
 		/// </summary>
 		/// <param name="id">Id of the parent document whose all direct or indirect children to return. If zero, all documents are returned.</param>
 		/// <returns>An array of view models of the returned documents.</returns>
-		Task<Document[]> ListDocuments(int id);
+		Task<Document[]> ListDocuments(int id, CancellationToken ct);
 
 		/// <summary>
 		/// Asynchronously returns a view model of the document with the specified logical path.
@@ -35,7 +36,7 @@ namespace HCms.Content.Repo
 		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <param name="exactPathMatch">False value instructs the method to search a closest matching document if nothing is found by exact path.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
-		Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch);
+		Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch, CancellationToken ct);
 
 		/// <summary>
 		/// Asynchronously returns a view model of the document with the specified id.
@@ -45,14 +46,14 @@ namespace HCms.Content.Repo
 		/// <param name="siblings">Determine whether to include or not sibling documents.</param>
 		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
-		Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus);
+		Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct);
 
 		/// <summary>
 		/// Asynchronously returns a role of CMS user with specified login or null if no user found.
 		/// </summary>
 		/// <param name="login">User login</param>
 		/// <returns>User role or null.</returns>
-		ValueTask<string> UserRole(string login);
+		ValueTask<string> UserRole(string login, CancellationToken ct);
 	}
 
 }

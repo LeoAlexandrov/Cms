@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Asp.Versioning;
@@ -26,9 +27,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> Folder([FromQuery] string link)
+		public async Task<IActionResult> Folder([FromQuery] string link, CancellationToken ct)
 		{
-			var result = await _mms.Read(link);
+			var result = await _mms.Read(link, ct);
 
 			return result.Type switch
 			{
@@ -40,9 +41,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> Entry([FromQuery] string link)
+		public async Task<IActionResult> Entry([FromQuery] string link, CancellationToken ct)
 		{
-			var result = await _mms.Get(link);
+			var result = await _mms.Get(link, ct);
 
 			return result.Type switch
 			{
@@ -56,9 +57,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> Properties([FromQuery] string link)
+		public async Task<IActionResult> Properties([FromQuery] string link, CancellationToken ct)
 		{
-			var result = await _mms.Properties(link);
+			var result = await _mms.Properties(link, ct);
 
 			return result.Type switch
 			{
@@ -70,9 +71,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> Preview([FromQuery] string link, [FromQuery] int? size)
+		public async Task<IActionResult> Preview([FromQuery] string link, [FromQuery] int? size, CancellationToken ct)
 		{
-			var result = await _mms.Preview(link, size);
+			var result = await _mms.Preview(link, size, ct);
 
 			return result.Type switch
 			{
@@ -87,6 +88,7 @@ namespace HCms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Upload()
 		{
+			CancellationToken ct = HttpContext.RequestAborted;
 			MediaTypeHeaderValue cType = MediaTypeHeaderValue.Parse(Request.ContentType);
 			string boundary = HeaderUtilities.RemoveQuotes(cType.Boundary).Value;
 			MultipartReader reader = new(boundary, Request.Body);
@@ -94,7 +96,7 @@ namespace HCms.Web.Api
 
 			List<DtoMediaStorageEntry> uploaded = [];
 
-			MultipartSection section = await reader.ReadNextSectionAsync();
+			MultipartSection section = await reader.ReadNextSectionAsync(ct);
 
 			while (section != null)
 			{
@@ -110,19 +112,19 @@ namespace HCms.Web.Api
 							return BadRequest(ModelState);
 						}
 
-						var result = await _mms.Save(section.Body, contentDisposition.FileName.Value, destination, User);
+						var result = await _mms.Save(section.Body, contentDisposition.FileName.Value, destination, User, ct);
 
 						if (!result.IsBadParameters)
 							uploaded.Add(result.Value);
 					}
 					else if (contentDisposition.Name.Equals("destination"))
 					{
-						string dest = await section.ReadAsStringAsync();
+						string dest = await section.ReadAsStringAsync(ct);
 						destination = System.Web.HttpUtility.UrlDecode(dest ?? string.Empty);
 					}
 				}
 
-				section = await reader.ReadNextSectionAsync();
+				section = await reader.ReadNextSectionAsync(ct);
 			}
 
 			return Ok(uploaded);
@@ -130,9 +132,9 @@ namespace HCms.Web.Api
 
 		[HttpGet]
 		[Authorize]
-		public async Task<IActionResult> Download([FromQuery] string link)
+		public async Task<IActionResult> Download([FromQuery] string link, CancellationToken ct)
 		{
-			var result = await _mms.Get(link);
+			var result = await _mms.Get(link, ct);
 
 			return result.Type switch
 			{
@@ -148,9 +150,9 @@ namespace HCms.Web.Api
 		[HttpPost]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Folder([Required] DtoMediaStorageFolderCreate dto)
+		public async Task<IActionResult> Folder([Required] DtoMediaStorageFolderCreate dto, CancellationToken ct)
 		{
-			var result = await _mms.CreateFolder(dto.Name, dto.Destination, User);
+			var result = await _mms.CreateFolder(dto.Name, dto.Destination, User, ct);
 
 			if (result.IsBadParameters)
 				return BadRequest(result.Errors);
@@ -161,12 +163,12 @@ namespace HCms.Web.Api
 		[HttpDelete]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Entry([Required] DtoMediaStorageEntryDelete dto)
+		public async Task<IActionResult> Entry([Required] DtoMediaStorageEntryDelete dto, CancellationToken ct)
 		{
 			if (dto.Links == null || dto.Links.Length == 0)
 				return Ok();
 
-			var result = await _mms.Delete(dto.Links);
+			var result = await _mms.Delete(dto.Links, ct);
 
 			if (result.IsBadParameters)
 				return BadRequest(result.Errors);

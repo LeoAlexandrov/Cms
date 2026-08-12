@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -20,11 +21,11 @@ namespace HCms.Application.Services
 	public partial class ContentManagementService
 	{
 
-		public async Task<DtoDocumentAttributeResult> GetDocumentAttribute(int id)
+		public async Task<DtoDocumentAttributeResult> GetDocumentAttribute(int id, CancellationToken ct)
 		{
 			DocumentAttribute attr = await dbContext.DocumentAttributes
 				.AsNoTracking()
-				.FirstOrDefaultAsync(a => a.Id == id);
+				.FirstOrDefaultAsync(a => a.Id == id, ct);
 
 			if (attr == null)
 				return null;
@@ -32,11 +33,11 @@ namespace HCms.Application.Services
 			return new(attr);
 		}
 
-		public async Task<DtoFragmentAttributeResult> GetFragmentAttribute(int id)
+		public async Task<DtoFragmentAttributeResult> GetFragmentAttribute(int id, CancellationToken ct)
 		{
 			FragmentAttribute attr = await dbContext.FragmentAttributes
 				.AsNoTracking()
-				.FirstOrDefaultAsync(a => a.Id == id);
+				.FirstOrDefaultAsync(a => a.Id == id, ct);
 
 			if (attr == null)
 				return null;
@@ -47,7 +48,7 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Creates document attribute
 		/// </summary>
-		public async Task<Result<DtoDocumentAttributeResult>> CreateAttribute(DtoCreateDocumentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentAttributeResult>> CreateAttribute(DtoCreateDocumentAttribute dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, dto.DocumentRef, "CanManageDocument");
 
@@ -72,7 +73,7 @@ namespace HCms.Application.Services
 				value = dto.Value;
 			}
 
-			Document doc = await dbContext.Documents.FindAsync(dto.DocumentRef);
+			Document doc = await dbContext.Documents.FindAsync([dto.DocumentRef], ct);
 
 			if (doc == null)
 				return Result<DtoDocumentAttributeResult>.BadParameters("DocumentRef", "No document found");
@@ -97,18 +98,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -116,7 +117,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
@@ -133,7 +134,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -143,7 +144,7 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<DtoDocumentAttributeResult>.Success(new(result));
 		}
@@ -151,7 +152,7 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Creates fragment attribute
 		/// </summary>
-		public async Task<Result<DtoFragmentAttributeResult>> CreateAttribute(DtoCreateFragmentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFragmentAttributeResult>> CreateAttribute(DtoCreateFragmentAttribute dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, dto.FragmentLinkRef, "CanManageFragment");
 
@@ -160,7 +161,7 @@ namespace HCms.Application.Services
 
 			var link = await dbContext.FragmentLinks
 				.AsNoTracking()
-				.FirstOrDefaultAsync(l => l.Id == dto.FragmentLinkRef);
+				.FirstOrDefaultAsync(l => l.Id == dto.FragmentLinkRef, ct);
 
 			if (link == null)
 				return Result<DtoFragmentAttributeResult>.BadParameters("FragmentLinkRef", "No fragment link found");
@@ -183,7 +184,7 @@ namespace HCms.Application.Services
 				value = dto.Value;
 			}
 
-			Document doc = await dbContext.Documents.FindAsync(link.DocumentRef);
+			Document doc = await dbContext.Documents.FindAsync([link.DocumentRef], ct);
 
 			if (doc == null)
 				return Result<DtoFragmentAttributeResult>.BadParameters("DocumentRef", "No document found");
@@ -206,18 +207,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -225,7 +226,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
@@ -242,7 +243,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -252,7 +253,7 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<DtoFragmentAttributeResult>.Success(new(result));
 		}
@@ -260,9 +261,9 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Updates document attribute
 		/// </summary>
-		public async Task<Result<DtoDocumentAttributeResult>> UpdateAttribute(int id, DtoUpdateDocumentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentAttributeResult>> UpdateAttribute(int id, DtoUpdateDocumentAttribute dto, ClaimsPrincipal user, CancellationToken ct)
 		{
-			var attr = await dbContext.DocumentAttributes.FindAsync(id);
+			var attr = await dbContext.DocumentAttributes.FindAsync([id], ct);
 
 			if (attr == null)
 				return Result<DtoDocumentAttributeResult>.NotFound();
@@ -292,7 +293,7 @@ namespace HCms.Application.Services
 			attr.Enabled = dto.Enabled;
 			attr.Private = dto.Private;
 
-			Document doc = await dbContext.Documents.FindAsync(attr.DocumentRef);
+			Document doc = await dbContext.Documents.FindAsync([attr.DocumentRef], ct);
 
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
@@ -302,18 +303,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Id != id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -321,7 +322,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
@@ -336,9 +337,9 @@ namespace HCms.Application.Services
 				dbContext.References.RemoveRange(toRemove);
 
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<DtoDocumentAttributeResult>.Success(new(attr)); ;
 		}
@@ -346,9 +347,9 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Updates fragment attribute
 		/// </summary>
-		public async Task<Result<DtoFragmentAttributeResult>> UpdateAttribute(int id, DtoUpdateFragmentAttribute dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFragmentAttributeResult>> UpdateAttribute(int id, DtoUpdateFragmentAttribute dto, ClaimsPrincipal user, CancellationToken ct)
 		{
-			var attr = await dbContext.FragmentAttributes.FindAsync(id);
+			var attr = await dbContext.FragmentAttributes.FindAsync([id], ct);
 
 			if (attr == null)
 				return Result<DtoFragmentAttributeResult>.NotFound();
@@ -357,7 +358,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentLinks, d => d.Id, l => l.DocumentRef, (d, l) => new { d, l })
 				.Where(dl => dl.d.Id == dto.DocumentRef && dl.l.FragmentRef == attr.FragmentRef)
 				.Select(dl => dl.d)
-				.FirstOrDefaultAsync();
+				.FirstOrDefaultAsync(ct);
 
 			if (doc == null)
 				return Result<DtoFragmentAttributeResult>.BadParameters("DocumentRef", "No document found");
@@ -394,18 +395,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -413,7 +414,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled && a.Id != id)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
@@ -428,9 +429,9 @@ namespace HCms.Application.Services
 				dbContext.References.RemoveRange(toRemove);
 
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<DtoFragmentAttributeResult>.Success(new(attr)); ;
 		}
@@ -438,9 +439,9 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Removes document attribute
 		/// </summary>
-		public async Task<Result<bool>> DeleteAttribute(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteAttribute(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
-			var attr = await dbContext.DocumentAttributes.FindAsync(id);
+			var attr = await dbContext.DocumentAttributes.FindAsync([id], ct);
 
 			if (attr == null)
 				return Result<bool>.NotFound();
@@ -450,7 +451,7 @@ namespace HCms.Application.Services
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			Document doc = await dbContext.Documents.FindAsync(attr.DocumentRef);
+			Document doc = await dbContext.Documents.FindAsync([attr.DocumentRef], ct);
 
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 			doc.Author = user.Identity.Name;
@@ -460,18 +461,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Id != id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -479,7 +480,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 			existingRefs,
@@ -496,9 +497,9 @@ namespace HCms.Application.Services
 
 			dbContext.DocumentAttributes.Remove(attr);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<bool>.Success(true);
 		}
@@ -506,9 +507,9 @@ namespace HCms.Application.Services
 		/// <summary>
 		/// Removes fragment attribute
 		/// </summary>
-		public async Task<Result<bool>> DeleteAttribute(int id, int docId, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteAttribute(int id, int docId, ClaimsPrincipal user, CancellationToken ct)
 		{
-			var attr = await dbContext.FragmentAttributes.FindAsync(id);
+			var attr = await dbContext.FragmentAttributes.FindAsync([id], ct);
 
 			if (attr == null)
 				return Result<bool>.NotFound();
@@ -517,7 +518,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentLinks, d => d.Id, l => l.DocumentRef, (d, l) => new { d, l })
 				.Where(dl => dl.d.Id == docId && dl.l.FragmentRef == attr.FragmentRef)
 				.Select(dl => dl.d)
-				.FirstOrDefaultAsync();
+				.FirstOrDefaultAsync(ct);
 
 			if (doc == null)
 				return Result<bool>.BadParameters("docId", "No document found");
@@ -536,18 +537,18 @@ namespace HCms.Application.Services
 				.Where(r => r.DocumentRef == doc.Id)
 				.OrderBy(r => r.ReferenceTo)
 				.ThenBy(r => r.MediaLink)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == doc.Id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -555,7 +556,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled && a.Id != id)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(doc.Id,
 				existingRefs,
@@ -572,9 +573,9 @@ namespace HCms.Application.Services
 
 			dbContext.FragmentAttributes.Remove(attr);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			return Result<bool>.Success(true);
 		}

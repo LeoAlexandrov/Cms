@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -77,7 +77,7 @@ namespace HCms.Application.Services
 					continue;
 				}
 
-				var res = await cms.CreateFragment(new DtoCreateFragment() { Document = docId, Parent = ParentId, Name = fr.Name, Status = 1, RawXml = xml }, user);
+				var res = await cms.CreateFragment(new DtoCreateFragment() { Document = docId, Parent = ParentId, Name = fr.Name, Status = 1, RawXml = xml }, user, CancellationToken.None);
 
 				if (!res.Ok)
 					continue;
@@ -95,7 +95,7 @@ namespace HCms.Application.Services
 		{
 			foreach (var doc in documents)
 			{
-				var res = await cms.CreateDocument(new DtoCreateDocument() { Parent = parentId, Slug = doc.Slug, Title = doc.Title, Language = doc.Language, Status = 1 }, user);
+				var res = await cms.CreateDocument(new DtoCreateDocument() { Parent = parentId, Slug = doc.Slug, Title = doc.Title, Language = doc.Language, Status = 1 }, user, CancellationToken.None);
 
 				if (!res.Ok)
 					continue;
@@ -111,7 +111,7 @@ namespace HCms.Application.Services
 				{
 					foreach (var attr in doc.Attributes)
 					{
-						await cms.CreateAttribute(new DtoCreateDocumentAttribute() { DocumentRef = docId, AttributeKey = attr.Key, Value = attr.Value, Private = attr.Private, Enabled = true }, user);
+						await cms.CreateAttribute(new DtoCreateDocumentAttribute() { DocumentRef = docId, AttributeKey = attr.Key, Value = attr.Value, Private = attr.Private, Enabled = true }, user, CancellationToken.None);
 					}
 				}
 
@@ -126,7 +126,7 @@ namespace HCms.Application.Services
 		{
 			using Stream stream = File.OpenRead(fileName);
 
-			await mms.Save(stream, Path.GetFileName(fileName), destination, user);
+			await mms.Save(stream, Path.GetFileName(fileName), destination, user, CancellationToken.None);
 		}
 
 		static Task<Result<DtoEventDestinationLiteResult>> CreateEventDestination(string type, string name, string tPath, string tPathAux, EventDestinationManagementService eds, ClaimsPrincipal user)
@@ -139,7 +139,7 @@ namespace HCms.Application.Services
 				_ => null
 			};
 
-			return eds.CreateDestination(type, name, tPath, tPathAux, data, user);
+			return eds.CreateDestination(type, name, tPath, tPathAux, data, user, CancellationToken.None);
 		}
 
 		static async Task CreateDemoData(IServiceScopeFactory serviceScopeFactory, ClaimsPrincipal user, ILogger logger)
@@ -208,13 +208,12 @@ namespace HCms.Application.Services
 		public static async Task<InitResult> Initialize(IServiceScopeFactory serviceScopeFactory, string userLogin, bool addDemoData, ILoggerFactory loggerFactory)
 		{
 			using var scope = serviceScopeFactory.CreateScope();
-
 			var ums = scope.ServiceProvider.GetRequiredService<UserManagementService>();
 
 			if (!ums.NoUsers())
 				return InitResult.UsersExist;
 
-			var userResult = await ums.CreateUser(new() { Login = userLogin, Role = "Developer" }, null);
+			var userResult = await ums.CreateUser(new() { Login = userLogin, Role = "Developer" }, null, default);
 
 			if (!userResult.Ok)
 				return InitResult.OtherProblem;

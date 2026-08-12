@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using MessagePack;
-
 using HCms.Content.ViewModels;
 
 
@@ -54,7 +54,7 @@ namespace HCms.Content.Repo
 			_roles.Clear();
 		}
 
-		async static Task<T> RestRequest<T>(HttpClient client, string url, string apiKey, string acceptMediaType)
+		async static Task<T> RestRequest<T>(HttpClient client, string url, string apiKey, string acceptMediaType, CancellationToken ct)
 		{
 			using HttpRequestMessage request = new()
 			{
@@ -67,7 +67,7 @@ namespace HCms.Content.Repo
 			if (!string.IsNullOrEmpty(acceptMediaType))
 				request.Headers.Accept.Add(new(acceptMediaType));
 
-			using HttpResponseMessage response = await client.SendAsync(request);
+			using HttpResponseMessage response = await client.SendAsync(request, ct);
 
 			response.EnsureSuccessStatusCode();
 
@@ -76,25 +76,25 @@ namespace HCms.Content.Repo
 
 			if (contentType == MSGPACK_MEDIA_TYPE)
 			{
-				var stream = await response.Content.ReadAsStreamAsync();
-				result = MessagePackSerializer.Deserialize<T>(stream);
+				var stream = await response.Content.ReadAsStreamAsync(ct);
+				result = MessagePackSerializer.Deserialize<T>(stream, cancellationToken: ct);
 			}
 			else
 			{
-				result = await response.Content.ReadFromJsonAsync<T>();
+				result = await response.Content.ReadFromJsonAsync<T>(ct);
 			}
 
 			return result;
 		}
 
-		public async Task<Document[]> ListDocuments(int id)
+		public async Task<Document[]> ListDocuments(int id, CancellationToken ct)
 		{
 			string url = $"{_cmsApiHost}/api/v1/content/list/{id}?pm={_pathMapperName}";
 			Document[] result;
 
 			try
 			{
-				result = await RestRequest<Document[]>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE);
+				result = await RestRequest<Document[]>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
 			}
 			catch (HttpRequestException ex)
 			{
@@ -115,7 +115,7 @@ namespace HCms.Content.Repo
 			return result;
 		}
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch, CancellationToken ct)
 		{
 			string ast = allowedStatus != null ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : "ast=1";
 			string url = $"{_cmsApiHost}/api/v1/content/doc/{root}?path={path}&pm={_pathMapperName}&cfp={childrenFromPos}&tc={takeChildren}&sib={siblings}&{ast}";
@@ -123,7 +123,7 @@ namespace HCms.Content.Repo
 
 			try
 			{
-				result = await RestRequest<Document>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE);
+				result = await RestRequest<Document>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
 			}
 			catch (HttpRequestException ex)
 			{
@@ -144,7 +144,7 @@ namespace HCms.Content.Repo
 			return result;
 		}
 
-		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
+		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct)
 		{
 			string ast = allowedStatus != null ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : "ast=1";
 			string url = $"{_cmsApiHost}/api/v1/content/doc/{id}?pm={_pathMapperName}&cfp={childrenFromPos}&tc={takeChildren}&sib={siblings}&{ast}";
@@ -152,7 +152,7 @@ namespace HCms.Content.Repo
 
 			try
 			{
-				result = await RestRequest<Document>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE);
+				result = await RestRequest<Document>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
 			}
 			catch (HttpRequestException ex)
 			{
@@ -173,7 +173,7 @@ namespace HCms.Content.Repo
 			return result;
 		}
 
-		public async ValueTask<string> UserRole(string login)
+		public async ValueTask<string> UserRole(string login, CancellationToken ct)
 		{
 			if (_roles.TryGetValue(login, out string role))
 				return role;
@@ -183,7 +183,7 @@ namespace HCms.Content.Repo
 
 			try
 			{
-				result = await RestRequest<UserRoleResponse>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE);
+				result = await RestRequest<UserRoleResponse>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
 				_roles[login] = result.Role;
 			}
 			catch (Exception ex)

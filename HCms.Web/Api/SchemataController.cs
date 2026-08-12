@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Asp.Versioning;
@@ -25,7 +26,7 @@ namespace HCms.Web.Api
 
 		[HttpGet("{id:int?}")]
 		[Authorize]
-		public async Task<IActionResult> Get(int? id)
+		public async Task<IActionResult> Get(int? id, CancellationToken ct)
 		{
 			if (!id.HasValue)
 			{
@@ -34,7 +35,7 @@ namespace HCms.Web.Api
 				return Ok(list);
 			}
 
-			var result = await _sms.GetSchema(id.Value);
+			var result = await _sms.GetSchema(id.Value, ct);
 
 			if (result == null)
 				return NotFound();
@@ -45,9 +46,9 @@ namespace HCms.Web.Api
 		[HttpPost]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateSchema dto)
+		public async Task<IActionResult> Post([Required] DtoCreateSchema dto, CancellationToken ct)
 		{
-			var result = await _sms.CreateSchema(dto, HttpContext.User);
+			var result = await _sms.CreateSchema(dto, HttpContext.User, ct);
 
 			if (result.IsBadParameters)
 				return BadRequest(result.Errors);
@@ -58,9 +59,9 @@ namespace HCms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateSchema dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateSchema dto, CancellationToken ct)
 		{
-			var result = await _sms.UpdateSchema(id, dto, HttpContext.User);
+			var result = await _sms.UpdateSchema(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -74,9 +75,9 @@ namespace HCms.Web.Api
 		[HttpDelete("{id:int}")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Delete(int id)
+		public async Task<IActionResult> Delete(int id, CancellationToken ct)
 		{
-			var result = await _sms.DeleteSchema(id, HttpContext.User);
+			var result = await _sms.DeleteSchema(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -92,7 +93,7 @@ namespace HCms.Web.Api
 		[CsrAntiforgery]
 		public async Task<IActionResult> Compile()
 		{
-			var result = await _sms.CompileAndReload(HttpContext.User);
+			var result = await _sms.CompileAndReload(HttpContext.User, HttpContext.RequestAborted);
 
 			if (result.IsBadParameters)
 				return BadRequest(result.Errors);

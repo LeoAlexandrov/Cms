@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -37,7 +38,7 @@ namespace HCms.Application.Services
 			return dbContext.Users.Any(u => u.Login == login && u.Role == role && u.IsEnabled);
 		}
 
-		public async Task<DtoUserLiteResult[]> GetList(ClaimsPrincipal user)
+		public async Task<DtoUserLiteResult[]> GetList(ClaimsPrincipal user, CancellationToken ct)
 		{
 			DtoUserLiteResult[] result;
 
@@ -49,7 +50,7 @@ namespace HCms.Application.Services
 					.AsNoTracking()
 					.OrderBy(u => u.Login)
 					.Select(u => new DtoUserLiteResult(u))
-					.ToArrayAsync();
+					.ToArrayAsync(ct);
 			}
 			else
 			{
@@ -59,20 +60,20 @@ namespace HCms.Application.Services
 					.AsNoTracking()
 					.Where(u => u.Login == login)
 					.Select(u => new DtoUserLiteResult(u))
-					.ToArrayAsync();
+					.ToArrayAsync(ct);
 			}
 
 			return result;
 		}
 
-		public async Task<Result<DtoUserResult>> GetById(int id, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> GetById(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
 				return Result<DtoUserResult>.Forbidden();
 
-			var u = await dbContext.Users.FindAsync(id);
+			var u = await dbContext.Users.FindAsync([id], ct);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -80,11 +81,11 @@ namespace HCms.Application.Services
 			return Result<DtoUserResult>.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
 		}
 
-		public async Task<Result<DtoUserResult>> GetByLogin(string login, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> GetByLogin(string login, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var u = await dbContext.Users
 				.AsNoTracking()
-				.FirstOrDefaultAsync(u => u.Login == login);
+				.FirstOrDefaultAsync(u => u.Login == login, ct);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -97,11 +98,11 @@ namespace HCms.Application.Services
 			return Result<DtoUserResult>.Success(new(u, u.Login == user.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value));
 		}
 
-		public async Task<Result<DtoUserResult>> GetByApiKey(string apikey)
+		public async Task<Result<DtoUserResult>> GetByApiKey(string apikey, CancellationToken ct)
 		{
 			var u = await dbContext.Users
 				.AsNoTracking()
-				.FirstOrDefaultAsync(u => u.ApiKey == apikey);
+				.FirstOrDefaultAsync(u => u.ApiKey == apikey, ct);
 
 			if (u == null)
 				return Result<DtoUserResult>.NotFound();
@@ -117,7 +118,7 @@ namespace HCms.Application.Services
 			return idx >= 0 ? _policies.Roles.Skip(idx).ToArray() : [];
 		}
 
-		public async Task<Result<DtoUserResult>> CreateUser(DtoCreateUser dto, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> CreateUser(DtoCreateUser dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			if (user != null)
 			{
@@ -143,7 +144,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -153,19 +154,19 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_users_change");
+			await _notifier.Notify("on_users_change", 0, CancellationToken.None);
 
 			return Result<DtoUserResult>.Success(new(result, false));
 		}
 
-		public async Task<Result<DtoUserResult>> UpdateUser(int id, DtoUpdateUser dto, ClaimsPrincipal user)
+		public async Task<Result<DtoUserResult>> UpdateUser(int id, DtoUpdateUser dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
 				return Result<DtoUserResult>.Forbidden();
 
-			var result = await dbContext.Users.FindAsync(id);
+			var result = await dbContext.Users.FindAsync([id], ct);
 
 			if (result == null)
 				return Result<DtoUserResult>.NotFound();
@@ -179,7 +180,7 @@ namespace HCms.Application.Services
 
 			if (result.Role == _policies.Roles[0] && (result.Role != dto.Role || !isEnabled))
 			{
-				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled, ct);
 
 				if (n < 2)
 				{
@@ -209,28 +210,28 @@ namespace HCms.Application.Services
 			if (authResult.Succeeded)
 				result.IsDemo = false;
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_users_change");
+			await _notifier.Notify("on_users_change", 0, CancellationToken.None);
 
 			return Result<DtoUserResult>.Success(new(result, false));
 		}
 
-		public async Task<Result<DtoDeleteUserResult>> DeleteUser(int id, ClaimsPrincipal user)
+		public async Task<Result<DtoDeleteUserResult>> DeleteUser(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageUser");
 
 			if (!authResult.Succeeded)
 				return Result<DtoDeleteUserResult>.Forbidden();
 
-			var u = await dbContext.Users.FindAsync(id);
+			var u = await dbContext.Users.FindAsync([id], ct);
 
 			if (u == null)
 				return Result<DtoDeleteUserResult>.NotFound();
 
 			if (u.Role == _policies.Roles[0])
 			{
-				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled);
+				var n = await dbContext.Users.CountAsync(u => u.Role == _policies.Roles[0] && u.IsEnabled, ct);
 
 				if (n < 2)
 					return Result<DtoDeleteUserResult>.BadParameters("Id", "Can't be deleted");
@@ -238,9 +239,9 @@ namespace HCms.Application.Services
 
 			dbContext.Users.Remove(u);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_users_change");
+			await _notifier.Notify("on_users_change", 0, CancellationToken.None);
 
 			return Result<DtoDeleteUserResult>.Success(
 				new()

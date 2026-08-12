@@ -1,9 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
-using Grpc.Core;
 using ProtoBuf;
 using ProtoBuf.Grpc.Configuration;
 
@@ -33,9 +34,11 @@ namespace HCms.Web.Services
 		public bool Siblings { get; set; }
 
 		[ProtoMember(6)]
+		[DefaultValue(-1)]
 		public int ChildrenFromPos { get; set; } = -1;
 
 		[ProtoMember(7)]
+		[DefaultValue(1000)]
 		public int TakeChildren { get; set; } = 1000;
 
 		[ProtoMember(8)]
@@ -71,8 +74,8 @@ namespace HCms.Web.Services
 	[Service("HCms.Content.ContentGrpcService")]
 	public interface IContentGrpcService
 	{
-		Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, ServerCallContext context = default);
-		Task<DocumentGrpcResult> GetList(ListGrpcRequest request, ServerCallContext context = default);
+		Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, CancellationToken ct);
+		Task<DocumentGrpcResult> GetList(ListGrpcRequest request, CancellationToken ct);
 	}
 
 
@@ -83,7 +86,7 @@ namespace HCms.Web.Services
 		readonly IServiceProvider _serviceProvider = serviceProvider;
 		readonly IPathMapperFactory _pathMapperFactory = pathMapperFactory;
 
-		public async Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, ServerCallContext context = default)
+		public async Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, CancellationToken ct)
 		{
 			using var scope = _serviceProvider.CreateScope();
 			var cps = scope.ServiceProvider.GetRequiredService<ContentProvidingService>();
@@ -92,31 +95,31 @@ namespace HCms.Web.Services
 			Document doc;
 
 			if (request.Id != 0)
-				doc = await cps.GetDocument(pm, request.Id, request.ChildrenFromPos, request.TakeChildren, request.Siblings, request.AllowedStatus);
+				doc = await cps.GetDocument(pm, request.Id, request.ChildrenFromPos, request.TakeChildren, request.Siblings, request.AllowedStatus, ct);
 			else
-				doc = await cps.GetDocument(pm, request.Root, request.Path, request.ChildrenFromPos, request.TakeChildren, request.Siblings, request.AllowedStatus, false);
+				doc = await cps.GetDocument(pm, request.Root, request.Path, request.ChildrenFromPos, request.TakeChildren, request.Siblings, request.AllowedStatus, false, ct);
 
 			var result = new DocumentGrpcResult()
 			{
 				Status = doc != null ? 200 : 404,
-				Data = MessagePack.MessagePackSerializer.Serialize(doc)
+				Data = MessagePack.MessagePackSerializer.Serialize(doc, cancellationToken: ct)
 			};
 
 			return result;
 		}
 
-		public async Task<DocumentGrpcResult> GetList(ListGrpcRequest request, ServerCallContext context = default)
+		public async Task<DocumentGrpcResult> GetList(ListGrpcRequest request, CancellationToken ct)
 		{
 			using var scope = _serviceProvider.CreateScope();
 			var cps = scope.ServiceProvider.GetRequiredService<ContentProvidingService>();
 			var pm = _pathMapperFactory.Get(request.PathMapper);
 
-			var docs = await cps.ListDocuments(pm, request.Id);
+			var docs = await cps.ListDocuments(pm, request.Id, ct);
 
 			var result = new DocumentGrpcResult()
 			{
 				Status = docs != null ? 200 : 404,
-				Data = MessagePack.MessagePackSerializer.Serialize(docs)
+				Data = MessagePack.MessagePackSerializer.Serialize(docs, cancellationToken: ct)
 			};
 
 			return result;

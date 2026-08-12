@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Authorization;
@@ -115,23 +116,23 @@ namespace HCms.Application.Services
 
 		#endregion
 
-		public async Task<DtoTreeNode<int>[]> DocumentTree()
+		public async Task<DtoTreeNode<int>[]> DocumentTree(CancellationToken ct)
 		{
 			Document[] docs = await dbContext.Documents
 				.AsNoTracking()
 				.OrderBy(d => d.Parent)
 				.ThenBy(d => d.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			var result = CreateTree<int, Document>(docs);
 
 			return result;
 		}
 
-		public async Task<DtoTreeNode<int>[]> DocumentTree(int docId)
+		public async Task<DtoTreeNode<int>[]> DocumentTree(int docId, CancellationToken ct)
 		{
 			if (docId <= 0)
-				return await DocumentTree();
+				return await DocumentTree(ct);
 
 			Document[] docs = await dbContext.Documents
 				.AsNoTracking()
@@ -140,14 +141,14 @@ namespace HCms.Application.Services
 				.Select(dn => dn.d)
 				.OrderBy(d => d.Parent)
 				.ThenBy(d => d.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			var result = CreateTree<int, Document>(docs);
 
 			return result;
 		}
 
-		public async Task<DtoDocumentFragmentsResult> GetDocumentFragments(int docId)
+		public async Task<DtoDocumentFragmentsResult> GetDocumentFragments(int docId, CancellationToken ct)
 		{
 			FragmentLink[] links = await dbContext.FragmentLinks
 				.AsNoTracking()
@@ -155,7 +156,7 @@ namespace HCms.Application.Services
 				.Where(l => l.DocumentRef == docId)
 				.OrderBy(l => l.ContainerRef)
 				.ThenBy(l => l.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			XSElement xse;
 
@@ -171,22 +172,22 @@ namespace HCms.Application.Services
 			return result;
 		}
 
-		public async Task<DtoFullDocumentResult> GetDocument(int id)
+		public async Task<DtoFullDocumentResult> GetDocument(int id, CancellationToken ct)
 		{
 			Document doc = await dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == id);
+				.FirstOrDefaultAsync(d => d.Id == id, ct);
 
 			if (doc == null)
 				return null;
 
-			var fragments = await GetDocumentFragments(id);
+			var fragments = await GetDocumentFragments(id, ct);
 
 			DocumentAttribute[] attrs = await dbContext.DocumentAttributes
 				.AsNoTracking()
 				.Where(a => a.DocumentRef == id)
 				.OrderBy(a => a.AttributeKey)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			DtoFullDocumentResult result = new()
 			{ 
@@ -199,7 +200,7 @@ namespace HCms.Application.Services
 			return result;
 		}
 
-		public async Task<Result<DtoFullDocumentResult>> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user)
+		public async Task<Result<DtoFullDocumentResult>> CreateDocument(DtoCreateDocument dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, "NoInputSanitizing");
 
@@ -234,7 +235,7 @@ namespace HCms.Application.Services
 					.AsNoTracking()
 					.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
 					.Include(d => d.DocumentAttributes)
-					.FirstOrDefaultAsync(d => d.Id == dto.Parent);
+					.FirstOrDefaultAsync(d => d.Id == dto.Parent, ct);
 
 				if (parent == null)
 					return Result<DtoFullDocumentResult>.BadParameters("Parent", "No parent document found");
@@ -263,7 +264,7 @@ namespace HCms.Application.Services
 				newAttrs = null;
 			}
 
-			int position = await dbContext.Documents.CountAsync(d => d.Parent == dto.Parent);
+			int position = await dbContext.Documents.CountAsync(d => d.Parent == dto.Parent, ct);
 			DateTimeOffset now = DateTimeOffset.UtcNow;
 
 			Document doc = new()
@@ -290,7 +291,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -300,7 +301,7 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 			DtoFullDocumentResult result = new()
 			{
@@ -313,7 +314,7 @@ namespace HCms.Application.Services
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
 
-		public async Task<Result<DtoDocumentResult>> UpdateDocument(int id, DtoUpdateDocument dto, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> UpdateDocument(int id, DtoUpdateDocument dto, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
@@ -355,7 +356,7 @@ namespace HCms.Application.Services
 			}
 
 
-			var doc = await dbContext.Documents.FindAsync(id);
+			var doc = await dbContext.Documents.FindAsync([id], ct);
 
 			if (doc == null)
 				return Result<DtoDocumentResult>.NotFound();
@@ -368,7 +369,7 @@ namespace HCms.Application.Services
 						.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
 						.Where(dn => dn.n.Parent == id)
 						.Select(dn => dn.d)
-						.ToArrayAsync() :
+						.ToArrayAsync(ct) :
 				null;
 
 			if (children != null && children.Length > 0)
@@ -387,7 +388,9 @@ namespace HCms.Application.Services
 			if (doc.Status != dto.Status)
 				if (publishStatus != (int)PublishStatus.Unpublished)
 				{
-					var parent = await dbContext.Documents.FindAsync(doc.Parent);
+					var parent = await dbContext.Documents
+						.AsNoTracking()
+						.FirstOrDefaultAsync(d => d.Id == doc.Parent, ct);
 
 					if (publishStatus == (int)PublishStatus.Published)
 					{
@@ -459,18 +462,18 @@ namespace HCms.Application.Services
 			var existingRefs = await dbContext.References
 				.Where(r => r.DocumentRef == id)
 				.OrderBy(r => r.ReferenceTo)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
 				.Where(f => f.DocumentRef == id && f.Status != (int)PublishStatus.Unpublished)
 				.Select(f => f.Data)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] attrData = await dbContext.DocumentAttributes
 				.Where(a => a.DocumentRef == doc.Id && a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string[] fAttrData = await dbContext.FragmentLinks
 				.Join(dbContext.Fragments, l => l.FragmentRef, f => f.Id, (l, f) => new { l, f })
@@ -478,7 +481,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
 				.Select(a => a.Value)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			ReferenceHelper.GetReferenceChanges(id,
 				existingRefs,
@@ -495,7 +498,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -505,19 +508,19 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id);
+			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id, CancellationToken.None);
 
 			return Result<DtoDocumentResult>.Success(new(doc)); ;
 		}
 
-		public async Task<Result<bool>> DeleteDocument(int id, ClaimsPrincipal user)
+		public async Task<Result<bool>> DeleteDocument(int id, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
 				return Result<bool>.Forbidden();
 
-			var doc = await dbContext.Documents.FindAsync(id);
+			var doc = await dbContext.Documents.FindAsync([id], ct);
 
 			if (doc == null)
 				return Result<bool>.NotFound();
@@ -530,7 +533,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
 				.Where(dn => dn.n.Parent == id)
 				.Select(dn => dn.d)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			if (children.Length > 0)
 			{
@@ -544,7 +547,7 @@ namespace HCms.Application.Services
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { f, fl })
 				.Where(ffl => ffl.fl.DocumentRef == docId && !ffl.f.Shared)
 				.Select(ffl => ffl.f)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			if (children.Length != 0)
 			{
@@ -565,7 +568,7 @@ namespace HCms.Application.Services
 
 			var siblingsAfter = await dbContext.Documents
 				.Where(d => d.Parent == parent && d.Position > position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			foreach (var d in siblingsAfter)
 				d.Position--;
@@ -575,21 +578,21 @@ namespace HCms.Application.Services
 			if (fragmentsToRemove.Count > 0)
 				dbContext.Fragments.RemoveRange(fragmentsToRemove);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_delete", doc.RootSlug, doc.Path, id);
+			await _notifier.Notify("on_doc_delete", doc.RootSlug, doc.Path, id, CancellationToken.None);
 
 			return Result<bool>.Success(true);
 		}
 
-		public async Task<Result<DtoDocumentResult>> LockDocument(int id, bool lockState, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> LockDocument(int id, bool lockState, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
 				return Result<DtoDocumentResult>.Forbidden();
 
-			var doc = await dbContext.Documents.FindAsync(id);
+			var doc = await dbContext.Documents.FindAsync([id], ct);
 
 			if (doc == null)
 				return Result<DtoDocumentResult>.NotFound();
@@ -598,19 +601,19 @@ namespace HCms.Application.Services
 			doc.Author = user.Identity.Name;
 			doc.ModifiedAt = DateTimeOffset.UtcNow;
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
 			return Result<DtoDocumentResult>.Success(new(doc));
 		}
 
-		public async Task<Result<DtoDocumentResult>> SetParentDocument(int id, int parentId, ClaimsPrincipal user)
+		public async Task<Result<DtoDocumentResult>> SetParentDocument(int id, int parentId, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
 				return Result<DtoDocumentResult>.Forbidden();
 
-			Document doc = await dbContext.Documents.FindAsync(id);
+			Document doc = await dbContext.Documents.FindAsync([id], ct);
 
 			if (doc == null)
 				return Result<DtoDocumentResult>.NotFound();
@@ -624,7 +627,7 @@ namespace HCms.Application.Services
 				.Where(dn => dn.n.Parent == id)
 				.Select(dn => dn.d)
 				.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			if (children.Length > 0)
 			{
@@ -642,7 +645,7 @@ namespace HCms.Application.Services
 				newParent = await dbContext.Documents
 					.AsNoTracking()
 					.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
-					.FirstOrDefaultAsync(d => d.Id == parentId);
+					.FirstOrDefaultAsync(d => d.Id == parentId, ct);
 
 				if (newParent == null)
 					return Result<DtoDocumentResult>.BadParameters("Parent", "Parent document not found");
@@ -663,12 +666,12 @@ namespace HCms.Application.Services
 
 			var siblingsAfter = await dbContext.Documents
 				.Where(d => d.Parent == oldParent && d.Position > oldPosition)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			foreach (var d in siblingsAfter)
 				d.Position--;
 
-			int newPosition = await dbContext.Documents.CountAsync(d => d.Parent == parentId);
+			int newPosition = await dbContext.Documents.CountAsync(d => d.Parent == parentId, ct);
 			string originalRoot = doc.RootSlug;
 			string originalPath = doc.Path;
 			string newPath = newParent != null ? PathJoin(newParent.Path, doc.Slug) : "/";
@@ -694,7 +697,7 @@ namespace HCms.Application.Services
 			var docPathNodes = await dbContext.DocumentPathNodes
 				.Where(dn => dn.DocumentRef == id)
 				.OrderBy(dn => dn.Position)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			int diff;
 
@@ -788,7 +791,7 @@ namespace HCms.Application.Services
 
 			try
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 			}
 			catch (Exception ex)
 			{
@@ -798,19 +801,19 @@ namespace HCms.Application.Services
 				throw;
 			}
 
-			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id);
+			await _notifier.Notify("on_doc_change", originalRoot, originalPath, doc.Id, CancellationToken.None);
 
 			return Result<DtoDocumentResult>.Success(new(doc));
 		}
 
-		public async Task<Result<DtoMoveDocumentResult>> MoveDocument(int id, int posIncrement, ClaimsPrincipal user)
+		public async Task<Result<DtoMoveDocumentResult>> MoveDocument(int id, int posIncrement, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
 			if (!authResult.Succeeded)
 				return Result<DtoMoveDocumentResult>.Forbidden();
 
-			var doc = await dbContext.Documents.FindAsync(id);
+			var doc = await dbContext.Documents.FindAsync([id], ct);
 
 			if (doc == null)
 				return Result<DtoMoveDocumentResult>.NotFound();
@@ -820,7 +823,7 @@ namespace HCms.Application.Services
 			var siblings = await dbContext.Documents
 				.Where(d => d.Parent == parent)
 				.OrderBy(d => d.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			int oldPosition = doc.Position;
 			int newPosition = oldPosition + posIncrement;
@@ -847,9 +850,9 @@ namespace HCms.Application.Services
 						siblings[i].Position--;
 				}
 
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 
-				await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id);
+				await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 			}
 
 			return Result<DtoMoveDocumentResult>.Success(
@@ -862,7 +865,7 @@ namespace HCms.Application.Services
 				});
 		}
 
-		public async Task<Result<DtoFullDocumentResult>> CopyDocument(int originId, ClaimsPrincipal user)
+		public async Task<Result<DtoFullDocumentResult>> CopyDocument(int originId, ClaimsPrincipal user, CancellationToken ct)
 		{
 			var authResult = await _authService.AuthorizeAsync(user, originId, "CanManageDocument");
 
@@ -874,13 +877,13 @@ namespace HCms.Application.Services
 				.Include(d => d.DocumentPathNodes.OrderBy(n => n.Position))
 				.Include(d => d.References.OrderBy(r => r.ReferenceTo))
 				.Include(d => d.DocumentAttributes)
-				.FirstOrDefaultAsync(d => d.Id == originId);
+				.FirstOrDefaultAsync(d => d.Id == originId, ct);
 
 			if (origin == null)
 				return Result<DtoFullDocumentResult>.BadParameters("Origin", "Original document not found");
 
 			DateTimeOffset now = DateTimeOffset.UtcNow;
-			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent);
+			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent, ct);
 
 			string[] pathItems = origin.Path.Split('/');
 			string newSlug = $"{origin.Slug}-{now.Ticks}";
@@ -923,9 +926,9 @@ namespace HCms.Application.Services
 
 			dbContext.Documents.Add(doc);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
-			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id);
+			await _notifier.Notify("on_doc_create", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
 
 			DtoFullDocumentResult result = new()
@@ -940,11 +943,11 @@ namespace HCms.Application.Services
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
 	
-		public async Task<Result<DtoDocumentRefResult>> GetReferences(int id)
+		public async Task<Result<DtoDocumentRefResult>> GetReferences(int id, CancellationToken ct)
 		{
 			var doc = await dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == id);
+				.FirstOrDefaultAsync(d => d.Id == id, ct);
 
 			if (doc == null)
 				return Result<DtoDocumentRefResult>.NotFound();
@@ -954,14 +957,14 @@ namespace HCms.Application.Services
 				.Where(r => r.r.DocumentRef == id)
 				.OrderBy(r => r.CreatedAt)
 				.Select(r => new DtoMinDocumentResult() { Id = r.r.ReferenceTo, Title = r.Title })
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			var refdBy = await dbContext.References
 				.Join(dbContext.Documents, r => r.DocumentRef, d => d.Id, (r, d) => new { r, d.Title, d.CreatedAt })
 				.Where(r => r.r.ReferenceTo == id)
 				.OrderBy(r => r.CreatedAt)
 				.Select(r => new DtoMinDocumentResult() { Id = r.r.DocumentRef, Title = r.Title })
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 
 			DtoDocumentRefResult result = new()
@@ -973,7 +976,7 @@ namespace HCms.Application.Services
 			return Result<DtoDocumentRefResult>.Success(result);
 		}
 
-		public async Task<Result<DtoMinDocumentResult[]>> GetMediaReferers(string link)
+		public async Task<Result<DtoMinDocumentResult[]>> GetMediaReferers(string link, CancellationToken ct)
 		{
 			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
 				return Result<DtoMinDocumentResult[]>.BadParameters("Link", "Invalid base64-url format");
@@ -983,7 +986,7 @@ namespace HCms.Application.Services
 				.Where(r => r.r.MediaLink == path)
 				.OrderBy(r => r.CreatedAt)
 				.Select(r => new DtoMinDocumentResult() { Id = r.r.DocumentRef, Title = r.Title })
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			return Result<DtoMinDocumentResult[]>.Success(result);
 		}

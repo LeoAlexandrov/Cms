@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
@@ -62,38 +63,38 @@ namespace HCms.Content.Repo
 		}
 
 
-		public Task<Document[]> ListDocuments(int id)
+		public Task<Document[]> ListDocuments(int id, CancellationToken ct)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
 			var provider = new ContentProvidingService(dbContext, fsr, logger);
 
-			return provider.ListDocuments(pathMapper, id);
+			return provider.ListDocuments(pathMapper, id, ct);
 		}
 
-		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
+		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch, CancellationToken ct)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
 			var provider = new ContentProvidingService(dbContext, fsr, logger);
-			var result = await provider.GetDocument(pathMapper, root, path, childrenFromPos, takeChildren, siblings, allowedStatus, exactPathMatch);
+			var result = await provider.GetDocument(pathMapper, root, path, childrenFromPos, takeChildren, siblings, allowedStatus, exactPathMatch, ct);
 
 			return result;
 		}
 
-		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
+		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
 			var provider = new ContentProvidingService(dbContext, fsr, logger);
-			var result = await provider.GetDocument(pathMapper, id, childrenFromPos, takeChildren, siblings, allowedStatus);
+			var result = await provider.GetDocument(pathMapper, id, childrenFromPos, takeChildren, siblings, allowedStatus, ct);
 
 			return result;
 		}
 
-		public ValueTask<string> UserRole(string login)
+		public ValueTask<string> UserRole(string login, CancellationToken ct)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
 			var provider = new ContentProvidingService(dbContext, fsr, logger);
 
-			return provider.UserRole(login);
+			return provider.UserRole(login, ct);
 		}
 	}
 }

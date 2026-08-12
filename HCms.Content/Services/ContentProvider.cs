@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -415,7 +416,7 @@ namespace HCms.Content.Services
 
 		#endregion
 
-		public async Task<Document[]> ListDocuments(IPathMapper pathMapper, int id)
+		public async Task<Document[]> ListDocuments(IPathMapper pathMapper, int id, CancellationToken ct)
 		{
 			Entities.Document[] docs;
 
@@ -425,7 +426,7 @@ namespace HCms.Content.Services
 					.AsNoTracking()
 					.OrderBy(d => d.Parent)
 					.ThenBy(d => d.Position)
-					.ToArrayAsync();
+					.ToArrayAsync(ct);
 			}
 			else
 			{
@@ -436,7 +437,7 @@ namespace HCms.Content.Services
 					.Select(dn => dn.d)
 					.OrderBy(d => d.Parent)
 					.ThenBy(d => d.Position)
-					.ToArrayAsync();
+					.ToArrayAsync(ct);
 			}
 
 			var refsList = await _dbContext.References
@@ -446,7 +447,7 @@ namespace HCms.Content.Services
 					rd => rd.d.DefaultIfEmpty(),
 					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathMapper)
 				)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			Dictionary<string, string> refs = [];
 
@@ -466,7 +467,7 @@ namespace HCms.Content.Services
 			return result;
 		}
 
-		public async Task<Document> GetDocument(IPathMapper pathMapper, string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch)
+		public async Task<Document> GetDocument(IPathMapper pathMapper, string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch, CancellationToken ct)
 		{
 			allowedStatus ??= [(int)PublishStatus.Published];
 
@@ -477,7 +478,7 @@ namespace HCms.Content.Services
 			if (!string.IsNullOrEmpty(root))
 				query = query.Where(d => d.Slug == root);
 
-			var rootDoc = await query.FirstOrDefaultAsync();
+			var rootDoc = await query.FirstOrDefaultAsync(ct);
 
 			if (rootDoc == null)
 				return null;
@@ -523,7 +524,7 @@ namespace HCms.Content.Services
 					.Join(_dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
 					.Where(dn => dn.n.Parent == rootId && hashes.Contains(dn.d.PathHash) && allowedStatus.Contains(dn.d.Status))
 					.Select(dn => dn.d)
-					.ToListAsync();
+					.ToListAsync(ct);
 
 
 				docs.RemoveAll(d => !pathes.Contains(d.Path)); // if hash collisions
@@ -561,7 +562,7 @@ namespace HCms.Content.Services
 				.AsNoTracking()
 				.Where(a => allDocsIds.Contains(a.DocumentRef) && a.Enabled)
 				.OrderBy(a => a.DocumentRef)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			result.Attributes = [];
 
@@ -586,7 +587,7 @@ namespace HCms.Content.Services
 				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
 
 				var q = Children(doc.Id, childrenFromPos, takeChildren, allowedStatus);
-				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
+				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
 				
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}
@@ -602,7 +603,7 @@ namespace HCms.Content.Services
 					rd => rd.d.DefaultIfEmpty(),
 					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathMapper)
 				)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			Dictionary<string, string> refs = [];
 
@@ -619,7 +620,7 @@ namespace HCms.Content.Services
 				.Where(b => b.DocumentRef == doc.Id && allowedStatus.Contains(b.Status))
 				.OrderBy(b => b.ContainerRef)
 				.ThenBy(b => b.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			int anchorsCount = links.Count(l => l.Anchor);
 
@@ -656,7 +657,7 @@ namespace HCms.Content.Services
 				.Where(lf => lf.l.DocumentRef == doc.Id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(_dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			foreach (var f in fAttrs)
 				f.Value = ReplaceRefs(f.Value, refs);
@@ -666,13 +667,13 @@ namespace HCms.Content.Services
 			return result;
 		}
 
-		public async Task<Document> GetDocument(IPathMapper pathMapper, int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus)
+		public async Task<Document> GetDocument(IPathMapper pathMapper, int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct)
 		{
 			allowedStatus ??= [(int)PublishStatus.Published];
 
 			var doc = await _dbContext.Documents
 				.AsNoTracking()
-				.FirstOrDefaultAsync(d => d.Id == id && allowedStatus.Contains(d.Status));
+				.FirstOrDefaultAsync(d => d.Id == id && allowedStatus.Contains(d.Status), ct);
 
 			if (doc == null)
 				return null;
@@ -700,7 +701,7 @@ namespace HCms.Content.Services
 					.Where(dn => dn.n.DocumentRef == id)
 					.Select(dn => dn.d)
 					.OrderBy(d => d.Id)
-					.ToListAsync();
+					.ToListAsync(ct);
 
 				docs.Sort((d1, d2) => string.Compare(d1.Path, d2.Path, StringComparison.InvariantCultureIgnoreCase));
 
@@ -719,7 +720,7 @@ namespace HCms.Content.Services
 				if (siblings)
 				{
 					var q = Children(doc.Parent, -1, -1, allowedStatus);
-					result.Siblings = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
+					result.Siblings = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
 				}
 			}
 
@@ -728,7 +729,7 @@ namespace HCms.Content.Services
 				.AsNoTracking()
 				.Where(a => allDocsIds.Contains(a.DocumentRef) && a.Enabled)
 				.OrderBy(a => a.DocumentRef)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			result.Attributes = [];
 
@@ -751,7 +752,7 @@ namespace HCms.Content.Services
 			{
 				result.ChildrenTakePosition = childrenFromPos;
 				result.ChildrenTaken = takeChildren;
-				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == id).CountAsync();
+				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == id).CountAsync(ct);
 
 				var q = Children(doc.Id, childrenFromPos, takeChildren, allowedStatus);
 				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
@@ -774,7 +775,7 @@ namespace HCms.Content.Services
 					rd => rd.d.DefaultIfEmpty(),
 					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathMapper)
 				)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			Dictionary<string, string> refs = [];
 
@@ -791,7 +792,7 @@ namespace HCms.Content.Services
 				.Where(b => b.DocumentRef == id && allowedStatus.Contains(b.Status))
 				.OrderBy(b => b.ContainerRef)
 				.ThenBy(b => b.Position)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			int anchorsCount = links.Count(l => l.Anchor);
 
@@ -827,7 +828,7 @@ namespace HCms.Content.Services
 				.Where(lf => lf.l.DocumentRef == id && lf.l.Status != (int)PublishStatus.Unpublished)
 				.Join(_dbContext.FragmentAttributes, lf => lf.f.Id, a => a.FragmentRef, (lf, a) => a)
 				.Where(a => a.Enabled)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			foreach (var f in fAttrs)
 				f.Value = ReplaceRefs(f.Value, refs);
@@ -860,10 +861,10 @@ namespace HCms.Content.Services
 			return query;
 		}
 
-		public async Task<Document[]> GetChildren(IPathMapper pathMapper, int id, int childrenFromPos, int take, int[] allowedStatus)
+		public async Task<Document[]> GetChildren(IPathMapper pathMapper, int id, int childrenFromPos, int take, int[] allowedStatus, CancellationToken ct)
 		{
 			var query = Children(id, childrenFromPos, take, allowedStatus);
-			var result = await query.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
+			var result = await query.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
 			var allDocsIds = result.Select(d => d.Id).ToArray();
 
 			var refsList = await _dbContext.References
@@ -874,7 +875,7 @@ namespace HCms.Content.Services
 					rd => rd.d.DefaultIfEmpty(),
 					(r, d) => new Reference(r.r.Encoded, d.Path, r.r.MediaLink, d.RootSlug, pathMapper)
 				)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			Dictionary<string, string> refs = [];
 
@@ -913,11 +914,11 @@ namespace HCms.Content.Services
 			return (root.Slug, doc.Path);
 		}
 
-		public async ValueTask<string> UserRole(string login)
+		public async ValueTask<string> UserRole(string login, CancellationToken ct)
 		{
 			var user = await _dbContext.Users
 				.AsNoTracking()
-				.FirstOrDefaultAsync(u => u.Login == login);
+				.FirstOrDefaultAsync(u => u.Login == login, ct);
 
 			return user?.Role;
 		}

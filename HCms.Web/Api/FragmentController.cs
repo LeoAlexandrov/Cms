@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Asp.Versioning;
@@ -27,26 +28,26 @@ namespace HCms.Web.Api
 
 		[HttpGet("shared")]
 		[Authorize]
-		public async Task<IActionResult> Shared()
+		public async Task<IActionResult> Shared(CancellationToken ct)
 		{
-			var result = await _cms.SharedFragments();
+			var result = await _cms.SharedFragments(ct);
 			return Ok(result);
 		}
 
 		[HttpGet("creationstuff")]
 		[Authorize]
-		public async Task<IActionResult> CreationStuff()
+		public async Task<IActionResult> CreationStuff(CancellationToken ct)
 		{
-			var result = await _cms.FragmentCreationStuff(_sharedLocalizer.GetString("Language"));
+			var result = await _cms.FragmentCreationStuff(_sharedLocalizer.GetString("Language"), ct);
 
 			return Ok(result);
 		}
 
 		[HttpGet("{id:int}")]
 		[Authorize]
-		public async Task<IActionResult> Get(int id)
+		public async Task<IActionResult> Get(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetFragmentByLink(id, _sharedLocalizer.GetString("Language"));
+			var result = await _cms.GetFragmentByLink(id, _sharedLocalizer.GetString("Language"), ct);
 
 			if (result.IsNotFound)
 				return NotFound();
@@ -57,9 +58,9 @@ namespace HCms.Web.Api
 		[HttpPost]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateFragment dto)
+		public async Task<IActionResult> Post([Required] DtoCreateFragment dto, CancellationToken ct)
 		{
-			var result = await _cms.CreateFragment(dto, HttpContext.User);
+			var result = await _cms.CreateFragment(dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -72,9 +73,9 @@ namespace HCms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoFullFragment dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoFullFragment dto, CancellationToken ct)
 		{
-			var result = await _cms.UpdateFragmentByLink(id, dto, HttpContext.User);
+			var result = await _cms.UpdateFragmentByLink(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -89,9 +90,9 @@ namespace HCms.Web.Api
 		[HttpDelete("{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Delete(int id)
+		public async Task<IActionResult> Delete(int id, CancellationToken ct)
 		{
-			var result = await _cms.DeleteFragmentByLink(id, HttpContext.User);
+			var result = await _cms.DeleteFragmentByLink(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -105,9 +106,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/move")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Move(int id, [Required] DtoMoveFragment dto)
+		public async Task<IActionResult> Move(int id, [Required] DtoMoveFragment dto, CancellationToken ct)
 		{
-			var result = await _cms.MoveFragment(id, dto.Increment.Value, HttpContext.User);
+			var result = await _cms.MoveFragment(id, dto.Increment.Value, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -120,9 +121,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/copy")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Copy(int id)
+		public async Task<IActionResult> Copy(int id, CancellationToken ct)
 		{
-			var result = await _cms.CopyFragment(id, HttpContext.User);
+			var result = await _cms.CopyFragment(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -136,9 +137,9 @@ namespace HCms.Web.Api
 		[HttpPost("{id:int}/container")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> SetContainer(int id, [Required] DtoSetFragmentContainer dto)
+		public async Task<IActionResult> SetContainer(int id, [Required] DtoSetFragmentContainer dto, CancellationToken ct)
 		{
-			var result = await _cms.SetFragmentContainer(id, dto.LinkId.Value, HttpContext.User);
+			var result = await _cms.SetFragmentContainer(id, dto.LinkId.Value, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -149,7 +150,7 @@ namespace HCms.Web.Api
 			};
 		}
 
-
+		/*
 		[HttpPost("reloadschema")]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
@@ -160,6 +161,7 @@ namespace HCms.Web.Api
 
 			return StatusCode(500);
 		}
+		*/
 
 		[HttpGet("newelement")]
 		public IActionResult NewElement([FromQuery] string path)
@@ -174,9 +176,9 @@ namespace HCms.Web.Api
 
 		[HttpGet("attributes/{id:int}")]
 		[Authorize]
-		public async Task<IActionResult> GetAttribute(int id)
+		public async Task<IActionResult> GetAttribute(int id, CancellationToken ct)
 		{
-			var result = await _cms.GetFragmentAttribute(id);
+			var result = await _cms.GetFragmentAttribute(id, ct);
 
 			if (result == null)
 				return NotFound();
@@ -187,9 +189,9 @@ namespace HCms.Web.Api
 		[HttpPost("attributes")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> PostAttribute([Required] DtoCreateFragmentAttribute dto)
+		public async Task<IActionResult> PostAttribute([Required] DtoCreateFragmentAttribute dto, CancellationToken ct)
 		{
-			var result = await _cms.CreateAttribute(dto, HttpContext.User);
+			var result = await _cms.CreateAttribute(dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -203,9 +205,9 @@ namespace HCms.Web.Api
 		[HttpPut("attributes/{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateFragmentAttribute dto)
+		public async Task<IActionResult> PutAttribute(int id, [Required] DtoUpdateFragmentAttribute dto, CancellationToken ct)
 		{
-			var result = await _cms.UpdateAttribute(id, dto, HttpContext.User);
+			var result = await _cms.UpdateAttribute(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -219,9 +221,9 @@ namespace HCms.Web.Api
 		[HttpDelete("attributes/{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> DeleteAttribute(int id, [Required] [FromQuery] int documentRef)
+		public async Task<IActionResult> DeleteAttribute(int id, [Required] [FromQuery] int documentRef, CancellationToken ct)
 		{
-			var result = await _cms.DeleteAttribute(id, documentRef, HttpContext.User);
+			var result = await _cms.DeleteAttribute(id, documentRef, HttpContext.User, ct);
 
 			return result.Type switch
 			{

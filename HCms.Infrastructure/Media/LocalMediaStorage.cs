@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -78,7 +79,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public Task<List<MediaStorageEntry>> ReadDirectory(string path)
+		public Task<List<MediaStorageEntry>> ReadDirectory(string path, CancellationToken ct)
 		{
 			List<MediaStorageEntry> result;
 
@@ -152,7 +153,7 @@ namespace HCms.Infrastructure.Media
 			return Task.FromResult(result);
 		}
 
-		public Task<MediaStorageEntry> GetFile(string path)
+		public Task<MediaStorageEntry> GetFile(string path, CancellationToken ct)
 		{
 			var (storagePath, key, objName) = SplitPath(path);
 
@@ -177,7 +178,7 @@ namespace HCms.Infrastructure.Media
 			return Task.FromResult(result);
 		}
 
-		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size)
+		public async ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size, CancellationToken ct)
 		{
 			var (storagePath, key, objName) = SplitPath(path);
 
@@ -240,19 +241,19 @@ namespace HCms.Infrastructure.Media
 				extension == ".gif" || extension == ".bmp" || extension == ".tif" || extension == ".tiff")
 			{
 				using var stream = File.OpenRead(fullPath);
-				await CreateImagePreview(stream, cachedPath, size);
+				await CreateImagePreview(stream, cachedPath, size, ct);
 			}
 			else if (_fileIconProvider != null && _fileIconProvider.TryGet(extension, size, out var bytes))
 			{
-				await File.WriteAllBytesAsync(cachedPath, bytes);
+				await File.WriteAllBytesAsync(cachedPath, bytes, ct);
 			}
 			else if ((bytes = _fileIconProvider.Default(size)) != null)
 			{
-				await File.WriteAllBytesAsync(cachedPath, bytes);
+				await File.WriteAllBytesAsync(cachedPath, bytes, ct);
 			}
 			else
 			{
-				await CreateImagePreview(null, cachedPath, size);
+				await CreateImagePreview(null, cachedPath, size, ct);
 			}
 
 			FileInfo f = new(cachedPath);
@@ -269,9 +270,9 @@ namespace HCms.Infrastructure.Media
 			};
 		}
 
-		public async Task<MediaStorageEntry> Properties(string path)
+		public async Task<MediaStorageEntry> Properties(string path, CancellationToken ct)
 		{
-			var result = await GetFile(path);
+			var result = await GetFile(path, ct);
 
 			if (result == null)
 				return null;
@@ -285,14 +286,14 @@ namespace HCms.Infrastructure.Media
 				string fullPath = Path.Combine(storagePath, ToOSPath(objName));
 				
 				using var stream = File.OpenRead(fullPath);
-				(result.Width, result.Height) = await GetImageDimensions(stream);
+				(result.Width, result.Height) = await GetImageDimensions(stream, ct);
 
 			}
 
 			return result;
 		}
 
-		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination)
+		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination, CancellationToken ct)
 		{
 			var (storagePath, key, objName) = SplitPath(destination);
 
@@ -306,19 +307,29 @@ namespace HCms.Infrastructure.Media
 
 			using (var fileStream = File.Create(fullPath))
 			{
-				while (read != 0)
+				try
 				{
-					read = await stream.ReadAsync(buf);
+					while (read != 0)
+					{
+						read = await stream.ReadAsync(buf, ct);
 
-					if (totalRead == 0 && !CheckSignature(buf, extension))
-						return null;
+						if (totalRead == 0 && !CheckSignature(buf, extension))
+							return null;
 
-					totalRead += read;
+						totalRead += read;
 
-					if (read > 0)
-						if (totalRead <= _settings.MaxUploadSize)
-							await fileStream.WriteAsync(buf.AsMemory(0, read));
-						else break;
+						if (read > 0)
+							if (totalRead <= _settings.MaxUploadSize)
+								await fileStream.WriteAsync(buf.AsMemory(0, read), ct);
+							else break;
+					}
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error saving {FullPath}", fullPath);
+					File.Delete(fullPath);
+
+					throw;
 				}
 			}
 
@@ -345,7 +356,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public async Task<string[]> Delete(string[] entries)
+		public async Task<string[]> Delete(string[] entries, CancellationToken ct)
 		{
 			if (entries == null || entries.Length == 0)
 				return [];
@@ -381,6 +392,8 @@ namespace HCms.Infrastructure.Media
 
 			ConcurrentBag<string> list = [];
 
+			ct.ThrowIfCancellationRequested();
+
 			Task task1 = Task.Run(() =>
 			{
 				foreach (var folder in folders)
@@ -393,7 +406,7 @@ namespace HCms.Infrastructure.Media
 					{
 						_logger?.LogWarning(ex, "Error deleting folder {FullName}", folder.FullName);
 					}
-			});
+			}, CancellationToken.None);
 
 			Task task2 = Task.Run(() =>
 			{
@@ -407,12 +420,12 @@ namespace HCms.Infrastructure.Media
 					{
 						_logger?.LogWarning(ex, "Error deleting file {FullName}", file.FullName);
 					}
-			});
+			}, CancellationToken.None);
 
 			Task task3 = Task.Run(() =>
 			{
 				DeletePreviews(cacheFolder, files.Select(f => f.OsNeutralName), folders.Select(f => f.OsNeutralName), _logger);
-			});
+			}, CancellationToken.None);
 
 			Task[] tasks = [task1, task2, task3];
 
@@ -425,7 +438,7 @@ namespace HCms.Infrastructure.Media
 			return result;
 		}
 
-		public Task<MediaStorageEntry> CreateFolder(string name, string path)
+		public Task<MediaStorageEntry> CreateFolder(string name, string path, CancellationToken ct)
 		{
 			if (string.IsNullOrEmpty(path))
 				return Task.FromResult<MediaStorageEntry>(null);

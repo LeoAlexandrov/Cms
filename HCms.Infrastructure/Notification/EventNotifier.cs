@@ -13,9 +13,9 @@ namespace HCms.Infrastructure.Notification
 {
 	public interface IEventNotifier
 	{
-		Task Notify(string eventType, string root, string path, int id);
-		Task Notify(string eventType, string[] fullPaths);
-		Task Notify(string eventType, int destinationId = 0);
+		Task Notify(string eventType, string root, string path, int id, CancellationToken ct = default);
+		Task Notify(string eventType, string[] fullPaths, CancellationToken ct = default);
+		Task Notify(string eventType, int destinationId, CancellationToken ct = default);
 	}
 
 
@@ -61,12 +61,12 @@ namespace HCms.Infrastructure.Notification
 			return result;
 		}
 
-		public async Task Notify(string eventType, string root, string path, int id)
+		public async Task Notify(string eventType, string root, string path, int id, CancellationToken ct = default)
 		{
 			var all = await _dbContext.EventDestinations
 				.AsNoTracking()
 				.Where(d => d.Enabled)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			string fullPath = $"{root}/{path}";
 
@@ -88,15 +88,15 @@ namespace HCms.Infrastructure.Notification
 				}
 			};
 
-			await _channel.Writer.WriteAsync(ev);
+			await _channel.Writer.WriteAsync(ev, ct);
 		}
 
-		public async Task Notify(string eventType, string[] fullPaths)
+		public async Task Notify(string eventType, string[] fullPaths, CancellationToken ct = default)
 		{
 			var all = await _dbContext.EventDestinations
 				.AsNoTracking()
 				.Where(d => d.Enabled)
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			var dests = all
 				.Where(d => 
@@ -117,14 +117,14 @@ namespace HCms.Infrastructure.Notification
 				}
 			};
 
-			await _channel.Writer.WriteAsync(ev);
+			await _channel.Writer.WriteAsync(ev, ct);
 		}
 
-		public async Task Notify(string eventType, int destinationId = 0)
+		public async Task Notify(string eventType, int destinationId, CancellationToken ct = default)
 		{
 			var dests = destinationId != 0 ?
-				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Id == destinationId).ToArrayAsync() :
-				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Enabled).ToArrayAsync();
+				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Id == destinationId).ToArrayAsync(ct) :
+				await _dbContext.EventDestinations.AsNoTracking().Where(d => d.Enabled).ToArrayAsync(ct);
 
 			var ev = new NotificationEvent()
 			{
@@ -132,7 +132,7 @@ namespace HCms.Infrastructure.Notification
 				Payload = new EventPayload() { Event = eventType }
 			};
 
-			await _channel.Writer.WriteAsync(ev);
+			await _channel.Writer.WriteAsync(ev, ct);
 		}
 	}
 }

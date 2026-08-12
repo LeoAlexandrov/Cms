@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Asp.Versioning;
@@ -23,16 +24,16 @@ namespace HCms.Web.Api
 
 		[HttpGet("{id:int?}")]
 		[Authorize]
-		public async Task<IActionResult> Get(int? id)
+		public async Task<IActionResult> Get(int? id, CancellationToken ct)
 		{
 			if (!id.HasValue)
 			{
-				var list = await _ums.GetList(HttpContext.User);
+				var list = await _ums.GetList(HttpContext.User, ct);
 
 				return Ok(list);
 			}
 
-			var result = await _ums.GetById(id.Value, HttpContext.User);
+			var result = await _ums.GetById(id.Value, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -44,12 +45,12 @@ namespace HCms.Web.Api
 
 		[HttpGet("bylogin/{login?}")]
 		[Authorize]
-		public async Task<IActionResult> GetByLogin(string login)
+		public async Task<IActionResult> GetByLogin(string login, CancellationToken ct)
 		{
 			if (string.IsNullOrEmpty(login))
 				return NotFound();
 
-			var result = await _ums.GetByLogin(login, HttpContext.User);
+			var result = await _ums.GetByLogin(login, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -69,9 +70,9 @@ namespace HCms.Web.Api
 		[HttpPost]
 		[Authorize("IsAdmin")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Post([Required] DtoCreateUser dto)
+		public async Task<IActionResult> Post([Required] DtoCreateUser dto, CancellationToken ct)
 		{
-			var result = await _ums.CreateUser(dto, HttpContext.User);
+			var result = await _ums.CreateUser(dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -85,9 +86,9 @@ namespace HCms.Web.Api
 		[HttpPut("{id:int}")]
 		[Authorize("IsUser")]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Put(int id, [Required] DtoUpdateUser dto)
+		public async Task<IActionResult> Put(int id, [Required] DtoUpdateUser dto, CancellationToken ct)
 		{
-			var result = await _ums.UpdateUser(id, dto, HttpContext.User);
+			var result = await _ums.UpdateUser(id, dto, HttpContext.User, ct);
 
 			return result.Type switch
 			{
@@ -101,9 +102,9 @@ namespace HCms.Web.Api
 		[HttpDelete("{id:int}")]
 		[Authorize]
 		[CsrAntiforgery]
-		public async Task<IActionResult> Delete(int id)
+		public async Task<IActionResult> Delete(int id, CancellationToken ct)
 		{
-			var result = await _ums.DeleteUser(id, HttpContext.User);
+			var result = await _ums.DeleteUser(id, HttpContext.User, ct);
 
 			return result.Type switch
 			{

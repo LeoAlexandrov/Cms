@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,8 @@ using SixLabors.ImageSharp.Processing;
 
 // to use SkiaSharp add nuget packages 'SkiaSharp' and 'SkiaSharp.NativeAssets.Linux.NoDependencies'
 // uncomment the SkiaSharp code and comment the ImageSharp code below
+
+// do not update SixLabors packages
 
 using AleProjects.Base64;
 using HCms.Domain.Types;
@@ -28,13 +32,13 @@ namespace HCms.Infrastructure.Media
 		string[] PlaceKeys { get; }
 		bool ServesPath(string path);
 		CommonMediaStorageParams GetCommonParams(string path);
-		Task<List<MediaStorageEntry>> ReadDirectory(string path);
-		Task<MediaStorageEntry> GetFile(string path);
-		ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size);
-		Task<MediaStorageEntry> Properties(string path);
-		Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination);
-		Task<string[]> Delete(string[] entries);
-		Task<MediaStorageEntry> CreateFolder(string name, string path);
+		Task<List<MediaStorageEntry>> ReadDirectory(string path, CancellationToken ct);
+		Task<MediaStorageEntry> GetFile(string path, CancellationToken ct);
+		ValueTask<MediaStorageEntry> Preview(string path, string previewPrefix, int size, CancellationToken ct);
+		Task<MediaStorageEntry> Properties(string path, CancellationToken ct);
+		Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination, CancellationToken ct);
+		Task<string[]> Delete(string[] entries, CancellationToken ct);
+		Task<MediaStorageEntry> CreateFolder(string name, string path, CancellationToken ct);
 	}
 
 
@@ -215,13 +219,13 @@ namespace HCms.Infrastructure.Media
 
 		// SixLabors.ImageSharp
 
-		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size)
+		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size, CancellationToken ct)
 		{
 			bool blank = imageStream == null;
 
 			using var image = blank ?
 				new Image<Rgba32>(size, size) :
-				await Image.LoadAsync<Rgba32>(imageStream);
+				await Image.LoadAsync<Rgba32>(imageStream, ct);
 
 			if (blank)
 				image.Mutate(x => x.BackgroundColor(SixLabors.ImageSharp.Color.Gainsboro));
@@ -232,12 +236,12 @@ namespace HCms.Infrastructure.Media
 
 			using var output = File.OpenWrite(previewPath);
 
-			await image.SaveAsWebpAsync(output);
+			await image.SaveAsWebpAsync(output, CancellationToken.None);
 		}
 
-		public static async ValueTask<(int, int)> GetImageDimensions(Stream imageStream)
+		public static async ValueTask<(int, int)> GetImageDimensions(Stream imageStream, CancellationToken ct)
 		{
-			var image = await Image.LoadAsync(imageStream);
+			var image = await Image.LoadAsync(imageStream, ct);
 
 			return (image.Width, image.Height);
 		}
@@ -246,7 +250,7 @@ namespace HCms.Infrastructure.Media
 		// uncomment code fragment in S3MediaStorage.cs around L340
 
 		/*
-		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size)
+		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size, CancellationToken ct)
 		{
 			var info = new SKImageInfo(size, size, SKColorType.Rgba8888, SKAlphaType.Premul);
 			using var surface = SKSurface.Create(info);
@@ -276,7 +280,7 @@ namespace HCms.Infrastructure.Media
 						var destRect = new SKRectI(left, top, left + destW, top + destH);
 
 						using var resizedBitmap = srcBitmap.Resize(new SKSizeI(destW, destH), new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
-						canvas.DrawBitmap(resizedBitmap, destRect);
+						canvas.DrawBitmap(resizedBitmap, destRect, SKSamplingOptions.Default);
 					}
 					else
 					{
@@ -284,7 +288,7 @@ namespace HCms.Infrastructure.Media
 						int top = (size - h) / 2;
 						var destRect = new SKRectI(left, top, left + w, top + h);
 
-						canvas.DrawBitmap(srcBitmap, destRect);
+						canvas.DrawBitmap(srcBitmap, destRect, SKSamplingOptions.Default);
 					}
 				}
 				else
@@ -298,10 +302,10 @@ namespace HCms.Infrastructure.Media
 			using var stream = data.AsStream();
 			using var output = File.OpenWrite(previewPath);
 
-			await stream.CopyToAsync(output);
+			await stream.CopyToAsync(output, CancellationToken.None);
 		}
 
-		public static ValueTask<(int, int)> GetImageDimensions(Stream imageStream)
+		public static ValueTask<(int, int)> GetImageDimensions(Stream imageStream, CancellationToken ct)
 		{
 			if (imageStream == null)
 				return ValueTask.FromResult((0, 0));

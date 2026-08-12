@@ -178,8 +178,8 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 			})
 		.AddTransient<IDbIndexConflictDetector, DbIndexConflictDetector>()
 		// content
-		.AddScoped<ContentManagementService>()
-		.AddScoped<ContentProvidingService>()
+		.AddTransient<ContentManagementService>()
+		.AddTransient<ContentProvidingService>()
 		.AddSingleton<IPathMapperFactory, PathMapperFactory>(s => pmf)
 		// media
 		.AddSingleton<IFileIconProvider, FileIconProvider>(s => fip)
@@ -187,11 +187,11 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 		.AddKeyedTransient<IMediaStorage, LocalMediaStorage>("local")
 		.Configure<S3MediaStorageSettings>(configuration.GetSection("Media"))
 		.AddKeyedSingleton<IMediaStorage, S3MediaStorage>("s3")
-		.AddScoped<MediaManagementService>()
+		.AddTransient<MediaManagementService>()
 		// infrastructure
-		.AddScoped<SchemaManagementService>()
-		.AddScoped<UserManagementService>()
-		.AddScoped<EventDestinationManagementService>()
+		.AddTransient<SchemaManagementService>()
+		.AddTransient<UserManagementService>()
+		.AddTransient<EventDestinationManagementService>()
 		.AddSingleton(Channel.CreateBounded<NotificationEvent>(
 			new BoundedChannelOptions(100) 
 			{ 
@@ -199,7 +199,7 @@ void ConfigureServices(IServiceCollection services, ConfigurationManager configu
 				SingleReader = true, 
 				SingleWriter = false 
 			}))
-		.AddScoped<IEventNotifier, EventNotifier>()
+		.AddTransient<IEventNotifier, EventNotifier>()
 		.AddHostedService<EventDispatcher>()
 		// auth
 		.Configure<AuthSettings>(configuration.GetSection("Auth"))

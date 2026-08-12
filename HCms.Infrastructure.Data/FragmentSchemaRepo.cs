@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
@@ -467,14 +468,14 @@ namespace HCms.Infrastructure.Data
 				.ToArrayAsync();
 		}
 
-		public static Task<Schema> GetSchema(CmsDbContext dbContext, int id)
+		public static Task<Schema> GetSchema(CmsDbContext dbContext, int id, CancellationToken ct)
 		{
 			return dbContext.Schemata
 				.AsNoTracking()
-				.FirstOrDefaultAsync(s => s.Id == id);
+				.FirstOrDefaultAsync(s => s.Id == id, ct);
 		}
 
-		public static async Task<Schema> CreateSchema(CmsDbContext dbContext, string description)
+		public static async Task<Schema> CreateSchema(CmsDbContext dbContext, string description, CancellationToken ct)
 		{
 			const string ns = "http://h-cms.net/cms/new-schema.xsd";
 
@@ -497,14 +498,14 @@ namespace HCms.Infrastructure.Data
 
 			dbContext.Schemata.Add(result);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
 			return result;
 		}
 
-		public async Task<(Schema, string)> UpdateSchema(CmsDbContext dbContext, int id, string description, string data, bool onlySave)
+		public async Task<(Schema, string)> UpdateSchema(CmsDbContext dbContext, int id, string description, string data, bool onlySave, CancellationToken ct)
 		{
-			Schema schema = await dbContext.Schemata.FindAsync(id);
+			Schema schema = await dbContext.Schemata.FindAsync([id], ct);
 
 			if (schema == null)
 				return (null, null);
@@ -515,7 +516,7 @@ namespace HCms.Infrastructure.Data
 
 			if (onlySave)
 			{
-				await dbContext.SaveChangesAsync();
+				await dbContext.SaveChangesAsync(ct);
 
 				return (schema, null);
 			}
@@ -523,7 +524,7 @@ namespace HCms.Infrastructure.Data
 			List<Schema> schemata = await dbContext.Schemata
 				.AsNoTracking()
 				.Where(s => s.Id != id)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			schemata.Add(schema);
 
@@ -557,16 +558,16 @@ namespace HCms.Infrastructure.Data
 				return (null, ex.Message);
 			}
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
 			Reload(schemaSet, fragments);
 
 			return (schema, null);
 		}
 
-		public async Task<(bool, string)> DeleteSchema(CmsDbContext dbContext, int id)
+		public async Task<(bool, string)> DeleteSchema(CmsDbContext dbContext, int id, CancellationToken ct)
 		{
-			Schema schema = await dbContext.Schemata.FindAsync(id);
+			Schema schema = await dbContext.Schemata.FindAsync([id], ct);
 
 			if (schema == null)
 				return (false, null);
@@ -574,7 +575,7 @@ namespace HCms.Infrastructure.Data
 			List<Schema> schemata = await dbContext.Schemata
 				.AsNoTracking()
 				.Where(s => s.Id != id)
-				.ToListAsync();
+				.ToListAsync(ct);
 
 			XmlSchemaSet schemaSet;
 			List<XSElement> fragments;
@@ -592,18 +593,18 @@ namespace HCms.Infrastructure.Data
 
 			dbContext.Schemata.Remove(schema);
 
-			await dbContext.SaveChangesAsync();
+			await dbContext.SaveChangesAsync(ct);
 
 			Reload(schemaSet, fragments);
 
 			return (true, null);
 		}
 
-		public async Task<(bool, string)> CompileAndReload(CmsDbContext dbContext)
+		public async Task<(bool, string)> CompileAndReload(CmsDbContext dbContext, CancellationToken ct)
 		{
 			Schema[] schemata = await dbContext.Schemata
 				.AsNoTracking()
-				.ToArrayAsync();
+				.ToArrayAsync(ct);
 
 			XmlSchemaSet schemaSet;
 			List<XSElement> fragments;
