@@ -72,8 +72,8 @@ namespace HCms.Infrastructure.Media
 
 			var result = new CommonMediaStorageParams()
 			{
-				MaxUploadSize = place?.MaxUploadSize ??_settings.MaxUploadSize,
-				SafeNameRegex = place?.SafeNameRegex ??_settings.SafeNameRegex 
+				MaxUploadSize = place?.MaxUploadSize ?? _settings.MaxUploadSize,
+				SafeNameRegex = place?.SafeNameRegex ?? _settings.SafeNameRegex
 			};
 
 			return result;

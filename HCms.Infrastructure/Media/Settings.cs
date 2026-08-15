@@ -1,4 +1,7 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
+using static HCms.Infrastructure.Media.LocalMediaStorageSettings;
+
 
 namespace HCms.Infrastructure.Media
 {
@@ -35,6 +38,18 @@ namespace HCms.Infrastructure.Media
 		private LocalDiskPlace[] _localDiskPlaces;
 
 		public LocalDiskPlace[] LocalDiskPlaces { get => _localDiskPlaces ?? []; set => _localDiskPlaces = value; }
+
+		public long? OverallMaxUploadSize {
+			get
+			{ 
+				long m = _localDiskPlaces == null || _localDiskPlaces.Length == 0 ? 0 : _localDiskPlaces.Max(p => p.MaxUploadSize ?? 0);
+
+				if (MaxUploadSize.HasValue && MaxUploadSize.Value >= m)
+					return MaxUploadSize.Value;
+
+				return m != 0 ? m : null;
+			} 
+		}
 	}
 
 
@@ -52,6 +67,20 @@ namespace HCms.Infrastructure.Media
 		private Bucket[] _buckets;
 
 		public Bucket[] Buckets { get => _buckets ?? []; set => _buckets = value; }
+
+		public long? OverallMaxUploadSize
+		{
+			get
+			{
+				long m = _buckets == null || _buckets.Length == 0 ? 0 : _buckets.Max(p => p.MaxUploadSize ?? 0);
+
+				if (MaxUploadSize.HasValue && MaxUploadSize.Value >= m)
+					return MaxUploadSize.Value;
+
+				return m != 0 ? m : null;
+			}
+		}
+
 	}
 
 

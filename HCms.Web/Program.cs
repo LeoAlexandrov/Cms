@@ -72,8 +72,27 @@ void ConfigureWebHost(IWebHostBuilder webHostBuilder)
 	 * ----
 	 */
 
-	webHostBuilder.ConfigureKestrel((context, options) =>
-		options.Configure(context.Configuration.GetSection("Kestrel")));
+	webHostBuilder.ConfigureKestrel((context, options) => {
+
+		options.Configure(context.Configuration.GetSection("Kestrel"));
+
+		var loc = new LocalMediaStorageSettings();
+		var s3 = new S3MediaStorageSettings();
+		var mediaSection = context.Configuration.GetSection("Media");
+
+		mediaSection.Bind(loc);
+		mediaSection.Bind(s3);
+
+		var max1 = loc.OverallMaxUploadSize;
+		var max2 = s3.OverallMaxUploadSize;
+
+		if (max1.HasValue && max2.HasValue)
+			options.Limits.MaxRequestBodySize = Math.Max(max1.Value, max2.Value);
+		else if (max1.HasValue)
+			options.Limits.MaxRequestBodySize = max1.Value;
+		else if (max2.HasValue)
+			options.Limits.MaxRequestBodySize = max2.Value;
+	});
 
 }
 
