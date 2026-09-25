@@ -123,15 +123,8 @@ namespace HCms.Infrastructure.Media
 		public CommonMediaStorageParams GetCommonParams(string path)
 		{
 			var (_, key, _) = SplitPath(path);
-			var bucket = _settings.Buckets.FirstOrDefault(b => b.Key == key);
 
-			var result = new CommonMediaStorageParams() 
-			{ 
-				MaxUploadSize = bucket?.MaxUploadSize ?? _settings.MaxUploadSize, 
-				SafeNameRegex = bucket?.SafeNameRegex ?? _settings.SafeNameRegex 
-			};
-
-			return result;
+			return _settings.CommonParams(key);
 		}
 
 		public async Task<List<MediaStorageEntry>> ReadDirectory(string path, CancellationToken ct)
@@ -441,6 +434,7 @@ namespace HCms.Infrastructure.Media
 
 			var (bucket, key, objName) = SplitPath(destination);
 			var client = GetClient(bucket);
+			var cp = _settings.CommonParams(key);
 
 			string tempFolder = Path.Combine(_settings.CacheFolder, Guid.NewGuid().ToString());
 			string tempFileName = Path.Combine(tempFolder, fileName);
@@ -451,6 +445,7 @@ namespace HCms.Infrastructure.Media
 			byte[] buf = new byte[64 * 1024];
 			byte[] sha256Hash;
 			long totalRead = 0;
+			long maxSize = cp.MaxUploadSize.Value;
 			int read = -1;
 
 			Directory.CreateDirectory(tempFolder);
@@ -471,7 +466,7 @@ namespace HCms.Infrastructure.Media
 
 						if (read > 0)
 						{
-							if (totalRead <= _settings.MaxUploadSize)
+							if (totalRead <= maxSize)
 								await fileStream.WriteAsync(buf.AsMemory(0, read), ct);
 							else
 								break;
@@ -499,7 +494,7 @@ namespace HCms.Infrastructure.Media
 			{
 				using var tfs = new TempFileStream(tempFolder, fileName);
 
-				if (totalRead > _settings.MaxUploadSize)
+				if (totalRead > maxSize)
 					throw new InvalidOperationException($"Size of '{fileName}' is greater than maximum allowed upload size.");
 
 				var putRequest = new PutObjectRequest()

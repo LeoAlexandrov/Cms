@@ -105,6 +105,8 @@
 						this.folderLink = link;
 						this.selected = [];
 						this.mediaEntries = r.result.entries;
+						this.maxUploadSize = r.result.uploadParams.maxUploadSize;
+						this.safeNameRegexString = r.result.uploadParams.safeNameRegexString;
 
 						r.result.path[0].label = TEXT.MEDIA.get("ROOT");
 						this.path = r.result.path
@@ -112,6 +114,9 @@
 						if (pushState)
 							window.history.pushState({ folderLink: link }, "", `/media/${link}`);
 					} else {
+
+						this.maxUploadSize = 10 * 1024 * 1024;
+						this.safeNameRegexString = "^[\\w-]+.\\w+$";
 
 						if (!this.mediaEntries.length)
 							this.path = [{ label: TEXT.MEDIA.get("ROOT"), link: "" }, { label: "?", link: null }];
@@ -306,11 +311,14 @@
 			if (!val || !this.uploadOnlySafeContent)
 				return true;
 
-			let re = new RegExp(this.safeNameRegexString);
+			if (this.safeNameRegexString) {
 
-			for (const v of val)
-				if (!re.test(v.name))
-					return false;
+				let re = new RegExp(this.safeNameRegexString);
+
+				for (const v of val)
+					if (!re.test(v.name))
+						return false;
+			}
 
 			return true;
 		},
@@ -383,13 +391,6 @@
 
 		qs = document.querySelector("#media_picker");
 		this.mediaPicker = JSON.parse(qs.innerHTML);
-
-		qs = document.querySelector("#upload_params");
-
-		let uploadParams = JSON.parse(qs.innerHTML);
-
-		this.maxUploadSize = uploadParams.maxUploadSize;
-		this.safeNameRegexString = uploadParams.safeNameRegexString;
 
 		window.onpopstate = (e) => {
 

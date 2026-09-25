@@ -90,7 +90,7 @@
 					multiple
 					clearable
 					use-chips
-					max-file-size="@Model.MaxUploadSize"
+					:max-file-size=maxUploadSize
 					:accept="uploadOnlySafeContent ? 'image/*, video/*' : ''"
 					:rules="[val => validateFileName(val) || '@Localizer["UnsafeName"]']"
 					@@rejected="onUploadRejected">
@@ -216,7 +216,6 @@
 {
 	<script id="media_picker" type="application/json">@Json.Serialize(Model.MediaPickerMode)</script>
 	<script id="folder_link" type="application/json">@Json.Serialize(Model.Link)</script>
-	<script id="upload_params" type="application/json">@Json.Serialize(Model.UploadParams)</script>
 	<script src="~/js/media.js"></script>
 	<script src="https://unpkg.com/@@msgpack/msgpack"></script>
 	<script>

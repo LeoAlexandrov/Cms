@@ -68,15 +68,8 @@ namespace HCms.Infrastructure.Media
 		public CommonMediaStorageParams GetCommonParams(string path)
 		{
 			var (_, key, _) = SplitPath(path);
-			var place = _settings.LocalDiskPlaces.FirstOrDefault(p => p.Key == key);
 
-			var result = new CommonMediaStorageParams()
-			{
-				MaxUploadSize = place?.MaxUploadSize ?? _settings.MaxUploadSize,
-				SafeNameRegex = place?.SafeNameRegex ?? _settings.SafeNameRegex
-			};
-
-			return result;
+			return _settings.CommonParams(key);
 		}
 
 		public Task<List<MediaStorageEntry>> ReadDirectory(string path, CancellationToken ct)
@@ -296,6 +289,7 @@ namespace HCms.Infrastructure.Media
 		public async Task<MediaStorageEntry> Save(Stream stream, string fileName, string destination, CancellationToken ct)
 		{
 			var (storagePath, key, objName) = SplitPath(destination);
+			var cp = _settings.CommonParams(key);
 
 			string relativeName = Path.Combine(ToOSPath(objName), fileName);
 			string fullPath = Path.Combine(storagePath, relativeName);
@@ -303,6 +297,7 @@ namespace HCms.Infrastructure.Media
 
 			byte[] buf = new byte[64 * 1024];
 			long totalRead = 0;
+			long maxSize = cp.MaxUploadSize.Value;
 			int read = -1;
 
 			using (var fileStream = File.Create(fullPath))
@@ -319,7 +314,7 @@ namespace HCms.Infrastructure.Media
 						totalRead += read;
 
 						if (read > 0)
-							if (totalRead <= _settings.MaxUploadSize)
+							if (totalRead <= maxSize)
 								await fileStream.WriteAsync(buf.AsMemory(0, read), ct);
 							else break;
 					}
@@ -333,7 +328,7 @@ namespace HCms.Infrastructure.Media
 				}
 			}
 
-			if (totalRead > _settings.MaxUploadSize)
+			if (totalRead > maxSize)
 			{
 				_logger.LogError("Size of '{fileName}' is greater than maximum allowed upload size.", fileName);
 				_logger.LogError("Error uploading file {RelativeName}", relativeName); 

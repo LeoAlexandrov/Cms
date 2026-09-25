@@ -77,6 +77,18 @@ namespace HCms.Application.Dto
 
 
 	[MessagePackObject]
+	public class DtoMediaStorageUploadParams
+	{
+		[MessagePack.Key("maxUploadSize")]
+		public long MaxUploadSize { get; set; }
+
+		[MessagePack.Key("safeNameRegexString")]
+		public string SafeNameRegexString { get; set; }
+	}
+
+
+
+	[MessagePackObject]
 	public class DtoMediaFolderReadResult
 	{
 		[MessagePack.Key("entries")]
@@ -84,6 +96,9 @@ namespace HCms.Application.Dto
 
 		[MessagePack.Key("path")]
 		public IReadOnlyList<DtoMediaStoragePathElement> Path { get; set; }
+
+		[MessagePack.Key("uploadParams")]
+		public DtoMediaStorageUploadParams UploadParams { get; set; }
 	}
 
 

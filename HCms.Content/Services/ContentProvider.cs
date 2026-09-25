@@ -553,7 +553,7 @@ namespace HCms.Content.Services
 				if (siblings)
 				{
 					var q = Children(doc.Parent, -1, -1, allowedStatus);
-					result.Siblings = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
+					result.Siblings = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
 				}
 			}
 
@@ -584,7 +584,7 @@ namespace HCms.Content.Services
 			{
 				result.ChildrenTakePosition = childrenFromPos;
 				result.ChildrenTaken = takeChildren;
-				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync();
+				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == doc.Id).CountAsync(ct);
 
 				var q = Children(doc.Id, childrenFromPos, takeChildren, allowedStatus);
 				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
@@ -755,7 +755,7 @@ namespace HCms.Content.Services
 				result.TotalChildrenCount = await _dbContext.Documents.Where(d => d.Parent == id).CountAsync(ct);
 
 				var q = Children(doc.Id, childrenFromPos, takeChildren, allowedStatus);
-				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync();
+				result.Children = await q.Select(d => DocumentFromEntity(d, pathMapper.Map(d.RootSlug, d.Path, false), null)).ToArrayAsync(ct);
 
 				allDocsIds.AddRange(result.Children.Select(d => d.Id));
 			}

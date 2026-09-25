@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -16,9 +15,6 @@ namespace HCms.Web.Pages
 		private readonly MediaManagementService _ms = ms;
 
 		public string Link { get; set; }
-		public long? MaxUploadSize { get; set; }
-		public string SafeNameRegexString { get; set; }
-		public object UploadParams { get; set; }
 		public bool MediaPickerMode { get; set; }
 
 
@@ -39,12 +35,6 @@ namespace HCms.Web.Pages
 				if (!string.IsNullOrEmpty(redirLink))
 					return Redirect($"/media/{redirLink}{(MediaPickerMode ? "?picker" : string.Empty)}");
 			}
-
-			var storageParams = _ms.GetCommonParams(Link);
-
-			MaxUploadSize = storageParams.MaxUploadSize;
-			SafeNameRegexString = storageParams.SafeNameRegex;
-			UploadParams = new { MaxUploadSize, SafeNameRegexString };
 
 			return Page();
 		}

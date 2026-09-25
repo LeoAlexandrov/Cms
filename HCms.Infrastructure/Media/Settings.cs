@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using static HCms.Infrastructure.Media.LocalMediaStorageSettings;
 
 
 namespace HCms.Infrastructure.Media
@@ -8,10 +7,13 @@ namespace HCms.Infrastructure.Media
 
 	public class CommonMediaStorageParams
 	{
+		public const long DEFAULT_MAXUPLOAD_SIZE = 10 * 1024 * 1024;
+		const string DEFAULT_SAFENAME_REGEX = "^[\\w-]+.\\w+$";
+		
 		public long? MaxUploadSize { get; set; }
 		public string SafeNameRegex { get; set; }
 
-		public static CommonMediaStorageParams Default() => new() { MaxUploadSize = 10 * 1024 * 1024, SafeNameRegex = "^[\\w-]+.\\w+$" };
+		public static CommonMediaStorageParams Default() => new() { MaxUploadSize = DEFAULT_MAXUPLOAD_SIZE, SafeNameRegex = DEFAULT_SAFENAME_REGEX };
 	}
 
 
@@ -50,6 +52,19 @@ namespace HCms.Infrastructure.Media
 				return m != 0 ? m : null;
 			} 
 		}
+
+		public CommonMediaStorageParams CommonParams(string placeKey)
+		{
+			var place = LocalDiskPlaces.FirstOrDefault(p => p.Key == placeKey);
+
+			var result = new CommonMediaStorageParams()
+			{
+				MaxUploadSize = place?.MaxUploadSize ?? MaxUploadSize ?? DEFAULT_MAXUPLOAD_SIZE,
+				SafeNameRegex = place?.SafeNameRegex ?? SafeNameRegex
+			};
+
+			return result;
+		}
 	}
 
 
@@ -81,6 +96,18 @@ namespace HCms.Infrastructure.Media
 			}
 		}
 
+		public CommonMediaStorageParams CommonParams(string bucketKey)
+		{
+			var bucket = Buckets.FirstOrDefault(b => b.Key == bucketKey);
+
+			var result = new CommonMediaStorageParams()
+			{
+				MaxUploadSize = bucket?.MaxUploadSize ?? MaxUploadSize ?? DEFAULT_MAXUPLOAD_SIZE,
+				SafeNameRegex = bucket?.SafeNameRegex ?? SafeNameRegex
+			};
+
+			return result;
+		}
 	}
 
 

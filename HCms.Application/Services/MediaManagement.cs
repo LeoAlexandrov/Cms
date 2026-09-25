@@ -51,16 +51,18 @@ namespace HCms.Application.Services
 			return false;
 		}
 
-		public CommonMediaStorageParams GetCommonParams(string link)
+		DtoMediaStorageUploadParams GetUploadParams(string path)
 		{
-			if (!Base64Url.TryDecode(link.AsSpan(), out string path))
-				return CommonMediaStorageParams.Default();
+			CommonMediaStorageParams uploadParams;
 
 			if (!TryGetStorage(path, out IMediaStorage _mediaStorage))
-				return CommonMediaStorageParams.Default();
+				uploadParams = CommonMediaStorageParams.Default();
+			else
+				uploadParams = _mediaStorage.GetCommonParams(path);
 
-			return _mediaStorage.GetCommonParams(path);
+			return new() { MaxUploadSize = uploadParams.MaxUploadSize.Value, SafeNameRegexString = uploadParams.SafeNameRegex };
 		}
+
 
 		public string GetDefaultPlace()
 		{
@@ -84,8 +86,9 @@ namespace HCms.Application.Services
 			if (!IsValidPath(path))
 				return Result<DtoMediaFolderReadResult>.BadParameters("Link", "Invalid path");
 
-			DtoMediaStoragePathElement[] breadcrumbs;
 			List<Domain.Types.MediaStorageEntry> entries;
+			DtoMediaStoragePathElement[] breadcrumbs;
+			DtoMediaStorageUploadParams uploadParams = GetUploadParams(path);
 
 			if (string.IsNullOrEmpty(path))
 			{
@@ -136,7 +139,8 @@ namespace HCms.Application.Services
 				new()
 				{
 					Entries = entries?.Select(e => new DtoMediaStorageEntry(e)),
-					Path = breadcrumbs
+					Path = breadcrumbs,
+					UploadParams = uploadParams
 				});
 		}
 
