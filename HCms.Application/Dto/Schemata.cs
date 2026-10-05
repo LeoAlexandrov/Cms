@@ -25,7 +25,9 @@ namespace HCms.Application.Dto
 		public string Data { get; set; }
 
 		[MessagePack.Key("modifiedAt")]
-		public DateTime ModifiedAt { get; set; }
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))] 
+		public DateTimeOffset ModifiedAt { get; set; }
+
 
 		public DtoSchemaResult() { }
 
@@ -37,7 +39,7 @@ namespace HCms.Application.Dto
 				Namespace = schema.Namespace;
 				Description = schema.Description;
 				Data = schema.Data;
-				ModifiedAt = schema.ModifiedAt.UtcDateTime;
+				ModifiedAt = schema.ModifiedAt;
 			}
 		}
 	}

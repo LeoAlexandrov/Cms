@@ -675,10 +675,10 @@
 											<td><span class="text-caption text-grey-7">@Localizer["Position"]:</span></td>
 											<td>{{ editedDoc.properties.position }}</td>
 											<td>
-												<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_upward" size="sm" @@click="moveDoc(-1)">
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="move_up" size="sm" @@click="moveDoc(-1)">
 													<q-tooltip>@Localizer["Hint_MoveUpper"]</q-tooltip>
 												</q-btn>
-												<q-btn round flat class="q-ml-sm" color="secondary" icon="arrow_downward" size="sm" @@click="moveDoc(1)">
+												<q-btn round flat class="q-ml-sm" color="secondary" icon="move_down" size="sm" @@click="moveDoc(1)">
 													<q-tooltip>@Localizer["Hint_MoveLower"]</q-tooltip>
 												</q-btn>
 											</td>
@@ -844,7 +844,7 @@
 						</div>
 
 						<div class="row q-mt-lg q-col-gutter-y-sm q-col-gutter-x-md justify-between">
-							<div class="col-sm-4 col-xs-12">
+							<div class="col-lg-3 col-sm-6 col-xs-12">
 								<q-select dense outlined
 									v-model="editedDoc.properties.status"
 									:options="publishStates"
@@ -856,11 +856,37 @@
 									:rules="[val => !invalidPublishedState.includes(val) || '@Localizer["InvalidPublishStatus"]' ]">
 								</q-select>
 							</div>
-							<div class="col-sm-8 col-xs-12 column items-end">
-								<div>
-									<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
-									<q-btn color="secondary" class="q-ml-md" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
+							<div class="col-lg-4 col-sm-6 col-xs-12">
+								<q-input dense outlined
+									v-model="editedDoc.properties.publishedAt"
+									type="datetime-local"
+									label="@Localizer["PublishAt"]"
+									ref="PublishedAt"
+									@@update:model-value="hasChanged=true"
+									:rules="[val => (!!val && val.trim() !== '') || '@ErrorsLocalizer["Validation_Required"]', val => !!dateToLocalISO(val,true) || '@ErrorsLocalizer["Validation_InvalidDate"]', val => !invalidPublishDate.includes(val) || '@Localizer["PublishAtInconsistent"]']">
+								</q-input>
+								<div class="row q-mb-md" v-if="editedDoc.properties.status==0">
+									<div class="col-auto self-center q-pr-sm"><q-icon size="sm" name="info_outline" color="warning"></q-icon></div>
+									<div class="col text-caption text-grey-7">@Localizer["PublishAtStatus"]</div>
 								</div>
+							</div>
+							<div class="col-lg-5 col-xs-12 flex self-start">
+								<q-btn round flat icon="more_horiz" class="self-start" color="secondary" size="sm" :disable="hasChanged">
+									<q-menu class="q-pa-md" max-width="250px">
+										<div class="text-h6 q-mb-md">@Localizer["Propagate"]</div>
+										<div><q-checkbox v-model="propagate.status" label="@Localizer["PublishStatus"]"></q-checkbox></div>
+										<div><q-checkbox v-model="propagate.publishDate" label="@Localizer["PublishAt"]"></q-checkbox></div>
+										<div class="text-caption text-grey-7 q-my-md">@Localizer["PropagateText"]</div>
+										<div class="row justify-end">
+											<q-btn color="secondary" label="@SharedLocalizer["OK"]" @@click="propagateToChildren()" :disable="!propagate.status && !propagate.publishDate" v-close-popup></q-btn>
+											<q-btn color="secondary" class="q-ml-md" label="@SharedLocalizer["Cancel"]" v-close-popup></q-btn>
+										</div>
+									</q-menu>
+									<q-tooltip>@Localizer["Hint_Propagate"]</q-tooltip>
+								</q-btn>
+								<q-space></q-space>
+								<q-btn color="secondary" label="@SharedLocalizer["Save"]" :disable="!hasChanged" @@click="updateDoc()"></q-btn>
+								<q-btn color="secondary" class="q-ml-md" label="@SharedLocalizer["Discard"]" :disable="!hasChanged" @@click="discardDoc()"></q-btn>
 							</div>
 						</div>
 
@@ -921,12 +947,12 @@
 								text-color="white" 
 								@@click="startChangeAttribute(a, false)"
 								@@remove="startDeleteAttribute(a, false)">{{a.attributeKey}}</q-chip>
+							<span class="text-grey-6" v-if="!editedDoc.attributes.length">@Localizer["NoAttributes"]</span>
 						</div>
 						<q-btn color="secondary" label="@Localizer["AddAttribute"]" @@click="startNewAttribute(false)"></q-btn>
 					</div>
 				</div>
 			</div>
-			
 		</template>
 	</q-splitter>
 </div>

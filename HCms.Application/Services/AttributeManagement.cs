@@ -90,7 +90,7 @@ namespace HCms.Application.Services
 
 			dbContext.DocumentAttributes.Add(result);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -199,7 +199,7 @@ namespace HCms.Application.Services
 
 			dbContext.FragmentAttributes.Add(result);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -295,7 +295,7 @@ namespace HCms.Application.Services
 
 			Document doc = await dbContext.Documents.FindAsync([attr.DocumentRef], ct);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -387,7 +387,7 @@ namespace HCms.Application.Services
 			attr.Value = value;
 			attr.Enabled = dto.Enabled;
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -453,7 +453,7 @@ namespace HCms.Application.Services
 
 			Document doc = await dbContext.Documents.FindAsync([attr.DocumentRef], ct);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -529,7 +529,7 @@ namespace HCms.Application.Services
 				return Result<bool>.Forbidden();
 
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 

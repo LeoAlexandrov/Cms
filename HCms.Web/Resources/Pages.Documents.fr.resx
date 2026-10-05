@@ -378,4 +378,25 @@
   <data name="MediaPicker" xml:space="preserve">
     <value>Sélecteur de médias ouvert</value>
   </data>
+  <data name="PublishAt" xml:space="preserve">
+    <value>Publier sur</value>
+  </data>
+  <data name="PublishAtStatus" xml:space="preserve">
+    <value>Pour rendre le document accessible à partir de la date et de l'heure spécifiées, modifiez son statut.</value>
+  </data>
+  <data name="PublishAtInconsistent" xml:space="preserve">
+    <value>Ne peut être publié avant le parent</value>
+  </data>
+  <data name="Propagate" xml:space="preserve">
+    <value>Propager</value>
+  </data>
+  <data name="PropagateText" xml:space="preserve">
+    <value>Cette commande propage le statut de publication et/ou la date de publication de ce document à tous ses enfants.</value>
+  </data>
+  <data name="Hint_Propagate" xml:space="preserve">
+    <value>Propage l'état ou la date de publication</value>
+  </data>
+  <data name="NoAttributes" xml:space="preserve">
+    <value>Aucun attribut</value>
+  </data>
 </root>

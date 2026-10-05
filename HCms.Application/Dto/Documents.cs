@@ -54,10 +54,16 @@ namespace HCms.Application.Dto
 		public int Status { get; set; }
 
 		[MessagePack.Key("createdAt")]
-		public DateTime CreatedAt { get; set; }
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset CreatedAt { get; set; }
 
 		[MessagePack.Key("modifiedAt")]
-		public DateTime ModifiedAt { get; set; }
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset ModifiedAt { get; set; }
+
+		[MessagePack.Key("publishedAt")]
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset PublishedAt { get; set; }
 
 		[MessagePack.Key("editorRoleRequired")]
 		public string EditorRoleRequired { get; set; }
@@ -85,8 +91,9 @@ namespace HCms.Application.Dto
 				Tags = doc.Tags;
 				AuthPolicies = doc.AuthPolicies;
 				Status = doc.Status;
-				CreatedAt = doc.CreatedAt.UtcDateTime;
-				ModifiedAt = doc.ModifiedAt.UtcDateTime;
+				CreatedAt = doc.CreatedAt;
+				ModifiedAt = doc.ModifiedAt;
+				PublishedAt = doc.PublishedAt;
 				EditorRoleRequired = doc.EditorRoleRequired;
 				Author = doc.Author;
 			}
@@ -144,7 +151,8 @@ namespace HCms.Application.Dto
 		public string Author { get; set; }
 
 		[MessagePack.Key("modifiedAt")]
-		public DateTime ModifiedAt { get; set; }
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset ModifiedAt { get; set; }
 	}
 
 
@@ -222,6 +230,10 @@ namespace HCms.Application.Dto
 		[Required]
 		[Range(0, 2)]
 		public int? Status { get; set; }
+
+		[MessagePack.Key("publishedAt")]
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset PublishedAt { get; set; }
 	}
 
 
@@ -288,4 +300,15 @@ namespace HCms.Application.Dto
 		public DtoMinDocumentResult[] ReferencedBy { get; set; }
 	}
 
+
+
+	[MessagePackObject]
+	public class DtoPropagate
+	{
+		[MessagePack.Key("status")]
+		public bool Status { get; set; }
+
+		[MessagePack.Key("publishedAt")]
+		public bool PublishedAt { get; set; }
+	}
 }

@@ -32,7 +32,7 @@ namespace HCms.Application.Services
 
 		#region private-functions
 
-		private static void SetChildren<T,U>(DtoTreeNode<T> doc, Dictionary<T, Memory<U>> tree) where U : ITreeNode<T>
+		private static void SetChildren<T, U>(DtoTreeNode<T> doc, Dictionary<T, Memory<U>> tree) where U : ITreeNode<T>
 		{
 			if (tree.TryGetValue(doc.Id, out Memory<U> children))
 			{
@@ -47,7 +47,7 @@ namespace HCms.Application.Services
 			}
 		}
 
-		private static DtoTreeNode<T>[] CreateTree<T,U>(U[] docs) where U : ITreeNode<T>
+		private static DtoTreeNode<T>[] CreateTree<T, U>(U[] docs) where U : ITreeNode<T>
 		{
 			Dictionary<T, Memory<U>> tree = [];
 
@@ -96,7 +96,7 @@ namespace HCms.Application.Services
 		{
 			if (path1[^1] == '/' ^ path2[0] == '/')
 				return path1 + path2;
-			
+
 			if (path2[0] == '/')
 				return path1 + path2[1..];
 
@@ -164,7 +164,8 @@ namespace HCms.Application.Services
 				if ((xse = _schemaRepo.Find(links[i].Fragment.XmlSchema + ":" + links[i].Fragment.XmlName)) != null && xse.RepresentsContainer)
 					links[i].Data = "container";
 
-			DtoDocumentFragmentsResult result = new() {
+			DtoDocumentFragmentsResult result = new()
+			{
 				FragmentLinks = links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
 				FragmentTree = CreateTree<int, FragmentLink>(links)
 			};
@@ -190,8 +191,8 @@ namespace HCms.Application.Services
 				.ToArrayAsync(ct);
 
 			DtoFullDocumentResult result = new()
-			{ 
-				Properties = new(doc), 
+			{
+				Properties = new(doc),
 				FragmentLinks = fragments.FragmentLinks,
 				FragmentTree = fragments.FragmentTree,
 				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray()
@@ -221,11 +222,13 @@ namespace HCms.Application.Services
 			}
 
 
+			DateTimeOffset now = DateTimeOffset.Now;
 			string language;
 			string icon;
 			string path;
 			string rootSlug;
 			string authPolicies;
+			DateTimeOffset publishedAt = now;
 			List<DocumentPathNode> pathNodes;
 			List<DocumentAttribute> newAttrs;
 
@@ -245,6 +248,10 @@ namespace HCms.Application.Services
 				language = dto.Language ?? parent.Language;
 				icon = "article";
 				authPolicies = parent.AuthPolicies;
+
+				if (publishedAt < parent.PublishedAt)
+					publishedAt = parent.PublishedAt;
+
 				pathNodes = new(parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
 
 				pathNodes.Add(new() { Parent = dto.Parent, Position = pathNodes.Count });
@@ -265,7 +272,6 @@ namespace HCms.Application.Services
 			}
 
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == dto.Parent, ct);
-			DateTimeOffset now = DateTimeOffset.UtcNow;
 
 			Document doc = new()
 			{
@@ -283,6 +289,7 @@ namespace HCms.Application.Services
 				Author = user.Identity.Name,
 				CreatedAt = now,
 				ModifiedAt = now,
+				PublishedAt = publishedAt,
 				DocumentPathNodes = pathNodes,
 				DocumentAttributes = newAttrs
 			};
@@ -362,7 +369,7 @@ namespace HCms.Application.Services
 				return Result<DtoDocumentResult>.NotFound();
 
 			bool slugChanged = doc.Slug != slug;
-			bool needsChildrenUpdate = slugChanged || (publishStatus != doc.Status);
+			bool needsChildrenUpdate = slugChanged || (publishStatus != doc.Status) || (dto.PublishedAt != doc.PublishedAt);
 
 			Document[] children = needsChildrenUpdate ?
 				await dbContext.Documents
@@ -384,11 +391,12 @@ namespace HCms.Application.Services
 			string originalRoot = doc.RootSlug;
 			string originalPath = doc.Path;
 
+			Document parent = null;
 
 			if (doc.Status != dto.Status)
 				if (publishStatus != (int)PublishStatus.Unpublished)
 				{
-					var parent = await dbContext.Documents
+					parent = await dbContext.Documents
 						.AsNoTracking()
 						.FirstOrDefaultAsync(d => d.Id == doc.Parent, ct);
 
@@ -405,7 +413,6 @@ namespace HCms.Application.Services
 						for (int i = 0; i < children.Length; i++)
 							if (children[i].Status == (int)PublishStatus.Published)
 								children[i].Status = (int)PublishStatus.InReview;
-
 					}
 				}
 				else
@@ -413,6 +420,21 @@ namespace HCms.Application.Services
 					for (int i = 0; i < children.Length; i++)
 						children[i].Status = (int)PublishStatus.Unpublished;
 				}
+
+			if (doc.PublishedAt != dto.PublishedAt)
+			{
+				parent ??= await dbContext.Documents
+					.AsNoTracking()
+					.FirstOrDefaultAsync(d => d.Id == doc.Parent, ct);
+
+				if (dto.PublishedAt < parent.PublishedAt)
+					return Result<DtoDocumentResult>.BadParameters("PublishedAt", "Document cannot be published earlier than its parent");
+
+				if (dto.PublishedAt > doc.PublishedAt)
+					for (int i = 0; i < children.Length; i++)
+						if (children[i].PublishedAt < dto.PublishedAt)
+							children[i].PublishedAt = dto.PublishedAt;
+			}
 
 			if (slugChanged)
 				if (doc.Parent > 0)
@@ -456,7 +478,8 @@ namespace HCms.Application.Services
 			doc.AuthPolicies = NullIfEmpty(dto.AuthPolicies);
 			doc.Status = publishStatus;
 			doc.Author = user.Identity.Name;
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
+			doc.PublishedAt = dto.PublishedAt;
 
 
 			var existingRefs = await dbContext.References
@@ -485,7 +508,7 @@ namespace HCms.Application.Services
 
 			ReferenceHelper.GetReferenceChanges(id,
 				existingRefs,
-				ReferenceHelper.Extract([summary, picture, .. xmlData, .. attrData, .. fAttrData]), 
+				ReferenceHelper.Extract([summary, picture, .. xmlData, .. attrData, .. fAttrData]),
 				out List<Reference> toAdd,
 				out List<Reference> toRemove);
 
@@ -599,7 +622,7 @@ namespace HCms.Application.Services
 
 			doc.EditorRoleRequired = lockState ? user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value : null;
 			doc.Author = user.Identity.Name;
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 
 			await dbContext.SaveChangesAsync(ct);
 
@@ -659,7 +682,6 @@ namespace HCms.Application.Services
 			}
 
 
-			// fix and set positions
 
 			int oldPosition = doc.Position;
 			var oldParent = doc.Parent;
@@ -671,15 +693,25 @@ namespace HCms.Application.Services
 			foreach (var d in siblingsAfter)
 				d.Position--;
 
+
 			int newPosition = await dbContext.Documents.CountAsync(d => d.Parent == parentId, ct);
 			string originalRoot = doc.RootSlug;
 			string originalPath = doc.Path;
 			string newPath = newParent != null ? PathJoin(newParent.Path, doc.Slug) : "/";
 			string newRootSlug = newParent != null ? newParent.RootSlug : doc.Slug;
 			int? newStatus = null;
+			DateTimeOffset? newPublishedAt = null;
 
-			if (newParent != null && newParent.Status != (int)PublishStatus.Published && newParent.Status != doc.Status)
-				newStatus = newParent.Status;
+
+			if (newParent != null)
+			{
+				if (newParent.Status != (int)PublishStatus.Published && newParent.Status != doc.Status)
+					newStatus = newParent.Status;
+
+				if (newParent.PublishedAt > doc.PublishedAt)
+					newPublishedAt = newParent.PublishedAt;
+			}
+
 
 			doc.Path = newPath;
 			doc.PathHash = MurmurHash3.Hash32(newPath);
@@ -687,12 +719,13 @@ namespace HCms.Application.Services
 			doc.Parent = parentId;
 			doc.Position = newPosition;
 			doc.Author = user.Identity.Name;
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 
 			if (newStatus.HasValue)
 				doc.Status = GetConsistentStatus(doc.Status, newStatus.Value);
 
-			// end fix and set positions
+			if (newPublishedAt.HasValue)
+				doc.PublishedAt = newPublishedAt.Value;
 
 			var docPathNodes = await dbContext.DocumentPathNodes
 				.Where(dn => dn.DocumentRef == id)
@@ -719,7 +752,6 @@ namespace HCms.Application.Services
 					dbContext.DocumentPathNodes.RemoveRange(docPathNodes.TakeLast(-diff));
 					docPathNodes.RemoveRange(k, -diff);
 				}
-
 
 				for (int i = 0; i < k; i++)
 				{
@@ -754,6 +786,9 @@ namespace HCms.Application.Services
 				if (newStatus.HasValue)
 					child.Status = GetConsistentStatus(child.Status, newStatus.Value);
 
+				if (newPublishedAt.HasValue)
+					child.PublishedAt = newPublishedAt.Value;
+
 				if (diff > 0)
 				{
 					for (int j = 0; j < diff; j++)
@@ -786,7 +821,6 @@ namespace HCms.Application.Services
 					var p = childrenD[parent];
 					parent = p.Parent;
 				}
-
 			}
 
 			try
@@ -837,7 +871,7 @@ namespace HCms.Application.Services
 			{
 				doc.Position = newPosition;
 				doc.Author = user.Identity.Name;
-				doc.ModifiedAt = DateTimeOffset.UtcNow;
+				doc.ModifiedAt = DateTimeOffset.Now;
 
 				if (posIncrement < 0)
 				{
@@ -846,7 +880,7 @@ namespace HCms.Application.Services
 				}
 				else
 				{
-					for (int i = oldPosition+1; i <= newPosition; i++)
+					for (int i = oldPosition + 1; i <= newPosition; i++)
 						siblings[i].Position--;
 				}
 
@@ -856,12 +890,12 @@ namespace HCms.Application.Services
 			}
 
 			return Result<DtoMoveDocumentResult>.Success(
-				new DtoMoveDocumentResult() 
-				{ 
-					NewPosition = newPosition, 
+				new DtoMoveDocumentResult()
+				{
+					NewPosition = newPosition,
 					OldPosition = oldPosition,
-					Author = doc.Author, 
-					ModifiedAt = doc.ModifiedAt.UtcDateTime
+					Author = doc.Author,
+					ModifiedAt = doc.ModifiedAt
 				});
 		}
 
@@ -882,7 +916,7 @@ namespace HCms.Application.Services
 			if (origin == null)
 				return Result<DtoFullDocumentResult>.BadParameters("Origin", "Original document not found");
 
-			DateTimeOffset now = DateTimeOffset.UtcNow;
+			DateTimeOffset now = DateTimeOffset.Now;
 			int position = await dbContext.Documents.CountAsync(d => d.Parent == origin.Parent, ct);
 
 			string[] pathItems = origin.Path.Split('/');
@@ -908,9 +942,10 @@ namespace HCms.Application.Services
 				Description = origin.Description,
 				Icon = origin.Icon,
 				AuthPolicies = origin.AuthPolicies,
-				Status = origin.Status,
+				Status = (int)PublishStatus.Unpublished,
 				CreatedAt = now,
 				ModifiedAt = now,
+				PublishedAt = origin.PublishedAt > now ? origin.PublishedAt : now,
 				EditorRoleRequired = origin.EditorRoleRequired,
 				Author = user.Identity.Name
 			};
@@ -942,7 +977,7 @@ namespace HCms.Application.Services
 
 			return Result<DtoFullDocumentResult>.Success(result);
 		}
-	
+
 		public async Task<Result<DtoDocumentRefResult>> GetReferences(int id, CancellationToken ct)
 		{
 			var doc = await dbContext.Documents
@@ -991,6 +1026,46 @@ namespace HCms.Application.Services
 			return Result<DtoMinDocumentResult[]>.Success(result);
 		}
 
-	}
+		public async Task<Result<bool>> PropagateToChildren(int id, bool status, bool publishedAt, ClaimsPrincipal user, CancellationToken ct)
+		{
+			var authResult = await _authService.AuthorizeAsync(user, id, "CanManageDocument");
 
+			if (!authResult.Succeeded)
+				return Result<bool>.Forbidden();
+
+			var doc = await dbContext.Documents
+				.AsNoTracking()
+				.FirstOrDefaultAsync(d => d.Id == id, ct);
+
+			if (doc == null)
+				return Result<bool>.NotFound();
+
+			var children = await dbContext.Documents
+				.Join(dbContext.DocumentPathNodes, d => d.Id, n => n.DocumentRef, (d, n) => new { d, n })
+				.Where(dn => dn.n.Parent == id)
+				.Select(dn => dn.d)
+				.ToArrayAsync(ct);
+
+			foreach (var child in children)
+			{
+				authResult = await _authService.AuthorizeAsync(user, child.Id, "CanManageDocument");
+
+				if (!authResult.Succeeded)
+					return Result<bool>.Forbidden();
+
+				if (status)
+					child.Status = doc.Status;
+
+				if (publishedAt)
+					child.PublishedAt = doc.PublishedAt;
+			}
+
+			await dbContext.SaveChangesAsync(ct);
+
+			await _notifier.Notify("on_doc_change", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
+
+			return Result<bool>.Success(true);
+		}
+
+	}
 }

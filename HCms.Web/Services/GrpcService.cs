@@ -48,6 +48,33 @@ namespace HCms.Web.Services
 
 
 	[ProtoContract]
+	public class DocumentsGrpcRequest
+	{
+		[ProtoMember(1)]
+		public int Id { get; set; }
+
+		[ProtoMember(2)]
+		public string PathMapper { get; set; }
+
+		[ProtoMember(3)]
+		[DefaultValue(-1)]
+		public int FromPos { get; set; } = -1;
+
+		[ProtoMember(4)]
+		[DefaultValue(1000)]
+		public int Take { get; set; } = 1000;
+
+		[ProtoMember(5)]
+		public int[] AllowedStatus { get; set; }
+
+		[ProtoMember(6)]
+		public bool ReverseOrder { get; set; }
+	}
+
+
+
+
+	[ProtoContract]
 	public class ListGrpcRequest
 	{
 		[ProtoMember(1)]
@@ -75,6 +102,7 @@ namespace HCms.Web.Services
 	public interface IContentGrpcService
 	{
 		Task<DocumentGrpcResult> GetDocument(DocumentGrpcRequest request, CancellationToken ct);
+		Task<DocumentGrpcResult> GetDocuments(DocumentsGrpcRequest request, CancellationToken ct);
 		Task<DocumentGrpcResult> GetList(ListGrpcRequest request, CancellationToken ct);
 	}
 
@@ -103,6 +131,23 @@ namespace HCms.Web.Services
 			{
 				Status = doc != null ? 200 : 404,
 				Data = MessagePack.MessagePackSerializer.Serialize(doc, cancellationToken: ct)
+			};
+
+			return result;
+		}
+
+		public async Task<DocumentGrpcResult> GetDocuments(DocumentsGrpcRequest request, CancellationToken ct)
+		{
+			using var scope = _serviceProvider.CreateScope();
+			var cps = scope.ServiceProvider.GetRequiredService<ContentProvidingService>();
+			var pm = _pathMapperFactory.Get(request.PathMapper);
+
+			var docs = await cps.GetDocuments(pm, request.Id, request.FromPos, request.Take, request.AllowedStatus, request.ReverseOrder, ct);
+
+			var result = new DocumentGrpcResult()
+			{
+				Status = docs != null ? 200 : 404,
+				Data = MessagePack.MessagePackSerializer.Serialize(docs, cancellationToken: ct)
 			};
 
 			return result;

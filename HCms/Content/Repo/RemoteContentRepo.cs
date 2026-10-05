@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 
 using MessagePack;
 using HCms.Content.ViewModels;
+using HCms.Domain.Types;
 
 
 namespace HCms.Content.Repo
@@ -117,7 +118,7 @@ namespace HCms.Content.Repo
 
 		public async Task<Document> GetDocument(string root, string path, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, bool exactPathMatch, CancellationToken ct)
 		{
-			string ast = allowedStatus != null ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : "ast=1";
+			string ast = allowedStatus != null && allowedStatus.Length != 0 ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : $"ast={(int)PublishStatus.Published}";
 			string url = $"{_cmsApiHost}/api/v1/content/doc/{root}?path={path}&pm={_pathMapperName}&cfp={childrenFromPos}&tc={takeChildren}&sib={siblings}&{ast}";
 			Document result;
 
@@ -146,13 +147,45 @@ namespace HCms.Content.Repo
 
 		public async Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct)
 		{
-			string ast = allowedStatus != null ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : "ast=1";
+			string ast = allowedStatus != null && allowedStatus.Length != 0 ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : $"ast={(int)PublishStatus.Published}";
 			string url = $"{_cmsApiHost}/api/v1/content/doc/{id}?pm={_pathMapperName}&cfp={childrenFromPos}&tc={takeChildren}&sib={siblings}&{ast}";
 			Document result;
 
 			try
 			{
 				result = await RestRequest<Document>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
+			}
+			catch (HttpRequestException ex)
+			{
+				if (ex.StatusCode != System.Net.HttpStatusCode.NotFound)
+				{
+					_logger.LogError(ex, "Status code returned by H-Cms API is not 200 OK or 404 NotFound: {Url}", url);
+					throw;
+				}
+				else
+					result = null;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting document from the H-Cms API: {Url}", url);
+				throw;
+			}
+
+			return result;
+		}
+		public async Task<Selection> GetDocuments(SelectionSettings selectionSettings, int fromPos, int take, CancellationToken ct)
+		{
+			ArgumentNullException.ThrowIfNull(selectionSettings);
+
+			var allowedStatus = selectionSettings.AllowedStatus ?? [(int)PublishStatus.Published];
+
+			string ast = allowedStatus.Length != 0 ? string.Join("&", allowedStatus.Select(s => $"ast={s}")) : $"ast={(int)PublishStatus.Published}";
+			string url = $"{_cmsApiHost}/api/v1/content/docs/{selectionSettings.ParentId}?pm={_pathMapperName}&fp={fromPos}&t={take}&rev={selectionSettings.ReverseOrder}&{ast}";
+			Selection result;
+
+			try
+			{
+				result = await RestRequest<Selection>(_httpClientFactory.CreateClient(), url, _apiKey, MSGPACK_MEDIA_TYPE, ct);
 			}
 			catch (HttpRequestException ex)
 			{

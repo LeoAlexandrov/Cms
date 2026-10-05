@@ -188,6 +188,22 @@ namespace HCms.Web.Api
 			};
 		}
 
+		[HttpPost("{id:int}/propagate")]
+		[Authorize("IsUser")]
+		[CsrAntiforgery]
+		public async Task<IActionResult> Propagate(int id, [Required] DtoPropagate dto, CancellationToken ct)
+		{
+			var result = await _cms.PropagateToChildren(id, dto.Status, dto.PublishedAt, HttpContext.User, ct);
+
+			return result.Type switch
+			{
+				ResultType.Forbidden => Forbid(),
+				ResultType.BadParameters => BadRequest(result.Errors),
+				_ => Ok(result.Value)
+			};
+		}
+
+
 		[HttpGet("attributes/{id:int}")]
 		[Authorize]
 		public async Task<IActionResult> GetAttribute(int id, CancellationToken ct)

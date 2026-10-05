@@ -89,6 +89,21 @@ namespace HCms.Content.Repo
 			return result;
 		}
 
+		public async Task<Selection> GetDocuments(SelectionSettings selectionSettings, int fromPos, int take, CancellationToken ct)
+		{
+			ArgumentNullException.ThrowIfNull(selectionSettings);
+
+			var logger = loggerFactory.CreateLogger<ContentProvidingService>();
+			var provider = new ContentProvidingService(dbContext, fsr, logger);
+
+			var result = await provider.GetDocuments(pathMapper, selectionSettings.ParentId,
+				fromPos, take, 
+				selectionSettings.AllowedStatus, 
+				selectionSettings.ReverseOrder, ct);
+
+			return result;
+		}
+
 		public ValueTask<string> UserRole(string login, CancellationToken ct)
 		{
 			var logger = loggerFactory.CreateLogger<ContentProvidingService>();

@@ -338,7 +338,7 @@ namespace HCms.Infrastructure.Data
 			logger?.LogInformation("Creating default schema db records...");
 
 			string[] files = Directory.GetFiles(XSD_PATH, "*.xsd", SearchOption.TopDirectoryOnly);
-			DateTimeOffset now = DateTimeOffset.UtcNow;
+			DateTimeOffset now = DateTimeOffset.Now;
 
 			foreach (string file in files)
 			{
@@ -493,7 +493,7 @@ namespace HCms.Infrastructure.Data
 				Namespace = ns,
 				Data = data,
 				Description = description,
-				ModifiedAt = DateTimeOffset.UtcNow
+				ModifiedAt = DateTimeOffset.Now
 			};
 
 			dbContext.Schemata.Add(result);
@@ -512,7 +512,7 @@ namespace HCms.Infrastructure.Data
 
 			schema.Description = description;
 			schema.Data = data;
-			schema.ModifiedAt = DateTimeOffset.UtcNow;
+			schema.ModifiedAt = DateTimeOffset.Now;
 
 			if (onlySave)
 			{

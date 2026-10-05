@@ -39,7 +39,8 @@ namespace HCms.Application.Dto
 		public string Locale { get; set; }
 
 		[MessagePack.Key("lastSignIn")]
-		public DateTime? LastSignIn { get; set; }
+		[MessagePackFormatter(typeof(IsoNullableDateTimeOffsetFormatter))]
+		public DateTimeOffset? LastSignIn { get; set; }
 
 		public DtoUserLiteResult() { }
 
@@ -56,7 +57,7 @@ namespace HCms.Application.Dto
 				IsEnabled = user.IsEnabled;
 				IsDemo = user.IsDemo;
 				Locale = user.Locale;
-				LastSignIn = user.LastSignIn?.UtcDateTime;
+				LastSignIn = user.LastSignIn;
 			}
 		}
 	}

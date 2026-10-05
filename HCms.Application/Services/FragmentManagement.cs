@@ -770,7 +770,7 @@ namespace HCms.Application.Services
 				fl.Data = "container";
 
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -824,7 +824,7 @@ namespace HCms.Application.Services
 					Fragment = new(fr),
 					Link = new(fl),
 					Author = doc.Author,
-					ModifiedAt = doc.ModifiedAt.UtcDateTime
+					ModifiedAt = doc.ModifiedAt
 				});
 		}
 
@@ -937,7 +937,7 @@ namespace HCms.Application.Services
 
 			Document doc = await dbContext.Documents.FindAsync([link.DocumentRef], ct);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -1013,7 +1013,7 @@ namespace HCms.Application.Services
 					Link = new(link), 
 					SharedStateChanged = sharedStateChanged, 
 					Author = doc.Author,
-					ModifiedAt = doc.ModifiedAt.UtcDateTime
+					ModifiedAt = doc.ModifiedAt
 				});
 		}
 
@@ -1073,7 +1073,7 @@ namespace HCms.Application.Services
 
 			var doc = await dbContext.Documents.FindAsync([docId], ct);
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 
@@ -1125,7 +1125,7 @@ namespace HCms.Application.Services
 
 			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
-			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt.UtcDateTime });
+			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}
 
 		public async Task<Result<DtoMoveFragmentResult>> MoveFragment(int id, int posIncrement, ClaimsPrincipal user, CancellationToken ct)
@@ -1173,7 +1173,7 @@ namespace HCms.Application.Services
 						siblings[i].Position--;
 				}
 
-				doc.ModifiedAt = DateTimeOffset.UtcNow;
+				doc.ModifiedAt = DateTimeOffset.Now;
 				doc.Author = user.Identity.Name;
 
 				await dbContext.SaveChangesAsync(ct);
@@ -1187,7 +1187,7 @@ namespace HCms.Application.Services
 					NewPosition = newPosition,
 					OldPosition = oldPosition,
 					Author = doc.Author,
-					ModifiedAt = doc.ModifiedAt.UtcDateTime
+					ModifiedAt = doc.ModifiedAt
 				});
 		}
 
@@ -1249,7 +1249,7 @@ namespace HCms.Application.Services
 			if ((xse = _schemaRepo.Find(fragment.XmlSchema + ":" + fragment.XmlName)) != null && xse.RepresentsContainer)
 				newLink.Data = "container";
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync(ct);
@@ -1262,7 +1262,7 @@ namespace HCms.Application.Services
 					Fragment = new(newFragment),
 					Link = new(newLink),
 					Author = doc.Author,
-					ModifiedAt = doc.ModifiedAt.UtcDateTime
+					ModifiedAt = doc.ModifiedAt
 				});
 		}
 
@@ -1284,7 +1284,7 @@ namespace HCms.Application.Services
 			var doc = await dbContext.Documents.FindAsync([docId], ct);
 
 			if (containerRef == linkId)
-				return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt.UtcDateTime });
+				return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 
 
 			if (linkId != 0)
@@ -1354,14 +1354,14 @@ namespace HCms.Application.Services
 			link.Position = newPosition;
 			link.ContainerRef = linkId;
 
-			doc.ModifiedAt = DateTimeOffset.UtcNow;
+			doc.ModifiedAt = DateTimeOffset.Now;
 			doc.Author = user.Identity.Name;
 
 			await dbContext.SaveChangesAsync(ct);
 
 			await _notifier.Notify("on_doc_update", doc.RootSlug, doc.Path, doc.Id, CancellationToken.None);
 
-			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt.UtcDateTime });
+			return Result<DtoDocumentChangeResult>.Success(new() { Author = doc.Author, ModifiedAt = doc.ModifiedAt });
 		}
 
 		public static IReadOnlyList<DtoFragmentElement> NewFragmentElementValue(string path, string lang, IDictionary<string, XSElement> index)

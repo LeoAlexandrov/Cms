@@ -48,7 +48,10 @@ namespace HCms.Web.Api
 			if (mapper == null)
 				return BadRequest(new { name = nameof(pm), message = $"Path mapper '{pm}' is not found." });
 
-			var result = await _cps.GetDocument(mapper, id, cfp ?? -1, tc ?? 1000, sib ?? true, ast ?? [1], ct);
+			if (ast == null || ast.Length == 0)
+				ast = [1];
+
+			var result = await _cps.GetDocument(mapper, id, cfp ?? -1, tc ?? 1000, sib ?? true, ast, ct);
 
 			if (result == null)
 				return NotFound();
@@ -73,7 +76,10 @@ namespace HCms.Web.Api
 			else if (!path.StartsWith('/'))
 				path = '/' + path;
 
-			var result = await _cps.GetDocument(mapper, root, path, cfp ?? -1, tc ?? 1000, sib ?? true, ast ?? [1], false, ct);
+			if (ast == null || ast.Length == 0)
+				ast = [1];
+
+			var result = await _cps.GetDocument(mapper, root, path, cfp ?? -1, tc ?? 1000, sib ?? true, ast, false, ct);
 
 			if (result == null)
 				return NotFound();
@@ -81,16 +87,19 @@ namespace HCms.Web.Api
 			return Ok(result);
 		}
 
-		[HttpGet("children/{id:int}")]
+		[HttpGet("docs/{id:int}")]
 		[Authorize("IsConsumerApp")]
-		public async Task<IActionResult> GetChildren(int id, [FromQuery] string pm, [FromQuery] int? cfp, [FromQuery] int? tc, [FromQuery] int[] ast, CancellationToken ct)
+		public async Task<IActionResult> GetDocs(int id, [FromQuery] string pm, [FromQuery] int? fp, [FromQuery] int? t, [FromQuery] int[] ast, [FromQuery] bool? rev, CancellationToken ct)
 		{
 			IPathMapper mapper = _pathMapperFactory.Get(pm);
 
 			if (mapper == null)
 				return BadRequest(new { name = nameof(pm), message = $"Path mapper '{pm}' is not found." });
 
-			var result = await _cps.GetChildren(mapper, id, cfp ?? -1, tc ?? 1000, ast ?? [1], ct);
+			if (ast == null || ast.Length == 0)
+				ast = [1];
+
+			var result = await _cps.GetDocuments(mapper, id, fp ?? -1, t ?? 1000, ast, rev ?? false, ct);
 
 			if (result == null)
 				return NotFound();

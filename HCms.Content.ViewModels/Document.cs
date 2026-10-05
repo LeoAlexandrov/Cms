@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 using MessagePack;
 
@@ -58,11 +59,16 @@ namespace HCms.Content.ViewModels
 		public int Status { get; set; }
 
 		[MessagePack.Key("createdAt")]
-		public DateTime CreatedAt { get; set; }
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset CreatedAt { get; set; }
 
 		[MessagePack.Key("modifiedAt")]
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset ModifiedAt { get; set; }
 
-		public DateTime ModifiedAt { get; set; }
+		[MessagePack.Key("publishedAt")]
+		[MessagePackFormatter(typeof(IsoDateTimeOffsetFormatter))]
+		public DateTimeOffset PublishedAt { get; set; }
 
 		[MessagePack.Key("author")]
 		public string Author { get; set; }
@@ -100,6 +106,25 @@ namespace HCms.Content.ViewModels
 		[MessagePack.Key("authRequired")]
 		public bool AuthRequired { get => !(string.IsNullOrEmpty(AuthPolicies) || AuthPolicies.StartsWith("//")); }
 
+		[MessagePack.IgnoreMember]
+		[JsonIgnore]
+		public IEnumerable<Fragment> AllFragments
+		{
+			get
+			{
+				if (Fragments == null)
+					yield break;
+
+				foreach (var fragment in Fragments)
+					if (fragment != null)
+					{
+						yield return fragment;
+
+						foreach (var f in fragment.AllChildren)
+							yield return f;
+					}
+			}
+		}
 
 		public Document() { }
 

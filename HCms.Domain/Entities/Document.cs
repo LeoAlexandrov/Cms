@@ -54,7 +54,9 @@ namespace HCms.Domain.Entities
 		public DateTimeOffset CreatedAt { get; set; }
 		
 		public DateTimeOffset ModifiedAt { get; set; }
-		
+
+		public DateTimeOffset PublishedAt { get; set; }
+
 		[MaxLength(64)] 
 		public string EditorRoleRequired { get; set; }
 		

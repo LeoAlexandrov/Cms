@@ -174,4 +174,7 @@
   <data name="Auth_Invalid_Credentials" xml:space="preserve">
     <value>Identifiants invalides</value>
   </data>
+  <data name="Validation_InvalidDate" xml:space="preserve">
+    <value>La date et le moment doivent être valides</value>
+  </data>
 </root>

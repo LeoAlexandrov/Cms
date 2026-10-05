@@ -68,6 +68,10 @@ namespace HCms.Content.ViewModels
 
 		[MessagePack.IgnoreMember]
 		[JsonIgnore]
+		public IEnumerable<Fragment> AllChildren => IterateChildren(Children);
+
+		[MessagePack.IgnoreMember]
+		[JsonIgnore]
 		public string BasicCssClass => Container == 0 ? $"{XmlName}-fragment" : $"{XmlName}-inner-fragment";
 
 
@@ -93,6 +97,20 @@ namespace HCms.Content.ViewModels
 			}
 		}
 
+		 static IEnumerable<Fragment> IterateChildren(Fragment[] children)
+		{
+			if (children == null)
+				yield break;
+
+			foreach (var fragment in children)
+				if (fragment != null)
+				{
+					yield return fragment;
+
+					foreach (var f in IterateChildren(fragment.Children))
+						yield return f;
+				}
+		}
 
 		string GetDomId()
 		{

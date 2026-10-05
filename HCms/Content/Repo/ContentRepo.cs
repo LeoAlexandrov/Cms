@@ -9,6 +9,15 @@ using HCms.Content.ViewModels;
 namespace HCms.Content.Repo
 {
 
+	public class SelectionSettings
+	{
+		public int ParentId { get; set; }
+		public int[] AllowedStatus { get; set; } = [1];
+		public bool ReverseOrder { get; set; }
+	}
+
+
+
 	/// <summary>
 	/// Represents CMS content repository.
 	/// </summary>
@@ -47,6 +56,8 @@ namespace HCms.Content.Repo
 		/// <param name="allowedStatus">Array of allowed publication statuses. If null only published documents are retrived.</param>
 		/// <returns>A task that represents the asynchronous operation. The task result contains the view model or null if no document found..</returns>
 		Task<Document> GetDocument(int id, int childrenFromPos, int takeChildren, bool siblings, int[] allowedStatus, CancellationToken ct);
+
+		Task<Selection> GetDocuments(SelectionSettings selectionSettings, int fromPos, int take, CancellationToken ct);
 
 		/// <summary>
 		/// Asynchronously returns a role of CMS user with specified login or null if no user found.

@@ -33,7 +33,8 @@
 					status: 0,
 					author: null,
 					createdAt: null,
-					modifiedAt: null
+					modifiedAt: null,
+					publishedAt: null
 				},
 				fragmentLinks: [],
 				fragmentTree: [],
@@ -45,11 +46,17 @@
 			hasChanged: false,
 			invalidDocSlugs: [],
 			invalidPublishedState: [],
+			invalidPublishDate: [],
 			publishStates: [
 				{ label: TEXT.DOCS.get('PUBLISH_STATUS_UNPUBLISHED'), value: 0 },
 				{ label: TEXT.DOCS.get('PUBLISH_STATUS_PUBLISHED'), value: 1 },
 				{ label: TEXT.DOCS.get('PUBLISH_STATUS_INREVIEW'), value: 2 }
 			],
+
+			propagate: {
+				status: false,
+				publishDate: false
+			},
 
 			newDocumentProps: false,
 			newDocument: {
@@ -191,6 +198,32 @@
 			return link;
 		},
 
+		dateToLocalISO(date, includeOffset) {
+
+			if (!date)
+				return null;
+
+			if (!(date instanceof Date)) {
+				date = new Date(date);
+
+				if (isNaN(date.valueOf()))
+					return null;
+			}
+
+			const pad = n => String(n).padStart(2, "0");
+
+			let result = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+				`T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+
+			if (includeOffset) {
+				const offset = -date.getTimezoneOffset(); // minutes east of UTC
+				const sign = offset >= 0 ? "+" : "-";
+				result += `${sign}${pad(Math.floor(Math.abs(offset) / 60))}:${pad(Math.abs(offset) % 60) }`;
+			}
+
+			return result;
+		},
+
 		openImage(link) {
 			window.open(this.imageUrl(link), '_blank', 'popup');
 		},
@@ -258,7 +291,9 @@
 					status: 1,
 					author: this.profile.name,
 					createdAt: null,
-					modifiedAt: null
+					modifiedAt: null,
+					publishedAt: null
+
 				},
 				fragmentLinks: [],
 				fragmentTree: [],
@@ -333,6 +368,7 @@
 				this.invalidContainers = [];
 				this.invalidAttributeKeys = [];
 				this.invalidPublishedState = [];
+				this.invalidPublishDate = [];
 				this.newFragment.stuffSelected = "new";
 				this.newFragment.templateSelected = null;
 				this.newFragment.sharedFragmentSelected = null;
@@ -347,7 +383,7 @@
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/document/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, null) 
+				.apiCallAsync(`/api/v1/document/${id}`, "GET", null, { "Accept": "application/x-msgpack" }, null)
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -355,6 +391,8 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+
+						this.editedDoc.properties.publishedAt = this.dateToLocalISO(r.result.properties.publishedAt, false);
 						this.editedDoc.references = [];
 						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
@@ -364,6 +402,7 @@
 						this.invalidContainers = [];
 						this.invalidAttributeKeys = [];
 						this.invalidPublishedState = [];
+						this.invalidPublishDate = [];
 						this.selectedFragment = 0;
 						this.newFragment.stuffSelected = "new";
 						this.newFragment.templateSelected = null;
@@ -441,6 +480,8 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+
+						this.editedDoc.properties.publishedAt = this.dateToLocalISO(r.result.properties.publishedAt, false);
 						this.editedDoc.references = [];
 						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
@@ -527,6 +568,8 @@
 				return;
 			}
 
+			const publishAt = this.editedDoc.properties.publishedAt;
+
 			let dto = {
 				slug: this.editedDoc.properties.slug,
 				title: this.editedDoc.properties.title,
@@ -538,12 +581,13 @@
 				description: this.editedDoc.properties.description,
 				authPolicies: this.editedDoc.properties.authPolicies,
 				status: this.editedDoc.properties.status,
+				publishedAt: this.dateToLocalISO(publishAt, true)
 			};
 
 			Quasar.LoadingBar.start();
 
 			application
-				.apiCallAsync(`/api/v1/document/${this.selectedDoc}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack" )
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}`, "PUT", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack") //"application/x-msgpack"
 				.then((r) => {
 
 					Quasar.LoadingBar.stop();
@@ -553,6 +597,7 @@
 						this.getRefs(r.result.id);
 
 						this.editedDoc.properties = r.result;
+						this.editedDoc.properties.publishedAt = this.dateToLocalISO(r.result.publishedAt, false);
 						this.hasChanged = false;
 
 						let node = this.$refs.DocTree.getNodeByKey(this.editedDoc.properties.id);
@@ -586,7 +631,7 @@
 									this.$refs.Parent.validate();
 								}
 
-								if (r.result.errors.slug)
+								if (r.result.errors.Slug)
 									this.$refs.Slug.validate();
 
 								if (r.result.errors.Title)
@@ -602,6 +647,11 @@
 								if (r.result.errors.Status) {
 									this.invalidPublishedState.push(dto.status);
 									this.$refs.Status.validate();
+								}
+
+								if (r.result.errors.PublishedAt) {
+									this.invalidPublishDate.push(publishAt);
+									this.$refs.PublishedAt.validate();
 								}
 
 							} else {
@@ -661,6 +711,7 @@
 							this.editedDoc.properties.position = r.result.position;
 							this.editedDoc.properties.author = r.result.author;
 							this.editedDoc.properties.modifiedAt = r.result.modifiedAt;
+							this.editedDoc.properties.publishedAt = this.dateToLocalISO(r.result.publishedAt, false);
 
 							this.getDocTree(this.selectedDoc);
 						}
@@ -868,6 +919,7 @@
 					if (r.ok) {
 
 						this.editedDoc = r.result;
+						this.editedDoc.properties.publishedAt = this.dateToLocalISO(r.result.properties.publishedAt, false);
 						this.editedDoc.references = [];
 						this.editedDoc.referencedBy = [];
 						this.hasChanged = false;
@@ -917,6 +969,43 @@
 
 						displayMessage(`${TEXT.DOCS.get('MESSAGE_CREATE_FAIL')} (${formatHTTPStatus(r)})`, true);
 
+					}
+				});
+		},
+
+		propagateToChildren() {
+
+			let dto = {
+				status: this.propagate.status,
+				publishedAt: this.propagate.publishDate
+			};
+
+			Quasar.LoadingBar.start();
+
+			application
+				.apiCallAsync(`/api/v1/document/${this.selectedDoc}/propagate`, "POST", dto, { "Accept": "application/x-msgpack" }, "application/x-msgpack")
+				.then(r => {
+
+					Quasar.LoadingBar.stop();
+
+					if (r.ok) {
+
+						if (dto.status) {
+							let node = this.$refs.DocTree.getNodeByKey(this.editedDoc.properties.id);
+
+							if (node) {
+								const status = this.editedDoc.properties.status;
+								iterateNodes(node, (n) => n.iconColor = status != 1 ? "blue-grey-2" : "blue-grey");
+							}
+						}
+
+						propagate.status = false;
+						propagate.publishDate = false;
+
+						displayMessage(TEXT.COMMON.get('MESSAGE_OPERATION_SUCCESS'), false);
+
+					} else {
+						displayMessage(`${TEXT.COMMON.get('MESSAGE_OPERATION_FAIL')} (${formatHTTPStatus(r)})`, true);
 					}
 				});
 		},
@@ -1035,10 +1124,12 @@
 				document: this.editedDoc.properties.id,
 				parent: this.newFragment.parent,
 				name: this.newFragment.name,
+				status: this.editedDoc.properties.status == 1 ? 2 : 1,
 				templateName: template,
 				sharedFragment: shared,
 				schema: schema
 			};
+
 
 			Quasar.LoadingBar.start();
 
