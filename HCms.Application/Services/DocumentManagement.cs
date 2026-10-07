@@ -71,10 +71,7 @@ namespace HCms.Application.Services
 
 			if (tree.TryGetValue(default, out Memory<U> roots))
 			{
-				result = roots
-					.ToArray()
-					.Select(DtoTreeNode<T>.Create)
-					.ToArray();
+				result = [.. roots.ToArray().Select(DtoTreeNode<T>.Create)];
 
 				foreach (var d in result)
 					SetChildren(d, tree);
@@ -166,7 +163,7 @@ namespace HCms.Application.Services
 
 			DtoDocumentFragmentsResult result = new()
 			{
-				FragmentLinks = links.Select(l => new DtoFragmentLinkResult(l)).ToArray(),
+				FragmentLinks = [.. links.Select(l => new DtoFragmentLinkResult(l))],
 				FragmentTree = CreateTree<int, FragmentLink>(links)
 			};
 
@@ -195,7 +192,7 @@ namespace HCms.Application.Services
 				Properties = new(doc),
 				FragmentLinks = fragments.FragmentLinks,
 				FragmentTree = fragments.FragmentTree,
-				Attributes = attrs.Select(a => new DtoDocumentAttributeResult(a)).ToArray()
+				Attributes = [.. attrs.Select(a => new DtoDocumentAttributeResult(a))]
 			};
 
 			return result;
@@ -252,7 +249,7 @@ namespace HCms.Application.Services
 				if (publishedAt < parent.PublishedAt)
 					publishedAt = parent.PublishedAt;
 
-				pathNodes = new(parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
+				pathNodes = [.. parent.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position })];
 
 				pathNodes.Add(new() { Parent = dto.Parent, Position = pathNodes.Count });
 
@@ -388,6 +385,7 @@ namespace HCms.Application.Services
 			}
 
 
+			int parentId = doc.Parent;
 			string originalRoot = doc.RootSlug;
 			string originalPath = doc.Path;
 
@@ -396,16 +394,12 @@ namespace HCms.Application.Services
 			if (doc.Status != dto.Status)
 				if (publishStatus != (int)PublishStatus.Unpublished)
 				{
-					parent = await dbContext.Documents
-						.AsNoTracking()
-						.FirstOrDefaultAsync(d => d.Id == doc.Parent, ct);
+					if (parentId > 0)
+						parent = await dbContext.Documents
+							.AsNoTracking()
+							.FirstOrDefaultAsync(d => d.Id == parentId, ct);
 
-					if (publishStatus == (int)PublishStatus.Published)
-					{
-						if (parent != null && parent.Status != (int)PublishStatus.Published)
-							return Result<DtoDocumentResult>.BadParameters("Status", "Parent document is not published or in review");
-					}
-					else
+					if (publishStatus != (int)PublishStatus.Published)
 					{
 						if (parent != null && parent.Status == (int)PublishStatus.Unpublished)
 							return Result<DtoDocumentResult>.BadParameters("Status", "Parent document is not published or in review");
@@ -413,6 +407,10 @@ namespace HCms.Application.Services
 						for (int i = 0; i < children.Length; i++)
 							if (children[i].Status == (int)PublishStatus.Published)
 								children[i].Status = (int)PublishStatus.InReview;
+					}
+					else if (parent != null && parent.Status != (int)PublishStatus.Published)
+					{
+						return Result<DtoDocumentResult>.BadParameters("Status", "Parent document is not published or in review");
 					}
 				}
 				else
@@ -423,11 +421,12 @@ namespace HCms.Application.Services
 
 			if (doc.PublishedAt != dto.PublishedAt)
 			{
-				parent ??= await dbContext.Documents
-					.AsNoTracking()
-					.FirstOrDefaultAsync(d => d.Id == doc.Parent, ct);
+				if (parentId > 0)
+					parent ??= await dbContext.Documents
+						.AsNoTracking()
+						.FirstOrDefaultAsync(d => d.Id == parentId, ct);
 
-				if (dto.PublishedAt < parent.PublishedAt)
+				if (parent != null && dto.PublishedAt < parent.PublishedAt)
 					return Result<DtoDocumentResult>.BadParameters("PublishedAt", "Document cannot be published earlier than its parent");
 
 				if (dto.PublishedAt > doc.PublishedAt)
@@ -437,7 +436,7 @@ namespace HCms.Application.Services
 			}
 
 			if (slugChanged)
-				if (doc.Parent > 0)
+				if (parentId > 0)
 				{
 					string[] pathItems = doc.Path.Split('/');
 
@@ -684,7 +683,7 @@ namespace HCms.Application.Services
 
 
 			int oldPosition = doc.Position;
-			var oldParent = doc.Parent;
+			int oldParent = doc.Parent;
 
 			var siblingsAfter = await dbContext.Documents
 				.Where(d => d.Parent == oldParent && d.Position > oldPosition)
@@ -951,13 +950,13 @@ namespace HCms.Application.Services
 			};
 
 			if (origin.DocumentPathNodes.Count != 0)
-				doc.DocumentPathNodes = new(origin.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position }));
+				doc.DocumentPathNodes = [.. origin.DocumentPathNodes.Select(n => new DocumentPathNode() { Parent = n.Parent, Position = n.Position })];
 
 			if (origin.References.Count != 0)
-				doc.References = new(origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo, MediaLink = r.MediaLink, Encoded = r.Encoded }));
+				doc.References = [.. origin.References.Select(r => new Reference() { ReferenceTo = r.ReferenceTo, MediaLink = r.MediaLink, Encoded = r.Encoded })];
 
 			if (origin.DocumentAttributes.Count != 0)
-				doc.DocumentAttributes = new(origin.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled }));
+				doc.DocumentAttributes = [.. origin.DocumentAttributes.Select(a => new DocumentAttribute() { AttributeKey = a.AttributeKey, Value = a.Value, Enabled = a.Enabled })];
 
 			dbContext.Documents.Add(doc);
 

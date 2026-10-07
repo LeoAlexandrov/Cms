@@ -18,7 +18,7 @@ namespace HCms.Content.Repo
 	public class SqlContentRepo : IContentRepo
 	{
 		readonly static FragmentSchemaRepo fsr = new();
-		readonly static object lockObject = new();
+		readonly static Lock lockObject = new();
 		static int NeedsSchemataReload = 1;
 
 		readonly CmsDbContext dbContext;

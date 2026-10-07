@@ -335,10 +335,7 @@ namespace HCms.Content.Services
 
 			if (tree.TryGetValue(default, out Memory<Entities.FragmentLink> roots))
 			{
-				result = roots
-					.ToArray()
-					.Select(fl => FragmentFromLink(fl, fragmentAttrs[fl.FragmentRef], xse))
-					.ToArray();
+				result = [.. roots.ToArray().Select(fl => FragmentFromLink(fl, fragmentAttrs[fl.FragmentRef], xse))];
 
 				foreach (var d in result)
 					SetChildren(d, tree, fragmentFactory);

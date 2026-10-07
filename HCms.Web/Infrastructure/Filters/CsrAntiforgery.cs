@@ -11,10 +11,12 @@ namespace HCms.Web.Infrastructure.Filters
 
 	public class CsrAntiforgeryFilter(IAntiforgery antiforgery) : IAsyncActionFilter
 	{
+		private readonly static string[] _invalidTokenMessage = ["token is not valid"];
 		private readonly IAntiforgery _antiforgery = antiforgery;
 
 		public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
 		{
+
 			var request = context.HttpContext.Request;
 
 			if (request.Cookies.ContainsKey("X-JWT"))
@@ -32,7 +34,7 @@ namespace HCms.Web.Infrastructure.Filters
 						{
 							title = "Antiforgery token is not valid",
 							status = (int)System.Net.HttpStatusCode.BadRequest,
-							errors = new { antiforgery_token = new string[] { "token is not valid" } },
+							errors = new { antiforgery_token = _invalidTokenMessage },
 							traceId = request.HttpContext.TraceIdentifier
 						});
 

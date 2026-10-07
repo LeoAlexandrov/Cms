@@ -581,7 +581,7 @@ namespace HCms.Application.Services
 				LockShare = useCount > 0,  
 				LinkId = link.Id,
 				ContainerRef = link.ContainerRef,
-				Attributes = attrs.Select(a => new DtoFragmentAttributeResult(a)).ToArray(),
+				Attributes = [.. attrs.Select(a => new DtoFragmentAttributeResult(a))],
 				RawXml = fragment.Data
 			};
 			
@@ -906,7 +906,7 @@ namespace HCms.Application.Services
 				}
 			}
 
-			var fragment = await dbContext.Fragments.FindAsync(link.FragmentRef);
+			var fragment = await dbContext.Fragments.FindAsync([link.FragmentRef], cancellationToken: ct);
 
 			if (sanitizer != null)
 				fragment.Name = sanitizer.Sanitize(dto.Properties.Name);
@@ -1085,9 +1085,7 @@ namespace HCms.Application.Services
 				.ThenBy(r => r.MediaLink)
 				.ToListAsync(ct);
 
-			int[] excludedIds = RecursiveSelect(links, id, linkComparer, [])
-				.Select(l => l.Id)
-				.ToArray();
+			int[] excludedIds = [.. RecursiveSelect(links, id, linkComparer, []).Select(l => l.Id)];
 
 			string[] xmlData = await dbContext.Fragments
 				.Join(dbContext.FragmentLinks, f => f.Id, fl => fl.FragmentRef, (f, fl) => new { fl.Id, fl.DocumentRef, fl.Status, f.Data })
@@ -1229,7 +1227,7 @@ namespace HCms.Application.Services
 				XmlSchema = fragment.XmlSchema,
 				XmlName = fragment.XmlName,
 				Data = fragment.Data,
-				FragmentAttributes = attrs.Select(a => new FragmentAttribute() { AttributeKey = a.AttributeKey, Enabled = a.Enabled, Value = a.Value }).ToList()
+				FragmentAttributes = [.. attrs.Select(a => new FragmentAttribute() { AttributeKey = a.AttributeKey, Enabled = a.Enabled, Value = a.Value })]
 			};
 
 			var newLink = new FragmentLink()

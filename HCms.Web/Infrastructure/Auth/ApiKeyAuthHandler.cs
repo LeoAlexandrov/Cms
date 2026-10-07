@@ -18,23 +18,17 @@ using HCms.Infrastructure.Auth;
 namespace HCms.Web.Infrastructure.Auth
 {
 
-	public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+	public class ApiKeyAuthenticationHandler(
+		IOptionsMonitor<AuthenticationSchemeOptions> options,
+		ILoggerFactory logger,
+		UrlEncoder encoder,
+		UserManagementService ums,
+		IOptions<AuthSettings> settings) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 	{
 		const string APIKEY_HEADER = "APIKey";
 
-		readonly UserManagementService _ums;
-		readonly AuthSettings _settings;
-
-		public ApiKeyAuthenticationHandler(
-			IOptionsMonitor<AuthenticationSchemeOptions> options,
-			ILoggerFactory logger,
-			UrlEncoder encoder,
-			UserManagementService ums,
-			IOptions<AuthSettings> settings) : base(options, logger, encoder)
-		{
-			_ums = ums;
-			_settings = settings.Value;
-		}
+		readonly UserManagementService _ums = ums;
+		readonly AuthSettings _settings = settings.Value;
 
 		protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
 		{

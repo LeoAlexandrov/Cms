@@ -171,7 +171,7 @@ namespace HCms.Application.Services
 
 			if (m == 0)
 			{
-				toAdd = newRefs.Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink, Encoded = r.Encoded }).ToList();
+				toAdd = [.. newRefs.Select(r => new Reference { DocumentRef = id, ReferenceTo = r.DocumentId, MediaLink = r.MediaLink, Encoded = r.Encoded })];
 				toRemove = null;
 				return;
 			}

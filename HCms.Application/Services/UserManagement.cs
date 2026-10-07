@@ -115,7 +115,7 @@ namespace HCms.Application.Services
 			string role = user.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 			int idx = Array.IndexOf(_policies.Roles, role);
 
-			return idx >= 0 ? _policies.Roles.Skip(idx).ToArray() : [];
+			return idx >= 0 ? [.. _policies.Roles.Skip(idx)] : [];
 		}
 
 		public async Task<Result<DtoUserResult>> CreateUser(DtoCreateUser dto, ClaimsPrincipal user, CancellationToken ct)

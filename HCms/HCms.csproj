@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
+	<TargetFramework>net10.0</TargetFramework>
 	<ImplicitUsings>disable</ImplicitUsings>
 	<Nullable>disable</Nullable>
 	<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	<AssemblyVersion>0.4.8</AssemblyVersion>
-	<FileVersion>0.4.8</FileVersion>
-	<VersionPrefix>1.0.26</VersionPrefix>	  
+	<AssemblyVersion>0.5.0</AssemblyVersion>
+	<FileVersion>0.5.0</FileVersion>
+	<VersionPrefix>1.1.0</VersionPrefix>	  
 	<Title>H-Cms.Net content repository and view models</Title>
 	<PackageProjectUrl>https://h-cms.net</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/LeoAlexandrov/Cms/tree/master/HCms</RepositoryUrl>
@@ -21,9 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="HCms.Content.ViewModels" Version="1.0.24" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.19" />
-	<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.19" />
+	<PackageReference Include="HCms.Content.ViewModels" Version="1.1.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+	<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />
   </ItemGroup>
 
   <ItemGroup>

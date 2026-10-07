@@ -22,7 +22,7 @@ namespace HCms.Infrastructure.Auth
 	public class RoleClaimPolicies(IOptions<AuthSettings> settings) : IRoleClaimPolicies
 	{
 		protected readonly Dictionary<string, string[]> _policies = settings.Value.RoleClaimPolicies;
-		protected readonly string[] _roles = settings.Value.OrderedRoles.Reverse().ToArray();
+		protected readonly string[] _roles = [.. settings.Value.OrderedRoles.Reverse()];
 
 		public string[] Roles { get => _roles; }
 
