@@ -223,7 +223,7 @@ namespace HCms.Infrastructure.Media
 			bool blank = imageStream == null;
 
 			using var image = blank ?
-				new MagickImage(MagickColor.FromRgba(220, 220, 220, 1), 128, 128) :
+				new MagickImage(MagickColor.FromRgba(220, 220, 220, 1), (uint)size, (uint)size) :
 				new MagickImage();
 
 			if (!blank)
