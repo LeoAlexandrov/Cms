@@ -10,10 +10,10 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
-    <PackageReference Include="MessagePack" Version="3.1.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>

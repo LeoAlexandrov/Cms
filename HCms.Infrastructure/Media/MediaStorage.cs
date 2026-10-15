@@ -10,15 +10,16 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using ImageMagick;
+
+//using SixLabors.ImageSharp;
+//using SixLabors.ImageSharp.PixelFormats;
+//using SixLabors.ImageSharp.Processing;
+
 //using SkiaSharp;
 
 // to use SkiaSharp add nuget packages 'SkiaSharp' and 'SkiaSharp.NativeAssets.Linux.NoDependencies'
 // uncomment the SkiaSharp code and comment the ImageSharp code below
-
-// do not update SixLabors packages
 
 using AleProjects.Base64;
 using HCms.Domain.Types;
@@ -217,8 +218,44 @@ namespace HCms.Infrastructure.Media
 			}
 		}
 
+		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size, CancellationToken ct)
+		{
+			bool blank = imageStream == null;
+
+			using var image = blank ?
+				new MagickImage(MagickColor.FromRgba(220, 220, 220, 1), 128, 128) :
+				new MagickImage();
+
+			if (!blank)
+			{
+				await image.ReadAsync(imageStream, ct);
+
+				image.Format = MagickFormat.WebP;
+				uint x = (uint)size;
+				image.Thumbnail(x, x);
+				image.Extent(x, x, Gravity.Center, MagickColors.Transparent);
+			}
+
+			using var output = File.OpenWrite(previewPath);
+
+			await image.WriteAsync(output, ct);
+		}
+
+		public static ValueTask<(int, int)> GetImageDimensions(Stream imageStream, CancellationToken ct)
+		{
+			if (imageStream.CanSeek)
+				imageStream.Position = 0;
+
+			using var image = new MagickImage();
+			image.Ping(imageStream);
+
+			return ValueTask.FromResult(((int)image.Width, (int)image.Height));
+		}
+
+
 		// SixLabors.ImageSharp
 
+		/*
 		protected static async Task CreateImagePreview(Stream imageStream, string previewPath, int size, CancellationToken ct)
 		{
 			bool blank = imageStream == null;
@@ -245,6 +282,7 @@ namespace HCms.Infrastructure.Media
 
 			return (image.Width, image.Height);
 		}
+		*/
 
 		// SkiaSharp
 		// uncomment code fragment in S3MediaStorage.cs around L340
