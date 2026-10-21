@@ -929,7 +929,7 @@
 							parent: this.editedDoc.properties.parent,
 							label: this.editedDoc.properties.title,
 							icon: this.editedDoc.properties.icon,
-							iconColor: "blue-grey",
+							iconColor: this.editedDoc.properties.status == 1 ? "blue-grey" : "blue-grey-2",
 							expandable: false,
 							selectable: true
 						};
