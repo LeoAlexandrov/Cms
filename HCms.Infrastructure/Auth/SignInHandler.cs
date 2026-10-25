@@ -123,11 +123,11 @@ namespace HCms.Infrastructure.Auth
 		ILogger<SignInHandler> logger)
 	{
 #if DEBUG
-		const int JWT_EXPIRES_IN = 60;
+		const int DEFAULT_JWT_EXPIRATION = 60;
 #else
-		const int JWT_EXPIRES_IN = 300;
+		const int DEFAULT_JWT_EXPIRATION = 300;
 #endif
-		const int REFRESH_EXPIRES_IN = 3600;
+		const int DEFAULT_REFRESH_EXPIRATION = 3600;
 
 		const string MS_ACCESS_TOKEN = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
 		const string MS_USER = "https://graph.microsoft.com/v1.0/me";
@@ -294,7 +294,7 @@ namespace HCms.Infrastructure.Auth
 				audience: _settings.JwtAudience,
 				notBefore: now,
 				claims: claims,
-				expires: now.Add(TimeSpan.FromSeconds(JWT_EXPIRES_IN)),
+				expires: now.Add(TimeSpan.FromSeconds(_settings.JwtExpiration ?? DEFAULT_JWT_EXPIRATION)),
 				signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256));
 
 			return token;
@@ -352,7 +352,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "google");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -460,7 +460,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "microsoft");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -553,7 +553,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "github");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -645,7 +645,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "stackoverflow");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -715,7 +715,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "ldap");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -789,7 +789,7 @@ namespace HCms.Infrastructure.Auth
 			UserLogin login = UserLogin.Success(user.Id, user.LastSignIn.Value.UtcDateTime, CreateJwt(claims), RandomString.Create(32), "anonymous");
 			byte[] bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new DistributedCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}
@@ -814,7 +814,7 @@ namespace HCms.Infrastructure.Auth
 
 				login = MessagePackSerializer.Deserialize<UserLogin>(bLogin);
 
-				if (now.Subtract(login.LoginTime).TotalSeconds < JWT_EXPIRES_IN - 10.0)
+				if (now.Subtract(login.LoginTime).TotalSeconds < (_settings.JwtExpiration ?? DEFAULT_JWT_EXPIRATION) - 10.0)
 				{
 					_logger?.LogInformation("Refreshing not expired jwt with: {Refresh}", refresh);
 					login.Status = LoginStatus.IsValid;
@@ -849,7 +849,7 @@ namespace HCms.Infrastructure.Auth
 			login = UserLogin.Success(user.Id, now, token, RandomString.Create(32), login.Provider);
 			bLogin = MessagePackSerializer.Serialize(login);
 
-			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(REFRESH_EXPIRES_IN) });
+			_cache.Set(login.Refresh, bLogin, new() { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_settings.RefreshExpiration ?? DEFAULT_REFRESH_EXPIRATION) });
 
 			return login;
 		}

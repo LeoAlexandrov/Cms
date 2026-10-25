@@ -117,16 +117,14 @@ namespace HCms.Content.ViewModels
 			if (Id == 0 || string.IsNullOrEmpty(Name))
 				return null;
 
-			int n = Name.Length;
-			Span<char> cId = stackalloc char[n];
-
-			for (int i = 0; i < n; i++)
-				if (Name[i] == '-' || Name[i] == '_' || char.IsLetterOrDigit(Name[i]))
-					cId[i] = Name[i];
-				else
-					cId[i] = '-';
-
-			return new string(cId);
+			return string.Create(Name.Length, Name, static (destination, source) =>
+			{
+				for (int i = 0; i < source.Length; i++)
+					if (char.IsLetterOrDigit(source[i]) || source[i] == '_')
+						destination[i] = source[i];
+					else
+						destination[i] = '-';
+			});
 		}
 	}
 }

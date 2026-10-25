@@ -44,6 +44,8 @@ namespace HCms.Infrastructure.Auth
 		public string SecurityKey { get; set; }
 		public string JwtIssuer { get; set; }
 		public string JwtAudience { get; set; }
+		public int? JwtExpiration { get; set; }
+		public int? RefreshExpiration { get; set; }
 		public bool DemoMode { get; set; }
 		public string DefaultDemoModeRole { get; set; }
 		public string[] OrderedRoles { get; set; }
