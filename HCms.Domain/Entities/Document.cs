@@ -80,6 +80,6 @@ namespace HCms.Domain.Entities
 		public string Data { get; set; }
 
 		[NotMapped]
-		public bool Enabled => Status == (int)PublishStatus.Published;
+		public int State => Status;
 	}
 }

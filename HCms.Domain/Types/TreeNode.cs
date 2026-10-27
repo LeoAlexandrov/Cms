@@ -11,6 +11,6 @@ namespace HCms.Domain.Types
 		string Caption { get; }
 		string Icon { get; }
 		string Data { get; }
-		bool Enabled { get; }
+		int State { get; }
 	}
 }

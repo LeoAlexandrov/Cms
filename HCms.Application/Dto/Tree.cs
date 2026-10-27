@@ -50,7 +50,12 @@ namespace HCms.Application.Dto
 				Label = doc.Title,
 				Label2 = doc.Caption,
 				Icon = doc.Icon,
-				IconColor = doc.Enabled ? "blue-grey" : "blue-grey-2",
+				IconColor = doc.State switch
+				{
+					(int)PublishStatus.Unpublished => "deep-orange-2", // quasar.dev colors
+					(int)PublishStatus.Published => "blue-grey", // quasar.dev colors
+					_ => "blue-grey-2" // quasar.dev colors
+				},
 				Selectable = true,
 				Data = doc.Data
 			};

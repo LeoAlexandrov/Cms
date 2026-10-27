@@ -198,6 +198,20 @@
 			return link;
 		},
 
+		iconColor(status) {
+			switch (status) {
+				case 0:
+					return "deep-orange-2";
+				case 1:
+					return "blue-grey";
+				case 2:
+					return "blue-grey-2";
+				default:
+					return "blue-grey";
+
+			}
+		},
+
 		dateToLocalISO(date, includeOffset) {
 
 			if (!date)
@@ -492,7 +506,7 @@
 							parent: this.editedDoc.properties.parent,
 							label: this.editedDoc.properties.title,
 							icon: this.editedDoc.properties.icon,
-							iconColor: this.editedDoc.status == 1 ? "blue-grey" : "blue-grey-2",
+							iconColor: this.iconColor(this.editedDoc.status),
 							expandable: false,
 							selectable: true
 						};
@@ -607,9 +621,9 @@
 							node.icon = this.editedDoc.properties.icon;
 
 							if (this.editedDoc.properties.status != 1) {
-								iterateNodes(node, (n) => n.iconColor = "blue-grey-2");
+								iterateNodes(node, (n) => n.iconColor = this.iconColor(this.editedDoc.properties.status));
 							} else {
-								node.iconColor = "blue-grey";
+								node.iconColor = this.iconColor(1);
 							}
 						}
 
@@ -929,7 +943,7 @@
 							parent: this.editedDoc.properties.parent,
 							label: this.editedDoc.properties.title,
 							icon: this.editedDoc.properties.icon,
-							iconColor: this.editedDoc.properties.status == 1 ? "blue-grey" : "blue-grey-2",
+							iconColor: this.iconColor(this.editedDoc.properties.status),
 							expandable: false,
 							selectable: true
 						};
@@ -995,7 +1009,7 @@
 
 							if (node) {
 								const status = this.editedDoc.properties.status;
-								iterateNodes(node, (n) => n.iconColor = status != 1 ? "blue-grey-2" : "blue-grey");
+								iterateNodes(node, (n) => n.iconColor = this.iconColor(status));
 							}
 						}
 
@@ -1152,7 +1166,7 @@
 							label2: `${r.result.fragment.xmlName} (${r.result.link.id})`,
 							data: r.result.link.data,
 							icon: r.result.link.icon,
-							iconColor: r.result.link.status == 1 ? "blue-grey" : "blue-grey-2",
+							iconColor: this.iconColor(r.result.link.status),
 							expandable: false,
 							selectable: true
 						};
@@ -1237,7 +1251,7 @@
 
 						if (node) {
 							node.label = r.result.fragment.name;
-							node.iconColor = r.result.link.status == 1 ? "blue-grey" : "blue-grey-2";
+							node.iconColor = this.iconColor(r.result.link.status);
 						}
 
 						if (r.result.sharedStateChanged)
@@ -1459,7 +1473,7 @@
 							label2: `${r.result.fragment.xmlName} (${r.result.link.id})`,
 							data: r.result.link.data,
 							icon: r.result.link.icon,
-							iconColor: "blue-grey",
+							iconColor: this.iconColor(r.result.link.status),
 							expandable: false,
 							selectable: true
 						};
